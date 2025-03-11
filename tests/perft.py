@@ -38,6 +38,7 @@ class TestPerft(unittest.TestCase):
         chess_perft(chess.Board(), 5)
         t2 = time.time () - t2
         print(t1, t2)
+
     def test_pos2(self):
         board= Board.from_fen("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1")
         self.assertEqual(board.perft(1), 48)

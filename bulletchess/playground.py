@@ -59,7 +59,4 @@ def do(FEN):
     print(diff)
     print(board)
 
-
-print(bulletchess.Board.starting().best_move(6))
-print(bulletchess.__name__)
-print(bulletchess.__file__)
+do("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPPNNnPP/R1BQK2R b KQ - 2 8")

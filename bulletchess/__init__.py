@@ -508,10 +508,56 @@ halfmove clock and fullmove number
     
     def material(self, knight_value : int = 300, bishop_value : int = 300, rook_value : int = 500, queen_value : int = 900) -> int:
         return int(_material(self.position, c_int(knight_value), c_int(bishop_value), c_int(rook_value), c_int(queen_value)))
-        
-    def perft(self, depth : int) -> int:
+
+
+    def debug_position(self, legal_moves : list[Move]):
+        import chess
+        fen = self.fen()
+        chess_board = chess.Board(fen)
+        chess_fen = chess_board.fen(en_passant = "fen")
+        if fen != chess_fen:
+            raise Exception(fen, chess_fen)
+        uci_moves = sorted([str(move) for move in legal_moves])
+        chess_moves = list(chess_board.legal_moves)
+        uci_chess = sorted([str(move) for move in chess_moves])
+        if uci_chess != uci_moves:
+            print(self)
+            _print_bitboard(_make_attack_mask(byref(self), BLACK if self.turn == WHITE else WHITE))
+            raise Exception(fen +"\n" + str(uci_chess) + "\n" +str(uci_moves))
+    
+    def debug_perft(self, depth : int) -> int:
+        import chess
+        if depth == 0:
+            return 1
+        elif depth == 1:
+            legal_moves = self.legal_moves()
+            self.debug_position(legal_moves)
+            return len(legal_moves)
+        else:
+            moves = self.legal_moves()
+            self.debug_position(moves)
+            if len(moves) == 0:
+                return 1
+            nodes = 0
+            chess_board = chess.Board(fen = self.fen());
+            for move in moves:
+                next_board = self.copy()
+                next_board.apply(move)
+                chess_board.push(chess.Move.from_uci(str(move)))
+                fen = next_board.fen()
+                chess_fen = chess_board.fen(en_passant = "fen")
+                if fen != chess_fen:
+                    raise Exception(fen, chess_fen)
+                nodes += next_board.debug_perft(depth - 1)
+                chess_board.pop()
+            return nodes
+
+    def perft(self, depth : int, debug : bool = False) -> int:
         if depth < 0:
             raise Exception("Cannot perform perft with a negative depth")
+        if debug:
+            print("Running on debug mode...")
+            return self.debug_perft(depth)
         return _perft(byref(self), c_uint8(depth))
     
     def best_move(self, depth : int) -> Move:
@@ -704,6 +750,9 @@ _copy_into.argtypes = [POINTER(Board), POINTER(Board)]
 
 _debug_print_board = clib.debug_print_board
 _debug_print_board.argtypes = [POINTER(Board)]
+
+_print_bitboard = clib.print_bitboard
+_print_bitboard.argtypes = [Bitboard]
 
 _perft = clib.perft
 _perft.argtypes = [POINTER(Board), c_uint8]
