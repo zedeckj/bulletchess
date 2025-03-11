@@ -540,10 +540,11 @@ void best_apply_move(full_board_t * board, move_t move) {
 
 
 
-
+/*
 void apply_full_move(full_board_t *board, full_move_t move) {
     return;
 }
+*/
 
 
 // void apply_generic_move(full_board_t *board, generic_move_t move) {
@@ -836,8 +837,11 @@ bitboard_t diagonal_attack_mask(bitboard_t bb, bitboard_t non_friendly, bitboard
     return attacking;
 }
 
-bitboard_t pin_mask_from(full_board_t *board, bitboard_t move_mask, bitboard_t danger_mask, bitboard_t king_mask) {
-
+// A danger mask is a bitboard of a type of enemy piece, The move mask represents the mask of that type of pieces
+// move from the perspective of a friendly piece, in only one direction. 
+// If the move mask overlaps with both the king and the hostile pieces,
+// the piece is pinned to the region of the move.  
+bitboard_t pin_mask_from(bitboard_t move_mask, bitboard_t danger_mask, bitboard_t king_mask) {
     if ((move_mask & danger_mask) && (move_mask & king_mask)) {
         return move_mask;
     }
@@ -847,7 +851,89 @@ bitboard_t make_ep_bb(optional_square_t ep_square) {
     return ep_square.exists ? SQUARE_TO_BB(ep_square.square) : 0;
 }
 
-bitboard_t make_pinned_mask(full_board_t * board, bitboard_t attack_mask, bitboard_t piece_bb, piece_color_t for_color) {
+void make_all_pinned_masks(full_board_t * board, bitboard_t attack_mask, piece_color_t for_color, bitboard_t * pinned_buffer) {
+    // TODO: Incremental Vectorization
+
+    position_t *position = board->position;
+    bitboard_t friendly;
+    bitboard_t hostile;
+    if (for_color == WHITE_VAL) {
+        friendly = position->white_oc;
+        hostile = position->black_oc;
+    }
+    else {
+        friendly = position->black_oc;
+        hostile = position->white_oc;
+    }
+    bitboard_t slide_danger = hostile & (position->rooks | position->queens);
+    bitboard_t diagonal_danger=  hostile & (position->bishops | position->queens);
+    bitboard_t friendly_kings = friendly & position->kings;
+    bitboard_t friendly_pawns = friendly & position->pawns;
+    bitboard_t empty = ~(friendly | hostile);
+    for (square_t square = A1; square <= H8; square++) { 
+           
+        bitboard_t pin_mask = FULL_BB;
+        bitboard_t piece_bb = SQUARE_TO_BB(square);
+        if (piece_bb & friendly) {   
+           if (piece_bb & friendly_pawns) {
+                bitboard_t ep_bb = make_ep_bb(board->en_passant_square);
+                if (ep_bb) {
+                    bitboard_t our_pawn_attacks;
+                    bitboard_t ep_pawn;
+                    if (for_color == WHITE_VAL){
+                        our_pawn_attacks = white_pawn_attack_mask(piece_bb, hostile | ep_bb);
+                        ep_pawn = SAFE_BELOW_BB(ep_bb);
+                    } 
+                    else {
+                        our_pawn_attacks = black_pawn_attack_mask(piece_bb, hostile | ep_bb);
+                        ep_pawn = SAFE_ABOVE_BB(ep_bb);
+                    } 
+                    if (our_pawn_attacks & ep_bb) {
+                        // If our pawn attacks the ep square, does removing 
+                        // the ep pawn place our king under attack?
+                        bitboard_t old_empty = empty;
+                        empty |= ep_pawn | piece_bb;
+                        empty &= ~ep_bb;
+                        bitboard_t temp_pin = FULL_BB;
+                        if (slide_danger) {
+                            bitboard_t horizontal = horizontal_attack_mask(ep_pawn, FULL_BB, empty);
+                            temp_pin &= pin_mask_from( horizontal, slide_danger, friendly_kings);
+                        }
+                        if (diagonal_danger) {
+                            bitboard_t ascending = ascending_attack_mask(ep_pawn, FULL_BB, empty);
+                            temp_pin &= pin_mask_from( ascending, diagonal_danger, friendly_kings);
+                            bitboard_t descending = descending_attack_mask(ep_pawn, FULL_BB, empty);
+                            temp_pin &= pin_mask_from( descending, diagonal_danger, friendly_kings);
+                        }
+                        if (temp_pin != FULL_BB) {
+                            pin_mask &= ~ep_bb;
+                        }
+                        empty = old_empty;
+                    }
+                }
+            }
+            if (attack_mask & piece_bb) { 
+                    if (slide_danger) {
+                        bitboard_t vertical = vertical_attack_mask(piece_bb, FULL_BB, empty);
+                        pin_mask &= pin_mask_from( vertical, slide_danger, friendly_kings);
+                        bitboard_t horizontal = horizontal_attack_mask(piece_bb, FULL_BB, empty);
+                        pin_mask &= pin_mask_from( horizontal, slide_danger, friendly_kings);
+
+                    }
+                    if (diagonal_danger) {
+                        bitboard_t ascending = ascending_attack_mask(piece_bb, FULL_BB, empty);
+                        pin_mask &= pin_mask_from( ascending, diagonal_danger, friendly_kings);
+                        bitboard_t descending = descending_attack_mask(piece_bb, FULL_BB, empty);
+                        pin_mask &= pin_mask_from( descending, diagonal_danger, friendly_kings);
+                    }
+            }
+        }
+        pinned_buffer[square] = pin_mask;
+    }
+}   
+
+// OLD IMPLEMENTATION
+bitboard_t make_pinned_mask(full_board_t * board, bitboard_t piece_bb, piece_color_t for_color) {
     /*
     A "pinned" piece is one which cannot move or its king would be placed in check. 
     This can be done by seeing if any sliding mask attacks both an enemy piece,
@@ -900,13 +986,13 @@ bitboard_t make_pinned_mask(full_board_t * board, bitboard_t attack_mask, bitboa
                 bitboard_t temp_pin = FULL_BB;
                 if (slide_danger) {
                     bitboard_t horizontal = horizontal_attack_mask(ep_pawn, FULL_BB, empty);
-                    temp_pin &= pin_mask_from(board, horizontal, slide_danger, friendly_kings);
+                    temp_pin &= pin_mask_from( horizontal, slide_danger, friendly_kings);
                 }
                 if (diagonal_danger) {
                     bitboard_t ascending = ascending_attack_mask(ep_pawn, FULL_BB, empty);
-                    temp_pin &= pin_mask_from(board, ascending, diagonal_danger, friendly_kings);
+                    temp_pin &= pin_mask_from( ascending, diagonal_danger, friendly_kings);
                     bitboard_t descending = descending_attack_mask(ep_pawn, FULL_BB, empty);
-                    temp_pin &= pin_mask_from(board, descending, diagonal_danger, friendly_kings);
+                    temp_pin &= pin_mask_from( descending, diagonal_danger, friendly_kings);
                 }
                 if (temp_pin != FULL_BB) {
                     pin_mask &= ~ep_bb;
@@ -918,16 +1004,16 @@ bitboard_t make_pinned_mask(full_board_t * board, bitboard_t attack_mask, bitboa
 
     if (slide_danger) {
         bitboard_t vertical = vertical_attack_mask(piece_bb, FULL_BB, empty);
-        pin_mask &= pin_mask_from(board, vertical, slide_danger, friendly_kings);
+        pin_mask &= pin_mask_from( vertical, slide_danger, friendly_kings);
         bitboard_t horizontal = horizontal_attack_mask(piece_bb, FULL_BB, empty);
-        pin_mask &= pin_mask_from(board, horizontal, slide_danger, friendly_kings);
+        pin_mask &= pin_mask_from( horizontal, slide_danger, friendly_kings);
 
     }
     if (diagonal_danger) {
         bitboard_t ascending = ascending_attack_mask(piece_bb, FULL_BB, empty);
-        pin_mask &= pin_mask_from(board, ascending, diagonal_danger, friendly_kings);
+        pin_mask &= pin_mask_from( ascending, diagonal_danger, friendly_kings);
         bitboard_t descending = descending_attack_mask(piece_bb, FULL_BB, empty);
-        pin_mask &= pin_mask_from(board, descending, diagonal_danger, friendly_kings);
+        pin_mask &= pin_mask_from( descending, diagonal_danger, friendly_kings);
     }
     return pin_mask;
 }
@@ -1217,6 +1303,9 @@ u_int8_t generate_moves(
     // print_bitboard(ep_bb);
     // print_bitboard(info.allowed_move_mask);
     // print_bitboard(info.extra_pawn_capture_mask);
+    
+    bitboard_t pinned_masks[64];
+    make_all_pinned_masks(board, attacked_mask, for_color, pinned_masks);
     for (square_t origin = A1; origin <= H8; origin++) {
         //printf("%d at %d\n", get_piece_at(position, origin).type, origin);
         bitboard_t square_bb = SQUARE_TO_BB(origin);
@@ -1238,7 +1327,8 @@ u_int8_t generate_moves(
             add_from_bitboard(origin, destination_bb, move_buffer, &move_index);
             continue;
         }
-        bitboard_t pinned_mask = make_pinned_mask(board, attacked_mask, square_bb, for_color);
+        bitboard_t pinned_mask = pinned_masks[origin];
+        //bitboard_t pinned_mask = make_pinned_mask(board, attacked_mask, square_bb, for_color);
         bitboard_t allowed_mask = pinned_mask & info.allowed_move_mask;
         if (square_bb & our_pawns) {
             bitboard_t destination_bb;
