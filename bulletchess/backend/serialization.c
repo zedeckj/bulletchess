@@ -339,6 +339,9 @@ char * parse_fen(char * fen, full_board_t * board) {
 
 
 void make_fen(full_board_t *board, char * fen_buffer) {
+    if (!fen_buffer) {
+        return;
+    }
     int s_i = 0;
     int empties = 0;
     for (u_int8_t index = 0; index < 64; index++) {
@@ -388,4 +391,31 @@ void make_fen(full_board_t *board, char * fen_buffer) {
     fen_buffer[s_i++] = ' ';
     fen_buffer[s_i++] = ' ';
     fen_buffer[s_i++] = '\0';
+}
+
+
+void make_board_string(full_board_t *board, char *string_buffer) {
+    if (string_buffer) {
+        int string_i = 0;
+        int i = 0;
+        for (bitboard_t rank = RANK_8; i < 8; i++) {
+            int j = 0;
+            for (bitboard_t file = FILE_A; j < 8; j++) {
+                piece_t piece = get_piece_at_bb(board->position, rank & file);
+                string_buffer[string_i++] = piece_symbol(piece);
+                string_buffer[string_i++] = ' ';
+                file = SAFE_RIGHT_BB(file);
+            }
+            string_buffer[string_i++] = '\n';
+            rank = BELOW_BB(rank);
+        }
+        string_buffer[string_i++] = '\0';
+    }
+}
+
+
+void print_board(full_board_t *board) {
+    char buffer[255];
+    make_board_string(board, buffer);
+    printf("%s\n", buffer);
 }

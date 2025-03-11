@@ -215,10 +215,15 @@ def _piece_to_struct(piece : Optional[Piece]):
     return piece._piece_struct
         
 
-    
+
 
 
 class Board(Structure):
+
+    """A ```bulletchess.Board``` is a wrapper around a C ```struct``` which represents the state of a Chess board.
+This class directly encodes the configuration of pieces, whose turn it is, castling rights, the existance of the en passant square, as well as the
+halfmove clock and fullmove number
+    """
         
     _fields_ = [
         ("position", POINTER(_POSITION)),
@@ -294,15 +299,15 @@ class Board(Structure):
             halfmove,
             fullmove,
         )
-        return Board(full_board)
+        return full_board
     
-    def pseudo_legal_moves(self) -> list[Move]:
-        moves_buffer = (Move * 256)()
-        length = _generate_pseudo_legal_moves(byref(self), self.turn, moves_buffer)
-        out_list = []
-        for i in range(length):
-            out_list.append(moves_buffer[i])
-        return out_list
+    # def pseudo_legal_moves(self) -> list[Move]:
+    #     moves_buffer = (Move * 256)()
+    #     length = _generate_pseudo_legal_moves(byref(self), self.turn, moves_buffer)
+    #     out_list = []
+    #     for i in range(length):
+    #         out_list.append(moves_buffer[i])
+    #     return out_list
 
     def legal_moves(self) -> list[Move]:
         moves_buffer = (Move * 256)()
@@ -311,6 +316,10 @@ class Board(Structure):
         for i in range(length):
             out_list.append(moves_buffer[i])
         return out_list
+    
+    def count_legal_moves(self) -> int:
+        moves_buffer = (Move * 256)()
+        return int(_generate_legal_moves(byref(self), self.turn, moves_buffer))
 
     def apply(self, move : Move) -> None:
         """
@@ -368,6 +377,12 @@ class Board(Structure):
 
     def set_fullmove_number(self, value : int) -> None:
         self.fullmove_number = TurnClock(value)
+
+    def in_check(self) -> bool:
+        """
+        Returns true if the side to move is in check
+        """
+        return bool(_in_check(byref(self), self.turn))
     
     def get_turn(self) -> Color:
         """
@@ -465,6 +480,15 @@ class Board(Structure):
         _make_fen(byref(self), fen)
         return fen.raw.rstrip(b'\x00 ').decode()
     
+    def __str__(self) -> str:
+        """
+        Returns a string of the FEN description of this Board.
+        """
+        board = create_string_buffer(300)
+        _make_board_string(byref(self), board)
+        return board.raw.rstrip(b'\x00 ').decode()
+    
+
     def __repr__(self):
         return f"Board({self.fen()})\n"
         
@@ -474,9 +498,34 @@ class Board(Structure):
         """
         return int(_hash_board(byref(self), ZORBIST_TABLE))
     
+    def copy(self) -> "Board":
+        """
+        Returns a copy of this Board
+        """
+        copy = Board.empty()
+        _copy_into(byref(copy), byref(self))
+        return copy
+    
+    def material(self, knight_value : int = 300, bishop_value : int = 300, rook_value : int = 500, queen_value : int = 900) -> int:
+        return int(_material(self.position, c_int(knight_value), c_int(bishop_value), c_int(rook_value), c_int(queen_value)))
+        
+    def perft(self, depth : int) -> int:
+        if depth < 0:
+            raise Exception("Cannot perform perft with a negative depth")
+        return _perft(byref(self), c_uint8(depth))
+    
+    def best_move(self, depth : int) -> Move:
+        if depth < 0:
+            raise Exception("Cannot perform search with a negative depth")
+        res : SearchResult = _search(byref(self), c_uint8(depth))
+        return res.move
 
 
 # C LIBRARY IMPORTS
+
+_material = clib.material
+_material.restype = c_int
+_material.argtypes = [POINTER(_POSITION), c_int, c_int, c_int, c_int]
 
 _get_piece_at = clib.get_piece_at
 _get_piece_at.restype = _PIECE
@@ -628,16 +677,38 @@ _is_null_move = clib.is_null_move
 _is_null_move.argtypes = [Move]
 _is_null_move.restype = c_bool
 
-_apply_move = clib.apply_move
+_apply_move = clib.best_apply_move
 _apply_move.argtypes = [POINTER(Board), Move]
 
-_generate_pseudo_legal_moves = clib.generate_pseudo_legal_moves
-_generate_pseudo_legal_moves.argtypes = [POINTER(Board), Color, POINTER(Move)]
-_generate_pseudo_legal_moves.restype = c_uint8
+# _generate_pseudo_legal_moves = clib.generate_pseudo_legal_moves
+# _generate_pseudo_legal_moves.argtypes = [POINTER(Board), Color, POINTER(Move)]
+# _generate_pseudo_legal_moves.restype = c_uint8
 
 _generate_legal_moves = clib.generate_legal_moves
-_generate_pseudo_legal_moves.argtypes = [POINTER(Board), Color, POINTER(Move)]
-_generate_pseudo_legal_moves.restype = c_uint8
+_generate_legal_moves.argtypes = [POINTER(Board), Color, POINTER(Move)]
+_generate_legal_moves.restype = c_uint8
+
+_make_board_string = clib.make_board_string
+_make_board_string.argtypes = [POINTER(Board), c_char_p]
+
+_make_attack_mask = clib.make_attack_mask
+_make_attack_mask.argtypes = [POINTER(Board), Color]
+_make_attack_mask.restype = Bitboard
+
+_in_check = clib.in_check
+_in_check.argtypes = [POINTER(Board), Color]
+_in_check.restype = c_bool
+
+_copy_into = clib.copy_into
+_copy_into.argtypes = [POINTER(Board), POINTER(Board)]
+
+_debug_print_board = clib.debug_print_board
+_debug_print_board.argtypes = [POINTER(Board)]
+
+_perft = clib.perft
+_perft.argtypes = [POINTER(Board), c_uint8]
+_perft.restype = c_uint64
+
 
 # _prepare_move_table = clib.prepare_move_table
 ZORBIST_TABLE = _create_zobrist_table()

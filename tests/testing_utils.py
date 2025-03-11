@@ -2,7 +2,9 @@ import chess
 import sys
 from typing import Optional
 sys.path.append("./")
+from bulletchess import *
 import bulletchess
+import ctypes
 
 
 def to_bullet_piece(piece : Optional[chess.Piece]):
@@ -54,6 +56,13 @@ def make_bullet_from_chess(copy_from : chess.Board):
     board.set_turn(bulletchess.WHITE if copy_from.turn == chess.WHITE else bulletchess.BLACK)
     return board
 
+def square_list_to_bitboard(squares : list[bulletchess.Square]):
+    board : bulletchess.Bitboard = 0
+    for square in squares:
+        board = board | (1 << square)
+    return board
+
+
 import random
 
 def random_chess_board():
@@ -64,6 +73,19 @@ def random_chess_board():
         if len(moves) == 0:
             return board
         board.push(random.choice(moves))
+    return board
+
+
+def random_board(includeNoMoves : bool = False):
+    board = bulletchess.Board.starting()
+    plys = random.randint(2, 100)
+    for i in range(plys):
+        moves = board.legal_moves()
+        if len(moves) == 0:
+            break;
+        board.apply(random.choice(moves))
+    if not includeNoMoves and len(board.legal_moves()) == 0:
+        return random_board()
     return board
 
 import unittest
@@ -80,9 +102,14 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(bullet, make_bullet_from_chess(chess_board))
 
         bullet.clear_castling_rights(bulletchess.WHITE)
-        chess_board.set_castling_fen("KQ")
+        chess_board.set_castling_fen("kq")
         self.assertEqual(bullet, make_bullet_from_chess(chess_board))
 
+    def testSquareList(self):
+        self.assertEqual(square_list_to_bitboard([A1]), 1)
+        self.assertEqual(square_list_to_bitboard([E1, E8]), KINGS_STARTING.value)
+        self.assertEqual(square_list_to_bitboard([D1, D8]), QUEENS_STARTING.value)
+        self.assertEqual(square_list_to_bitboard([C1, F1, C8, F8]), BISHOPS_STARTING.value)
 
 if __name__ == "__main__":
     unittest.main()

@@ -7,6 +7,7 @@
 #include <math.h>
 #include <ctype.h>
 #include <stdio.h>
+#include <wchar.h>
 
 
 // Parses the given FEN into the given board, returns a pointer to an error message,
@@ -32,6 +33,8 @@ char piece_type_symbol(piece_type_t piece_type);
 
 // Gets the character representation of a piece
 char piece_symbol(piece_t piece);
+
+void print_board(full_board_t *board);
 
 typedef struct {
     char * position_str;

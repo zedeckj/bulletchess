@@ -12,7 +12,6 @@ class TestFen(unittest.TestCase):
     def test_fen_creation(self):
         chess_boards = [testing_utils.random_chess_board() for _ in range(1000)]
         bullet_boards = [testing_utils.make_bullet_from_chess(board) for board in chess_boards]
-        
         t = time.time()
         fens1 = []
         for board in chess_boards:

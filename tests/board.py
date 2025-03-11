@@ -204,7 +204,23 @@ class TestBoard(unittest.TestCase):
         self.assertTrue(empty.has_queenside_castling_rights(WHITE))
         self.assertTrue(empty.has_kingside_castling_rights(BLACK))
         self.assertTrue(empty.has_queenside_castling_rights(BLACK))
-        
+
+    def test_copy(self):
+        starting = Board.starting()
+        copy = starting.copy()
+        self.assertEqual(starting,copy)
+        copy.set_piece_at(bulletchess.E1, None)
+        self.assertNotEqual(starting, copy)
+
+    def test_material(self):
+        board = Board.starting()
+        self.assertEqual(board.material(), 0)
+        board.remove_piece_at(bulletchess.A1)
+        self.assertEqual(board.material(), -500)
+        board.remove_piece_at(bulletchess.B8)
+        self.assertEqual(board.material(), -200)
+        board.remove_piece_at(bulletchess.D1)
+        self.assertEqual(board.material(), -1100)
 
 if __name__ == "__main__":
     unittest.main()

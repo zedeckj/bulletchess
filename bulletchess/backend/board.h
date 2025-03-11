@@ -111,10 +111,13 @@
 #define RANK_7 (0xffllu << 48)
 #define RANK_8 (0xffllu << 56)
 
+#define FULL_BB 0xFFFFFFFFFFFFFFFFllu
 #define FILE_A 0x0101010101010101llu
 #define FILE_B (FILE_A << 1)
 #define FILE_F (FILE_A << 6)
 #define FILE_H (FILE_A << 7)
+
+
 
 #define ABOVE_BB(bb) ((bb) << 8)
 #define BELOW_BB(bb) ((bb) >> 8)
@@ -131,6 +134,18 @@
 #define SAFE_TWO_LEFT_BB(bb) (((bb) & ~FILE_A & ~FILE_B) >> 2)
 #define SAFE_TWO_RIGHT_BB(bb) (((bb) & ~FILE_H & ~FILE_F) << 2)
 
+#define SAFE_KNIGHT_MOVE_BB1(bb) SAFE_LEFT_BB(SAFE_TWO_ABOVE_BB(bb))
+#define SAFE_KNIGHT_MOVE_BB2(bb) SAFE_RIGHT_BB(SAFE_TWO_ABOVE_BB(bb))
+
+#define SAFE_KNIGHT_MOVE_BB3(bb) SAFE_LEFT_BB(SAFE_TWO_BELOW_BB(bb))
+#define SAFE_KNIGHT_MOVE_BB4(bb) SAFE_RIGHT_BB(SAFE_TWO_BELOW_BB(bb))
+
+#define SAFE_KNIGHT_MOVE_BB5(bb) SAFE_TWO_LEFT_BB(SAFE_ABOVE_BB(bb))
+#define SAFE_KNIGHT_MOVE_BB6(bb) SAFE_TWO_RIGHT_BB(SAFE_ABOVE_BB(bb))
+
+#define SAFE_KNIGHT_MOVE_BB7(bb) SAFE_TWO_LEFT_BB(SAFE_BELOW_BB(bb))
+#define SAFE_KNIGHT_MOVE_BB8(bb) SAFE_TWO_RIGHT_BB(SAFE_BELOW_BB(bb))
+
 typedef uint8_t square_t;
 typedef uint64_t bitboard_t;
 
@@ -145,6 +160,21 @@ typedef struct {
     bitboard_t white_oc;
     bitboard_t black_oc;
 } position_t;
+
+typedef struct {
+    u_int8_t white_pawns;
+    u_int8_t white_knights;
+    u_int8_t white_bishops;
+    u_int8_t white_rooks;
+    u_int8_t white_queens;
+    u_int8_t black_pawns;
+    u_int8_t black_knights;
+    u_int8_t black_bishops;
+    u_int8_t black_rooks;
+    u_int8_t black_queens;
+} piece_counts_t;
+
+piece_counts_t count_pieces(position_t *position);
 
 
 typedef uint8_t castling_rights_t;
@@ -223,11 +253,10 @@ bool white_occupies(position_t * position, square_t square);
 bool black_occupies(position_t * position, square_t square);
 
 bool en_passant_is(full_board_t * board, square_t square);
+piece_t get_piece_at_bb(position_t * board, bitboard_t bb);
+bool in_check(full_board_t *board, piece_color_t for_color);
+void print_bitboard(bitboard_t board);
 
-
-typedef bitboard_t bitboard8_t __attribute__ ((vector_size (64)));
-typedef bitboard_t bitboard4_t __attribute__ ((vector_size (32)));
-typedef bitboard_t bitboard2_t __attribute__ ((vector_size (16)));
-
+void copy_into(full_board_t * dst, full_board_t * source);
 #endif
 

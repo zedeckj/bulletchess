@@ -50,6 +50,59 @@ void delete_piece_at(position_t * board, square_t square) {
 }
 
 
+piece_counts_t count_pieces(position_t *position) {
+    piece_counts_t counts;
+    counts.black_pawns = 0;
+    counts.black_knights = 0;
+    counts.black_bishops = 0;
+    counts.black_rooks = 0;
+    counts.black_queens = 0;
+    counts.white_pawns = 0;
+    counts.white_knights = 0;
+    counts.white_bishops = 0;
+    counts.white_rooks = 0;
+    counts.white_queens = 0;
+    for (square_t square = A1; square <= H8; square++) {
+        bitboard_t bb = SQUARE_TO_BB(square);
+        if (position->white_oc & bb) {
+            if (position->pawns & bb) {
+                counts.white_pawns += 1;
+            }
+            else if (position->knights & bb) {
+                counts.white_knights += 1;
+            }
+            else if (position->bishops & bb) {
+                counts.white_bishops +=1;
+            }
+            else if (position->rooks & bb) {
+                counts.white_rooks += 1;
+            }
+            else if (position->queens & bb) {
+                counts.white_queens += 1;
+            }
+        }
+        else if (position->black_oc & bb) {
+            if (position->pawns & bb) {
+                counts.black_pawns += 1;
+            }
+            else if (position->knights & bb) {
+                counts.black_knights += 1;
+            }
+            else if (position->bishops & bb) {
+                counts.black_bishops +=1;
+            }
+            else if (position->rooks & bb) {
+                counts.black_rooks += 1;
+            }
+            else if (position->queens & bb) {
+                counts.black_queens += 1;
+            }
+        }
+    }
+    return counts;
+}
+
+
 bool contains_piece(position_t * position, piece_t piece) {
     if (piece.type == EMPTY_VAL) {
         return (~position->black_oc | ~position->white_oc);
@@ -89,6 +142,7 @@ bool is_subset(position_t * source, position_t * check) {
 
 bool positions_equal(position_t *pos1, position_t *pos2){
     return 
+        pos1 && pos2 &&
         pos1->black_oc == pos2->black_oc &&
         pos1->white_oc == pos2->white_oc &&
         pos1->pawns == pos2->pawns &&
@@ -101,7 +155,7 @@ bool positions_equal(position_t *pos1, position_t *pos2){
 }
 
 bool boards_equal(full_board_t * board1, full_board_t * board2) {
-    if (
+    if (board1 && board2 &&
         board1->castling_rights == board2->castling_rights &&
         board1->halfmove_clock == board2->halfmove_clock &&
         board1->fullmove_number == board2->fullmove_number &&
@@ -124,6 +178,7 @@ void copy_into(full_board_t * dst, full_board_t * source) {
     dst->en_passant_square = source->en_passant_square;
     dst->fullmove_number = source->fullmove_number;
     dst->halfmove_clock = source->halfmove_clock;
+    dst->turn = source->turn;
     dst->position->pawns = source->position->pawns;
     dst->position->knights = source->position->knights;
     dst->position->bishops = source->position->bishops;
@@ -185,10 +240,7 @@ void set_piece_at(position_t * board, square_t square, piece_t piece) {
     }
 }
 
-
-
-piece_t get_piece_at(position_t * board, square_t square) {
-    bitboard_t square_bb = SQUARE_TO_BB(square);
+piece_t get_piece_at_bb(position_t * board, bitboard_t square_bb){
     piece_color_t color;
     piece_color_t type;
     if (board->black_oc & square_bb) {
@@ -223,6 +275,12 @@ piece_t get_piece_at(position_t * board, square_t square) {
     piece.color = color;
     piece.type = type;
     return piece;
+}
+
+
+piece_t get_piece_at(position_t * board, square_t square) {
+    bitboard_t square_bb = SQUARE_TO_BB(square);
+    return get_piece_at_bb(board, square_bb);
 }
 
 void clear_board(position_t *board) {
@@ -359,6 +417,40 @@ void update_all_castling_rights(full_board_t * board) {
     update_castling_rights(board, BLACK_VAL);
 }
 
+
+u_int8_t count_bitboard(bitboard_t bitboard, int max) {
+    u_int8_t count = 0;
+    for (int i = 0; i < 64; i++) {
+        bitboard_t check = SQUARE_TO_BB(i);
+        if (check & bitboard) {
+            ++count;
+            if (count >= max) {
+                return count;
+            }
+        }
+    }
+    return count;
+}
+
+
+// Validates some basic aspects about the given board make it legal
+bool validate_board(full_board_t * board) {
+    /*
+    pawns in the back ranks
+    no kings
+    more than 1 king
+    side to move is in check
+    */
+    position_t * position = board->position;
+    if (position->pawns & (RANK_1 | RANK_8)) return false;
+    if (!position->kings) return false;
+    bitboard_t white_kings = position->white_oc & position->kings;
+    bitboard_t black_kings = position->black_oc & position->kings;
+    if (!white_kings || !black_kings) return false;
+    if (count_bitboard(white_kings, 2) > 1) return false;
+    if (count_bitboard(black_kings, 2) > 1) return false;
+    if (in_check(board, board->turn == WHITE_VAL ? BLACK_VAL : WHITE_VAL)) return false;
+}
 
 
 

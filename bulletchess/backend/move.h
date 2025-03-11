@@ -61,48 +61,6 @@ typedef struct {
     move_type_t type;
 } move_t;
 
-move_t error_move() {
-    move_t move;
-    move.type = ERROR_MOVE;
-    return move;
-}
-
-move_t null_move() {
-    move_t move;
-    move.type = NULL_MOVE;
-    return move;
-}
-
-generic_move_t move_body(square_t origin, square_t destination){
-    generic_move_t generic;
-    generic.origin = origin;
-    generic.destination = destination;
-    return generic;
-}
-
-move_t generic_move(generic_move_t body) {
-    move_t move;
-    move.type = GENERIC_MOVE;
-    move.generic = body;
-    return move;
-}
-
-
-move_t promotion_move(generic_move_t body, piece_type_t promote_to) {
-    move_t move;
-    move.type = PROMOTION_MOVE;
-    move.promotion.body = body;
-    move.promotion.promote_to = promote_to;
-    return move;
-}
-
-bool is_error_move(move_t move) {
-    return move.type == ERROR_MOVE;
-}
-
-bool is_null_move(move_t move) {
-    return move.type == NULL_MOVE;
-}
 
 inline void do_castling(full_board_t * board, square_t king_origin, square_t king_dest, square_t rook_origin, bitboard_t rook_dest);
 inline void do_white_kingside(full_board_t *board);
@@ -110,7 +68,7 @@ inline void do_white_queenside(full_board_t *board);
 inline void do_black_kingside(full_board_t *board);
 inline void do_black_quenside(full_board_t *board);
 // Aplies a move to the given board
-bool apply_move(full_board_t *board, move_t move);
+void best_apply_move(full_board_t *board, move_t move);
 
 // Parses a UCI formatted string into a move_t, returns an Error move
 // if the given string is ill-formatted
@@ -120,10 +78,10 @@ move_t parse_uci(char * uci_str);
 // Returns false if given an invalid move.
 bool write_uci(move_t move, char * buffer);
 
-move_t generate_pseudo_legal_move_from_square(full_board_t *board, square_t origin);
 
-move_t generate_pseudo_legal_move(full_board_t *board);
+bool in_check(full_board_t *board, piece_color_t for_color);
 
+u_int8_t generate_legal_moves(full_board_t * board, piece_color_t for_player, move_t * buffer);
 typedef struct {
     bitboard_t * kings_moves;
     bitboard_t * knights_moves;
