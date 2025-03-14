@@ -7,6 +7,7 @@
 #include <errno.h> 
 #include <ctype.h>
 #include <math.h>
+#include <string.h>
 
 // from whites perspective
 #define ABOVE(s) ((s) + 8)
@@ -146,9 +147,11 @@
 #define SAFE_KNIGHT_MOVE_BB7(bb) SAFE_TWO_LEFT_BB(SAFE_BELOW_BB(bb))
 #define SAFE_KNIGHT_MOVE_BB8(bb) SAFE_TWO_RIGHT_BB(SAFE_BELOW_BB(bb))
 
+
 typedef uint8_t square_t;
 typedef uint64_t bitboard_t;
-typedef bitboard_t bitboard8_t __attribute__ ((vector_size(64)));
+
+typedef u_int8_t move_type_t;
 
 typedef struct {
     bitboard_t pawns;
@@ -160,18 +163,6 @@ typedef struct {
     bitboard_t white_oc;
     bitboard_t black_oc;
 } position_t;
-
-typedef struct {
-    bitboard8_t pawns;
-    bitboard8_t knights;
-    bitboard8_t bishops;
-    bitboard8_t rooks;
-    bitboard8_t queens;
-    bitboard8_t kings;
-    bitboard8_t white_oc;
-    bitboard8_t black_oc;
-} position8_t;
-
 
 
 typedef struct {
@@ -191,7 +182,6 @@ piece_counts_t count_pieces(position_t *position);
 
 
 typedef uint8_t castling_rights_t;
-typedef castling_rights_t castling_rights8_t __attribute__ ((vector_size(8))); 
 
 #define WHITE_KINGSIDE 1
 #define WHITE_QUEENSIDE 2
@@ -211,22 +201,11 @@ typedef castling_rights_t castling_rights8_t __attribute__ ((vector_size(8)));
 #define BLACK_STARTING 18446462598732840960ull
 
 typedef uint16_t turn_clock_t;
-typedef turn_clock_t turn_clock8_t __attribute__ ((vector_size(16)));
 
 typedef struct {
     square_t square;
     bool exists;
 } optional_square_t;
-
-typedef square_t square8_t __attribute__ ((vector_size(8)));
-typedef u_int8_t bool8 __attribute__ ((vector_size(8)));
-
-
-typedef struct {
-    square8_t square;
-    bool8 exists;
-} optional_square8_t;
-
 
 typedef piece_color_t piece_color8_t __attribute__ ((vector_size(8)));
 
@@ -237,17 +216,12 @@ typedef struct {
     optional_square_t en_passant_square;
     turn_clock_t halfmove_clock;
     turn_clock_t fullmove_number;
+//    move_stack_t *move_stack;
 } full_board_t;
 
 
-typedef struct {
-    position8_t * position;
-    piece_color8_t turn;
-    castling_rights8_t castling_rights;
-    optional_square8_t en_pasasnt_square;
-    turn_clock8_t halfmove_clock;
-    turn_clock8_t fullmove_number;
-} full_board8_t;
+
+
 
 bool square_empty(position_t * board, square_t square);
 void clear_ep_square(full_board_t * board);

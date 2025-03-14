@@ -55,4 +55,11 @@ and indexing using PIECE_VAL's instead of field names.
 - PRE ALLOCATE 64 BITBOARD DESTINATION ARRAY. 
 
 
-
+3/5 UPDATE
+Most of the overhead turned out to be on the python side.
+Now generating all legal moves for positions where player is not already in check
+3/6 Plan:
+- Finish move generation cleanup, pull out more helper functions
+- Use concept of push and capture masks to find legal moves in check
+https://peterellisjones.com/posts/generating-legal-chess-moves-efficiently/
+- 

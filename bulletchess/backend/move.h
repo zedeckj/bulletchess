@@ -14,9 +14,24 @@
 //     square_t destination;
 //     piece_type_t promote_to;
 // } promotion_t;
+typedef struct {
+    square_t origin;
+    square_t destination;
+} generic_move_t;
 
+typedef struct {
+    generic_move_t body;
+    piece_type_t promote_to; 
+} promotion_move_t; 
 
-typedef u_int8_t move_type_t;
+typedef struct {
+    union {
+        generic_move_t generic;
+        promotion_move_t promotion;
+    };
+    move_type_t type;
+} move_t;
+
 
 #define NULL_MOVE 0
 // A Null move signifies a "pass", rather than an error
@@ -32,34 +47,27 @@ typedef u_int8_t move_type_t;
 #define FULL_MOVE 5
 
 typedef struct {
-    square_t origin;
-    square_t destination;
-
-} generic_move_t;
-
-typedef struct {
-    generic_move_t body;
-    piece_type_t promote_to; 
-} promotion_move_t; 
+  move_t move;
+  piece_t captured_piece;
+  castling_rights_t old_castling_rights;
+  optional_square_t old_en_passant;
+	turn_clock_t old_halfmove;
+} undoable_move_t;
 
 typedef struct {
-    generic_move_t body;
-    piece_type_t place_type; 
-    optional_square_t new_ep_square;
-    bool removes_castling;
-    bool resets_halfmove;
-} full_move_t; 
+  u_int16_t length;
+  u_int16_t capacity;
+  undoable_move_t *values;
+} move_stack_t;
 
 
-typedef struct {
-    union {
-        generic_move_t generic;
-        promotion_move_t promotion;
-        castling_rights_t castling;
-        full_move_t full;
-    };
-    move_type_t type;
-} move_t;
+// Pushes an undoable move to the move stack, growing the stack's 
+// capacity if needed, and increasing the length by 1
+void push_move(move_stack_t *stack, undoable_move_t move);
+
+undoable_move_t pop_move(move_stack_t *stack);
+
+
 
 
 inline void do_castling(full_board_t * board, square_t king_origin, square_t king_dest, square_t rook_origin, bitboard_t rook_dest);
@@ -68,7 +76,9 @@ inline void do_white_queenside(full_board_t *board);
 inline void do_black_kingside(full_board_t *board);
 inline void do_black_quenside(full_board_t *board);
 // Aplies a move to the given board
-void best_apply_move(full_board_t *board, move_t move);
+undoable_move_t apply_move(full_board_t *board, move_t move);
+
+move_t undo_move(full_board_t * board, undoable_move_t move);	
 
 // Parses a UCI formatted string into a move_t, returns an Error move
 // if the given string is ill-formatted

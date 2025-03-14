@@ -43,6 +43,7 @@ typedef struct {
     char * ep_str;
     char * halfmove_str;
     char * fullmove_str;
+    bool has_extra;
 } split_fen_t;
 
 

@@ -11,19 +11,20 @@ typedef uint8_t piece_color_t;
 
 
 #define EMPTY_VAL 0
-#define PAWN_VAL 1
-#define KNIGHT_VAL 2
-#define BISHOP_VAL 3
-#define ROOK_VAL 4
-#define QUEEN_VAL 5
-#define KING_VAL 6
+#define PAWN_VAL 3
+#define KNIGHT_VAL 4
+#define BISHOP_VAL 5
+#define ROOK_VAL 6
+#define QUEEN_VAL 7
+#define KING_VAL 8
+#define ERROR_VAL 9
 
 #define WHITE_VAL 1
 #define BLACK_VAL 2
 
 typedef struct {
-    piece_type_t type;
     piece_color_t color;
+    piece_type_t type;
 } piece_t;
 
 
@@ -58,6 +59,8 @@ piece_t white_piece(piece_type_t type);
 
 // Creates a black piece of the given type
 piece_t black_piece(piece_type_t type);
+
+piece_t error_piece();
 
 // Checks if a given piece is empty
 bool piece_is_empty(piece_t piece);

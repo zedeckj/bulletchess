@@ -24,6 +24,14 @@ piece_type_t get_bishop_val(){
     return BISHOP_VAL;
 }
 
+piece_type_t get_empty_val() {
+  return EMPTY_VAL;
+}
+
+piece_type_t get_error_val() {
+  return ERROR_VAL;
+}
+
 
 piece_color_t get_white_val() {
     return WHITE_VAL;
@@ -32,6 +40,7 @@ piece_color_t get_white_val() {
 piece_color_t get_black_val() {
     return BLACK_VAL;
 }
+
 
 bool piece_is_type(piece_t piece, piece_type_t type){
     return piece.type == type;
@@ -62,9 +71,16 @@ u_int64_t hash_piece(piece_t piece){
     return piece.type + (piece.color << 4);
 }
 
+piece_t error_piece(){
+    piece_t piece;
+    piece.type = ERROR_VAL;
+    return piece;
+}
+
+
+
 piece_t empty_piece(){
     piece_t piece;
-    piece.color = EMPTY_VAL;
     piece.type = EMPTY_VAL;
     return piece;
 }
@@ -82,6 +98,8 @@ piece_t black_piece(piece_type_t type){
     piece.type = type;
     return piece;
 }
+
+
 
 bool piece_is_empty(piece_t piece) {
     return piece.color == EMPTY_VAL;

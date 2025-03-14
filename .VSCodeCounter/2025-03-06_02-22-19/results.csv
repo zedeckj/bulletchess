@@ -1,0 +1,10 @@
+"filename", "language", "Python", "comment", "blank", "total"
+"/Users/jordan/Documents/C/ChessLibrary/tests/board.py", "Python", 177, 5, 28, 210
+"/Users/jordan/Documents/C/ChessLibrary/tests/clib.py", "Python", 16, 0, 6, 22
+"/Users/jordan/Documents/C/ChessLibrary/tests/fen.py", "Python", 27, 0, 7, 34
+"/Users/jordan/Documents/C/ChessLibrary/tests/hashing.py", "Python", 26, 0, 7, 33
+"/Users/jordan/Documents/C/ChessLibrary/tests/move.py", "Python", 73, 15, 15, 103
+"/Users/jordan/Documents/C/ChessLibrary/tests/parsing.py", "Python", 45, 0, 9, 54
+"/Users/jordan/Documents/C/ChessLibrary/tests/piece.py", "Python", 80, 0, 19, 99
+"/Users/jordan/Documents/C/ChessLibrary/tests/testing_utils.py", "Python", 82, 1, 19, 102
+"Total", "-", 526, 21, 110, 657

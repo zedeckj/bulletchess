@@ -5,14 +5,53 @@ square_t fen_index_to_square(u_int8_t index) {
     return (square_t)(8 * (7 - index/8) + (index % 8)); 
 }
 
-square_t make_square(char rank, char file) {
-    rank = tolower(rank);
-    return (rank - 'a') + ((file - '1')* 8);
+square_t make_square(char file, char rank) {
+    return (file - 'a') + ((rank - '1')* 8);
 }
 
-bool valid_square_chars(char rank, char file) {
-    return file >= '1' && file <= '8' && 
-        ((rank >= 'a' && rank <= 'h') || (rank >= 'A' && rank <= 'H'));
+bool valid_square_chars(char file, char rank) {
+    return rank >= '1' && rank<= '8' && (file>= 'a' && file<= 'h');
+}
+
+piece_t piece_from_symbol(char symbol) {
+  piece_type_t type;
+  char upper = toupper(symbol);
+  switch (upper) {
+    case '-':
+    return empty_piece();
+    case 'P':
+    type = PAWN_VAL;
+    break;
+    case 'N':
+    type = KNIGHT_VAL;
+    break;
+    case 'B':
+    type = BISHOP_VAL;
+    break;
+    case 'R':
+    type = ROOK_VAL;
+    break;
+    case 'Q':
+    type = QUEEN_VAL;
+    break;
+    case 'K':
+    type = KING_VAL;
+    break;
+    default:
+    return error_piece();
+  }
+  piece_t piece;
+  piece.type = type; 
+  if (upper != symbol) piece.color = BLACK_VAL;
+  else piece.color = WHITE_VAL;
+  return piece;
+}
+
+piece_t piece_from_string(char *piece_string) {
+  if (piece_string[0] && !piece_string[1]) {
+    return piece_from_symbol(piece_string[0]);
+  }
+  return error_piece();
 }
 
 char piece_type_symbol(piece_type_t piece_type) {
@@ -74,45 +113,46 @@ int write_num(char * buffer, int offset, int num) {
     return offset + digits + 1;
 }
 
-
-// Splits a FEN string into parts. Returns 0 if any parts are missing. 
-// Does not allocate any new string, or check if the parts are valid.
+// White space insensitive splitting function for FENs
+// Predicated on fen != 0
 split_fen_t *split_fen(char * fen) {
     split_fen_t *split = malloc(sizeof(split_fen_t));
-    int lengths[] = {72, 1, 4, 2, 5, 5};
-    split->position_str = malloc(71);
-    split->turn_str = malloc(1);
-    split->castling_str = malloc(4);
-    split->ep_str = malloc(2);
-    split->halfmove_str = malloc(5);
-    split->fullmove_str = malloc(5);
+    int lengths[] = {72, 2, 5, 3, 5, 5};
+    split->position_str = (char *)malloc(72);
+    split->turn_str = (char * )malloc(2); 
+    split->castling_str = (char *)malloc(5);
+    split->ep_str = (char *)malloc(3);
+    split->halfmove_str = (char *)malloc(5);
+    split->fullmove_str = (char *)malloc(5);
     char * strings[] = {split->position_str, split->turn_str, split->castling_str, split->ep_str, split->halfmove_str, split->fullmove_str};
     int current_pointer = 0;
     int pi = 0;
     bool in_space = true;
     for (int i = 0; i == 0 || fen[i - 1]; i++) {
-        if (fen[i] && !isspace(fen[i])) {
+      printf("i: %d, pi: %d, current_pointer: %d\n", i, pi, current_pointer);
+      if (fen[i] && !isspace(fen[i])) {
             in_space = false;
             if (pi > lengths[current_pointer]) {
-                free(split);
-                return 0;
+                return split;
             }
             strings[current_pointer][pi++] = fen[i];
-        } else if (!in_space) {
+        } 
+        else if (fen[i]) {
             if (pi > lengths[current_pointer]) {
-                free(split);
-                return 0;
+                return split;
             }
-            in_space = true;
-            strings[current_pointer++][pi] = '\0';
-            pi = 0;
+            if (current_pointer < 6) {
+              in_space = true;
+              strings[current_pointer++][pi] = '\0';
+              pi = 0;
+            }
         }
     }
     return split;
 }
 
-
 char * parse_position(char * str, position_t * position) {
+    if (!str) return "No position specified";
     u_int8_t rank = 0;
     u_int8_t file = 0;
     u_int8_t index = 0;
@@ -125,12 +165,9 @@ char * parse_position(char * str, position_t * position) {
     bitboard_t white_oc = 0;
     bitboard_t black_oc = 0;
     for (u_int8_t i = 0; str[i]; i++) {
-        if (file > 8|| rank > 7) {
-            return "Invalid Position";
-        }
-        else if (file == 8) {
+       if (file == 8) {
             if (str[i] != '/') {
-                return "Invalid Position";
+                return "Position has too many squares in a rank";
             }
             else {
                 file = 0;
@@ -166,7 +203,7 @@ char * parse_position(char * str, position_t * position) {
                     kings |= square_bb;
                     break;
                     default:
-                    return "Invalid position, unknown piece";
+                    return "Position has unknown character";
                 }
                 if (lower != str[i]) white_oc |= square_bb;
                 else black_oc |= square_bb;
@@ -174,38 +211,43 @@ char * parse_position(char * str, position_t * position) {
                 ++index;
             }
         }
+        if (file > 8) return "Position has too many squares in a rank";
+        if (rank > 7) return "Position has too many ranks";
+ 
     }
-    if (rank == 7 && file == 8) {
-        position->pawns = pawns;
-        position->knights = knights;
-        position->bishops = bishops;
-        position->rooks = rooks;
-        position->queens = queens;
-        position->kings = kings;
-        position->white_oc = white_oc;
-        position->black_oc = black_oc;
-        return 0;
-    }
-    return "Invalid position";
+    if (rank < 7 || file < 8) return "Position does not describe entire board";
+    position->pawns = pawns;
+    position->knights = knights;
+    position->bishops = bishops;
+    position->rooks = rooks;
+    position->queens = queens;
+    position->kings = kings;
+    position->white_oc = white_oc;
+    position->black_oc = black_oc;
+    return 0;
 }
 
 char * parse_turn(char * str, piece_color_t * color) {
+    if (!str) return "No turn specified";
     if (str[0]) {
         if (!str[1]) {
-            if (tolower(str[0]) == 'w') {
+            if (str[0] == 'w') {
                 *color = WHITE_VAL;
                 return 0;
             }
-            else if (tolower(str[0]) == 'b'){ 
+            else if (str[0] == 'b'){ 
                 *color = BLACK_VAL;
                 return 0;
             }
+            else if (str[0] == 'B' || str[0] == 'W'){
+              return "Turn must be specified in lowercase";
+            }
             else {
-                return "Turn is not 'w' or 'b";
+                return "Turn is not 'w' or 'b'";
             }
         }
         else {
-            return "Length of turn greater than one character";
+            return "Length of turn is greater than one character";
         }
     } else {
         return "No turn specified";
@@ -214,27 +256,34 @@ char * parse_turn(char * str, piece_color_t * color) {
 
 
 char * parse_castling(char * str, castling_rights_t * castling) {
+    if (!str || !str[0]) return "No castling rights specified";
+    *castling = 0;
     if (str[0] == '-' && str[1] == '\0') {
-        *castling = 0;
         return 0;
     }
-    else if (str[0]) {
-        int a = 0;       
-        int i = 0;
-        for (; i < 4; i++) {
-            if (str[i] == 'K' && a == 0) {
+    int a = 0;       
+    int i = 0;
+    for (; i < 4; i++) {
+            if (str[i] == 'K') {
+                if (a == 1) return "Invalid castling rights, 'K' cannot be specified twice";
+                if (a > 1) return "Invalid castling rights, 'K' cannot be specified after 'Q', 'k', or 'q'";
                 *castling |= WHITE_KINGSIDE;
                 a = 1;
             }
-            else if (str[i] == 'Q' &&  a <= 1) {
+            else if (str[i] == 'Q') {
+                if (a == 2) return "Invalid castling rights, 'Q' cannot be specified twice";
+                if (a > 2) return "Invalid castling rights, 'Q' cannot be specified after 'k' or 'q'";
                 *castling |= WHITE_QUEENSIDE;
                 a = 2;
             }
-            else if (str[i] == 'k' &&  a <= 2) {
+            else if (str[i] == 'k') {
+                if (a == 3) return "Invalid castling rights, 'k' cannot be specified twice";
+                if (a > 3) return "Invalid castling rights, 'k' cannot be specified after 'q'";
                 *castling |= BLACK_KINGSIDE;
                 a = 3;
             }
-            else if (str[i] == 'q' &&  a <= 3) {
+            else if (str[i] == 'q') {
+                if (a == 4) return "Invalid castling rights, 'q' cannot be specified twice";
                 *castling |= BLACK_QUEENSIDE;
                 a = 4;
             }
@@ -245,14 +294,14 @@ char * parse_castling(char * str, castling_rights_t * castling) {
         }
         if (!str[i]) {
             return 0;
-        } return "Invalid castling rights";
-    }
-    else return "Empty castling rights";
+        } 
+    return "Invalid castling rights, too many characters";
 }
 
 
 
 char * parse_ep_square(char * str, optional_square_t * ep) {
+    if (!str || !str[0]) return "Missing en-passant square";
     if (str[0] == '-' && str[1] == '\0') {
         ep->exists = false;
         ep->square = EMPTY_EP;
@@ -270,6 +319,7 @@ char * parse_ep_square(char * str, optional_square_t * ep) {
 }
 
 char * parse_clock(char * str, turn_clock_t * clock) {
+    if (!str || !str[0]) return "Missing move timer";
     turn_clock_t num = 0;
     if (str[0]) {
         for (int i = 0; str[i]; i++) {
@@ -290,53 +340,28 @@ char * parse_clock(char * str, turn_clock_t * clock) {
 // Fills out a board from parsing the given FEN. 
 // Returns boolean of if parsing was a success
 char * parse_fen(char * fen, full_board_t * board) {
-    split_fen_t *split = split_fen(fen);
-    if (!split) {
-        return "Missing parts of FEN";
-    }
     piece_color_t turn;
     turn_clock_t halfmove;
     turn_clock_t fullmove;
     optional_square_t ep;
     castling_rights_t castling;
-    char * error = parse_turn(split->turn_str, &turn);
-    if (!error) {
-        error = parse_turn(split->turn_str, &turn);
-        if (!error) {
-            error = parse_ep_square(split->ep_str, &ep);
-            if (!error) {
-                error = parse_clock(split->fullmove_str, &fullmove);
-                if (!error) {
-                    error = parse_clock(split->halfmove_str, &halfmove);
-                    if (!error) {
-                        error = parse_clock(split->halfmove_str, &halfmove);
-                        if (!error) {
-                            error = parse_castling(split->castling_str, &castling);
-                            if (!error) {
-                                error = parse_position(split->position_str, board->position);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    if (!error) {
-        board->turn = turn;
-        board->halfmove_clock = halfmove;
-        board->fullmove_number = fullmove;
-        board->en_passant_square = ep;
-        board->castling_rights = castling;
-    }
-    free(split->position_str);
-    free(split->castling_str);
-    free(split->ep_str);
-    free(split->fullmove_str);
-    free(split->halfmove_str);
-    free(split);
-    return error;
+    if (!fen) return "Empty FEN";
+    char *rest;
+    char * error = parse_position(strtok_r(fen, " ", &rest), board->position);
+    if (error) return error;
+    error = parse_turn(strtok_r(0, " ", &rest), &(board->turn));
+    if (error) return error;
+    error = parse_castling(strtok_r(0, " ", &rest), &(board->castling_rights));
+    if (error) return error;    
+    error = parse_ep_square(strtok_r(0, " ", &rest), &(board->en_passant_square));
+    if (error) return error;
+    error = parse_clock(strtok_r(0, " ", &rest), &(board->halfmove_clock));
+    if (error) return error;
+    error = parse_clock(strtok_r(0, " ", &rest), &(board->fullmove_number));
+    if (error) return error;
+    if (strtok_r(0, " ", &rest)) return "FEN has too many terms";
+    return 0;
 }
-
 
 void make_fen(full_board_t *board, char * fen_buffer) {
     if (!fen_buffer) {

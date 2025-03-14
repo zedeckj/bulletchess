@@ -1,0 +1,16 @@
+"filename", "language", "Python", "C", "C++", "Markdown", "comment", "blank", "total"
+"/Users/jordan/Documents/C/ChessLibrary/bulletchess/__init__.py", "Python", 585, 0, 0, 0, 10, 159, 754
+"/Users/jordan/Documents/C/ChessLibrary/bulletchess/backend/board.c", "C", 0, 318, 0, 0, 3, 47, 368
+"/Users/jordan/Documents/C/ChessLibrary/bulletchess/backend/board.h", "C++", 0, 0, 182, 0, 10, 40, 232
+"/Users/jordan/Documents/C/ChessLibrary/bulletchess/backend/design.md", "Markdown", 0, 0, 0, 10, 0, 3, 13
+"/Users/jordan/Documents/C/ChessLibrary/bulletchess/backend/hash.c", "C", 0, 53, 0, 0, 0, 3, 56
+"/Users/jordan/Documents/C/ChessLibrary/bulletchess/backend/hash.h", "C++", 0, 0, 16, 0, 2, 4, 22
+"/Users/jordan/Documents/C/ChessLibrary/bulletchess/backend/move.c", "C", 0, 681, 0, 0, 190, 126, 997
+"/Users/jordan/Documents/C/ChessLibrary/bulletchess/backend/move.h", "C++", 0, 0, 85, 0, 26, 33, 144
+"/Users/jordan/Documents/C/ChessLibrary/bulletchess/backend/piece.c", "C", 0, 67, 0, 0, 0, 23, 90
+"/Users/jordan/Documents/C/ChessLibrary/bulletchess/backend/piece.h", "C++", 0, 0, 33, 0, 12, 20, 65
+"/Users/jordan/Documents/C/ChessLibrary/bulletchess/backend/serialization.c", "C", 0, 387, 0, 0, 4, 29, 420
+"/Users/jordan/Documents/C/ChessLibrary/bulletchess/backend/serialization.h", "C", 0, 27, 0, 0, 7, 14, 48
+"/Users/jordan/Documents/C/ChessLibrary/bulletchess/backend/test.c", "C", 0, 0, 0, 0, 0, 1, 1
+"/Users/jordan/Documents/C/ChessLibrary/bulletchess/playground.py", "Python", 7, 0, 0, 0, 11, 4, 22
+"Total", "-", 592, 1533, 316, 10, 275, 506, 3232

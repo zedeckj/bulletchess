@@ -1,0 +1,9 @@
+"filename", "language", "Python", "C", "C++", "comment", "blank", "total"
+"/Users/jordan/Documents/C/ChessLibrary/bulletchess/__init__.py", "Python", 31, 0, 0, 10, 11, 52
+"/Users/jordan/Documents/C/ChessLibrary/bulletchess/backend/board.c", "C", 0, 1, 0, 0, 0, 1
+"/Users/jordan/Documents/C/ChessLibrary/bulletchess/backend/board.h", "C++", 0, 0, 8, 0, 4, 12
+"/Users/jordan/Documents/C/ChessLibrary/bulletchess/backend/move.c", "C", 0, 185, 0, 24, 45, 254
+"/Users/jordan/Documents/C/ChessLibrary/bulletchess/backend/serialization.c", "C", 0, 0, 0, 0, 1, 1
+"/Users/jordan/Documents/C/ChessLibrary/bulletchess/backend/serialization.h", "C", 0, 1, 0, 0, 0, 1
+"/Users/jordan/Documents/C/ChessLibrary/bulletchess/playground.py", "Python", 28, 0, 0, 8, 5, 41
+"Total", "-", 59, 187, 8, 42, 66, 362

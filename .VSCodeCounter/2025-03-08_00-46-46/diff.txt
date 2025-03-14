@@ -1,0 +1,35 @@
+Date : 2025-03-08 00:46:46
+Directory : /Users/jordan/Documents/C/ChessLibrary/bulletchess
+Total : 7 files,  254 codes, 42 comments, 66 blanks, all 362 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| C        |          4 |        187 |         24 |         46 |        257 |
+| Python   |          2 |         59 |         18 |         16 |         93 |
+| C++      |          1 |          8 |          0 |          4 |         12 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++----------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                       | files      | code       | comment    | blank      | total      |
++----------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                          |          7 |        254 |         42 |         66 |        362 |
+| . (Files)                                                                  |          2 |         59 |         18 |         16 |         93 |
+| backend                                                                    |          5 |        195 |         24 |         50 |        269 |
++----------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++----------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                                   | language | code       | comment    | blank      | total      |
++----------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| /Users/jordan/Documents/C/ChessLibrary/bulletchess/__init__.py             | Python   |         31 |         10 |         11 |         52 |
+| /Users/jordan/Documents/C/ChessLibrary/bulletchess/backend/board.c         | C        |          1 |          0 |          0 |          1 |
+| /Users/jordan/Documents/C/ChessLibrary/bulletchess/backend/board.h         | C++      |          8 |          0 |          4 |         12 |
+| /Users/jordan/Documents/C/ChessLibrary/bulletchess/backend/move.c          | C        |        185 |         24 |         45 |        254 |
+| /Users/jordan/Documents/C/ChessLibrary/bulletchess/backend/serialization.c | C        |          0 |          0 |          1 |          1 |
+| /Users/jordan/Documents/C/ChessLibrary/bulletchess/backend/serialization.h | C        |          1 |          0 |          0 |          1 |
+| /Users/jordan/Documents/C/ChessLibrary/bulletchess/playground.py           | Python   |         28 |          8 |          5 |         41 |
+| Total                                                                      |          |        254 |         42 |         66 |        362 |
++----------------------------------------------------------------------------+----------+------------+------------+------------+------------+

@@ -143,7 +143,7 @@ search_result_t search(full_board_t *board, int32_t alpha, int32_t beta, evaluat
                 full_board_t copy;
                 copy.position = &position;
                 copy_into(&copy, board);
-                best_apply_move(&copy, moves[i]);
+                apply_move(&copy, moves[i]);
                 search_result_t result = search(&copy, alpha, beta, table, depth - 1);
                 if (result.eval > best_eval) {
                     best_eval = result.eval;
@@ -160,7 +160,7 @@ search_result_t search(full_board_t *board, int32_t alpha, int32_t beta, evaluat
                 full_board_t copy;
                 copy.position = &position;
                 copy_into(&copy, board);
-                best_apply_move(&copy, moves[i]);
+                apply_move(&copy, moves[i]);
                 search_result_t result = search(&copy, alpha, beta, table, depth - 1);
                 if (result.eval < best_eval) {
                     best_eval = result.eval;

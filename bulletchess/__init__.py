@@ -5,7 +5,6 @@ import sys
 sys.path.append("./")
 from ctypes import *
 path = os.path.dirname(os.path.abspath(__file__))
-print(path)
 clib = CDLL(path + "/backend/chess_c.so")
 
 # TYPE ALIASES
@@ -53,12 +52,6 @@ class _POSITION(Structure):
 
 
 
-class _PIECE(Structure):
-
-    _fields_ = [
-        ("type", PieceType),
-        ("color", Color),
-    ]
 
 class _ZORBIST_TABLE(Structure):
 
@@ -107,12 +100,77 @@ class _MOVE_UNION(Union):
     _fields_ = [
         ("generic", _GENERIC_MOVE),
         ("promotion", _PROMOTION_MOVE),
-        ("castling", CastlingRights),
-        ("full", _FULL_MOVE),
     ]
 
+class Piece(Structure):
+
+    _fields_ = [
+        ("color", Color),
+        ("type", PieceType),
+    ]
+
+    def __init__(self, color : Color, piece_type : PieceType):
+        """
+        Create a Piece of the given PieceType and Color
+        """
+        if piece_type != 0:
+            if not (color == WHITE or color == BLACK) or not (piece_type == PAWN or piece_type == BISHOP or piece_type == KNIGHT or piece_type == ROOK or piece_type == QUEEN or piece_type == KING):
+                raise ValueError(f"Invalid piece Piece({color},{piece_type})")
+        self.type = piece_type
+        self.color = color
+
+    @staticmethod
+    def from_symbol(symbol : str) -> Optional["Piece"]:
+        try:
+            return _from_c_piece(_piece_from_string(symbol.encode("utf-8")))
+        except:
+            raise ValueError(f"Invalid piece symbol: {symbol}")
+
+    def get_type(self) -> PieceType:
+        return self.type
+
+    def get_color(self) -> Color:
+        return self.color    
+    
+    def __str__(self):
+        return _piece_symbol(self).decode()
+    
+    def __repr__(self):
+        return f"Piece({str(self)})"
+
+    def __eq__(self, other):
+        if type(other) == type(self):
+            return bool(_pieces_equal(self, other))
+        else:
+            return False
+
+
+    def __hash__(self) -> int:
+        return int(_hash_piece(self))
+
+
+
+def _from_c_piece(piece : Piece) -> Optional[Piece]:
+    """
+    Bridge for bringing Pieces returned from C into python
+    """
+    if piece.type == _EMPTY_PIECE:
+        return None
+    elif piece.type == _ERROR_PIECE:
+        raise Exception("Invalid Piece")
+    else:
+        return piece
+
+def _to_c_piece(piece : Optional[Piece]) -> Piece:
+    if piece == None:
+        return Piece(_EMPTY_PIECE, _EMPTY_PIECE)
+    return piece
+
+
+
+
 class Move(Structure):
-    "Here is stuff"
+    "Represents a chess move from an origin to a destination, as well as whether the move is a pawn promotion. Moves can be created `Move.from_uci`, which takes a move specified in long algebraic notation."
 
     _anonymous_ = ("u",)
     _fields_ = [
@@ -122,8 +180,22 @@ class Move(Structure):
 
     @staticmethod
     def from_uci(uci_str : str) -> "Move":
-        struct = _parse_uci(uci_str.encode("utf-8"))
-        return struct
+        move = _parse_uci(uci_str.encode("utf-8"))
+        if int(move.type) == 1:
+            raise ValueError(f"Illegal move: {uci_str}")
+        return move
+
+    def is_promotion(self) -> bool:
+        return bool(_is_promotion(self))
+
+    def promotion_to(self) -> Optional[Piece]:
+        return _from_c_piece(_promotes_to(self))
+
+    def origin(self) -> Square:
+        return _get_origin(self)
+
+    def destination(self) -> Square:
+        return _get_destination(self)
 
     def __str__(self):
         uci = create_string_buffer(6)
@@ -133,96 +205,28 @@ class Move(Structure):
     def __repr__(self):
         return f"Move({str(self)})"
     
-
-
-class Piece:
-
-    def __init__(self, _struct : _PIECE):
-        """
-        Private constructor for creating a Piece around a c-struct _PIECE. 
-        Use Piece.new() instead. This should never be directly used.
-        """
-        self._piece_struct = _struct
-
-    @staticmethod
-    def _from_struct(_struct : _PIECE) -> Optional["Piece"]:
-        """
-        Private constructor for creating a Piece around a c-struct,
-        or for returning None for an empty piece. Use Piece.new() instead.
-        """
-        if _piece_is_empty(_struct):
-            return None
-        return Piece(_struct)
-
-    @staticmethod
-    def new(piece_type : PieceType, color : Color) -> "Piece":
-        """
-        Creates a new Piece from the given PieceType and Color. 
-        """
-        return Piece(
-            _PIECE(
-                piece_type,
-                color
-            )
-        )
-    
-
-    def get_type(self) -> PieceType:
-        return PieceType(self._piece_struct.type)
-
-    def get_color(self) -> Color:
-        return Color(self._piece_struct.color)    
-    
-    def same_color(self, other : Optional["Piece"]):
-        return other != None and _same_color(self._piece_struct, other._piece_struct)
-
-    def same_type(self, other : Optional["Piece"]):
-        return other != None and _same_color(self._piece_struct, other._piece_struct)
-
-    def is_type(self, piece_type : PieceType) -> bool:
-        """
-        Checks if this Piece is of the given type.
-        """
-        return bool(_piece_is_type(self._piece_struct, piece_type))
-
-    def is_color(self, color : Color) -> bool:
-        """
-        Checks if this Piece is of the given color.
-        """
-        return bool(_piece_is_color(self._piece_struct, color))
-
-    def __str__(self):
-        return _piece_symbol(self._piece_struct).decode()
-    
-    def __repr__(self):
-        return f"Piece({str(self)})"
+    def __hash__(self) -> int:
+        return int(_hash_move(self))
 
     def __eq__(self, other):
-        try:
-            if other == None:
-                return bool(_pieces_equal(self._piece_struct, _empty_piece))
-            return bool(_pieces_equal(self._piece_struct, other._piece_struct))
-        except:
-            return False
-        
-    def __hash__(self) -> int:
-        return int(_hash_piece(self._piece_struct))
+        if type(self) == type(other):
+            return bool(_moves_equal(self, other))
+        return False
 
 
-def _piece_to_struct(piece : Optional[Piece]):
-    if piece == None:
-        return _empty_piece
-    return piece._piece_struct
-        
-
-
-
-
+class UndoableMove(Structure):
+    _fields_ = [
+        ("move", Move),
+        ("captured_piece", Piece),
+        ("old_castling_rights", CastlingRights),
+        ("old_en_passant", _OPTIONAL_SQUARE),
+        ("old_halfmove", TurnClock)
+    ]
+    
 class Board(Structure):
 
     """A ```bulletchess.Board``` is a wrapper around a C ```struct``` which represents the state of a Chess board.
-This class directly encodes the configuration of pieces, whose turn it is, castling rights, the existance of the en passant square, as well as the
-halfmove clock and fullmove number
+This class directly encodes the configuration of pieces, whose turn it is, castling rights, the existance of the en passant square, as well as the halfmove clock and fullmove number.
     """
         
     _fields_ = [
@@ -233,9 +237,17 @@ halfmove clock and fullmove number
         ("halfmove_clock", TurnClock),
         ("fullmove_number", TurnClock),
     ]
-    
+   
+    def __validate(self):
+        """
+        Raises an Exception if this Board is invalid 
+        """
+        error = _validate_board(byref(self))
+        if error != None:
+            raise ValueError(error.decode("utf-8"))
+
     @staticmethod
-    def empty() -> "Board":
+    def __empty() -> "Board":
         """
         Creats a new Board for an empty position.
         """
@@ -260,14 +272,18 @@ halfmove clock and fullmove number
         """
         Creates a new Board using the given FEN description. 
         """
-        board = Board.empty()
+        if fen == "":
+            raise ValueError(f"Invalid FEN '': Empty FEN")
+        board = Board.__empty()
         buffer = create_string_buffer(init = fen.encode("utf-8"))
+        
         error = _parse_fen(buffer, board)
         if error == None:
+            board.__validate()
             return board
         else:
             error = bytes(error).decode()
-            raise Exception(f"Invalid FEN {fen}: {error}")
+            raise ValueError(f"Invalid FEN '{fen}': {error}")
         
 
     
@@ -286,7 +302,7 @@ halfmove clock and fullmove number
             WHITE_STARTING,
             BLACK_STARTING
         ))
-        castling_rights = STARING_CASTLING_RIGHTS
+        castling_rights = STARTING_CASTLING_RIGHTS
         en_passant = _OPTIONAL_SQUARE(0, 0)
         turn = WHITE
         halfmove = TurnClock(0)
@@ -301,14 +317,6 @@ halfmove clock and fullmove number
         )
         return full_board
     
-    # def pseudo_legal_moves(self) -> list[Move]:
-    #     moves_buffer = (Move * 256)()
-    #     length = _generate_pseudo_legal_moves(byref(self), self.turn, moves_buffer)
-    #     out_list = []
-    #     for i in range(length):
-    #         out_list.append(moves_buffer[i])
-    #     return out_list
-
     def legal_moves(self) -> list[Move]:
         moves_buffer = (Move * 256)()
         length = _generate_legal_moves(byref(self), self.turn, moves_buffer)
@@ -321,18 +329,21 @@ halfmove clock and fullmove number
         moves_buffer = (Move * 256)()
         return int(_generate_legal_moves(byref(self), self.turn, moves_buffer))
 
-    def apply(self, move : Move) -> None:
+    def apply(self, move : Move) -> UndoableMove:
         """
         Mutates this board by applying the given move
         """
-        _apply_move(byref(self), move)
+        return _apply_move(byref(self), move)
 
-    def piece_at(self, square : Square) -> Optional[Piece]:
+    def undo(self, undoable : UndoableMove) -> Move:
+        return _undo_move(byref(self), undoable)
+
+    def get_piece_at(self, square : Square) -> Optional[Piece]:
         """
         Gets the piece at the specified Square
         """
-        return Piece._from_struct(_get_piece_at(self.position, square))
-    
+        return _from_c_piece(_get_piece_at(self.position, square))
+
     def remove_piece_at(self, square : Square) -> None:
         """
         Removes the Piece specified at the given square
@@ -343,8 +354,7 @@ halfmove clock and fullmove number
         """
         Sets the given square to have the given piece
         """
-        piece_struct = _piece_to_struct(piece)
-        _set_piece_at(self.position, square, piece_struct)
+        _set_piece_at(self.position, square, _to_c_piece(piece))
 
 
     def set_ep_square(self, square : Optional[Square]) -> None:
@@ -445,8 +455,7 @@ halfmove clock and fullmove number
         """
         Returns True if the given piece exists in this Board
         """
-        piece_struct = _piece_to_struct(piece)
-        return _contains_piece(byref(self), piece_struct)
+        return _contains_piece(byref(self), _to_c_piece(piece_struct))
 
 
     def __le__(self, other : "Board") -> bool:
@@ -502,7 +511,7 @@ halfmove clock and fullmove number
         """
         Returns a copy of this Board
         """
-        copy = Board.empty()
+        copy = Board.__empty()
         _copy_into(byref(copy), byref(self))
         return copy
     
@@ -525,7 +534,7 @@ halfmove clock and fullmove number
             _print_bitboard(_make_attack_mask(byref(self), BLACK if self.turn == WHITE else WHITE))
             raise Exception(fen +"\n" + str(uci_chess) + "\n" +str(uci_moves))
     
-    def debug_perft(self, depth : int) -> int:
+    def debug_perft(self, depth : int, move_stack : list[Move] = []) -> int:
         import chess
         if depth == 0:
             return 1
@@ -547,19 +556,22 @@ halfmove clock and fullmove number
                 fen = next_board.fen()
                 chess_fen = chess_board.fen(en_passant = "fen")
                 if fen != chess_fen:
-                    raise Exception(fen, chess_fen)
-                nodes += next_board.debug_perft(depth - 1)
+                    raise Exception(fen, chess_fen, move_stack + [move], self.fen())
+                nodes += next_board.debug_perft(depth - 1, move_stack + [move])
                 chess_board.pop()
             return nodes
 
-    def perft(self, depth : int, debug : bool = False) -> int:
+
+               
+
+    def perft(self, depth : int, debug: bool = False) -> int:
         if depth < 0:
             raise Exception("Cannot perform perft with a negative depth")
         if debug:
             print("Running on debug mode...")
             return self.debug_perft(depth)
         return _perft(byref(self), c_uint8(depth))
-    
+
     def best_move(self, depth : int) -> Move:
         if depth < 0:
             raise Exception("Cannot perform search with a negative depth")
@@ -569,17 +581,22 @@ halfmove clock and fullmove number
 
 # C LIBRARY IMPORTS
 
+_piece_from_string = clib.piece_from_string
+_piece_from_string.argtypes = [c_char_p]
+_piece_from_string.restype = Piece
+
+
 _material = clib.material
 _material.restype = c_int
 _material.argtypes = [POINTER(_POSITION), c_int, c_int, c_int, c_int]
 
 _get_piece_at = clib.get_piece_at
-_get_piece_at.restype = _PIECE
+_get_piece_at.restype = Piece
 _get_piece_at.argtypes = [POINTER(_POSITION), Square]
 
 
 _set_piece_at = clib.set_piece_at
-_set_piece_at.argtypes = [POINTER(_POSITION), Square, _PIECE]
+_set_piece_at.argtypes = [POINTER(_POSITION), Square, Piece]
 
 _delete_piece_at = clib.delete_piece_at
 _delete_piece_at.argtypes = [POINTER(_POSITION), Square]
@@ -608,38 +625,44 @@ _get_white_value.restype = Color
 _get_black_value = clib.get_black_val
 _get_black_value.restype = Color
 
+_get_empty_value = clib.get_empty_val
+_get_empty_value.restype = PieceType
+
+_get_error_value = clib.get_error_val
+_get_error_value.restype = PieceType
+
 _piece_is_type = clib.piece_is_type
 _piece_is_type.restype = c_bool
-_piece_is_type.argtypes = [_PIECE, PieceType]
+_piece_is_type.argtypes = [Piece, PieceType]
 
 _piece_is_empty = clib.piece_is_empty
 _piece_is_empty.restype = c_bool
-_piece_is_empty.argtypes = [_PIECE]
+_piece_is_empty.argtypes = [Piece]
 
 _piece_is_color = clib.piece_is_color
 _piece_is_color.restype = c_bool
-_piece_is_color.argtypes = [_PIECE, Color]
+_piece_is_color.argtypes = [Piece, Color]
 
 
 _piece_symbol = clib.piece_symbol
 _piece_symbol.restype = c_char
-_piece_symbol.argtypes = [_PIECE]
+_piece_symbol.argtypes = [Piece]
 
 _pieces_equal = clib.pieces_equal
 _pieces_equal.restype = c_bool
-_pieces_equal.argtypes = [_PIECE, _PIECE]
+_pieces_equal.argtypes = [Piece, Piece]
 
 _same_color = clib.same_color
 _same_color.restype = c_bool
-_same_color.argtypes = [_PIECE, _PIECE]
+_same_color.argtypes = [Piece, Piece]
 
 _same_type = clib.same_type
 _same_type.restype = c_bool
-_same_type.argtypes = [_PIECE, _PIECE]
+_same_type.argtypes = [Piece, Piece]
 
 _hash_piece = clib.hash_piece
 _hash_piece.restype = c_int64
-_hash_piece.argtypes = [_PIECE]
+_hash_piece.argtypes = [Piece]
 
 _has_kingside_castling_rights  = clib.has_kingside_castling_rights
 _has_kingside_castling_rights.restype = c_bool
@@ -667,7 +690,7 @@ _update_all_castling_rights = clib.update_all_castling_rights
 _update_all_castling_rights.argtypes = [POINTER(Board)]
 
 _contains_piece = clib.contains_piece
-_contains_piece.argtypes = [POINTER(_POSITION), _PIECE]
+_contains_piece.argtypes = [POINTER(_POSITION), Piece]
 _contains_piece.restype = c_bool
 
 _is_subset = clib.is_subset
@@ -723,8 +746,13 @@ _is_null_move = clib.is_null_move
 _is_null_move.argtypes = [Move]
 _is_null_move.restype = c_bool
 
-_apply_move = clib.best_apply_move
+_apply_move = clib.apply_move
 _apply_move.argtypes = [POINTER(Board), Move]
+_apply_move.restype = UndoableMove
+
+_undo_move = clib.undo_move
+_undo_move.argtypes = [POINTER(Board), UndoableMove]
+_undo_move.restype = Move
 
 # _generate_pseudo_legal_moves = clib.generate_pseudo_legal_moves
 # _generate_pseudo_legal_moves.argtypes = [POINTER(Board), Color, POINTER(Move)]
@@ -758,6 +786,34 @@ _perft = clib.perft
 _perft.argtypes = [POINTER(Board), c_uint8]
 _perft.restype = c_uint64
 
+_get_origin = clib.get_origin
+_get_origin.argtypes = [Move]
+_get_origin.restype = Square
+
+_get_destination = clib.get_destination
+_get_destination.argtypes = [Move]
+_get_destination.restype = Square
+
+_is_promotion = clib.is_promotion
+_is_promotion.argtypes = [Move]
+_is_promotion.restype = c_bool
+
+_promotes_to = clib.promotes_to
+_promotes_to.argtypes = [Move]
+_promotes_to.restype = Piece
+
+_hash_move = clib.hash_move
+_hash_move.argtypes = [Move]
+_hash_move.restype = c_uint64
+
+_moves_equal = clib.moves_equal
+_moves_equal.argtypes = [Move, Move]
+_moves_equal.restype = c_bool
+
+_validate_board = clib.validate_board
+_validate_board.argtypes = [POINTER(Board)]
+_validate_board.restype = c_char_p
+
 
 # _prepare_move_table = clib.prepare_move_table
 ZORBIST_TABLE = _create_zobrist_table()
@@ -771,11 +827,16 @@ KNIGHT : PieceType = _get_knight_value()
 ROOK : PieceType = _get_rook_value()
 QUEEN : PieceType = _get_queen_value()
 KING : PieceType = _get_king_value()
+
+_EMPTY_PIECE : PieceType = _get_empty_value()
+_ERROR_PIECE : PieceType = _get_error_value()
+
+_ERR_MOVE_VAL = c_uint8(1)
+
 PIECE_TYPES = [PAWN, BISHOP, KNIGHT, ROOK, QUEEN, KING]
 
 WHITE : Color = _get_white_value()
 BLACK : Color = _get_black_value()
-
 PAWNS_STARTING = Bitboard(71776119061282560)
 KNIGHTS_STARTING = Bitboard(4755801206503243842)
 BISHOPS_STARTING = Bitboard(2594073385365405732)
@@ -785,7 +846,7 @@ KINGS_STARTING = Bitboard(1152921504606846992)
 WHITE_STARTING = Bitboard(65535)
 BLACK_STARTING = Bitboard(18446462598732840960)
 
-STARING_CASTLING_RIGHTS = CastlingRights(0xF)
+STARTING_CASTLING_RIGHTS = CastlingRights(0xF)
 NO_CASTLING_RIGHTS = CastlingRights(0)
 
 SQUARES: list[Square] = list(range(64))
@@ -855,4 +916,3 @@ G8: Square = 62
 H8: Square = 63
 
 
-_empty_piece = _PIECE(0, 0)

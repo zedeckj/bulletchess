@@ -1,5 +1,52 @@
 #include "board.h"
 
+
+
+// Initialzes the move stack to have a given length
+move_stack_t *initialize_move_stack(u_int64_t capacity){
+  move_stack_t * stack = (move_stack_t *)malloc(sizeof(move_stack_t));
+  if (!stack) return 0;
+  stack->length = 0;
+  stack->capacity = capacity;
+  stack->values = (undoable_move_t *)malloc(sizeof(undoable_move_t) * capacity);
+  if (!stack->values) return 0;
+  return stack;
+}
+
+
+// Pushes an undoable move to the move stack, growing the stack's 
+// capacity if needed, and increasing the length by 1
+void push_move(move_stack_t *stack, undoable_move_t move){
+  #define GROW_STACK 5
+  if (stack) {
+    if (stack->capacity >= stack->length) {
+      u_int16_t new_capacity = stack->capacity * GROW_STACK;
+      undoable_move_t *new_values = malloc(sizeof(undoable_move_t) * new_capacity); 
+      stack->capacity = new_capacity;
+      memcpy(new_values, stack->values, sizeof(undoable_move_t) * stack->length);
+      stack->values = new_values; 
+    }
+    stack->values[stack->length] = move;
+    stack->length += 1;
+  }
+}
+// Pops a move from the stack, decreasing the length by 1
+undoable_move_t pop_move(move_stack_t *stack){
+  if (stack && stack->length > 0) {
+    undoable_move_t move = stack->values[stack->length - 1];
+    stack->length -= 1;
+    return move;
+  }
+  else {
+    undoable_move_t move;
+    move.move.type = ERROR_MOVE;
+    return move;
+  }
+}
+// Undoes the last move in the board's move_stack
+move_t undo_move(full_board_t * board);
+
+
 bool square_empty(position_t * position, square_t square) {
     return !((position->black_oc & SQUARE_TO_BB(square)) || (position->white_oc & SQUARE_TO_BB(square)));
 }
@@ -169,6 +216,7 @@ bool boards_equal(full_board_t * board1, full_board_t * board2) {
         } 
         return !ep2.exists;
     }
+    printf("first layer not equal\n");
     return false;
 }
 
@@ -187,9 +235,10 @@ void copy_into(full_board_t * dst, full_board_t * source) {
     dst->position->kings = source->position->kings;
     dst->position->white_oc = source->position->white_oc;
     dst->position->black_oc = source->position->black_oc;
+    //dst->move_stack = source->move_stack;
 }
 
-
+/*
 bitboard_t bitboard_diff(full_board_t * board1, full_board_t * board2) {
     bitboard_t xord = 
         (board1->position->knights ^ board1->position->knights) |
@@ -201,7 +250,7 @@ bitboard_t bitboard_diff(full_board_t * board1, full_board_t * board2) {
         (board1->position->black_oc ^ board1->position->black_oc);
     return xord;
 }
-
+*/
 
 
 void set_piece_at(position_t * board, square_t square, piece_t piece) {
@@ -434,7 +483,8 @@ u_int8_t count_bitboard(bitboard_t bitboard, int max) {
 
 
 // Validates some basic aspects about the given board make it legal
-bool validate_board(full_board_t * board) {
+// Returns an error string if invalid, or 0 if it is valid
+char* validate_board(full_board_t * board) {
     /*
     pawns in the back ranks
     no kings
@@ -442,14 +492,67 @@ bool validate_board(full_board_t * board) {
     side to move is in check
     */
     position_t * position = board->position;
-    if (position->pawns & (RANK_1 | RANK_8)) return false;
-    if (!position->kings) return false;
+    if (!position){
+       return "Board has no position";
+    }
+ 
+    if (position->pawns & (RANK_1 | RANK_8)){
+            return "Board cannot have pawns on the back ranks";
+    }
     bitboard_t white_kings = position->white_oc & position->kings;
     bitboard_t black_kings = position->black_oc & position->kings;
-    if (!white_kings || !black_kings) return false;
-    if (count_bitboard(white_kings, 2) > 1) return false;
-    if (count_bitboard(black_kings, 2) > 1) return false;
-    if (in_check(board, board->turn == WHITE_VAL ? BLACK_VAL : WHITE_VAL)) return false;
+    if (!white_kings || !black_kings){
+            return "Board must have a king for both players";
+    }
+    if (count_bitboard(white_kings, 2) > 1){
+            return "Board cannot have more than 1 white king";
+    }
+    if (count_bitboard(black_kings, 2) > 1) {
+            return "Board cannot have more than 1 black king";
+    }
+    /*
+    // Not sure if this check should be done or not
+    bitboard_t white_pawns = position->white_oc & position->pawns;
+    bitboard_t black_pawns = position->black_oc & position->pawns; 
+    if (count_bitboard(white_pawns, 9) > 8){
+            return "Board cannot have more than 8 white pawns";
+    }
+    if (count_bitboard(black_pawns, 9) > 8){
+            return "Board cannot have more than 8 black pawns";
+    }
+    */
+    // TODO: Castling Rights are legal
+    castling_rights_t rights = board->castling_rights;
+    if (rights) {
+      bitboard_t white_king_moved = ~white_kings & SQUARE_TO_BB(E1);
+      bitboard_t black_king_moved = ~black_kings & SQUARE_TO_BB(E8);
+      castling_rights_t white_rights = rights & WHITE_FULL_CASTLING;
+      castling_rights_t black_rights = rights & BLACK_FULL_CASTLING;
+      if (white_rights && white_king_moved) {
+        if (black_rights && black_king_moved) {
+          return "Board castling rights are illegal, neither player can castle";
+        }
+        else return "Board castling rights are illegal, white cannot castle";
+      }
+      else {
+        if (black_rights && black_king_moved)
+          return "Board castling rights are illegal, black cannot castle";
+        bitboard_t not_white_rooks = ~(position->rooks & position->white_oc);
+        if (white_rights & WHITE_QUEENSIDE && not_white_rooks & SQUARE_TO_BB(A1))  
+          return "Board castling rights are illegal, white cannot castle queenside";
+        if (white_rights & WHITE_KINGSIDE && not_white_rooks & SQUARE_TO_BB(H1))  
+          return "Board castling rights are illegal, white cannot castle kingside";
+        bitboard_t not_black_rooks = ~(position->rooks & position->black_oc);
+        if (black_rights & BLACK_QUEENSIDE && not_black_rooks & SQUARE_TO_BB(A8))
+          return "Board castling rights are illegal, black cannot castle queenside";
+        if (black_rights & BLACK_KINGSIDE && not_black_rooks & SQUARE_TO_BB(H8))
+          return "Board castling rights are illegal, black cannot castle kingside";
+      }
+    }
+    if (in_check(board, board->turn == WHITE_VAL ? BLACK_VAL : WHITE_VAL)){
+            return "The player to move cannot be able to capture the opponent's king.";
+    }
+    return 0;
 }
 
 

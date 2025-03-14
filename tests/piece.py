@@ -1,99 +1,101 @@
 import unittest
 import sys
+import string
+import random
 sys.path.append("./")
-import bulletchess
-from bulletchess import (
-    PIECE_TYPES, Piece, WHITE, BLACK, SQUARES, 
-    PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING
-)
+from bulletchess import *
+
+VALID_SYMBOLS = ["p", "n", "b", "q", "r", "k", "P", "N", "B", "Q", "R", "K", "-"]
+
+EXPECTED_SYMBOLS = {
+    (BLACK, PAWN): "p",
+    (BLACK, KNIGHT): "n",
+    (BLACK, BISHOP): "b",
+    (BLACK, ROOK): "r",
+    (BLACK, QUEEN): "q",
+    (BLACK, KING): "k",
+
+    (WHITE, PAWN): "P",
+    (WHITE, KNIGHT): "N",
+    (WHITE, BISHOP): "B",
+    (WHITE, ROOK): "R",
+    (WHITE, QUEEN): "Q",
+    (WHITE, KING): "K"
 
 
-class TestPieces(unittest.TestCase):
+}
 
+class TestPiece(unittest.TestCase):
+    """
+    Tests the basic functionality of the Piece class
+    """
 
-    def testWhite(self):
+    def test_construct(self):
         for piece_type in PIECE_TYPES:
-            piece = Piece.new(piece_type, WHITE)
-            self.assertTrue(piece.is_color(WHITE))
-            for other_type in PIECE_TYPES:
-                if other_type != piece_type:
-                    self.assertFalse(piece.is_type(other_type))
-                else:
-                    self.assertTrue(piece.is_type(other_type))
+            self.assertNoLogs(Piece(WHITE, piece_type))
+            self.assertNoLogs(Piece(BLACK, piece_type))
+        for symbol in VALID_SYMBOLS:
+            self.assertNoLogs(Piece.from_symbol(symbol))
+        
+        for s in string.ascii_letters + string.digits:
+            if s not in VALID_SYMBOLS:
+                with self.assertRaisesRegex(ValueError, f"Invalid piece symbol: {s}"):
+                    Piece.from_symbol(s)
+        for symbol in VALID_SYMBOLS:
+            longer = symbol + random.choice(string.ascii_letters)
+            with self.assertRaisesRegex(ValueError, f"Invalid piece symbol: {s}"):
+                Piece.from_symbol(s)
 
-    def testBlack(self):
+        with self.assertRaises(ValueError):
+            Piece(10, 10)
+        with self.assertRaises(ValueError):
+            Piece(KING, WHITE)
+        with self.assertRaises(ValueError):
+            Piece(PAWN, BLACK)
+
+    def test_attributes(self):
+        self.assertNotEqual(WHITE, BLACK)
+        for i in range(len(PIECE_TYPES) - 1):
+            for j in range(i + 1, len(PIECE_TYPES)):
+                self.assertNotEqual(PIECE_TYPES[i], PIECE_TYPES[j])
+
         for piece_type in PIECE_TYPES:
-            piece = Piece.new(piece_type, BLACK)
-            self.assertTrue(piece.is_color(BLACK))
-            for other_type in PIECE_TYPES:
-                if other_type != piece_type:
-                    self.assertFalse(piece.is_type(other_type))
-                else:
-                    self.assertTrue(piece.is_type(other_type))
-
-    def testStr(self):
-        expected = {
-            Piece.new(PAWN, WHITE) : "P",
-            Piece.new(KNIGHT, WHITE) : "N",
-            Piece.new(BISHOP, WHITE) : "B",
-            Piece.new(ROOK, WHITE) : "R",
-            Piece.new(QUEEN, WHITE) : "Q",
-            Piece.new(KING, WHITE) : "K",
-
-            Piece.new(PAWN, BLACK) : "p",
-            Piece.new(KNIGHT, BLACK) : "n",
-            Piece.new(BISHOP, BLACK) : "b",
-            Piece.new(ROOK, BLACK) : "r",
-            Piece.new(QUEEN, BLACK) : "q",
-            Piece.new(KING, BLACK) : "k",
-        }
-
-        for piece in expected:
-            self.assertEqual(expected[piece], str(piece))
-
-    def testRepr(self):
-        expected = {
-            Piece.new(PAWN, WHITE) : "P",
-            Piece.new(KNIGHT, WHITE) : "N",
-            Piece.new(BISHOP, WHITE) : "B",
-            Piece.new(ROOK, WHITE) : "R",
-            Piece.new(QUEEN, WHITE) : "Q",
-            Piece.new(KING, WHITE) : "K",
-
-            Piece.new(PAWN, BLACK) : "p",
-            Piece.new(KNIGHT, BLACK) : "n",
-            Piece.new(BISHOP, BLACK) : "b",
-            Piece.new(ROOK, BLACK) : "r",
-            Piece.new(QUEEN, BLACK) : "q",
-            Piece.new(KING, BLACK) : "k",
-        }
-
-
-        for piece in expected:
-            self.assertEqual(f"Piece({expected[piece]})", repr(piece))
-
-    def testHash(self):
-        expected = {
-
-            Piece.new(PAWN, WHITE) : 17,
-            Piece.new(KNIGHT, WHITE) : 18,
-            Piece.new(BISHOP, WHITE) : 19,
-            Piece.new(ROOK, WHITE) : 20,
-            Piece.new(QUEEN, WHITE) : 21,
-            Piece.new(KING, WHITE) : 22,
-
-            Piece.new(PAWN, BLACK) : 33,
-            Piece.new(KNIGHT, BLACK) : 34,
-            Piece.new(BISHOP, BLACK) : 35,
-            Piece.new(ROOK, BLACK) : 36,
-            Piece.new(QUEEN, BLACK) : 37,
-            Piece.new(KING, BLACK) : 38,
-        }
-        for piece in expected:
-            self.assertEqual(hash(piece), expected[piece], msg = piece)
-
-
-
+            piece = Piece(WHITE, piece_type)
+            self.assertEqual(piece.get_color(), WHITE)
+            self.assertEqual(piece.get_type(), piece_type)
+            piece = Piece(BLACK, piece_type)
+            self.assertEqual(piece.get_color(), BLACK)
+            self.assertEqual(piece.get_type(), piece_type)
+                 
+    def test_equality(self):
+        self.assertEqual(None, Piece.from_symbol("-"))
+        for color in [WHITE, BLACK]:
+            for piece_type in PIECE_TYPES:
+                piece = Piece(color, piece_type)
+                self.assertEqual(piece, piece)
+                for color2 in [WHITE, BLACK]:
+                    for piece_type2 in PIECE_TYPES:
+                        piece2 = Piece(color2, piece_type2)
+                        piece3 = Piece.from_symbol(EXPECTED_SYMBOLS[(color2, piece_type2)])
+                        if piece_type == piece_type2 and color == color2:
+                            self.assertEqual(piece, piece2)
+                            self.assertEqual(piece, piece3)
+                        else:
+                            self.assertNotEqual(piece, piece2)
+                            self.assertNotEqual(piece, piece3)
+                        self.assertEqual(piece2, piece3)
+                   
+    def test_to_string(self):
+        for color, piece_type in EXPECTED_SYMBOLS:
+            self.assertEqual(str(Piece(color, piece_type)), EXPECTED_SYMBOLS[(color, piece_type)])
+          
+    def test_hashing(self):
+        pieces = []
+        for color in [WHITE, BLACK]:
+            for piece_type in PIECE_TYPES:
+                pieces.append(Piece(color, piece_type))
+        hashes = {hash(piece) for piece in pieces + [None]}
+        self.assertEqual(len(hashes), 13)
 
 if __name__ == "__main__":
     unittest.main()
