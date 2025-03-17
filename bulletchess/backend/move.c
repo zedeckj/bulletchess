@@ -414,8 +414,7 @@ piece_t apply_pawn_other(full_board_t * board, square_t square_origin, bitboard_
 		return captured;
 }
 
-// returns the captured piece
-piece_t apply_king_move(full_board_t * board, bitboard_t origin, bitboard_t destination){
+undoable_move_t apply_king_move(full_board_t * board, bitboard_t origin, bitboard_t destination, undoable_move_t out_move){
     position_t * position = board->position;
     bitboard_t * hostile_oc;
     bitboard_t * friendly_oc;
@@ -459,7 +458,8 @@ piece_t apply_king_move(full_board_t * board, bitboard_t origin, bitboard_t dest
         captured.color = WHITE_VAL;
     }
     else {
-        return captured;
+				out_move.captured_piece = captured;
+        return out_move;
     }  
     bitboard_t at_home;
    if ((at_home = (origin & king_home)) && (kingside_dest & destination)) {
@@ -472,18 +472,19 @@ piece_t apply_king_move(full_board_t * board, bitboard_t origin, bitboard_t dest
         *friendly_oc &= (not_origin & not_kingside);
         *friendly_oc |= (destination | kingside_rook_dest);
         board->halfmove_clock += 1;
-    } 
+   			out_move.was_castling = ANY_KINGSIDE; 
+	 	} 
     else if (at_home &&  (queenside_dest & destination)) {
         bitboard_t not_origin = ~origin;
         bitboard_t not_queenside = ~queenside_rook;
         position->kings &= not_origin;
         position->rooks &= not_queenside;
-        
         position->kings |= destination;
         position->rooks |= queenside_rook_dest;
         *friendly_oc &= (not_origin & not_queenside);
         *friendly_oc |= (destination | queenside_rook_dest);
         board->halfmove_clock += 1;
+				out_move.was_castling = ANY_QUEENSIDE;
     }
     else {
         if (*hostile_oc & destination) {
@@ -503,13 +504,15 @@ piece_t apply_king_move(full_board_t * board, bitboard_t origin, bitboard_t dest
 							else if (destination & A8_BB) board->castling_rights &= ~BLACK_QUEENSIDE;
 							else if (destination & H1_BB) board->castling_rights &= ~WHITE_KINGSIDE;
 							else if (destination & H8_BB) board->castling_rights &= ~BLACK_KINGSIDE;
-				 
 						}
             else if (position->knights & destination) {
               captured.type = KNIGHT_VAL;
               position->knights &= keep;
             }
-            //cant capture queens with kings
+						else if (position->queens & destination) {
+							captured.type = QUEEN_VAL;
+							position->queens &= keep;
+						}
             *hostile_oc &= keep;
             board->halfmove_clock = 0;
         }
@@ -521,7 +524,8 @@ piece_t apply_king_move(full_board_t * board, bitboard_t origin, bitboard_t dest
     }
     board->en_passant_square.exists = false;
     board->en_passant_square.square = EMPTY_EP;
-    return captured;
+    out_move.captured_piece = captured;
+		return out_move;
 }
 
 piece_t other_apply_move(full_board_t * board, bitboard_t origin, bitboard_t destination) {
@@ -636,6 +640,7 @@ undoable_move_t apply_move(full_board_t * board, move_t move) {
 		out_move.old_castling_rights = board->castling_rights;
 		out_move.old_en_passant = board->en_passant_square;
 		out_move.move = move;
+		out_move.was_castling = 0;
 		if (move.type == PROMOTION_MOVE) {
         bitboard_t origin = SQUARE_TO_BB(move.promotion.body.origin);
         bitboard_t destination = SQUARE_TO_BB(move.promotion.body.destination);
@@ -649,7 +654,7 @@ undoable_move_t apply_move(full_board_t * board, move_t move) {
         out_move.captured_piece = apply_pawn_other(board, move.generic.origin, origin, destination);
     	}
     	else if (origin & position->kings) {
-        out_move.captured_piece = apply_king_move(board, origin, destination);
+        return apply_king_move(board, origin, destination, out_move);
     	}
 			else {
 				out_move.captured_piece = other_apply_move(board, origin, destination);
@@ -705,6 +710,16 @@ move_t undo_move(full_board_t *board, undoable_move_t move) {
 			position->knights |= origin;
 		}
 		else if (position->pawns & destination) {
+			if (move.old_en_passant.exists) {
+				bitboard_t ep_bb = SQUARE_TO_BB(move.old_en_passant.square);
+				if (ep_bb & destination) {
+					bitboard_t ep_pawn;
+					if (ep_bb & RANK_3) ep_pawn = SAFE_ABOVE_BB(ep_bb);
+					else ep_pawn = SAFE_BELOW_BB(ep_bb);	
+					position->pawns |= ep_pawn;
+					*hostile_oc |= ep_pawn;
+				}
+			}
 			position->pawns &= ~destination;
 			position->pawns |= origin;
 		}
@@ -723,6 +738,18 @@ move_t undo_move(full_board_t *board, undoable_move_t move) {
 		else if (position->kings & destination) {
 			position->kings &= ~destination;
 			position->kings |= origin;
+			if (move.was_castling & ANY_KINGSIDE) {
+				position->rooks &= ~SAFE_LEFT_BB(destination);
+				*friendly_oc &= ~SAFE_LEFT_BB(destination);
+				position->rooks |= SAFE_RIGHT_BB(destination);
+				*friendly_oc |= SAFE_RIGHT_BB(destination);
+			}
+			if (move.was_castling & ANY_QUEENSIDE) {
+				position->rooks &= ~SAFE_RIGHT_BB(destination);
+				*friendly_oc &= ~SAFE_RIGHT_BB(destination);
+				position->rooks |= SAFE_TWO_LEFT_BB(destination);
+				*friendly_oc |= SAFE_TWO_LEFT_BB(destination);
+			}
 		}
 		*friendly_oc &= ~destination;
 		*friendly_oc |= origin;
@@ -807,6 +834,7 @@ void apply_full_move(full_board_t *board, full_move_t move) {
 // }
 
 // ************* MOVE GEN BELOW ***********************
+
 
 
 void add_from_bitboard(square_t origin, bitboard_t destinations, move_t * moves, u_int8_t *move_index) {
@@ -1089,7 +1117,6 @@ void make_all_pinned_masks(full_board_t * board, bitboard_t attack_mask, piece_c
     bitboard_t friendly_pawns = friendly & position->pawns;
     bitboard_t empty = ~(friendly | hostile);
     for (square_t square = A1; square <= H8; square++) { 
-           
         bitboard_t pin_mask = FULL_BB;
         bitboard_t piece_bb = SQUARE_TO_BB(square);
         if (piece_bb & friendly) {   
@@ -1150,7 +1177,6 @@ void make_all_pinned_masks(full_board_t * board, bitboard_t attack_mask, piece_c
     }
 }   
 
-// OLD IMPLEMENTATION
 bitboard_t make_pinned_mask(full_board_t * board, bitboard_t piece_bb, piece_color_t for_color) {
     /*
     A "pinned" piece is one which cannot move or its king would be placed in check. 
@@ -1219,7 +1245,6 @@ bitboard_t make_pinned_mask(full_board_t * board, bitboard_t piece_bb, piece_col
             }
         }
     }
-
     if (slide_danger) {
         bitboard_t vertical = vertical_attack_mask(piece_bb, FULL_BB, empty);
         pin_mask &= pin_mask_from( vertical, slide_danger, friendly_kings);
@@ -1283,19 +1308,17 @@ bitboard_t make_attack_mask(full_board_t *board, piece_color_t attacker) {
 }
 
 
-
-
-
 typedef struct {
     // where non kings are allowed to move
     bitboard_t allowed_move_mask;
-    // a necessary extra mask for where pawns 
-    // are allowed to capture, which is a superset of 
-    // allowed move mask
+    // a necessary extra mask for where pawns are allowed to capture 
     // this is to account for en passant weirdness.
     bitboard_t extra_pawn_capture_mask;
-    u_int8_t king_attacker_count;
+    // Number of pieces currently attacking the king
+		u_int8_t king_attacker_count;
 } check_info_t;
+
+
 
 check_info_t non_check_info() {
     check_info_t escapes;
@@ -1343,6 +1366,7 @@ check_info_t update_info(check_info_t current_info, bitboard_t move_mask, bitboa
     }
     return current_info;
 }
+
 
 check_info_t make_check_info(full_board_t *board, piece_color_t for_color, bitboard_t attack_mask) {
     /*
@@ -1413,8 +1437,9 @@ check_info_t make_check_info(full_board_t *board, piece_color_t for_color, bitbo
         else {
             info = update_info(info, nw_pawn_attack(friendly_kings, can_move_to), enemy_pawns);
             info = update_info(info, ne_pawn_attack(friendly_kings, can_move_to), enemy_pawns);
-        } 
-        if (info.king_attacker_count > 0) add_ep = true;
+        }
+			 add_ep = true;	
+        // if (info.king_attacker_count > 0) add_ep = true; // WHAT???
     }
     if (enemy_knights) {
         info = update_info(info, SAFE_KNIGHT_MOVE_BB1(friendly_kings), enemy_knights);
@@ -1464,6 +1489,124 @@ bitboard_t queenside_castling_mask(bitboard_t origin_bb, bitboard_t attacked_mas
     else return 0;
 }
 
+
+u_int8_t count_moves(
+    full_board_t *board, 
+    piece_color_t for_color, 
+    bitboard_t attacked_mask,
+    check_info_t info) {
+    u_int8_t move_index = 0;
+
+    position_t *position = board->position;
+    bitboard_t friendly;
+    bitboard_t hostile;
+
+    bitboard_t pawn_one_square_advance;
+    bitboard_t our_white_pawns = 0;
+    bitboard_t our_black_pawns = 0;
+    bool can_kingside;
+    bool can_queenside;
+    if (for_color == WHITE_VAL) {
+        friendly = position->white_oc;
+        hostile = position->black_oc;
+        our_white_pawns = friendly & position->pawns & ~RANK_8;
+        can_kingside = board->castling_rights & WHITE_KINGSIDE;
+        can_queenside = board->castling_rights & WHITE_QUEENSIDE;
+    }
+    else {
+        friendly = position->black_oc;
+        hostile = position->white_oc;
+        our_black_pawns = friendly & position->pawns & ~RANK_1;
+        can_kingside = board->castling_rights & BLACK_KINGSIDE;
+        can_queenside = board->castling_rights & BLACK_QUEENSIDE;
+    }
+    can_kingside = can_kingside && (info.king_attacker_count == 0);
+    can_queenside = can_queenside && (info.king_attacker_count == 0);
+    bitboard_t our_pawns = friendly & position->pawns;
+    bitboard_t our_bishops = friendly & position->bishops;
+    bitboard_t our_knights = friendly & position->knights;
+    bitboard_t our_rooks = friendly & position->rooks;
+    bitboard_t our_queens = friendly & position->queens;
+    bitboard_t our_kings = friendly & position->kings;
+    bitboard_t ep_bb = make_ep_bb(board->en_passant_square);
+    bitboard_t empty = ~(friendly | hostile);
+
+
+    bitboard_t pawn_hostile = (hostile | ep_bb);
+    bitboard_t non_friendly = ~friendly;
+
+
+    bitboard_t slide_danger = hostile & (position->queens | position->rooks);
+    bitboard_t diagonal_danger = hostile & (position->queens | position->bishops);
+    // printf("EN PASSANT SQUARE\n");
+    // print_bitboard(ep_bb);
+    // print_bitboard(info.allowed_move_mask);
+    // print_bitboard(info.extra_pawn_capture_mask);
+   	 
+    u_int8_t moves = 0;
+    bitboard_t iter = friendly;
+		bitboard_t square_bb;
+		while ((square_bb = LSB(iter))) {
+        if (square_bb & our_kings) {
+            bitboard_t destination_bb = king_attack_mask(square_bb, non_friendly & ~attacked_mask);
+            if (can_kingside) {
+                bitboard_t kingside = kingside_castling_mask(square_bb, attacked_mask, empty);
+                destination_bb |= kingside;
+            }
+            if (can_queenside) {
+                bitboard_t queenside = queenside_castling_mask(square_bb, attacked_mask, empty);
+                destination_bb |= queenside;
+            }
+						moves += count_bits(destination_bb);
+						iter &= ~LSB(iter);
+            continue;
+        }
+        //bitboard_t pinned_mask = pinned_masks[square];
+        bitboard_t pinned_mask = make_pinned_mask(board, square_bb, for_color);
+        bitboard_t allowed_mask = pinned_mask & info.allowed_move_mask;
+        if (square_bb & our_pawns) {
+            bitboard_t destination_bb;
+            if (square_bb & our_white_pawns) {
+                destination_bb = white_pawn_push_mask(square_bb, empty) & allowed_mask;
+                destination_bb |= white_pawn_attack_mask(square_bb, pawn_hostile) & info.extra_pawn_capture_mask;
+                destination_bb &= pinned_mask;
+                if (square_bb & RANK_7) moves += count_bits(destination_bb) * 4; //possible promotions
+								else moves += count_bits(destination_bb);
+						}
+            else {
+                destination_bb = black_pawn_push_mask(square_bb, empty) & allowed_mask;
+                destination_bb |= black_pawn_attack_mask(square_bb, pawn_hostile)  & info.extra_pawn_capture_mask;
+                destination_bb &= pinned_mask;
+                if (square_bb & RANK_2) moves += count_bits(destination_bb) * 4; //possible promotions
+								else moves += count_bits(destination_bb);
+						}
+        }
+        else if (square_bb & our_knights) {
+            bitboard_t destination_bb;
+            destination_bb = knight_attack_mask(square_bb, non_friendly);
+            destination_bb &= allowed_mask;
+        		moves += count_bits(destination_bb);
+				}
+        else if (square_bb & our_rooks ) {
+            bitboard_t destination_bb = sliding_attack_mask(square_bb, non_friendly, empty);
+            destination_bb &= allowed_mask;
+        		moves += count_bits(destination_bb);
+        }
+        else if (square_bb & our_bishops) {
+            bitboard_t destination_bb = diagonal_attack_mask(square_bb, non_friendly, empty);
+            destination_bb &= allowed_mask;
+        		moves += count_bits(destination_bb);
+				}
+        else if (square_bb & our_queens) {
+            bitboard_t destination_bb = diagonal_attack_mask(square_bb, non_friendly, empty);
+            destination_bb |= sliding_attack_mask(square_bb, non_friendly, empty);
+            destination_bb &= allowed_mask;
+        		moves += count_bits(destination_bb);
+				}
+				iter &= ~LSB(iter);
+    }
+    return moves;
+}
 
 
 
@@ -1607,12 +1750,52 @@ u_int8_t generate_moves(
 //     return generate_moves(board, for_color, 0, non_check_escapes(), move_buffer);
 // }
 
-bool in_check(full_board_t *board, piece_color_t for_color) {
+// Returns true if the side to move is in check
+bool in_check(full_board_t *board) {
+		piece_color_t for_color = board->turn;
     bitboard_t attack_mask = make_attack_mask(board, WHITE_VAL == for_color ? BLACK_VAL : WHITE_VAL);
     return in_check_with_attacker_mask(board->position, for_color, attack_mask);
 }
 
-u_int8_t generate_legal_moves(full_board_t *board,  piece_color_t for_color,  move_t * move_buffer) {
+bool opponent_in_check(full_board_t *board) {
+		piece_color_t for_color = board->turn == WHITE_VAL ? BLACK_VAL : WHITE_VAL;
+    bitboard_t attack_mask = make_attack_mask(board, WHITE_VAL == for_color ? BLACK_VAL : WHITE_VAL);
+    return in_check_with_attacker_mask(board->position, for_color, attack_mask);
+}
+
+
+
+
+bool is_stalemate(full_board_t *board) {
+		piece_color_t for_color = board->turn;
+    bitboard_t attack_mask = make_attack_mask(board, WHITE_VAL == for_color ? BLACK_VAL : WHITE_VAL);
+    if (in_check_with_attacker_mask(board->position, for_color, attack_mask)) return false;
+		check_info_t info = non_check_info();
+		return count_moves(board, for_color, attack_mask, info) == 0;
+}
+
+bool is_checkmate(full_board_t *board) {
+		piece_color_t for_color = board->turn;
+    bitboard_t attack_mask = make_attack_mask(board, WHITE_VAL == for_color ? BLACK_VAL : WHITE_VAL);
+    if (in_check_with_attacker_mask(board->position, for_color, attack_mask)) {
+			check_info_t info = make_check_info(board, for_color, attack_mask);
+    	return count_moves(board, for_color, attack_mask, info) == 0;
+		}
+		return false;
+}
+
+
+
+
+u_int8_t count_legal_moves(full_board_t *board) {
+		piece_color_t for_color = board->turn;
+    bitboard_t attack_mask = make_attack_mask(board, WHITE_VAL == for_color ? BLACK_VAL : WHITE_VAL);
+    check_info_t info = make_check_info(board, for_color, attack_mask);
+    return count_moves(board, for_color, attack_mask, info);
+}
+
+u_int8_t generate_legal_moves(full_board_t *board, move_t * move_buffer) {
+		piece_color_t for_color = board->turn;
     bitboard_t attack_mask = make_attack_mask(board, WHITE_VAL == for_color ? BLACK_VAL : WHITE_VAL);
     check_info_t info = make_check_info(board, for_color, attack_mask);
     // printf("ATTACK MASK 2\n");
@@ -1625,22 +1808,17 @@ u_int64_t perft(full_board_t * board, u_int8_t depth) {
         return 1;
     }
     else if (depth == 1) {
-        move_t moves[256];
-        return (u_int64_t)generate_legal_moves(board, board->turn, moves);
+        return (u_int64_t)count_legal_moves(board);
     }
     else{
         move_t moves[256];
-        u_int8_t count = generate_legal_moves(board, board->turn, moves);
+        u_int8_t count = generate_legal_moves(board,moves);
         u_int64_t nodes = 0;
         for (u_int8_t i = 0; i < count; i ++){
-            position_t position;
-            full_board_t copy;
-            copy.position = &position;
-            copy_into(&copy, board);
-            apply_move(&copy, moves[i]);
-            nodes += perft(&copy, depth - 1);
-
-        }
+            undoable_move_t undo = apply_move(board, moves[i]);
+            nodes += perft(board, depth - 1);
+        		undo_move(board, undo);
+				}
         return nodes;
 
     }
@@ -1666,13 +1844,34 @@ bool is_promotion(move_t move){
   return move.type == PROMOTION_MOVE;
 }
 
-piece_t promotes_to(move_t move){
+piece_t promotes_to(move_t move) {
   if (move.type != PROMOTION_MOVE) return empty_piece();
   piece_t out;
   out.type = move.promotion.promote_to; 
   out.color = move.promotion.body.destination & RANK_8 ? WHITE_VAL : BLACK_VAL;
   return out;
 }
+
+void randomize_board(full_board_t *board) {
+		u_int8_t should_continue = random() % 100;
+		if (!should_continue) return;	
+		move_t moves[256];
+		u_int8_t count = generate_legal_moves(board, moves);
+		if (count == 0) return;
+		u_int8_t index = random() % count;
+		apply_move(board, moves[index]);
+		return randomize_board(board);
+}
+
+
+
+
+
+
+
+
+
+
 // bitboard_t king_moves_bb(square_t square) {
 //     bitboard_t around = 0;
 //     for (int i = -1; i < 2; i++) {

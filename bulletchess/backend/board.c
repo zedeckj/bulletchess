@@ -1,7 +1,7 @@
 #include "board.h"
 
 
-
+/*
 // Initialzes the move stack to have a given length
 move_stack_t *initialize_move_stack(u_int64_t capacity){
   move_stack_t * stack = (move_stack_t *)malloc(sizeof(move_stack_t));
@@ -45,7 +45,7 @@ undoable_move_t pop_move(move_stack_t *stack){
 }
 // Undoes the last move in the board's move_stack
 move_t undo_move(full_board_t * board);
-
+*/
 
 bool square_empty(position_t * position, square_t square) {
     return !((position->black_oc & SQUARE_TO_BB(square)) || (position->white_oc & SQUARE_TO_BB(square)));
@@ -71,6 +71,17 @@ bool en_passant_is(full_board_t * board, square_t square) {
     }
     return false;
 }
+
+u_int8_t count_bits(bitboard_t bb) {
+	u_int8_t count = 0;
+	while (bb & -bb) {
+		bb &= ~(bb & -bb);
+		++count;
+	}
+	return count;
+}
+
+
 
 void mask_board_with(position_t * board, bitboard_t keep_bb) {
     board->pawns &= keep_bb;
@@ -216,7 +227,6 @@ bool boards_equal(full_board_t * board1, full_board_t * board2) {
         } 
         return !ep2.exists;
     }
-    printf("first layer not equal\n");
     return false;
 }
 
@@ -549,7 +559,7 @@ char* validate_board(full_board_t * board) {
           return "Board castling rights are illegal, black cannot castle kingside";
       }
     }
-    if (in_check(board, board->turn == WHITE_VAL ? BLACK_VAL : WHITE_VAL)){
+    if (opponent_in_check(board)){
             return "The player to move cannot be able to capture the opponent's king.";
     }
     return 0;

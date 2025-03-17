@@ -47,7 +47,7 @@ int8_t endgame_factor(full_board_t * board) {
 
 int32_t evaluate(full_board_t * board, u_int8_t move_count, evaluation_table_t *table) {
     int32_t eval;
-    bool check = in_check(board, board->turn);
+    bool check = in_check(board);
     int8_t endgame_coeff = endgame_factor(board);
     if (!move_count) {
         if (check) {
@@ -127,7 +127,7 @@ int32_t evaluate(full_board_t * board, u_int8_t move_count, evaluation_table_t *
 
 search_result_t search(full_board_t *board, int32_t alpha, int32_t beta, evaluation_table_t * table, u_int8_t depth) {
     move_t moves[256];
-    u_int8_t count = generate_legal_moves(board, board->turn, moves);
+    u_int8_t count = generate_legal_moves(board, moves);
     if (depth == 0 || count == 0) {
         search_result_t result;
         result.eval = evaluate(board, count, table);

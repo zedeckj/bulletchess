@@ -51,5 +51,23 @@ class TestMoveGeneration(unittest.TestCase):
         board = Board.from_fen(fen)
         testMoves(self, ucis | {"e8c8"}, board)
 
+    def testEnPassantRevaled(self):
+        fen1 = "8/1q6/8/3pP3/8/5K2/2k5/8 w - d6 0 1" 
+        board = Board.from_fen(fen1)
+        ucis = {"f3f4", "f3g4", "f3g3", "f3g2", "f3f2", "f3e2", "f3e3", "e5e6"}
+        testMoves(self, ucis, board)
+        fen2 = "8/8/8/3pP3/8/5K2/2k5/8 w - d6 0 1"
+        board = Board.from_fen(fen2)
+        testMoves(self, ucis | {"e5d6"}, board)
+
+        ## repeated pattern for new position
+        fen1 = "6K1/8/8/8/1k1pP1Q1/8/8/8 b - e3 0 1"
+        board = Board.from_fen(fen1)
+        ucis = {"b4a5", "b4b5", "b4c5", "b4a4", "b4c4",         "b4a3", "b4b3", "b4c3", "d4d3"}
+        testMoves(self, ucis, board)
+        fen2 = "6K1/7Q/8/8/1k1pP3/8/8/8 b - e3 0 1"
+        board = Board.from_fen(fen2)
+        testMoves(self, ucis | {"d4e3"}, board)
+
 if __name__ == "__main__":
     unittest.main()

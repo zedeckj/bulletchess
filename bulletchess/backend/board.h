@@ -16,6 +16,7 @@
 #define RIGHT(s) ((s) + 1)
 #define RANKNUM(s) (((s) % 8) + 1)
 #define FILE(s) (((s) / 8) + 1) // 1 indexed
+#define LSB(s) ((s) & -(s))
 
 #define A1 0
 #define B1 1
@@ -183,6 +184,7 @@ piece_counts_t count_pieces(position_t *position);
 
 typedef uint8_t castling_rights_t;
 
+#define NO_CASTLING
 #define WHITE_KINGSIDE 1
 #define WHITE_QUEENSIDE 2
 #define BLACK_KINGSIDE 4
@@ -190,6 +192,8 @@ typedef uint8_t castling_rights_t;
 #define WHITE_FULL_CASTLING 3
 #define BLACK_FULL_CASTLING 12
 #define FULL_CASTLING 15
+#define ANY_KINGSIDE 5
+#define ANY_QUEENSIDE 10
 
 #define PAWNS_STARTING 71776119061282560ull
 #define KNIGHTS_STARTING 4755801206503243842ull
@@ -221,7 +225,7 @@ typedef struct {
 
 
 
-
+u_int8_t count_bits(bitboard_t bb);
 
 bool square_empty(position_t * board, square_t square);
 void clear_ep_square(full_board_t * board);
@@ -260,13 +264,16 @@ void update_all_castling_rights(full_board_t * board);
 
 square_t fen_index_to_square(u_int8_t index);
 
+
+bool in_check(full_board_t *board);
+bool opponent_in_check(full_board_t * board);
+
 bool color_occupies(position_t * board, square_t square, piece_color_t color);
 bool white_occupies(position_t * position, square_t square);
 bool black_occupies(position_t * position, square_t square);
 
 bool en_passant_is(full_board_t * board, square_t square);
 piece_t get_piece_at_bb(position_t * board, bitboard_t bb);
-bool in_check(full_board_t *board, piece_color_t for_color);
 void print_bitboard(bitboard_t board);
 
 void copy_into(full_board_t * dst, full_board_t * source);

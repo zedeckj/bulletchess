@@ -127,6 +127,17 @@ class TestFen(unittest.TestCase):
  
 
 
+    def testRandomSymmetry(self):
+        boards = [Board.random() for _ in range(10000)]
+        for board1 in boards:
+            print(board1)
+            print("\n")
+            fen1 = board1.fen()
+            board2 = Board.from_fen(fen1)
+            fen2 = board2.fen()
+            self.assertEqual(board1, board2)
+            self.assertEqual(fen1, fen2)
+
 
 if __name__ == "__main__":
     unittest.main()

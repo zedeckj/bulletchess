@@ -50,23 +50,27 @@ typedef struct {
   move_t move;
   piece_t captured_piece;
   castling_rights_t old_castling_rights;
+	castling_rights_t was_castling;
   optional_square_t old_en_passant;
 	turn_clock_t old_halfmove;
 } undoable_move_t;
 
+
+/*
+typedef struct move_list {
+	undoable_move_t car;
+	struct move_list * cdr;
+} move_list_t;
+
+// Represents a board with extra state used for move generation
 typedef struct {
-  u_int16_t length;
-  u_int16_t capacity;
-  undoable_move_t *values;
-} move_stack_t;
-
-
+	full_board_t * board;
+	move_list_t * move_list_t;
+} stateful_board_t;
+	
 // Pushes an undoable move to the move stack, growing the stack's 
 // capacity if needed, and increasing the length by 1
-void push_move(move_stack_t *stack, undoable_move_t move);
-
-undoable_move_t pop_move(move_stack_t *stack);
-
+*/
 
 
 
@@ -76,9 +80,17 @@ inline void do_white_queenside(full_board_t *board);
 inline void do_black_kingside(full_board_t *board);
 inline void do_black_quenside(full_board_t *board);
 // Aplies a move to the given board
+
+
 undoable_move_t apply_move(full_board_t *board, move_t move);
 
 move_t undo_move(full_board_t * board, undoable_move_t move);	
+
+
+//void full_apply_move(stateful_board_t *stateful_board, );
+
+
+
 
 // Parses a UCI formatted string into a move_t, returns an Error move
 // if the given string is ill-formatted
@@ -89,19 +101,9 @@ move_t parse_uci(char * uci_str);
 bool write_uci(move_t move, char * buffer);
 
 
-bool in_check(full_board_t *board, piece_color_t for_color);
 
-u_int8_t generate_legal_moves(full_board_t * board, piece_color_t for_player, move_t * buffer);
-typedef struct {
-    bitboard_t * kings_moves;
-    bitboard_t * knights_moves;
-    // bitboard_t * straight_moves;
-    // bitboard_t * diagonal_moves;
+u_int8_t generate_legal_moves(full_board_t * board, move_t * buffer);
 
-} moveable_table_t;
-
-
-// moveable_table_t *move_table;
 
 
 // // Initializes the global move table if it is not already

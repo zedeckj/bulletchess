@@ -219,16 +219,12 @@ class UndoableMove(Structure):
         ("move", Move),
         ("captured_piece", Piece),
         ("old_castling_rights", CastlingRights),
+        ("was_castling", CastlingRights),
         ("old_en_passant", _OPTIONAL_SQUARE),
         ("old_halfmove", TurnClock)
     ]
-    
-class Board(Structure):
 
-    """A ```bulletchess.Board``` is a wrapper around a C ```struct``` which represents the state of a Chess board.
-This class directly encodes the configuration of pieces, whose turn it is, castling rights, the existance of the en passant square, as well as the halfmove clock and fullmove number.
-    """
-        
+class _BOARD(Structure):
     _fields_ = [
         ("position", POINTER(_POSITION)),
         ("turn", Color),
@@ -238,16 +234,9 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
         ("fullmove_number", TurnClock),
     ]
    
-    def __validate(self):
-        """
-        Raises an Exception if this Board is invalid 
-        """
-        error = _validate_board(byref(self))
-        if error != None:
-            raise ValueError(error.decode("utf-8"))
 
     @staticmethod
-    def __empty() -> "Board":
+    def empty() -> "_BOARD":
         """
         Creats a new Board for an empty position.
         """
@@ -257,7 +246,7 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
         en_passant = _OPTIONAL_SQUARE(0, 0)
         halfmove = TurnClock(0)
         fullmove = TurnClock(0)
-        full_board = Board(
+        full_board = _BOARD(
             pos_pointer,
             turn,
             castling_rights,
@@ -266,7 +255,37 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
             fullmove,
         )
         return full_board
+
+
+
+
+
+class Positioning(Structure):
+    """
+    A positioning represents an abstract positioning of chess Pieces on a board, described as either set of square and piece values, counts of Pieces, or a mixture.
+    """
     
+
+    
+
+class Board:
+
+    """A ```bulletchess.Board``` is a wrapper around a C ```struct``` which represents the state of a Chess board.
+This class directly encodes the configuration of pieces, whose turn it is, castling rights, the existance of the en passant square, as well as the halfmove clock and fullmove number.
+    """
+    
+    def __init__(self, board : _BOARD):
+        self.__board = pointer(board)
+        self.__move_stack = []
+
+    def __validate(self):
+        """
+        Raises an Exception if this Board is invalid 
+        """
+        error = _validate_board(self.__board)
+        if error != None:
+            raise ValueError(error.decode("utf-8"))
+   
     @staticmethod
     def from_fen(fen : str) -> "Board":
         """
@@ -274,10 +293,9 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
         """
         if fen == "":
             raise ValueError(f"Invalid FEN '': Empty FEN")
-        board = Board.__empty()
+        board = Board(_BOARD.empty())
         buffer = create_string_buffer(init = fen.encode("utf-8"))
-        
-        error = _parse_fen(buffer, board)
+        error = _parse_fen(buffer, board.__board)
         if error == None:
             board.__validate()
             return board
@@ -307,7 +325,7 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
         turn = WHITE
         halfmove = TurnClock(0)
         fullmove = TurnClock(1)
-        full_board = Board(
+        full_board = _BOARD(
             pos_pointer,
             turn,
             castling_rights,
@@ -315,46 +333,75 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
             halfmove,
             fullmove,
         )
-        return full_board
+        return Board(full_board)
     
+    @staticmethod
+    def random() -> "Board":
+        board = Board.starting()
+        _randomize_board(board.__board)
+        return board
+
     def legal_moves(self) -> list[Move]:
         moves_buffer = (Move * 256)()
-        length = _generate_legal_moves(byref(self), self.turn, moves_buffer)
-        out_list = []
-        for i in range(length):
-            out_list.append(moves_buffer[i])
-        return out_list
+        self.__board.contents
+        length = _generate_legal_moves(self.__board, moves_buffer)
+        return moves_buffer[:length]
     
-    def count_legal_moves(self) -> int:
-        moves_buffer = (Move * 256)()
-        return int(_generate_legal_moves(byref(self), self.turn, moves_buffer))
+    def count_moves(self) -> int:
+        """
+        Counts the number of legal moves for this Board. This is faster than calling
+        `get_legal_moves()` and checking the length
+        """
+        return int(_count_moves(self.__board))
 
-    def apply(self, move : Move) -> UndoableMove:
+    def apply(self, move : Move) -> None:
         """
         Mutates this board by applying the given move
         """
-        return _apply_move(byref(self), move)
+        self.__move_stack.append(_apply_move(self.__board, move))
 
-    def undo(self, undoable : UndoableMove) -> Move:
-        return _undo_move(byref(self), undoable)
+    def undo(self) -> Move:
+        undoable = self.__move_stack.pop()
+        return _undo_move(self.__board, undoable)
+
+    
+
+    def in_check(self) -> bool:
+        """
+        Returns `True` if the side to move is in check.
+        """
+        return bool(_in_check(self.__board))
+
+    
+    def is_checkmate(self) -> bool:
+        """
+        Returns `True` if the side to move is in checkmate.
+        """
+        return bool(_is_checkmate(self.__board))
+
+    def is_stalemate(self) -> bool:
+        """
+        Returns `True` if the Board is in checkmate. 
+        """
+        return bool(_is_stalemate(self.__board))
 
     def get_piece_at(self, square : Square) -> Optional[Piece]:
         """
         Gets the piece at the specified Square
         """
-        return _from_c_piece(_get_piece_at(self.position, square))
+        return _from_c_piece(_get_piece_at(self.__board.contents.position, square))
 
     def remove_piece_at(self, square : Square) -> None:
         """
         Removes the Piece specified at the given square
         """
-        _delete_piece_at(self.position, square)
+        _delete_piece_at(self.__board.contents.position, square)
     
     def set_piece_at(self, square : Square, piece : Optional[Piece]) -> None:
         """
         Sets the given square to have the given piece
         """
-        _set_piece_at(self.position, square, _to_c_piece(piece))
+        _set_piece_at(self.__board.contents.position, square, _to_c_piece(piece))
 
 
     def set_ep_square(self, square : Optional[Square]) -> None:
@@ -364,10 +411,10 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
         if square == None:
             self.clear_ep_square()
         else:    
-            _set_ep_square(byref(self), square)
+            _set_ep_square(self.__board, square)
 
     def clear_ep_square(self) -> None:
-        _clear_ep_square(byref(self))
+        _clear_ep_square(self.__board)
     
     def get_ep_square(self) -> Optional[Square]:
         optional_square = self.en_passant_square
@@ -388,12 +435,8 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
     def set_fullmove_number(self, value : int) -> None:
         self.fullmove_number = TurnClock(value)
 
-    def in_check(self) -> bool:
-        """
-        Returns true if the side to move is in check
-        """
-        return bool(_in_check(byref(self), self.turn))
-    
+ 
+
     def get_turn(self) -> Color:
         """
         Gets the Color of the player to move.
@@ -410,65 +453,67 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
         """
         Returns True if the given color has queenside castling rights
         """
-        return bool(_has_queenside_castling_rights(byref(self), color))
+        return bool(_has_queenside_castling_rights(self.__board, color))
     
     def has_kingside_castling_rights(self, color : Color) -> bool:
         """
         Returns True if the given color has kingside castling rights
         """
-        return bool(_has_kingside_castling_rights(byref(self), color))
+        return bool(_has_kingside_castling_rights(self.__board, color))
 
         
     def has_castling_rights(self, color : Color) -> bool:
         """
         Returns True if the given color has any castling rights
         """
-        return bool(_has_castling_rights(byref(self), color))
+        return bool(_has_castling_rights(self.__board, color))
     
     def clear_castling_rights(self, color : Color) -> bool:
         """
         Clears all castling rights for the given color
         """
-        return bool(_clear_castling_rights(byref(self), color))
+        return bool(_clear_castling_rights(self.__board, color))
     
     def set_full_castling_rights(self) -> None:
         """
         Restores full castling rights
         """
-        _set_full_castling_rights(byref(self))
+        _set_full_castling_rights(self.__board)
 
     def update_castling_rights(self, color : Color) -> None:
         """
         Removes castling rights for a given color if they are illegal 
         in the given board's piece configuation
         """
-        _update_castling_rights(byref(self), color)
+        _update_castling_rights(self.__board, color)
 
     def add_castling_rights(self, player : Color, kingside : bool):
         """
         Adds castling rights for either king or queen side for the given player.
         """
-        _add_castling_rights(byref(self), c_bool(kingside), player)
+        _add_castling_rights(self.__board, c_bool(kingside), player)
+
+
 
 
     def __contains__(self, piece : Optional[Piece]):
         """
         Returns True if the given piece exists in this Board
         """
-        return _contains_piece(byref(self), _to_c_piece(piece_struct))
+        return _contains_piece(self.__board, _to_c_piece(piece_struct))
 
 
     def __le__(self, other : "Board") -> bool:
         """
         Returns True if this Board's piece configuration is a subset of the given Board's piece configuration
         """
-        return bool(_is_subset(byref(self), byref(other)))
+        return bool(_is_subset(self.__board, other.__board))
 
     def __ge__(self, other : "Board"):
         """
         Returns True if the given Board's piece configuration is a subset of this Board's piece configuration
         """
-        return bool(_is_subset(byref(other), byref(self)))
+        return bool(_is_subset(other.__board, self.__board))
 
 
     def __eq__(self, other):
@@ -478,7 +523,7 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
         the halfmove timer, and the fullmove clock.
         """
         if type(other) is type(self):
-            return bool(_boards_equal(byref(self), byref(other)))
+            return bool(_boards_equal(self.__board, other.__board))
         return False
         
     def fen(self) -> str:
@@ -486,7 +531,7 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
         Returns a string of the FEN description of this Board.
         """
         fen = create_string_buffer(300)
-        _make_fen(byref(self), fen)
+        _make_fen(self.__board, fen)
         return fen.raw.rstrip(b'\x00 ').decode()
     
     def __str__(self) -> str:
@@ -494,7 +539,7 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
         Returns a string of the FEN description of this Board.
         """
         board = create_string_buffer(300)
-        _make_board_string(byref(self), board)
+        _make_board_string(self.__board, board)
         return board.raw.rstrip(b'\x00 ').decode()
     
 
@@ -505,18 +550,18 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
         """
         Returns a 64-bit integer hash of this Board using randomized Zobrist keys.
         """
-        return int(_hash_board(byref(self), ZORBIST_TABLE))
+        return int(_hash_board(self.__board, ZORBIST_TABLE))
     
     def copy(self) -> "Board":
         """
         Returns a copy of this Board
         """
-        copy = Board.__empty()
-        _copy_into(byref(copy), byref(self))
+        copy = Board(_BOARD.empty())
+        _copy_into(copy.__board, self.__board)
         return copy
     
     def material(self, knight_value : int = 300, bishop_value : int = 300, rook_value : int = 500, queen_value : int = 900) -> int:
-        return int(_material(self.position, c_int(knight_value), c_int(bishop_value), c_int(rook_value), c_int(queen_value)))
+        return int(_material(self.__board.position, c_int(knight_value), c_int(bishop_value), c_int(rook_value), c_int(queen_value)))
 
 
     def debug_position(self, legal_moves : list[Move]):
@@ -531,7 +576,7 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
         uci_chess = sorted([str(move) for move in chess_moves])
         if uci_chess != uci_moves:
             print(self)
-            _print_bitboard(_make_attack_mask(byref(self), BLACK if self.turn == WHITE else WHITE))
+            _print_bitboard(_make_attack_mask(self.__board, BLACK if self.turn == WHITE else WHITE))
             raise Exception(fen +"\n" + str(uci_chess) + "\n" +str(uci_moves))
     
     def debug_perft(self, depth : int, move_stack : list[Move] = []) -> int:
@@ -550,14 +595,15 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
             nodes = 0
             chess_board = chess.Board(fen = self.fen());
             for move in moves:
-                next_board = self.copy()
-                next_board.apply(move)
+                old_fen = self.fen()
+                self.apply(move)
                 chess_board.push(chess.Move.from_uci(str(move)))
-                fen = next_board.fen()
+                fen = self.fen()
                 chess_fen = chess_board.fen(en_passant = "fen")
                 if fen != chess_fen:
-                    raise Exception(fen, chess_fen, move_stack + [move], self.fen())
-                nodes += next_board.debug_perft(depth - 1, move_stack + [move])
+                    raise Exception(fen, chess_fen, move_stack + [move], old_fen)
+                nodes += self.debug_perft(depth - 1, move_stack + [move])
+                self.undo()
                 chess_board.pop()
             return nodes
 
@@ -570,12 +616,12 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
         if debug:
             print("Running on debug mode...")
             return self.debug_perft(depth)
-        return _perft(byref(self), c_uint8(depth))
+        return _perft(self.__board, c_uint8(depth))
 
     def best_move(self, depth : int) -> Move:
         if depth < 0:
             raise Exception("Cannot perform search with a negative depth")
-        res : SearchResult = _search(byref(self), c_uint8(depth))
+        res : SearchResult = _search(self.__board, c_uint8(depth))
         return res.move
 
 
@@ -666,28 +712,28 @@ _hash_piece.argtypes = [Piece]
 
 _has_kingside_castling_rights  = clib.has_kingside_castling_rights
 _has_kingside_castling_rights.restype = c_bool
-_has_kingside_castling_rights.argtypes = [POINTER(Board), Color]
+_has_kingside_castling_rights.argtypes = [POINTER(_BOARD), Color]
 
 _has_queenside_castling_rights = clib.has_queenside_castling_rights
 _has_queenside_castling_rights.restype = c_bool
-_has_queenside_castling_rights.argtypes = [POINTER(Board), Color]
+_has_queenside_castling_rights.argtypes = [POINTER(_BOARD), Color]
 
 _has_castling_rights = clib.has_castling_rights
 _has_castling_rights.restype = c_bool 
-_has_castling_rights.argtypes = [POINTER(Board), Color]
+_has_castling_rights.argtypes = [POINTER(_BOARD), Color]
 
 
 _clear_castling_rights = clib.clear_castling_rights
-_clear_castling_rights.argtypes = [POINTER(Board), Color]
+_clear_castling_rights.argtypes = [POINTER(_BOARD), Color]
 
 _set_full_castling_rights = clib.set_full_castling_rights
-_set_full_castling_rights.argtypes = [POINTER(Board)]
+_set_full_castling_rights.argtypes = [POINTER(_BOARD)]
 
 _update_castling_rights = clib.update_castling_rights
-_update_castling_rights.argtypes = [POINTER(Board), Color]
+_update_castling_rights.argtypes = [POINTER(_BOARD), Color]
 
 _update_all_castling_rights = clib.update_all_castling_rights
-_update_all_castling_rights.argtypes = [POINTER(Board)]
+_update_all_castling_rights.argtypes = [POINTER(_BOARD)]
 
 _contains_piece = clib.contains_piece
 _contains_piece.argtypes = [POINTER(_POSITION), Piece]
@@ -698,7 +744,7 @@ _is_subset.argtypes = [POINTER(_POSITION), POINTER(_POSITION)]
 _is_subset.restype = c_bool
 
 _boards_equal = clib.boards_equal
-_boards_equal.argtypes = [POINTER(Board), POINTER(Board)]
+_boards_equal.argtypes = [POINTER(_BOARD), POINTER(_BOARD)]
 _boards_equal.restype = c_bool
 
 
@@ -706,27 +752,27 @@ _create_zobrist_table = clib.create_zobrist_table
 _create_zobrist_table.restype = POINTER(_ZORBIST_TABLE)
 
 _hash_board = clib.hash_board
-_hash_board.argtypes = [POINTER(Board), POINTER(_ZORBIST_TABLE)]
+_hash_board.argtypes = [POINTER(_BOARD), POINTER(_ZORBIST_TABLE)]
 _hash_board.restype = c_uint64
 
 _add_castling_rights = clib.add_castling_rights
-_add_castling_rights.argtypes = [POINTER(Board), c_bool, Color]
+_add_castling_rights.argtypes = [POINTER(_BOARD), c_bool, Color]
 
 _clear_ep_square = clib.clear_ep_square
-_clear_ep_square.argtypes = [POINTER(Board)]
+_clear_ep_square.argtypes = [POINTER(_BOARD)]
 
 _set_ep_square = clib.set_ep_square
-_set_ep_square.argtypes = [POINTER(Board), Square]
+_set_ep_square.argtypes = [POINTER(_BOARD), Square]
 
 _make_fen = clib.make_fen
-_make_fen.argtypes = [POINTER(Board), c_char_p]
+_make_fen.argtypes = [POINTER(_BOARD), c_char_p]
 
 _split_fen = clib.split_fen
 _split_fen.argtypes = [c_char_p]
 _split_fen.restype = POINTER(_SPLIT_FEN)
 
 _parse_fen = clib.parse_fen
-_parse_fen.argtypes = [c_char_p, POINTER(Board)]
+_parse_fen.argtypes = [c_char_p, POINTER(_BOARD)]
 _parse_fen.restype = c_char_p
 
 _parse_uci = clib.parse_uci
@@ -747,43 +793,43 @@ _is_null_move.argtypes = [Move]
 _is_null_move.restype = c_bool
 
 _apply_move = clib.apply_move
-_apply_move.argtypes = [POINTER(Board), Move]
+_apply_move.argtypes = [POINTER(_BOARD), Move]
 _apply_move.restype = UndoableMove
 
 _undo_move = clib.undo_move
-_undo_move.argtypes = [POINTER(Board), UndoableMove]
+_undo_move.argtypes = [POINTER(_BOARD), UndoableMove]
 _undo_move.restype = Move
 
 # _generate_pseudo_legal_moves = clib.generate_pseudo_legal_moves
-# _generate_pseudo_legal_moves.argtypes = [POINTER(Board), Color, POINTER(Move)]
+# _generate_pseudo_legal_moves.argtypes = [POINTER(_BOARD), Color, POINTER(Move)]
 # _generate_pseudo_legal_moves.restype = c_uint8
 
 _generate_legal_moves = clib.generate_legal_moves
-_generate_legal_moves.argtypes = [POINTER(Board), Color, POINTER(Move)]
+_generate_legal_moves.argtypes = [POINTER(_BOARD), POINTER(Move)]
 _generate_legal_moves.restype = c_uint8
 
 _make_board_string = clib.make_board_string
-_make_board_string.argtypes = [POINTER(Board), c_char_p]
+_make_board_string.argtypes = [POINTER(_BOARD), c_char_p]
 
 _make_attack_mask = clib.make_attack_mask
-_make_attack_mask.argtypes = [POINTER(Board), Color]
+_make_attack_mask.argtypes = [POINTER(_BOARD), Color]
 _make_attack_mask.restype = Bitboard
 
 _in_check = clib.in_check
-_in_check.argtypes = [POINTER(Board), Color]
+_in_check.argtypes = [POINTER(_BOARD)]
 _in_check.restype = c_bool
 
 _copy_into = clib.copy_into
-_copy_into.argtypes = [POINTER(Board), POINTER(Board)]
+_copy_into.argtypes = [POINTER(_BOARD), POINTER(_BOARD)]
 
 _debug_print_board = clib.debug_print_board
-_debug_print_board.argtypes = [POINTER(Board)]
+_debug_print_board.argtypes = [POINTER(_BOARD)]
 
 _print_bitboard = clib.print_bitboard
 _print_bitboard.argtypes = [Bitboard]
 
 _perft = clib.perft
-_perft.argtypes = [POINTER(Board), c_uint8]
+_perft.argtypes = [POINTER(_BOARD), c_uint8]
 _perft.restype = c_uint64
 
 _get_origin = clib.get_origin
@@ -811,9 +857,25 @@ _moves_equal.argtypes = [Move, Move]
 _moves_equal.restype = c_bool
 
 _validate_board = clib.validate_board
-_validate_board.argtypes = [POINTER(Board)]
+_validate_board.argtypes = [POINTER(_BOARD)]
 _validate_board.restype = c_char_p
 
+
+_count_moves = clib.count_legal_moves
+_count_moves.argtypes = [POINTER(_BOARD)]
+_count_moves.restype = c_uint8
+
+_is_stalemate = clib.is_stalemate
+_is_stalemate.argtypes = [POINTER(_BOARD)]
+_is_stalemate.restype = c_bool
+
+
+_is_checkmate = clib.is_checkmate
+_is_checkmate.argtypes = [POINTER(_BOARD)]
+_is_checkmate.restype = c_bool
+
+_randomize_board = clib.randomize_board
+_randomize_board.argtypes = [POINTER(_BOARD)]
 
 # _prepare_move_table = clib.prepare_move_table
 ZORBIST_TABLE = _create_zobrist_table()
