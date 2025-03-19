@@ -1,4 +1,5 @@
 from typing import Optional, NewType
+import typing
 import enum
 import os
 import sys
@@ -144,7 +145,6 @@ class Piece(Structure):
         else:
             return False
 
-
     def __hash__(self) -> int:
         return int(_hash_piece(self))
 
@@ -256,36 +256,92 @@ class _BOARD(Structure):
         )
         return full_board
 
+class PiecePatternUnion(Union):
 
+    _fields_ = [
+        ("count", c_uint8),
+        ("bitboard", Bitboard)
+    ]
 
+class PiecePattern(Structure):
 
+    _anonymous_ = ("u",)
 
-class Positioning(Structure):
+    _fields_ = [
+        ("piece", Piece),
+        ("type", c_uint8),
+        ("u", PiecePatternUnion)
+    ]
+
+class Pattern:
+
+    COUNT_TYPE = c_uint8(1)
+    BITBOARD_TYPE = c_uint8(2)
+
     """
-    A positioning represents an abstract positioning of chess Pieces on a board, described as either set of square and piece values, counts of Pieces, or a mixture.
+    Represents some configuration details about Piece locations in Boards. Can be used to efficiently query if a Board has some configuartion of Pieces.
     """
-    
 
-    
+    __slots__ = ["__piece_patterns", "__current_buffer"]
+
+    def __init__(self):
+        self.__piece_patterns = []
+        self.__current_buffer = None
+
+    def __update_buffer(self):
+        self.__current_buffer = (PiecePattern * len(self.__piece_patterns))(*self.__piece_patterns)
+
+    def piece_count(self, piece : Optional[Piece], count : int) -> "Pattern":
+        """
+        Adds a requirement to this Pattern for a specified count of the given Piece.
+        """
+        if count < 0 or count > 64:
+            raise Exception("A specified Piece count for a pattern must be >= 0 and <= 64")
+        piece_pattern = PiecePattern(
+            _to_c_piece(piece), Pattern.COUNT_TYPE, PiecePatternUnion(count = c_uint8(count))
+        )
+        self.__piece_patterns.append(piece_pattern)
+        self.__update_buffer()
+        return self
+
+    def from_board(self, 
+                    pieces : typing.Union[PieceType, 
+                                          Optional[Piece], 
+                                          list[Optional[typing.Union[Piece, PieceType]]]], 
+                   board : "Board") -> "Pattern":
+        if type(pieces) != list:
+            pieces = [pieces]
+        new_pieces = []
+        for piece in pieces:
+            if type(piece) != Piece:
+                new_pieces.append(Piece(WHITE, piece))
+                new_pieces.append(Piece(BLACK, piece))
+            else:
+                new_pieces.append(piece)
+        pieces = new_pieces
+        for piece in pieces:
+            pattern = PiecePattern(
+                _to_c_piece(piece), 
+                Pattern.BITBOARD_TYPE, 
+                PiecePatternUnion(bitboard = board.piece_bitboard(piece))            
+            )
+            self.__piece_patterns.append(pattern)
+        self.__update_buffer()
+        return self
 
 class Board:
 
     """A ```bulletchess.Board``` is a wrapper around a C ```struct``` which represents the state of a Chess board.
 This class directly encodes the configuration of pieces, whose turn it is, castling rights, the existance of the en passant square, as well as the halfmove clock and fullmove number.
     """
-    
+   
+    __slots__ = ['__board', '__move_stack']
+
     def __init__(self, board : _BOARD):
         self.__board = pointer(board)
         self.__move_stack = []
 
-    def __validate(self):
-        """
-        Raises an Exception if this Board is invalid 
-        """
-        error = _validate_board(self.__board)
-        if error != None:
-            raise ValueError(error.decode("utf-8"))
-   
+  
     @staticmethod
     def from_fen(fen : str) -> "Board":
         """
@@ -297,13 +353,11 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
         buffer = create_string_buffer(init = fen.encode("utf-8"))
         error = _parse_fen(buffer, board.__board)
         if error == None:
-            board.__validate()
             return board
         else:
             error = bytes(error).decode()
             raise ValueError(f"Invalid FEN '{fen}': {error}")
         
-
     
     @staticmethod
     def starting() -> "Board":
@@ -337,11 +391,26 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
     
     @staticmethod
     def random() -> "Board":
+        """
+        Generates a random Board by applying a random number of randomly selected moves to the starting position.
+        """
         board = Board.starting()
         _randomize_board(board.__board)
         return board
 
+
+    def validate(self):
+        """
+        Raises an Exception if this Board is invalid 
+        """
+        error = _validate_board(self.__board)
+        if error != None:
+            raise ValueError(error.decode("utf-8"))
+ 
     def legal_moves(self) -> list[Move]:
+        """
+        Creates a list of legal Moves that can be applied to this Board.
+        """
         moves_buffer = (Move * 256)()
         self.__board.contents
         length = _generate_legal_moves(self.__board, moves_buffer)
@@ -350,9 +419,10 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
     def count_moves(self) -> int:
         """
         Counts the number of legal moves for this Board. This is faster than calling
-        `get_legal_moves()` and checking the length
+        `legal_moves()` and checking the length
         """
         return int(_count_moves(self.__board))
+
 
     def apply(self, move : Move) -> None:
         """
@@ -363,16 +433,14 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
     def undo(self) -> Move:
         undoable = self.__move_stack.pop()
         return _undo_move(self.__board, undoable)
-
     
-
     def in_check(self) -> bool:
         """
         Returns `True` if the side to move is in check.
         """
         return bool(_in_check(self.__board))
 
-    
+
     def is_checkmate(self) -> bool:
         """
         Returns `True` if the side to move is in checkmate.
@@ -385,9 +453,19 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
         """
         return bool(_is_stalemate(self.__board))
 
+    def is_draw(self) -> bool:
+        """
+        Returns `True` if the Board's position is a draw, whether by stalemate,
+        the halfmove clock being 50 or greater (for a position that is not checkmate), 
+        or by threefold repetition
+        """
+        l = len(self.__move_stack)
+        moves_array = (UndoableMove * l)(*self.__move_stack)
+        return bool(_is_draw(self.__board, moves_array, l))
+
     def get_piece_at(self, square : Square) -> Optional[Piece]:
         """
-        Gets the piece at the specified Square
+        Gets the Piece at the specified Square
         """
         return _from_c_piece(_get_piece_at(self.__board.contents.position, square))
 
@@ -417,12 +495,16 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
         _clear_ep_square(self.__board)
     
     def get_ep_square(self) -> Optional[Square]:
-        optional_square = self.en_passant_square
+        """
+        Gets the value of the en passant Square, or None if it does not exist.
+        """
+        
+        optional_square = self.__board.contents.en_passant_square
         if bool(optional_square.exists):
             return optional_square.square
         return None
-        
-
+    
+    """
     def get_halfmove_clock(self) -> int:
         return int(self.halfmove_clock)
 
@@ -434,8 +516,7 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
 
     def set_fullmove_number(self, value : int) -> None:
         self.fullmove_number = TurnClock(value)
-
- 
+    """
 
     def get_turn(self) -> Color:
         """
@@ -494,14 +575,16 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
         _add_castling_rights(self.__board, c_bool(kingside), player)
 
 
-
-
-    def __contains__(self, piece : Optional[Piece]):
+    def __contains__(self, obj : typing.Union[Optional[Piece], Pattern]):
         """
-        Returns True if the given piece exists in this Board
+        Returns True if the given Piece exists in this Board
         """
-        return _contains_piece(self.__board, _to_c_piece(piece_struct))
-
+        if type(obj) == Piece: 
+            return _contains_piece(self.__board, _to_c_piece(piece))
+        else:
+            return bool(_board_has_patterns(self.__board, 
+                                            obj._Pattern__current_buffer, 
+                                            len(obj._Pattern__piece_patterns)))
 
     def __le__(self, other : "Board") -> bool:
         """
@@ -536,7 +619,7 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
     
     def __str__(self) -> str:
         """
-        Returns a string of the FEN description of this Board.
+        Creates a visual representation of this Board in the form of a string.
         """
         board = create_string_buffer(300)
         _make_board_string(self.__board, board)
@@ -551,13 +634,21 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
         Returns a 64-bit integer hash of this Board using randomized Zobrist keys.
         """
         return int(_hash_board(self.__board, ZORBIST_TABLE))
-    
+
+    def piece_bitboard(self, piece : Optional[Piece]) -> Bitboard:
+        """
+        Returns a Bitboard representing the locations of the specified Piece, or 
+        the empty squares if given None.
+        """
+        return _get_piece_bb(self.__board, _to_c_piece(piece))
+
     def copy(self) -> "Board":
         """
-        Returns a copy of this Board
+        Returns a copy of this Board.
         """
         copy = Board(_BOARD.empty())
         _copy_into(copy.__board, self.__board)
+        copy.__move_stack = self.__move_stack.copy()
         return copy
     
     def material(self, knight_value : int = 300, bishop_value : int = 300, rook_value : int = 500, queen_value : int = 900) -> int:
@@ -607,10 +698,23 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
                 chess_board.pop()
             return nodes
 
-
-               
+    def get_squares_with(self, piece : Optional[Piece]) -> list[Square]:
+        """
+        Returns a list of Squares where the given Piece can be found on this Board.
+        Passing `None` will return a list of squares where there is no Piece.
+        """
+        buffer = (Square * 64)()
+        length = _squares_with_piece(self.__board, _to_c_piece(piece), buffer)
+        return buffer[:length]
 
     def perft(self, depth : int, debug: bool = False) -> int:
+        """
+        Walks through the move generation tree for this Board to the specified depth, and
+        counts the number of lead node Boards created. 
+
+        For a more detailed explanation, see: 
+        https://www.chessprogramming.org/Perft
+        """
         if depth < 0:
             raise Exception("Cannot perform perft with a negative depth")
         if debug:
@@ -618,11 +722,16 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
             return self.debug_perft(depth)
         return _perft(self.__board, c_uint8(depth))
 
+    
     def best_move(self, depth : int) -> Move:
+        ...
+        """
         if depth < 0:
             raise Exception("Cannot perform search with a negative depth")
         res : SearchResult = _search(self.__board, c_uint8(depth))
         return res.move
+        """
+
 
 
 # C LIBRARY IMPORTS
@@ -632,9 +741,9 @@ _piece_from_string.argtypes = [c_char_p]
 _piece_from_string.restype = Piece
 
 
-_material = clib.material
-_material.restype = c_int
-_material.argtypes = [POINTER(_POSITION), c_int, c_int, c_int, c_int]
+# _material = clib.material
+# _material.restype = c_int
+# _material.argtypes = [POINTER(_POSITION), c_int, c_int, c_int, c_int]
 
 _get_piece_at = clib.get_piece_at
 _get_piece_at.restype = Piece
@@ -876,6 +985,22 @@ _is_checkmate.restype = c_bool
 
 _randomize_board = clib.randomize_board
 _randomize_board.argtypes = [POINTER(_BOARD)]
+
+_get_piece_bb = clib.get_piece_bb_from_board
+_get_piece_bb.argtypes = [POINTER(_BOARD), Piece]
+_get_piece_bb.restype = Bitboard
+
+_squares_with_piece = clib.squares_with_piece
+_squares_with_piece.argtypes = [POINTER(_BOARD), Piece, POINTER(Square)]
+_squares_with_piece.restype = c_uint8
+
+_board_has_patterns = clib.board_has_patterns
+_board_has_patterns.argtypes = [POINTER(_BOARD), POINTER(PiecePattern), c_uint64]
+_board_has_patterns.restype = c_bool
+
+_is_draw = clib.is_draw
+_is_draw.argtypes = [POINTER(_BOARD), POINTER(UndoableMove), c_uint16]
+_is_draw.restype = c_bool
 
 # _prepare_move_table = clib.prepare_move_table
 ZORBIST_TABLE = _create_zobrist_table()

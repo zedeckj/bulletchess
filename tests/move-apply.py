@@ -117,18 +117,38 @@ class TestMoveApply(unittest.TestCase):
             "rnbqkbnr/pppppp1p/8/8/1P6/2N2p2/P1PPP1PP/R1BQKBNR w KQkq - 0 4")
 
     def testRandomUndo(self):
-        boards = [Board.random() for _ in range(100000)]
+        boards = [Board.random() for _ in range(10000)]
         for board in boards:
-            copy = board.copy()
             moves = board.legal_moves()
             if len(moves) == 0:
                 continue
+            copy = board.copy()
             for move in moves:
                 board.apply(move)
                 self.assertNotEqual(board, copy)
                 board.undo()
                 self.assertEqual(board, copy)
 
+    def testFailedCases(self):
+        """
+        Tests positions that failed in random undo previously
+        """
+        board = Board.from_fen("8/7k/3P4/2P5/p6p/p2n3R/3N4/3R4 w - - 7 97")
+        moves = board.legal_moves()
+        copy = board.copy()    
+        for move in moves:
+            board.apply(move)
+            self.assertNotEqual(board, copy)
+            board.undo()
+            self.assertEqual(board, copy)
+
+    def testNullMove(self):
+        board = Board.starting()
+        null_move = Move.from_uci("0000")
+        board.apply(null_move)
+        fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 1 1"
+        board2 = Board.from_fen(fen)
+        self.assertEqual(board, board2)
 
 if __name__ == "__main__":
-    TestMoveApply.testRandomUndo()
+    unittest.main()

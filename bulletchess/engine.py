@@ -178,8 +178,7 @@ class SearchResult(Structure):
 
     
 
-class Engine:
-
+class BulletEngine:
     def __init__(self, parameters : EngineParameters):
         self.parameters = pointer(parameters)
         
@@ -189,6 +188,7 @@ class Engine:
         res = _search(byref(board), self.parameters, c_uint8(depth))
         print(res.move, res.eval)
         return (res.move, int(res.eval))
+
 _search = clib.search_wrapper
 
 _search.argtypes = [POINTER(Board), POINTER(EngineParameters), c_uint8]

@@ -120,7 +120,13 @@ class TestPosition(unittest.TestCase):
                         for square2 in unchanged:
                             self.assertEqual(board.get_piece_at(square2), unchanged[square2])
                     self.assertEqual(board.get_piece_at(square), Piece(color, piece_type))
-    
+
+
+    def testSquaresWith(self):
+        board = Board.starting()
+        self.assertEqual([A2, B2, C2, D2, E2, F2, G2, H2], board.get_squares_with(Piece(WHITE, PAWN))) 
+        self.assertEqual([A8, H8], board.get_squares_with(Piece(BLACK, ROOK))) 
+        self.assertEqual([E1], board.get_squares_with(Piece(WHITE, KING)))
 
 if __name__ == "__main__":
     unittest.main()

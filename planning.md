@@ -62,4 +62,28 @@ Now generating all legal moves for positions where player is not already in chec
 - Finish move generation cleanup, pull out more helper functions
 - Use concept of push and capture masks to find legal moves in check
 https://peterellisjones.com/posts/generating-legal-chess-moves-efficiently/
-- 
+
+
+
+
+
+3/17
+
+Essentially all features in terms of playing chess are implemented and are well tested and reasonably fast.
+There are essentially two design problems left to tackle
+
+- Board legality/validation
+    Should it be allowed to create a board that describes an illegal position from a FEN? Should boards be able to be mutated such that they are now illegal positions? 
+    If yes, how far does this go? It seems like a lot of useful functionality would be excluded.
+
+    It seems like the best solution is to allow illegal boards, as this may allow interesting analysis, but not allowed the generation of moves in these positions...
+    Or why not? Simply provide an is_legal function.
+
+
+- Board Predicates
+
+    The way im imagining this is a function which operates over a list of boards and a list of predicates, boards that match at least one pred will be retained. 
+    A predicate is a list of perscriptions for specific piece configuration or a piece count
+
+
+    

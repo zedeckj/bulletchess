@@ -3,6 +3,7 @@ import sys
 sys.path.append("./")
 import bulletchess
 from ctypes import *
+from bulletchess import *
 # board = chess.Board()
 
 # def print_decl_str(name : str, bitboard : int) -> str:
@@ -59,4 +60,11 @@ def do(FEN):
     print(diff)
     print(board)
 
-do("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPPNNnPP/R1BQK2R b KQ - 2 8")
+
+
+board = Board.starting()
+move = Move.from_uci("e8e9")
+board.apply(move)
+print(board)
+
+#do("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPPNNnPP/R1BQK2R b KQ - 2 8")

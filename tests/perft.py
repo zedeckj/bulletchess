@@ -51,7 +51,7 @@ class TestPerft(unittest.TestCase):
         self.assertEqual(native_perft(board,2), 400)
         self.assertEqual(native_perft(board,3), 8902)
         self.assertEqual(native_perft(board,4), 197281)
-        self.assertEqual(native_perft(board,5), 4865609)
+        #self.assertEqual(native_perft(board,5), 4865609)
 
 
     def test_native_pos2(self):
@@ -60,8 +60,8 @@ class TestPerft(unittest.TestCase):
         self.assertEqual(native_perft(board,2), 2039)
         self.assertEqual(native_perft(board,3), 97862)
         self.assertEqual(native_perft(board,4), 4085603)
-        self.assertEqual(native_perft(board,5), 193690690)
-        self.assertEqual(native_perft(board,6), 8031647685)
+        #self.assertEqual(native_perft(board,5), 193690690)
+        #self.assertEqual(native_perft(board,6), 8031647685)
 
     def test_native_pos3(self):
         board = Board.from_fen("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1")

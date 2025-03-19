@@ -173,8 +173,7 @@ bool validate_generic_move(char origin_file, char origin_rank, char dest_file, c
     if ((dist = abs(dest_file - origin_file)) == abs(dest_rank - origin_rank)) return dist != 0;
     int8_t file_diff = abs(dest_file - origin_file);
     int8_t rank_diff = abs(dest_rank - origin_rank);
-    return ((file_diff == 1 && rank_diff == 2) || (file_diff == 2 && rank_diff == 1));
- 
+    return ((file_diff == 1 && rank_diff == 2) || (file_diff == 2 && rank_diff == 1)); 
 }
 
 
@@ -182,7 +181,7 @@ bool validate_generic_move(char origin_file, char origin_rank, char dest_file, c
 move_t parse_uci(char * str) {
     if (!str) return error_move();
     bool all_zero = true;
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 4; i++) {
         if (!str[i]) {
             return error_move();
         }
@@ -192,7 +191,7 @@ move_t parse_uci(char * str) {
         }
     }
     if (all_zero) {
-        return str[5] ? error_move() : null_move();
+			return str[5] ? error_move() : null_move();
     }
     if (valid_square_chars(str[0], str[1]) && 
         valid_square_chars(str[2], str[3])) {
@@ -232,7 +231,6 @@ move_t parse_uci(char * str) {
                       promote_to);
                }
             }
-
     }
     return error_move();
 }
@@ -641,7 +639,20 @@ undoable_move_t apply_move(full_board_t * board, move_t move) {
 		out_move.old_en_passant = board->en_passant_square;
 		out_move.move = move;
 		out_move.was_castling = 0;
-		if (move.type == PROMOTION_MOVE) {
+		if (move.type == NULL_MOVE) {
+			if (board->turn == WHITE_VAL){
+				board->turn = BLACK_VAL;
+			}
+			else {
+				board->turn = WHITE_VAL;
+				board->fullmove_number += 1;
+			}
+			board->halfmove_clock += 1;
+			board->en_passant_square.exists = false;
+			board->en_passant_square.square = EMPTY_EP;
+			return out_move;
+		}
+		else if (move.type == PROMOTION_MOVE) {
         bitboard_t origin = SQUARE_TO_BB(move.promotion.body.origin);
         bitboard_t destination = SQUARE_TO_BB(move.promotion.body.destination);
         out_move.captured_piece = apply_pawn_promotion(board, origin, destination, move.promotion.promote_to);
@@ -702,7 +713,7 @@ move_t undo_move(full_board_t *board, undoable_move_t move) {
 		*friendly_oc |= origin;
 		 position->pawns |= origin;
 	}
-	else {
+	else if (move.move.type == GENERIC_MOVE) {
 		origin = SQUARE_TO_BB(move.move.generic.origin);
 		destination = SQUARE_TO_BB(move.move.generic.destination);
 		if (position->knights & destination) {
@@ -1328,13 +1339,6 @@ check_info_t non_check_info() {
     return escapes;
 } 
 
-check_info_t two_checkers_info() {
-    check_info_t escapes;
-    escapes.allowed_move_mask = 0;
-    escapes.extra_pawn_capture_mask = 0;
-    escapes.king_attacker_count = 2;
-    return escapes;
-} 
 
 
 
@@ -1351,14 +1355,15 @@ bool in_check_with_attacker_mask(position_t * position, piece_color_t for_color,
 }
 
 check_info_t update_info(check_info_t current_info, bitboard_t move_mask, bitboard_t enemy_mask) {
-    if (current_info.king_attacker_count > 1) {
-        return current_info;
-    }
     bitboard_t attackers = move_mask & enemy_mask;
     if (attackers) {
         current_info.king_attacker_count += 1;
-        if (current_info.king_attacker_count > 1) return two_checkers_info();
-        else {
+        if (current_info.king_attacker_count > 1){
+    			current_info.allowed_move_mask = 0;
+    			current_info.extra_pawn_capture_mask = 0;
+ 					return current_info;
+				}
+				else {
             current_info.allowed_move_mask = move_mask;
             current_info.extra_pawn_capture_mask = move_mask;
             return current_info;
@@ -1610,7 +1615,6 @@ u_int8_t count_moves(
 
 
 
-
 u_int8_t generate_moves(
     full_board_t *board, 
     piece_color_t for_color, 
@@ -1721,10 +1725,9 @@ u_int8_t generate_moves(
             bitboard_t destination_bb;
             destination_bb = knight_attack_mask(square_bb, non_friendly);
             destination_bb &= allowed_mask;
-
             add_from_bitboard(origin, destination_bb, move_buffer, &move_index);
         }
-        else if (square_bb & our_rooks ) {
+        else if (square_bb & our_rooks) {
             bitboard_t destination_bb = sliding_attack_mask(square_bb, non_friendly, empty);
             destination_bb &= allowed_mask;
             add_from_bitboard(origin, destination_bb, move_buffer, &move_index);
@@ -1745,7 +1748,62 @@ u_int8_t generate_moves(
     return move_index;
 }
 
+/*
+bool is_legal_promotion(full_board_t * board, promotion_move_t promotion) {
+	bitboard_t origin = SQUARE_TO_BB(promotion.body.origin);
+	bitboard_t destination = SQUARE_TO_BB(promotion.body.destination);
+	position_t * position;
+	if (origin & position->pawns) {
+		if (board->turn == WHITE_VAL 
+				&& (origin & position->white_oc & RANK_7) 
+				&& (destination & RANK_8)) {
+			if (destination & ABOVE_BB(origin)){
+				bitboard_t empty = ~(position->white_oc | position->black_oc);
+				return empty & destination;
+			}
+			else if (destination & ABOVE_BB(SAFE_LEFT_BB(origin))) {
+				return position->black_oc & destination;
+			}
+			else if (destination & ABOVE_BB(SAFE_RIGHT_BB(origin))) {
+				return position->black_oc & destination;
+			}
+		}
+		else if (board->turn == BLACK_VAL 
+				&& (origin & position->black_oc & RANK_2) 
+				&& (destination & RANK_1)) {
+			if (destination & BELOW_BB(origin)){
+				bitboard_t empty = ~(position->white_oc | position->black_oc);
+				return empty & destination;
+			}
+			else if (destination & BELOW_BB(SAFE_LEFT_BB(origin))) {
+				return position->white_oc & destination;
+			}
+			else if (destination & BELOW_BB(SAFE_RIGHT_BB(origin))) {
+				return position->white_oc & destination;
+			}
+		}
+	}
+	return false;
+}
 
+bool is_legal_generic(full_board_t *board, generic_move_t move) {
+	bitboard_t origin = SQUARE_TO_BB(move.origin);
+	bitboard_t destination = SQUARE_TO_BB(move.destination);
+	if 
+
+}
+
+bool is_legal_move(full_board_t *board, move_t move) {
+	if (move.type == PROMOTION_MOVE){
+		return is_legal_promotion(board, move.promotion);
+	}
+	else if (move.type == GENERIC_MOVE) {
+		return is_legal_generic(board, move.generic);
+	}
+
+}
+
+*/
 // u_int8_t generate_pseudo_legal_moves(full_board_t *board,  piece_color_t for_color,  move_t * move_buffer) {
 //     return generate_moves(board, for_color, 0, non_check_escapes(), move_buffer);
 // }
@@ -1763,7 +1821,12 @@ bool opponent_in_check(full_board_t *board) {
     return in_check_with_attacker_mask(board->position, for_color, attack_mask);
 }
 
-
+u_int8_t get_checkers(full_board_t *board) {
+		piece_color_t for_color = board->turn;
+    bitboard_t attack_mask = make_attack_mask(board, WHITE_VAL == for_color ? BLACK_VAL : WHITE_VAL);
+		check_info_t info = make_check_info(board, for_color, attack_mask);
+		return info.king_attacker_count;	
+}	
 
 
 bool is_stalemate(full_board_t *board) {
@@ -1782,6 +1845,35 @@ bool is_checkmate(full_board_t *board) {
     	return count_moves(board, for_color, attack_mask, info) == 0;
 		}
 		return false;
+}
+
+bool is_threefold_repetition(full_board_t *board, undoable_move_t *move_stack, u_int16_t stack_size) {
+	turn_clock_t halfmove = board->halfmove_clock;	
+	u_int8_t matches = 0;
+	full_board_t copy;
+	position_t pos;
+	copy.position = &pos;
+	copy_into(&copy, board); 
+	for (int16_t index = stack_size - 1; index >= 0; index--) {
+		undo_move(&copy, move_stack[index]);
+		halfmove = halfmove ? halfmove - 1 : 0;
+		if (halfmove != copy.halfmove_clock) break;
+		if (positions_equal(copy.position, board->position)) ++matches;
+		if (matches > 1) return true;
+	}
+	return false;	
+}
+
+bool is_draw(full_board_t *board, undoable_move_t *move_stack, u_int8_t stack_size) {
+		piece_color_t for_color = board->turn;
+    bitboard_t attack_mask = make_attack_mask(board, WHITE_VAL == for_color ? BLACK_VAL : WHITE_VAL);
+    check_info_t info = make_check_info(board, for_color, attack_mask);
+		u_int8_t move_count = count_moves(board, for_color, attack_mask, info);
+		if (move_count) {
+					return board->halfmove_clock >= 50 
+									|| is_threefold_repetition(board, move_stack, stack_size);	
+		}
+		return info.king_attacker_count == 0;
 }
 
 

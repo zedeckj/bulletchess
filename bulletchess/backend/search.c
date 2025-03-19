@@ -2,6 +2,7 @@
 
 // Calculates the material advantage of white versus black, measured in centipawns. A positive material calculation indicates an
 // advantage for white.
+/*
 int material(position_t * position, int knight_value, int bishop_value, int rook_value, int queen_value) {
     piece_counts_t counts = count_pieces(position);
     int white_value = 100 * counts.white_pawns 
@@ -182,4 +183,4 @@ search_result_t search_wrapper(full_board_t * board, evaluation_table_t * table,
     printf("checkmate value %d %d\n", 0-table->checkmate_value, table->checkmate_value);
     return search(board, 0- table->checkmate_value, table->checkmate_value, table, depth);
  }
-
+*/

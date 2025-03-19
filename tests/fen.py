@@ -3,14 +3,14 @@ import sys
 sys.path.append("./")
 from bulletchess import *
 
-def testInvalid(tester : unittest.TestCase, fen : str, msg : str):
+def testBoardInvalid(tester : unittest.TestCase, fen : str, msg : str):
     with tester.assertRaisesRegex(ValueError, msg):
         board = Board.from_fen(fen)
+        board.validate()
 
 def testFenInvalid(tester : unittest.TestCase, fen : str, msg : str):
     with tester.assertRaisesRegex(ValueError, f"Invalid FEN '{fen}': {msg}"):
         board = Board.from_fen(fen)
-
 
 class TestFen(unittest.TestCase):
 
@@ -28,39 +28,48 @@ class TestFen(unittest.TestCase):
 
     def testIllegalFens(self):
         err = "Board must have a king for both players"
-        testInvalid(self,"8/8/8/8/8/8/8/8 w - - 0 0",err) 
-        testInvalid(self, "8/8/8/8/5K2/8/8/8 b - - 0 1", err)
-        testInvalid(self, "8/8/8/8/1k6/8/8/8 w - - 10 5", err)
-        testInvalid(self, "8/8/3k4/8/8/8/2PBPPQ1/8 b - - 0 30", err) 
+        testBoardInvalid(self,"8/8/8/8/8/8/8/8 w - - 0 0",err) 
+        testBoardInvalid(self, "8/8/8/8/5K2/8/8/8 b - - 0 1", err)
+        testBoardInvalid(self, "8/8/8/8/1k6/8/8/8 w - - 10 5", err)
+        testBoardInvalid(self, "8/8/3k4/8/8/8/2PBPPQ1/8 b - - 0 30", err) 
         err = "Board cannot have more than 1 white king"
-        testInvalid(self,"8/8/3k4/8/8/7K/K1PBPPQ1/8 w - - 0 1" ,err)
-        testInvalid(self, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKKBNR w KQkq - 0 1", err)
+        testBoardInvalid(self,"8/8/3k4/8/8/7K/K1PBPPQ1/8 w - - 0 1" ,err)
+        testBoardInvalid(self, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKKBNR w KQkq - 0 1", err)
         err = "Board cannot have more than 1 black king"
-        testInvalid(self, "rnbqkbnr/pppppppp/8/8/6k1/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1", err)
-        err = "The player to move cannot be able to capture the opponent's king"
-        testInvalid(self, "rnb1kbnr/pppp1ppp/8/8/7q/8/PPPPP1PP/RNBQKBNR b KQkq - 0 1", err)
-        testInvalid(self, "rnbqkbnr/pppp1ppp/8/4Q3/3P4/8/PPP1P1PP/RNB1KBNR w KQkq - 0 1", err)
+        testBoardInvalid(self, "rnbqkbnr/pppppppp/8/8/6k1/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1", err)
+        err = "Board has impossible position, the player to move cannot be able to capture the opponent's king"
+        testBoardInvalid(self, "rnb1kbnr/pppp1ppp/8/8/7q/8/PPPPP1PP/RNBQKBNR b KQkq - 0 1", err)
+        testBoardInvalid(self, "rnbqkbnr/pppp1ppp/8/4Q3/3P4/8/PPP1P1PP/RNB1KBNR w KQkq - 0 1", err)
         err = "Board cannot have pawns on the back ranks"
-        testInvalid(self, "rnbqkbnr/pppp1ppp/8/1Q6/3P4/8/PPP1P1PP/RNBPKBNR w KQkq - 0 1", err)
-        testInvalid(self, "rnbqkbnr/pppp1ppp/8/1Q6/3P4/8/PPP1P1PP/RNBpKBNR w KQkq - 0 1", err)
-        testInvalid(self, "rnbqkbPr/pppp1ppp/8/1Q6/3P4/8/PPP1P1PP/RNB1KBNR w KQkq - 0 1", err)
-        testInvalid(self, "rnbqkbpr/pppp1ppp/8/1Q6/3P4/8/PPP1P1PP/RNB1KBNR w KQkq - 0 1", err)
+        testBoardInvalid(self, "rnbqkbnr/pppp1ppp/8/1Q6/3P4/8/PPP1P1PP/RNBPKBNR w KQkq - 0 1", err)
+        testBoardInvalid(self, "rnbqkbnr/pppp1ppp/8/1Q6/3P4/8/PPP1P1PP/RNBpKBNR w KQkq - 0 1", err)
+        testBoardInvalid(self, "rnbqkbPr/pppp1ppp/8/1Q6/3P4/8/PPP1P1PP/RNB1KBNR w KQkq - 0 1", err)
+        testBoardInvalid(self, "rnbqkbpr/pppp1ppp/8/1Q6/3P4/8/PPP1P1PP/RNB1KBNR w KQkq - 0 1", err)
         err = "Board castling rights are illegal, neither player can castle"
-        testInvalid(self, "rnbq1bnr/ppppkppp/8/4p3/4P3/8/PPPPKPPP/RNBQ1BNR w KQk - 2 3", err)
+        testBoardInvalid(self, "rnbq1bnr/ppppkppp/8/4p3/4P3/8/PPPPKPPP/RNBQ1BNR w KQk - 2 3", err)
         err = "Board castling rights are illegal, white cannot castle"
-        testInvalid(self, "r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQ1RK1 b KQkq - 5 4", err)
+        testBoardInvalid(self, "r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQ1RK1 b KQkq - 5 4", err)
         err = "Board castling rights are illegal, black cannot castle"
-        testInvalid(self, "r1bq1rk1/pppp1ppp/2n2n2/2b1p3/2B1P3/3P1N2/PPP2PPP/RNBQ1RK1 w kq - 1 6", err)
+        testBoardInvalid(self, "r1bq1rk1/pppp1ppp/2n2n2/2b1p3/2B1P3/3P1N2/PPP2PPP/RNBQ1RK1 w kq - 1 6", err)
         err = "Board castling rights are illegal, white cannot castle kingside"
-        testInvalid(self, "rnbqkbnr/ppp1pppp/8/3p4/7P/7R/PPPPPPP1/RNBQKBN1 b Kkq - 1 2", err)
+        testBoardInvalid(self, "rnbqkbnr/ppp1pppp/8/3p4/7P/7R/PPPPPPP1/RNBQKBN1 b Kkq - 1 2", err)
         err = "Board castling rights are illegal, white cannot castle queenside"
-        testInvalid(self, "rnbqkbnr/pppp1ppp/8/4p3/P7/8/RPPPPPPP/1NBQKBNR b KQ - 1 2", err)
+        testBoardInvalid(self, "rnbqkbnr/pppp1ppp/8/4p3/P7/8/RPPPPPPP/1NBQKBNR b KQ - 1 2", err)
         err = "Board castling rights are illegal, black cannot castle kingside"
-        testInvalid(self, "rnbqkr2/ppp2ppp/5n2/3pp3/PP6/R7/2PPPPPP/1N1QKBNR w Kkq - 1 6", err)
+        testBoardInvalid(self, "rnbqkr2/ppp2ppp/5n2/3pp3/PP6/R7/2PPPPPP/1N1QKBNR w Kkq - 1 6", err)
         err = "Board castling rights are illegal, black cannot castle queenside"
-        testInvalid(self, "2bqkbnr/2pppppp/r7/p7/3PP3/8/PPP2PPP/RNBQK1NR w KQkq - 0 5", err)
+        testBoardInvalid(self, "2bqkbnr/2pppppp/r7/p7/3PP3/8/PPP2PPP/RNBQK1NR w KQkq - 0 5", err)
+        err = "Board cannot have more white bishops than are able to promote"
+        testBoardInvalid(self, "rnbqkbnr/pppppppp/8/8/2B5/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", err)
+        testBoardInvalid(self, "rnbqkbnr/pppppppp/8/5B2/2B5/8/PPP1PPPP/RNBQKBNR w KQkq - 0 1", err)
+        err = "Board cannot have more white rooks than are able to promote"
+        testBoardInvalid(self, "rnbqkbnr/pppppppp/8/8/R7/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", err)
+        err = "Board cannot have more white knights than are able to promote"
+        testBoardInvalid(self, "rnbqkbnr/pppppppp/8/4N1N1/2N5/8/PPPPPP2/RNBQKBNR w KQkq - 0 1", err)
+        err = "Board cannot have more white queens that are able to promote"
+        testBoardInvalid(self, "rnbqkbnr/pppppppp/8/8/3Q3P/8/PPPPPPP1/RNBQKBNR w KQkq - 0 1", err)
 
-    def testInvalidFens(self):
+    def testBoardInvalidFens(self):
         err = "Empty FEN"
         testFenInvalid(self, "", err)
         err = "Position does not describe entire board"
@@ -130,8 +139,6 @@ class TestFen(unittest.TestCase):
     def testRandomSymmetry(self):
         boards = [Board.random() for _ in range(10000)]
         for board1 in boards:
-            print(board1)
-            print("\n")
             fen1 = board1.fen()
             board2 = Board.from_fen(fen1)
             fen2 = board2.fen()

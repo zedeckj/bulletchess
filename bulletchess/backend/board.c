@@ -72,6 +72,7 @@ bool en_passant_is(full_board_t * board, square_t square) {
     return false;
 }
 
+
 u_int8_t count_bits(bitboard_t bb) {
 	u_int8_t count = 0;
 	while (bb & -bb) {
@@ -106,6 +107,7 @@ void delete_piece_at(position_t * board, square_t square) {
     board->white_oc &= keep_bb;
     board->black_oc &= keep_bb;
 }
+
 
 
 piece_counts_t count_pieces(position_t *position) {
@@ -160,6 +162,38 @@ piece_counts_t count_pieces(position_t *position) {
     return counts;
 }
 
+
+bool counts_match(u_int8_t ref_counts, u_int8_t check_counts) {
+	bool out = !((u_int8_t)~ref_counts) || ref_counts == check_counts;
+	return out;
+}
+
+bool board_has_counts(full_board_t *board, piece_counts_t counts) {
+	piece_counts_t to_check = count_pieces(board->position);
+	bool out = counts_match(counts.white_pawns, to_check.white_pawns) &&
+				 counts_match(counts.white_knights, to_check.white_knights) &&
+	       counts_match(counts.white_bishops, to_check.white_bishops) &&
+	       counts_match(counts.white_rooks, to_check.white_rooks) &&
+	       counts_match(counts.white_queens, to_check.white_queens) &&
+				 counts_match(counts.black_pawns, to_check.black_pawns) &&
+				 counts_match(counts.black_knights, to_check.black_knights) &&
+	       counts_match(counts.black_bishops, to_check.black_bishops) &&
+	       counts_match(counts.black_rooks, to_check.black_rooks) &&
+	       counts_match(counts.black_queens, to_check.black_queens);
+	return out;
+}
+u_int64_t filter_boards_from_counts(full_board_t **boards, 
+								u_int64_t in_length,
+								piece_counts_t counts, 
+								full_board_t **out_list) {
+	u_int64_t out_length = 0;
+	for (u_int64_t i = 0; i < in_length; i++) {
+		if (board_has_counts(boards[i], counts)) {
+			out_list[out_length++] = boards[i];
+		}
+	}
+	return out_length;
+}
 
 bool contains_piece(position_t * position, piece_t piece) {
     if (piece.type == EMPTY_VAL) {
@@ -231,13 +265,81 @@ bool boards_equal(full_board_t * board1, full_board_t * board2) {
 }
 
 
+bitboard_t get_piece_bb(position_t* position, piece_t piece) {
+	bitboard_t piece_bb;
+	switch (piece.type) {
+		case EMPTY_VAL:
+		return ~(position->white_oc | position->black_oc);
+		case PAWN_VAL:
+		piece_bb = position->pawns;
+	 	break;
+		case KNIGHT_VAL:
+		piece_bb = position->knights;
+		break;
+		case BISHOP_VAL:
+		piece_bb = position->bishops;
+		break;
+		case ROOK_VAL:
+		piece_bb = position->rooks;
+		break;
+		case QUEEN_VAL:
+		piece_bb = position->queens;
+		break;
+		case KING_VAL:
+		piece_bb = position->kings;
+		break;
+	}
+	bitboard_t color_bb = piece.color == WHITE_VAL ? position->white_oc : position->black_oc;
+	return piece_bb & color_bb;
+}
+
+bitboard_t get_piece_bb_from_board(full_board_t * board, piece_t piece) {
+	return get_piece_bb(board->position, piece);
+}
+
+
+bool board_has_pattern(full_board_t * board, piece_pattern_t pattern) {
+	bitboard_t piece_bb = get_piece_bb(board->position, pattern.piece);
+ 	switch (pattern.pattern_type) {
+		case COUNT_PATTERN:
+		return count_bits(piece_bb) == pattern.count;
+		case BITBOARD_PATTERN:
+	 	return piece_bb == pattern.bitboard;
+	}
+	return false;	
+}
+
+bool board_has_patterns(full_board_t *board, piece_pattern_t *patterns, u_int64_t pattern_count) {
+	bool has = true;
+	for (u_int64_t i = 0; has && i < pattern_count; i++) {
+		has = board_has_pattern(board, patterns[i]);
+	}
+	return has;
+}
+
+
+
+// Should be called with a buffer of length 64
+u_int8_t squares_with_piece(full_board_t *board, piece_t piece, square_t *square_buffer) {
+	u_int8_t count = 0;
+	bitboard_t piece_bb = get_piece_bb(board->position, piece);
+	for (square_t square = A1; square <= H8; square++) {
+		bitboard_t sq_bb = SQUARE_TO_BB(square);
+		if (sq_bb & piece_bb) {
+			square_buffer[count++] = square;
+		}		
+	}
+	return count;
+}	
+
 void copy_into(full_board_t * dst, full_board_t * source) {
-    dst->castling_rights = source->castling_rights;
+    dst->turn = source->turn;
+		dst->castling_rights = source->castling_rights;
     dst->en_passant_square = source->en_passant_square;
     dst->fullmove_number = source->fullmove_number;
     dst->halfmove_clock = source->halfmove_clock;
-    dst->turn = source->turn;
-    dst->position->pawns = source->position->pawns;
+    
+		dst->position->pawns = source->position->pawns;
     dst->position->knights = source->position->knights;
     dst->position->bishops = source->position->bishops;
     dst->position->rooks = source->position->rooks;
@@ -492,6 +594,7 @@ u_int8_t count_bitboard(bitboard_t bitboard, int max) {
 }
 
 
+
 // Validates some basic aspects about the given board make it legal
 // Returns an error string if invalid, or 0 if it is valid
 char* validate_board(full_board_t * board) {
@@ -505,8 +608,32 @@ char* validate_board(full_board_t * board) {
     if (!position){
        return "Board has no position";
     }
- 
-    if (position->pawns & (RANK_1 | RANK_8)){
+ 		if (board->turn != WHITE_VAL && board->turn != BLACK_VAL) {
+			return "Board turn is not White or Black";
+		}
+		if (position->white_oc & position->black_oc) {
+			return "Piece color bitboard values are conflicting";
+		}
+		if (position->bishops & position->knights) {
+			return "Knight and bishops bitboard values are conflicting";
+		}	
+		if (position->rooks & position->queens) {
+			return "Rook and queen bitboard values are conflicting";
+		}
+		if (position->pawns & position->kings) {
+			return "Pawn and king bitboard values ares conflicting";
+		}
+		bitboard_t minor_pieces = position->bishops | position->knights;
+		bitboard_t major_pieces = position->rooks | position->queens;
+		if (minor_pieces & major_pieces) {
+			return "Minor and major piece bitboard values are conflicting";
+		}
+		bitboard_t non_king_pawn = minor_pieces | major_pieces;
+		bitboard_t king_pawn = position->pawns & position->kings;
+		if (king_pawn & non_king_pawn){
+			return "Piece bitboard values are conflicting";
+		}
+		if (position->pawns & (RANK_1 | RANK_8)){
             return "Board cannot have pawns on the back ranks";
     }
     bitboard_t white_kings = position->white_oc & position->kings;
@@ -520,19 +647,53 @@ char* validate_board(full_board_t * board) {
     if (count_bitboard(black_kings, 2) > 1) {
             return "Board cannot have more than 1 black king";
     }
-    /*
-    // Not sure if this check should be done or not
     bitboard_t white_pawns = position->white_oc & position->pawns;
     bitboard_t black_pawns = position->black_oc & position->pawns; 
-    if (count_bitboard(white_pawns, 9) > 8){
+    u_int8_t white_pawn_count = count_bitboard(white_pawns, 9);
+		u_int8_t black_pawn_count = count_bitboard(black_pawns, 9);
+		if (white_pawn_count > 8){
             return "Board cannot have more than 8 white pawns";
     }
-    if (count_bitboard(black_pawns, 9) > 8){
+    if (black_pawn_count > 8){
             return "Board cannot have more than 8 black pawns";
     }
-    */
-    // TODO: Castling Rights are legal
-    castling_rights_t rights = board->castling_rights;
+		int8_t white_bishop_count = count_bitboard(position->white_oc & position->bishops, 9);
+		int8_t white_rook_count = count_bitboard(position->white_oc & position->rooks, 9);
+		int8_t white_queen_count = count_bitboard(position->white_oc & position->queens, 9);
+		int8_t white_knight_count = count_bitboard(position->white_oc & position->knights, 9);
+		if (white_bishop_count + white_pawn_count > 10) {
+			return "Board cannot have more white bishops than are able to promote";
+		}		
+		if (white_rook_count + white_pawn_count > 10) {
+			return "Board cannot have more white rooks than are able to promote";
+		}
+		if (white_knight_count + white_pawn_count > 10) {
+			return "Board cannot have more white knights than are able to promote";
+		}
+		if (white_queen_count + white_pawn_count > 9) {
+			return "Board cannot have more white bishops than are able to promote";
+		}
+		int8_t black_bishop_count = count_bitboard(position->black_oc & position->bishops, 9);
+		int8_t black_rook_count = count_bitboard(position->black_oc & position->rooks, 9);
+		int8_t black_queen_count = count_bitboard(position->black_oc & position->queens, 9);
+		int8_t black_knight_count = count_bitboard(position->black_oc & position->knights, 9);
+		if (black_bishop_count + black_pawn_count > 10) {
+			return "Board cannot have more black bishops than are able to promote";
+		}		
+		if (black_rook_count + black_pawn_count > 10) {
+			return "Board cannot have more black rooks than are able to promote";
+		}
+		if (black_knight_count + black_pawn_count > 10) {
+			return "Board cannot have more black knights than are able to promote";
+		}
+		if (black_queen_count + black_pawn_count > 9) {
+			return "Board cannot have more black bishops than are able to promote";
+		}
+
+		// TODO: We know bishops are promoted if there is another bishop of the same square color
+		// We also know that 7 pawns, 3 rooks, and 3 bishops and similiar cases are illegal 
+
+		castling_rights_t rights = board->castling_rights;
     if (rights) {
       bitboard_t white_king_moved = ~white_kings & SQUARE_TO_BB(E1);
       bitboard_t black_king_moved = ~black_kings & SQUARE_TO_BB(E8);
@@ -559,10 +720,39 @@ char* validate_board(full_board_t * board) {
           return "Board castling rights are illegal, black cannot castle kingside";
       }
     }
-    if (opponent_in_check(board)){
-            return "The player to move cannot be able to capture the opponent's king.";
+		optional_square_t ep = board->en_passant_square;
+    if (ep.exists) {
+			bitboard_t ep_bb = SQUARE_TO_BB(ep.square);
+			bitboard_t on_3 = ep_bb & RANK_3;
+			bitboard_t on_6 = ep_bb & RANK_6;
+			if (!on_3 || !on_6) {
+				return "Board has illegal en passant square, must be on either rank 3 or rank 6";
+			}	
+			if (board->turn == WHITE_VAL) {
+					if (on_3) {
+						return "Board has illegal en passant square, must be on rank 6 if it is white's turn";
+					}
+					if (!(SAFE_ABOVE_BB(ep_bb) & black_pawns)) {
+						return "Board has illegal en passant square, there is no corresponding black pawn";
+					}
+			}
+			else {	
+					if (on_6) {
+						return "Board has illegal en passant square, must be on rank 3 if it is black's turn";
+					}
+					if (!(SAFE_ABOVE_BB(ep_bb) & white_pawns)) {
+						return "Board has illegal en passant square, there is no corresponding white pawn";
+					}
+			}	
+		}
+		if (opponent_in_check(board)){
+            return "Board has impossible position, the player to move cannot be able to capture the opponent's king.";
     }
-    return 0;
+    u_int8_t checkers = get_checkers(board);
+		if (checkers > 2) {
+				return "Board has impossible position, a player cannot be in check from more than 2 attackers.";
+		}
+		return 0;
 }
 
 

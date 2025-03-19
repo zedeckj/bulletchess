@@ -154,6 +154,8 @@ typedef uint64_t bitboard_t;
 
 typedef u_int8_t move_type_t;
 
+
+#define ANY_COUNT 0xFF
 typedef struct {
     bitboard_t pawns;
     bitboard_t knights;
@@ -180,6 +182,19 @@ typedef struct {
 } piece_counts_t;
 
 piece_counts_t count_pieces(position_t *position);
+
+
+#define COUNT_PATTERN 1
+#define BITBOARD_PATTERN 2
+typedef struct {
+	piece_t piece;
+	u_int8_t pattern_type;
+	union {
+		u_int8_t count;
+		bitboard_t bitboard;
+	};
+} piece_pattern_t;
+
 
 
 typedef uint8_t castling_rights_t;
@@ -265,8 +280,13 @@ void update_all_castling_rights(full_board_t * board);
 square_t fen_index_to_square(u_int8_t index);
 
 
+bool positions_equal(position_t *pos1, position_t *pos2);
+
+
 bool in_check(full_board_t *board);
 bool opponent_in_check(full_board_t * board);
+
+u_int8_t get_checkers(full_board_t *board);
 
 bool color_occupies(position_t * board, square_t square, piece_color_t color);
 bool white_occupies(position_t * position, square_t square);
