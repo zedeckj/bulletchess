@@ -9,6 +9,7 @@ class TestBoard(unittest.TestCase):
     """
 
     def test_copy(self):
+        
         board = Board.starting()
         self.assertEqual(board, board.copy())
         self.assertIsNot(board, board.copy())

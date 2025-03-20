@@ -1202,7 +1202,7 @@ bitboard_t make_pinned_mask(full_board_t * board, bitboard_t piece_bb, piece_col
     There is an extremely specific case for capturing en passant and revaling a horizontal attack.
     */
     position_t *position = board->position;
-    bitboard_t friendly;
+		bitboard_t friendly;
     bitboard_t hostile;
     if (for_color == WHITE_VAL) {
         friendly = position->white_oc;
@@ -1212,7 +1212,6 @@ bitboard_t make_pinned_mask(full_board_t * board, bitboard_t piece_bb, piece_col
         friendly = position->black_oc;
         hostile = position->white_oc;
     }
-
     bitboard_t slide_danger = hostile & (position->rooks | position->queens);
     bitboard_t diagonal_danger=  hostile & (position->bishops | position->queens);
     bitboard_t pin_mask = FULL_BB;
@@ -1308,7 +1307,7 @@ bitboard_t make_attack_mask(full_board_t *board, piece_color_t attacker) {
     if (enemy_rooks) attacking |= sliding_attack_mask(enemy_rooks, can_move_to, empty);
     if (enemy_knights) attacking |= knight_attack_mask(enemy_knights, can_move_to);
     if (enemy_bishops) attacking |= diagonal_attack_mask(enemy_bishops, can_move_to, empty);
-    if (enemy_queens) {
+		if (enemy_queens) {
         attacking |= sliding_attack_mask(enemy_queens, can_move_to, empty);
         attacking |= diagonal_attack_mask(enemy_queens, can_move_to, empty);
     }
@@ -1514,14 +1513,14 @@ u_int8_t count_moves(
     if (for_color == WHITE_VAL) {
         friendly = position->white_oc;
         hostile = position->black_oc;
-        our_white_pawns = friendly & position->pawns & ~RANK_8;
+        our_white_pawns = friendly & position->pawns;
         can_kingside = board->castling_rights & WHITE_KINGSIDE;
         can_queenside = board->castling_rights & WHITE_QUEENSIDE;
     }
     else {
         friendly = position->black_oc;
         hostile = position->white_oc;
-        our_black_pawns = friendly & position->pawns & ~RANK_1;
+        our_black_pawns = friendly & position->pawns;
         can_kingside = board->castling_rights & BLACK_KINGSIDE;
         can_queenside = board->castling_rights & BLACK_QUEENSIDE;
     }
@@ -1541,8 +1540,6 @@ u_int8_t count_moves(
     bitboard_t non_friendly = ~friendly;
 
 
-    bitboard_t slide_danger = hostile & (position->queens | position->rooks);
-    bitboard_t diagonal_danger = hostile & (position->queens | position->bishops);
     // printf("EN PASSANT SQUARE\n");
     // print_bitboard(ep_bb);
     // print_bitboard(info.allowed_move_mask);
@@ -1613,6 +1610,24 @@ u_int8_t count_moves(
     return moves;
 }
 
+/*
+typedef struct {
+	bitboard_t destination;
+	bitboard_t promotion_dest;
+} destination_t;
+
+typedef struct {
+	bitboard_t our_white_pawns;
+	bitboard_t our_black_pawns;
+	bitboard_t our_kings;
+	bitboard_t our_queens;
+	bitboard_t our_rooks;
+	bitboard_t our_bishops;
+	bitboard_t our_knights;
+	bitboard_t our
+	bitboard_t attack_mask;
+} foo_t;
+*/
 
 
 u_int8_t generate_moves(
@@ -1661,13 +1676,6 @@ u_int8_t generate_moves(
     bitboard_t pawn_hostile = (hostile | ep_bb);
     bitboard_t non_friendly = ~friendly;
 
-
-    bitboard_t slide_danger = hostile & (position->queens | position->rooks);
-    bitboard_t diagonal_danger = hostile & (position->queens | position->bishops);
-    // printf("EN PASSANT SQUARE\n");
-    // print_bitboard(ep_bb);
-    // print_bitboard(info.allowed_move_mask);
-    // print_bitboard(info.extra_pawn_capture_mask);
     
     bitboard_t pinned_masks[64];
     make_all_pinned_masks(board, attacked_mask, for_color, pinned_masks);
@@ -1692,8 +1700,8 @@ u_int8_t generate_moves(
             add_from_bitboard(origin, destination_bb, move_buffer, &move_index);
             continue;
         }
-        bitboard_t pinned_mask = pinned_masks[origin];
-        //bitboard_t pinned_mask = make_pinned_mask(board, attacked_mask, square_bb, for_color);
+        
+				bitboard_t pinned_mask = make_pinned_mask(board, square_bb, for_color);
         bitboard_t allowed_mask = pinned_mask & info.allowed_move_mask;
         if (square_bb & our_pawns) {
             bitboard_t destination_bb;
@@ -1747,7 +1755,6 @@ u_int8_t generate_moves(
     }
     return move_index;
 }
-
 /*
 bool is_legal_promotion(full_board_t * board, promotion_move_t promotion) {
 	bitboard_t origin = SQUARE_TO_BB(promotion.body.origin);
@@ -1792,7 +1799,6 @@ bool is_legal_generic(full_board_t *board, generic_move_t move) {
 	if 
 
 }
-
 bool is_legal_move(full_board_t *board, move_t move) {
 	if (move.type == PROMOTION_MOVE){
 		return is_legal_promotion(board, move.promotion);
@@ -1804,9 +1810,6 @@ bool is_legal_move(full_board_t *board, move_t move) {
 }
 
 */
-// u_int8_t generate_pseudo_legal_moves(full_board_t *board,  piece_color_t for_color,  move_t * move_buffer) {
-//     return generate_moves(board, for_color, 0, non_check_escapes(), move_buffer);
-// }
 
 // Returns true if the side to move is in check
 bool in_check(full_board_t *board) {
@@ -1878,12 +1881,17 @@ bool is_draw(full_board_t *board, undoable_move_t *move_stack, u_int8_t stack_si
 
 
 
-
 u_int8_t count_legal_moves(full_board_t *board) {
 		piece_color_t for_color = board->turn;
     bitboard_t attack_mask = make_attack_mask(board, WHITE_VAL == for_color ? BLACK_VAL : WHITE_VAL);
     check_info_t info = make_check_info(board, for_color, attack_mask);
     return count_moves(board, for_color, attack_mask, info);
+}
+
+
+
+u_int8_t count_pseudolegal_moves(full_board_t *board) {
+    return count_moves(board, board->turn, 0, non_check_info());
 }
 
 u_int8_t generate_legal_moves(full_board_t *board, move_t * move_buffer) {
@@ -1894,6 +1902,12 @@ u_int8_t generate_legal_moves(full_board_t *board, move_t * move_buffer) {
     // print_bitboard(attack_mask);
     return generate_moves(board, for_color, attack_mask, info, move_buffer);
 }
+
+
+u_int8_t generate_pseudolegal_moves(full_board_t *board, move_t * move_buffer) {
+     return generate_moves(board, board->turn, 0, non_check_info(), move_buffer);
+}
+
 
 u_int64_t perft(full_board_t * board, u_int8_t depth) {
     if (depth == 0) {
@@ -1915,6 +1929,30 @@ u_int64_t perft(full_board_t * board, u_int8_t depth) {
 
     }
 }
+
+
+
+u_int64_t pseudo_perft(full_board_t * board, u_int8_t depth) {
+    if (depth == 0) {
+        return 1;
+    }
+    else if (depth == 1) {
+        return (u_int64_t)count_pseudolegal_moves(board);
+    }
+    else{
+        move_t moves[256];
+        u_int8_t count = generate_pseudolegal_moves(board,moves);
+        u_int64_t nodes = 0;
+        for (u_int8_t i = 0; i < count; i ++){
+            undoable_move_t undo = apply_move(board, moves[i]);
+            nodes += pseudo_perft(board, depth - 1);
+        		undo_move(board, undo);
+				}
+        return nodes;
+
+    }
+}
+
 
 
 

@@ -7,15 +7,13 @@ import chess
 from bulletchess import Board, Move
 import cProfile
 
-def chess_perft(board : chess.Board, depth : int):
+def chess_perft(board : chess.Board, depth : int) -> int:
     if depth == 0:
         return 1
     elif depth == 1:
         return board.legal_moves.count()
     else:
         moves = list(board.legal_moves)
-        if len(moves) == 0:
-            return 1
         nodes = 0
         for move in moves:
             board.push(move)
@@ -107,7 +105,10 @@ class TestPerft(unittest.TestCase):
         self.assertEqual(chess_perft(chess.Board(), 5), 4865609)
         t = time.time() - t
         print(f"python-chess {t}")
-
+        t = time.time()
+        board.pseudo_perft(5)
+        t = time.time() - t
+        print(f"Pseudo {t}")
     
     def test_perft(self):
         board = Board.starting()

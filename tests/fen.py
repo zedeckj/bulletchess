@@ -66,7 +66,7 @@ class TestFen(unittest.TestCase):
         testBoardInvalid(self, "rnbqkbnr/pppppppp/8/8/R7/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", err)
         err = "Board cannot have more white knights than are able to promote"
         testBoardInvalid(self, "rnbqkbnr/pppppppp/8/4N1N1/2N5/8/PPPPPP2/RNBQKBNR w KQkq - 0 1", err)
-        err = "Board cannot have more white queens that are able to promote"
+        err = "Board cannot have more white queens than are able to promote"
         testBoardInvalid(self, "rnbqkbnr/pppppppp/8/8/3Q3P/8/PPPPPPP1/RNBQKBNR w KQkq - 0 1", err)
 
     def testBoardInvalidFens(self):

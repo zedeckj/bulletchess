@@ -86,4 +86,25 @@ There are essentially two design problems left to tackle
     A predicate is a list of perscriptions for specific piece configuration or a piece count
 
 
+
+3/19/25
+
+Generally, there seems to be a distinction between Board state that is conventionally illegal in real games, and Board state that is inherently invalid.
+
+In the simplest case, there is no reason moves cannot be generated for a position with 9 white pawns. Or even moves for a position with only a knight, and no kings, or no pieces at all.
+
+However, if the bitboard values for knights and pawns have an overlap, that is always invalid. 
+
+Since castling is `hardcoded`, castling rights should always be valid as well. 
+
+
+
+In terms of organization, we need to signifincalty consolidate `__init__.py`. Ideally, all public facing classes would simply hold a C Struct inside, while all ctypes interfacing would be hidden.
+```python
+
+Piece.new(WHITE, PAWN)
+Piece.pawn(WHITE)
+Pawn(WHITE)
+``` 
+
     

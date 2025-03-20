@@ -45,14 +45,6 @@ class _POSITION(Structure):
         ("black_ok", Bitboard),
     ]
 
-# class Board(Structure):
-
-#     """
-#     Represenets a fully described Board with state.
-#     """
-
-
-
 
 class _ZORBIST_TABLE(Structure):
 
@@ -103,6 +95,14 @@ class _MOVE_UNION(Union):
         ("promotion", _PROMOTION_MOVE),
     ]
 
+class _PIECE(Structure):
+    _fields_ = [
+        ("color", Color),
+        ("type", PieceType)
+    ]
+
+
+
 class Piece(Structure):
 
     _fields_ = [
@@ -119,6 +119,11 @@ class Piece(Structure):
                 raise ValueError(f"Invalid piece Piece({color},{piece_type})")
         self.type = piece_type
         self.color = color
+
+
+    @staticmethod 
+    def new(color : Color, piece_type : PieceType) -> "Piece":
+        return Piece(color, piece_type)
 
     @staticmethod
     def from_symbol(symbol : str) -> Optional["Piece"]:
@@ -147,6 +152,24 @@ class Piece(Structure):
 
     def __hash__(self) -> int:
         return int(_hash_piece(self))
+
+def Pawn(color : Color) -> Piece:
+    return Piece.new(color, PAWN)
+
+def Knight(color : Color) -> Piece:
+    return Piece.new(color, KNIGHT)
+
+def Bishop(color : Color) -> Piece:
+    return Piece.new(color, BISHOP)
+
+def Rook(color : Color) -> Piece:
+    return Piece.new(color, ROOK)
+
+def Queen(color : Color) -> Piece:
+    return Piece.new(color, QUEEN)
+
+def King(color : Color) -> Piece:
+    return Piece.new(color, KING)
 
 
 
@@ -329,16 +352,18 @@ class Pattern:
         self.__update_buffer()
         return self
 
+
 class Board:
 
     """A ```bulletchess.Board``` is a wrapper around a C ```struct``` which represents the state of a Chess board.
-This class directly encodes the configuration of pieces, whose turn it is, castling rights, the existance of the en passant square, as well as the halfmove clock and fullmove number.
-    """
+This class directly encodes the configuration of pieces, whose turn it is, castling rights, the existance of the en passant square, as well as the halfmove clock and fullmove number."""
    
     __slots__ = ['__board', '__move_stack']
 
-    def __init__(self, board : _BOARD):
-        self.__board = pointer(board)
+    def __init__(self, __board : _BOARD):
+        """
+        """
+        self.__board = pointer(__board)
         self.__move_stack = []
 
   
@@ -350,6 +375,7 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
         if fen == "":
             raise ValueError(f"Invalid FEN '': Empty FEN")
         board = Board(_BOARD.empty())
+        Board
         buffer = create_string_buffer(init = fen.encode("utf-8"))
         error = _parse_fen(buffer, board.__board)
         if error == None:
@@ -357,12 +383,19 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
         else:
             error = bytes(error).decode()
             raise ValueError(f"Invalid FEN '{fen}': {error}")
-        
+
+    @staticmethod
+    def empty() -> "Board":
+        """
+        Creates a new Board with no Pieces.
+        """
+        return Board(_BOARD.empty())
+
     
     @staticmethod
     def starting() -> "Board":
         """
-        Creates a new Board for the starting position
+        Creates a new Board for the starting position.
         """
         pos_pointer = pointer(_POSITION(
             PAWNS_STARTING, 
@@ -481,103 +514,84 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
         """
         _set_piece_at(self.__board.contents.position, square, _to_c_piece(piece))
 
-
-    def set_ep_square(self, square : Optional[Square]) -> None:
+    @property 
+    def ep_square(self) -> Optional[Square]:
         """
-        Sets the en-passant square to the given Square. If given None, this clears the ep square.
+        The current en passant Square, or None if it does not exist.
         """
-        if square == None:
-            self.clear_ep_square()
-        else:    
-            _set_ep_square(self.__board, square)
-
-    def clear_ep_square(self) -> None:
-        _clear_ep_square(self.__board)
-    
-    def get_ep_square(self) -> Optional[Square]:
-        """
-        Gets the value of the en passant Square, or None if it does not exist.
-        """
-        
         optional_square = self.__board.contents.en_passant_square
         if bool(optional_square.exists):
             return optional_square.square
         return None
-    
-    """
-    def get_halfmove_clock(self) -> int:
-        return int(self.halfmove_clock)
 
-    def get_fullmove_number(self) -> int:
-        return int(self.fullmove_number)
-    
-    def set_halfmove_clock(self, value : int) -> None:
-        self.halfmove_clock = TurnClock(value)
+    @ep_square.setter
+    def ep_square(self, square : Optional[Square]):
+        if square == None:
+            _clear_ep_square(self.__board)
+            
+        else:
+            error = _set_ep_square_checked(self.__board, square)
+            if error != None:
+                raise ValueError(error.decode("utf-8").format(ep = square_to_str(square)))
 
-    def set_fullmove_number(self, value : int) -> None:
-        self.fullmove_number = TurnClock(value)
-    """
+    @property
+    def turn(self) -> Color:
+        """
+        The Color of the player whose turn it is.
+        """
+        return self.__board.contents.turn
 
-    def get_turn(self) -> Color:
-        """
-        Gets the Color of the player to move.
-        """
-        return self.turn
+    @turn.setter
+    def turn(self, value : Color):
+        if value == WHITE or value == BLACK:
+            self.__board.contents.turn = value
+        else:
+            raise ValueError(f"Cannot set turn to a value that is not WHITE or BLACK, but got {value}")
 
-    def set_turn(self, player : Color) -> None:
+    @property
+    def halfmove_clock(self) -> int:
         """
-        Sets the Color of the player to move.
+        The number of ply that have passed since a pawn advancement or a capture.
         """
-        self.turn = player
+        return int(self.__board.contents.halfmove_clock)
 
-    def has_queenside_castling_rights(self, color : Color) -> bool:
-        """
-        Returns True if the given color has queenside castling rights
-        """
-        return bool(_has_queenside_castling_rights(self.__board, color))
-    
-    def has_kingside_castling_rights(self, color : Color) -> bool:
-        """
-        Returns True if the given color has kingside castling rights
-        """
-        return bool(_has_kingside_castling_rights(self.__board, color))
 
-        
-    def has_castling_rights(self, color : Color) -> bool:
-        """
-        Returns True if the given color has any castling rights
-        """
-        return bool(_has_castling_rights(self.__board, color))
-    
-    def clear_castling_rights(self, color : Color) -> bool:
-        """
-        Clears all castling rights for the given color
-        """
-        return bool(_clear_castling_rights(self.__board, color))
-    
-    def set_full_castling_rights(self) -> None:
-        """
-        Restores full castling rights
-        """
-        _set_full_castling_rights(self.__board)
+    @halfmove_clock.setter
+    def halfmove_clock(self, value : int):
+        if value < 0:
+            raise ValueError(f"Cannot set halfmove clock to a negative value, but got {value}")
+        elif value > 65535:
+            raise ValueError(f"Cannot set halfmove clock to a value greater than 65535, but got {value}")
+        else:
+            self.__board.contents.halfmove_clock = TurnClock(value) 
 
-    def update_castling_rights(self, color : Color) -> None:
-        """
-        Removes castling rights for a given color if they are illegal 
-        in the given board's piece configuation
-        """
-        _update_castling_rights(self.__board, color)
 
-    def add_castling_rights(self, player : Color, kingside : bool):
+
+    @property
+    def fullmove_number(self) -> int:
         """
-        Adds castling rights for either king or queen side for the given player.
+        The turn number of the current Board. After both players have made a move, the fullmove
+        number increments by 1.
         """
-        _add_castling_rights(self.__board, c_bool(kingside), player)
+        return int(self.__board.contents.fullmove_number)
+
+
+    @fullmove_number.setter
+    def fullmove_number(self, value : int):
+        if value < 0:
+            raise ValueError(f"Cannot set fullmove number to a negative value, but got {value}")
+        elif value > 65535:
+            raise ValueError(f"Cannot set fullmove number to a value greater than 65535, but got {value}")
+        else:
+            self.__board.contents.fullmove_number = TurnClock(value) 
+
+
 
 
     def __contains__(self, obj : typing.Union[Optional[Piece], Pattern]):
         """
-        Returns True if the given Piece exists in this Board
+        If given a Piece, returns True if it exists in this Board's position. 
+        If given a Pattern, returns True if the Pattern matches this Board's position.
         """
         if type(obj) == Piece: 
             return _contains_piece(self.__board, _to_c_piece(piece))
@@ -585,19 +599,6 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
             return bool(_board_has_patterns(self.__board, 
                                             obj._Pattern__current_buffer, 
                                             len(obj._Pattern__piece_patterns)))
-
-    def __le__(self, other : "Board") -> bool:
-        """
-        Returns True if this Board's piece configuration is a subset of the given Board's piece configuration
-        """
-        return bool(_is_subset(self.__board, other.__board))
-
-    def __ge__(self, other : "Board"):
-        """
-        Returns True if the given Board's piece configuration is a subset of this Board's piece configuration
-        """
-        return bool(_is_subset(other.__board, self.__board))
-
 
     def __eq__(self, other):
         """
@@ -652,6 +653,10 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
         return copy
     
     def material(self, knight_value : int = 300, bishop_value : int = 300, rook_value : int = 500, queen_value : int = 900) -> int:
+        """
+        Find the material value of the Pieces in this Board, where White Pieces are counted positively and Black Pieces are counted negatively. 
+        The default arguments are the typical material evaluations described in centipawns.
+        """
         return int(_material(self.__board.position, c_int(knight_value), c_int(bishop_value), c_int(rook_value), c_int(queen_value)))
 
 
@@ -710,7 +715,7 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
     def perft(self, depth : int, debug: bool = False) -> int:
         """
         Walks through the move generation tree for this Board to the specified depth, and
-        counts the number of lead node Boards created. 
+        counts the number of leaf node Boards created. 
 
         For a more detailed explanation, see: 
         https://www.chessprogramming.org/Perft
@@ -722,16 +727,20 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
             return self.debug_perft(depth)
         return _perft(self.__board, c_uint8(depth))
 
-    
-    def best_move(self, depth : int) -> Move:
-        ...
-        """
-        if depth < 0:
-            raise Exception("Cannot perform search with a negative depth")
-        res : SearchResult = _search(self.__board, c_uint8(depth))
-        return res.move
-        """
 
+    def pseudo_perft(self, depth : int, debug: bool = False) -> int:
+        return _pseudo_perft(self.__board, c_uint8(depth))
+
+
+    
+
+def square_to_str(square : Square) -> str:
+    if square > H8:
+        return f"{square}"
+    else:
+        rank = chr(square // 8 + ord('1'))
+        file = chr(square % 8 + ord('a'))
+        return f"{file}{rank}"
 
 
 # C LIBRARY IMPORTS
@@ -870,8 +879,9 @@ _add_castling_rights.argtypes = [POINTER(_BOARD), c_bool, Color]
 _clear_ep_square = clib.clear_ep_square
 _clear_ep_square.argtypes = [POINTER(_BOARD)]
 
-_set_ep_square = clib.set_ep_square
-_set_ep_square.argtypes = [POINTER(_BOARD), Square]
+_set_ep_square_checked = clib.set_ep_square_checked
+_set_ep_square_checked.argtypes = [POINTER(_BOARD), Square]
+_set_ep_square_checked.restype = c_char_p
 
 _make_fen = clib.make_fen
 _make_fen.argtypes = [POINTER(_BOARD), c_char_p]
@@ -940,6 +950,12 @@ _print_bitboard.argtypes = [Bitboard]
 _perft = clib.perft
 _perft.argtypes = [POINTER(_BOARD), c_uint8]
 _perft.restype = c_uint64
+
+
+_pseudo_perft = clib.pseudo_perft
+_pseudo_perft.argtypes = [POINTER(_BOARD), c_uint8]
+_pseudo_perft.restype = c_uint64
+
 
 _get_origin = clib.get_origin
 _get_origin.argtypes = [Move]
@@ -1024,6 +1040,8 @@ PIECE_TYPES = [PAWN, BISHOP, KNIGHT, ROOK, QUEEN, KING]
 
 WHITE : Color = _get_white_value()
 BLACK : Color = _get_black_value()
+
+
 PAWNS_STARTING = Bitboard(71776119061282560)
 KNIGHTS_STARTING = Bitboard(4755801206503243842)
 BISHOPS_STARTING = Bitboard(2594073385365405732)

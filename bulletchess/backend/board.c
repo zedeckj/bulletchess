@@ -539,6 +539,41 @@ void set_ep_square(full_board_t * board, square_t square) {
 
 
 
+char * set_ep_square_checked(full_board_t *board, square_t square) {
+ 	position_t *pos = board->position;
+	bitboard_t white_pawns = pos->white_oc & pos->pawns;
+	bitboard_t black_pawns = pos->black_oc & pos->pawns;
+	bitboard_t ep_bb = SQUARE_TO_BB(square);
+	bitboard_t on_3 = ep_bb & RANK_3;
+	bitboard_t on_6 = ep_bb & RANK_6;
+	if (square > H8) {
+		return "Illegal en passant Square, {ep} is not a valid Square";
+	}
+	if (!on_3 && !on_6) {
+		return "Illegal en passant Square {ep}, must be on either rank 3 or rank 6";
+	}	
+	if (board->turn == WHITE_VAL) {
+			if (on_3) {
+				return "Illegal en passant Square {ep}, must be on rank 6 if it is white's turn";
+			}
+			if (!(SAFE_BELOW_BB(ep_bb) & black_pawns)) {
+				return "Illegal en passant Square {ep}, there is no corresponding black pawn";
+			}
+	}
+	else {	
+			if (on_6) {
+				return "Illegal en passant Square {ep}, must be on rank 3 if it is black's turn";
+			}
+			if (!(SAFE_ABOVE_BB(ep_bb) & white_pawns)) {
+				return "Illegal en passant Square {ep}, there is no corresponding white pawn";
+			}
+	}
+	set_ep_square(board, square);	
+	return 0;
+}
+
+
+
 void update_castling_rights(full_board_t *board, piece_color_t color) {
     if (color == WHITE_VAL) {
         bitboard_t color_bb = board->position->white_oc;
@@ -671,7 +706,7 @@ char* validate_board(full_board_t * board) {
 			return "Board cannot have more white knights than are able to promote";
 		}
 		if (white_queen_count + white_pawn_count > 9) {
-			return "Board cannot have more white bishops than are able to promote";
+			return "Board cannot have more white queens than are able to promote";
 		}
 		int8_t black_bishop_count = count_bitboard(position->black_oc & position->bishops, 9);
 		int8_t black_rook_count = count_bitboard(position->black_oc & position->rooks, 9);
@@ -687,7 +722,7 @@ char* validate_board(full_board_t * board) {
 			return "Board cannot have more black knights than are able to promote";
 		}
 		if (black_queen_count + black_pawn_count > 9) {
-			return "Board cannot have more black bishops than are able to promote";
+			return "Board cannot have more black queens than are able to promote";
 		}
 
 		// TODO: We know bishops are promoted if there is another bishop of the same square color
