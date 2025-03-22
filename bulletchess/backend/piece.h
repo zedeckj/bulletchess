@@ -27,8 +27,17 @@ typedef struct {
     piece_type_t type;
 } piece_t;
 
+typedef u_int8_t piece_index_t;
 
-
+// These are only for interfacing with Python quickly
+#define EMPTY_INDEX 0
+#define PAWN_INDEX 1
+#define KNIGHT_INDEX 2
+#define BISHOP_INDEX 3
+#define ROOK_INDEX 4
+#define QUEEN_INDEX 5
+#define KING_INDEX 6
+#define BLACK_OFFSET 6
 
 
 // Checks if the given symbol is a valid serialization of a piece
@@ -64,5 +73,9 @@ piece_t error_piece();
 
 // Checks if a given piece is empty
 bool piece_is_empty(piece_t piece);
+
+piece_index_t piece_to_index(piece_t piece);
+
+piece_t index_to_piece(piece_index_t index);
 
 #endif

@@ -106,9 +106,6 @@ class TestPerft(unittest.TestCase):
         t = time.time() - t
         print(f"python-chess {t}")
         t = time.time()
-        board.pseudo_perft(5)
-        t = time.time() - t
-        print(f"Pseudo {t}")
     
     def test_perft(self):
         board = Board.starting()
@@ -166,4 +163,4 @@ if __name__ == "__main__":
     #board.debug_perft(6)
     #board = Board.starting()
     #board.perft(7, debug = True),
-    #native_perft(Board.starting(),6)
+    #native_perft(Board(),6)

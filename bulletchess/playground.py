@@ -28,7 +28,7 @@ from bulletchess import *
 # EN PASSANT CHECK EVASION
 # 3R4/rbpnb3/4p2q/ppr2k1p/P3Pp2/RP3NR1/K7/1N3B2 b - e3 0 45
 # 2bk4/5r2/2p5/1pPpB1p1/4KbP1/2p1P3/3N2B1/2R5 w - d6 0 50
-
+"""
 fen1 = "2bk4/5r2/2p5/1pPpB1p1/4KbP1/2p1P3/3N2B1/2R5 w - d6 0 50"
 fen2 = "3R4/rbpnb3/4p2q/ppr2k1p/P3Pp2/RP3NR1/K7/1N3B2 b - e3 0 45"
 fen3 = "rB1n1b1r/3p1k1p/pp1P4/P4pp1/4q3/1n1N1b1B/1PPQ3P/3RK2R w K - 0 24"
@@ -69,3 +69,14 @@ print(board)
 
 Board
 #do("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPPNNnPP/R1BQK2R b KQ - 2 8")
+
+"""
+
+
+#for i in range(1000000):
+#    j = i & (i + 1)
+
+for i in range(1000000):
+    j = bulletchess.backend._bitboard_and(i, i+1)
+
+

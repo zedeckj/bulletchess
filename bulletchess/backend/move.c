@@ -35,6 +35,19 @@ move_t promotion_move(generic_move_t body, piece_type_t promote_to) {
     return move;
 }
 
+move_t make_move_from_parts(square_t origin, square_t destination, piece_type_t promote_to) {
+	generic_move_t body;
+	body.origin = origin;
+	body.destination = destination;
+	move_t move;
+	if (promote_to == EMPTY_VAL) {
+		return generic_move(body);
+	}
+	else {
+		return promotion_move(body, promote_to);
+	}
+}
+
 
 u_int64_t hash_move(move_t move) {
   u_int64_t origin;
@@ -72,19 +85,6 @@ bool is_error_move(move_t move) {
 
 bool is_null_move(move_t move) {
     return move.type == NULL_MOVE;
-}
-
-void print_bitboard(bitboard_t board) {
-    int i =0;
-    for (bitboard_t rank = RANK_8; i < 8; i++) {
-        int j = 0;
-        for (bitboard_t file = FILE_A; j < 8; j++) {
-            file = SAFE_RIGHT_BB(file);
-        }
-        printf("\n");
-        rank = BELOW_BB(rank);
-    }
-    printf("\n");
 }
 
 void debug_print_board(full_board_t * board) {
@@ -630,6 +630,8 @@ piece_t other_apply_move(full_board_t * board, bitboard_t origin, bitboard_t des
 		return captured;
 }
 
+
+
 // function responsible for making the changes to the position and state 
 // of a move
 undoable_move_t apply_move(full_board_t * board, move_t move) {
@@ -672,6 +674,12 @@ undoable_move_t apply_move(full_board_t * board, move_t move) {
 			}
 		}
 		return out_move;
+}
+
+undoable_move_t apply_move_ext(full_board_t * board, piece_index_t* index_array, move_t move) {
+		undoable_move_t out = apply_move(board, move);
+		//fill_piece_index_array(board, index_array);
+		return out;
 }
 
 move_t undo_move(full_board_t *board, undoable_move_t move) {
@@ -792,6 +800,11 @@ move_t undo_move(full_board_t *board, undoable_move_t move) {
 	return move.move; 
 }
 
+move_t undo_move_ext(full_board_t *board, piece_index_t *index_array, undoable_move_t undo) {
+	move_t out = undo_move(board, undo);
+	//fill_piece_index_array(board, index_array);
+	return out;
+}
 /*
 // handles constructing the undoable move, and calls the inner function for actual application
 void best_apply_move(full_board_t * board, move_t move) {
@@ -1967,7 +1980,7 @@ square_t get_destination(move_t move) {
   generic_move_t body;
   if (move.type == PROMOTION_MOVE) body = move.promotion.body;
   else body = move.generic;
-  return body.origin;
+  return body.destination;
 }
 
 bool is_promotion(move_t move){

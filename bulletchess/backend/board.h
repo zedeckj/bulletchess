@@ -293,9 +293,14 @@ bool white_occupies(position_t * position, square_t square);
 bool black_occupies(position_t * position, square_t square);
 
 bool en_passant_is(full_board_t * board, square_t square);
+
 piece_t get_piece_at_bb(position_t * board, bitboard_t bb);
+
 void print_bitboard(bitboard_t board);
 
 void copy_into(full_board_t * dst, full_board_t * source);
+
+
+void fill_piece_index_array(full_board_t *board, piece_index_t* index_array);
 #endif
 

@@ -44,8 +44,8 @@ STARTING_SQUARE_TABLE = {
 
 class TestPosition(unittest.TestCase):
     """
-    Tests basic position creation using the `.starting()` staticmethod, as
-    well as position manipulation using `get_piece_at`, `set_piece_at`, and `remove_piece_at`.
+    Tests basic position creation using the constructor, as
+    well as position manipulation using `get_piece_at`, `set_piece_at`, and `delete_piece_at`.
     
     Only deals with piece configurations
 
@@ -54,7 +54,7 @@ class TestPosition(unittest.TestCase):
 
        
     def testStarting(self):
-        board = Board.starting()
+        board = Board()
         self.assertEqual(board.get_piece_at(A2), Piece(WHITE, PAWN))
         self.assertEqual(board.get_piece_at(B2), Piece(WHITE, PAWN))
         self.assertEqual(board.get_piece_at(C2), Piece(WHITE, PAWN))
@@ -93,10 +93,10 @@ class TestPosition(unittest.TestCase):
 
 
     def testRemove(self):
-        board = Board.starting()
+        board = Board()
         unchanged = STARTING_SQUARE_TABLE.copy()
         for square in SQUARES:
-            board.remove_piece_at(square)
+            board.delete_piece_at(square)
             if square in unchanged:
                 del unchanged[square]
                 self.assertEqual(board.get_piece_at(square), None)
@@ -111,7 +111,7 @@ class TestPosition(unittest.TestCase):
     def testSet(self):
         for piece_type in PIECE_TYPES:
             for color in [WHITE, BLACK]:
-                board = Board.starting()
+                board = Board()
                 unchanged = STARTING_SQUARE_TABLE.copy()
                 for square in SQUARES:
                     board.set_piece_at(square, Piece(color, piece_type))
@@ -120,13 +120,6 @@ class TestPosition(unittest.TestCase):
                         for square2 in unchanged:
                             self.assertEqual(board.get_piece_at(square2), unchanged[square2])
                     self.assertEqual(board.get_piece_at(square), Piece(color, piece_type))
-
-
-    def testSquaresWith(self):
-        board = Board.starting()
-        self.assertEqual([A2, B2, C2, D2, E2, F2, G2, H2], board.get_squares_with(Piece(WHITE, PAWN))) 
-        self.assertEqual([A8, H8], board.get_squares_with(Piece(BLACK, ROOK))) 
-        self.assertEqual([E1], board.get_squares_with(Piece(WHITE, KING)))
 
 if __name__ == "__main__":
     unittest.main()

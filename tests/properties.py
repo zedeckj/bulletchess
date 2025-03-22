@@ -69,7 +69,7 @@ class TestProperties(unittest.TestCase):
         board.turn = WHITE
         self.assertEqual(board.turn, WHITE)
         with self.assertRaisesRegex(ValueError, 
-                                    "Cannot set turn to a value that is not WHITE or BLACK, but got 3"):
+                                    "Cannot set turn to a value that is not WHITE or BLACK, got: 3"):
             board.turn = 3
 
 if __name__ == "__main__":

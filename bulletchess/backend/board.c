@@ -47,6 +47,11 @@ undoable_move_t pop_move(move_stack_t *stack){
 move_t undo_move(full_board_t * board);
 */
 
+
+
+
+
+
 bool square_empty(position_t * position, square_t square) {
     return !((position->black_oc & SQUARE_TO_BB(square)) || (position->white_oc & SQUARE_TO_BB(square)));
 }
@@ -84,6 +89,58 @@ u_int8_t count_bits(bitboard_t bb) {
 
 
 
+void print_bitboard(bitboard_t board) {
+    int i =0;
+    for (bitboard_t rank = RANK_8; i < 8; i++) {
+        int j = 0;
+        for (bitboard_t file = FILE_A; j < 8; j++) {
+					file = SAFE_RIGHT_BB(file);
+        }
+        printf("\n");
+        rank = BELOW_BB(rank);
+    }
+    printf("\n");
+}
+
+
+void write_bitboard(bitboard_t board, char * buffer) {
+    int i = 0;
+		int n = 0;
+    for (bitboard_t rank = RANK_8; i < 8; i++) {
+        int j = 0;
+        for (bitboard_t file = FILE_A; j < 8; j++) {
+        		buffer[n++] = (file & rank & board) ? '1' : '0';
+            buffer[n++] = ' ';
+						file = SAFE_RIGHT_BB(file);
+        }
+        buffer[n++] = '\n';
+				rank = BELOW_BB(rank);
+    }
+		buffer[n++] = '\0';
+}
+
+bool square_in_bitboard(bitboard_t board, square_t square) {
+	bitboard_t check = SQUARE_TO_BB(square);
+	return board & check;
+}
+
+bitboard_t bitboard_or(bitboard_t b1, bitboard_t b2) {
+	return b1 | b2;
+}
+
+bitboard_t bitboard_and(bitboard_t b1, bitboard_t b2) {
+	return b1 & b2;
+}
+
+bitboard_t bitboard_not(bitboard_t b1) {
+	return ~b1;
+}
+
+bitboard_t bitboard_xor(bitboard_t b1, bitboard_t b2) {
+	return b1 ^ b2;
+}
+
+
 void mask_board_with(position_t * board, bitboard_t keep_bb) {
     board->pawns &= keep_bb;
     board->knights &= keep_bb;
@@ -108,6 +165,11 @@ void delete_piece_at(position_t * board, square_t square) {
     board->black_oc &= keep_bb;
 }
 
+
+void delete_piece_at_board(full_board_t * board, piece_index_t * array, square_t square) {
+	delete_piece_at(board->position, square); 
+	array[square] = EMPTY_INDEX;
+}
 
 
 piece_counts_t count_pieces(position_t *position) {
@@ -330,7 +392,20 @@ u_int8_t squares_with_piece(full_board_t *board, piece_t piece, square_t *square
 		}		
 	}
 	return count;
-}	
+}
+
+// index_list should be an array of length 64
+void fill_piece_index_array(full_board_t *board, piece_index_t* index_array) {
+	position_t * position = board->position;
+	for (square_t square = A1; square <= H8; square++) {
+		piece_t piece = get_piece_at(position, square);
+		index_array[square] = piece_to_index(piece);
+	}
+}
+
+piece_index_t index_into(piece_index_t *array, square_t square) {
+	return array[square];
+}
 
 void copy_into(full_board_t * dst, full_board_t * source) {
     dst->turn = source->turn;
@@ -401,6 +476,12 @@ void set_piece_at(position_t * board, square_t square, piece_t piece) {
     }
 }
 
+void set_piece_index(full_board_t *board, piece_index_t *array, square_t square, piece_index_t index) {
+	piece_t piece = index_to_piece(index);
+	set_piece_at(board->position, square, piece);
+	array[square] = index;
+}
+
 piece_t get_piece_at_bb(position_t * board, bitboard_t square_bb){
     piece_color_t color;
     piece_color_t type;
@@ -443,6 +524,11 @@ piece_t get_piece_at(position_t * board, square_t square) {
     bitboard_t square_bb = SQUARE_TO_BB(square);
     return get_piece_at_bb(board, square_bb);
 }
+
+u_int8_t get_piece_at_board(full_board_t * board, square_t square) {
+	return piece_to_index(get_piece_at(board->position, square));
+}
+
 
 void clear_board(position_t *board) {
     board->pawns = 0;
@@ -628,6 +714,13 @@ u_int8_t count_bitboard(bitboard_t bitboard, int max) {
     return count;
 }
 
+bitboard_t from_squares(square_t * squares, u_int8_t length) {
+	bitboard_t out = 0;
+	for (u_int8_t i = 0; i < length; i++) {
+		out |= SQUARE_TO_BB(squares[i]);
+	}
+	return out;
+}
 
 
 // Validates some basic aspects about the given board make it legal

@@ -1,559 +1,513 @@
-from typing import Optional, NewType
+from typing import Optional, Any, Collection, NewType
+from warnings import deprecated
 import typing
-import enum
+from enum import Enum
 import os
 import sys
-sys.path.append("./")
-from ctypes import *
+
 path = os.path.dirname(os.path.abspath(__file__))
-clib = CDLL(path + "/backend/chess_c.so")
+sys.path.append(path)
 
-# TYPE ALIASES
+# goal should be removing ctypes import from this file
 
-Bitboard = c_uint64
-PieceType = c_uint8
-Color = c_uint8
-Square = c_uint8
-CastlingRights = c_uint8
-TurnClock = c_uint16
+import backend
 
-# INTERNAL STRUCT DEFINITIONS
+class Color(Enum):
+    BLACK = backend._BLACK
+    WHITE = backend._WHITE
 
+    def __str__(self):
+        return self.name
 
-
-class _OPTIONAL_SQUARE(Structure):
-
-    _fields_ = [
-        ("square", Square),
-        ("exists", c_bool),
-    ]
-
-class _POSITION(Structure):
-
-    """
-    Represents the pieces on a Board.
-    """
-
-    _fields_ = [
-        ("pawns", Bitboard),
-        ("knights", Bitboard),
-        ("bishops", Bitboard),
-        ("rooks", Bitboard),
-        ("queens", Bitboard),
-        ("kings", Bitboard),
-        ("white_oc", Bitboard),
-        ("black_ok", Bitboard),
-    ]
+    def __repr__(self):
+        return str(self)
 
 
-class _ZORBIST_TABLE(Structure):
+class PieceType(Enum):
+    PAWN = backend._PAWN
+    KNIGHT = backend._KNIGHT
+    BISHOP = backend._BISHOP
+    ROOK = backend._ROOK
+    QUEEN = backend._QUEEN
+    KING = backend._KING
 
-    _fields_ = [
-        ("square_piece_rands", POINTER(POINTER(c_uint64))),
-        ("white_to_move_rand", c_uint64),
-        ("castling_rights_rands", POINTER(c_uint64)),
-        ("en_passant_rands", POINTER(c_uint64)),
-        ("halfmove_rand_coeff", c_uint64),
-        ("fullmove_rand_coeff", c_uint64),
-    ]
+    def __str__(self):
+        return self.name
 
-class _SPLIT_FEN(Structure):
-
-    _fields_ = [
-        ("position_str", c_char_p),
-        ("turn_str", c_char_p),
-        ("castling_str", c_char_p),
-        ("ep_str", c_char_p),
-        ("halfmove_str", c_char_p),
-        ("fullmove_str", c_char_p),
-    ]
-
-class _GENERIC_MOVE(Structure):
-    _fields_ = [
-        ("origin", Square),
-        ("destination", Square),
-    ]
-
-class _PROMOTION_MOVE(Structure):
-    _fields_ = [
-        ("body", _GENERIC_MOVE),
-        ("promote_to", PieceType),
-    ]
-
-class _FULL_MOVE(Structure):
-    _fields_ = [
-        ("body", _GENERIC_MOVE),
-        ("place_type", PieceType),
-        ("new_ep_square", _OPTIONAL_SQUARE),
-        ("removes_castling", c_bool),
-        ("resets_halfmove", c_bool),
-    ]
-
-class _MOVE_UNION(Union):
-    _fields_ = [
-        ("generic", _GENERIC_MOVE),
-        ("promotion", _PROMOTION_MOVE),
-    ]
-
-class _PIECE(Structure):
-    _fields_ = [
-        ("color", Color),
-        ("type", PieceType)
-    ]
+    def __repr__(self):
+        return str(self)
 
 
+class Square(Enum):
+    A1 = 0
+    B1 = 1
+    C1 = 2
+    D1 = 3
+    E1 = 4
+    F1 = 5
+    G1 = 6
+    H1 = 7
+    A2 = 8
+    B2 = 9
+    C2 = 10
+    D2 = 11
+    E2 = 12
+    F2 = 13
+    G2 = 14
+    H2 = 15
+    A3 = 16
+    B3 = 17
+    C3 = 18
+    D3 = 19
+    E3 = 20
+    F3 = 21
+    G3 = 22
+    H3 = 23
+    A4 = 24
+    B4 = 25
+    C4 = 26
+    D4 = 27
+    E4 = 28
+    F4 = 29
+    G4 = 30
+    H4 = 31
+    A5 = 32
+    B5 = 33
+    C5 = 34
+    D5 = 35
+    E5 = 36
+    F5 = 37
+    G5 = 38
+    H5 = 39
+    A6 = 40
+    B6 = 41
+    C6 = 42
+    D6 = 43
+    E6 = 44
+    F6 = 45
+    G6 = 46
+    H6 = 47
+    A7 = 48
+    B7 = 49
+    C7 = 50
+    D7 = 51
+    E7 = 52
+    F7 = 53
+    G7 = 54
+    H7 = 55
+    A8 = 56
+    B8 = 57
+    C8 = 58
+    D8 = 59
+    E8 = 60
+    F8 = 61
+    G8 = 62
+    H8 = 63
 
-class Piece(Structure):
+    def __str__(self):
+        return self.name.lower()
 
-    _fields_ = [
-        ("color", Color),
-        ("type", PieceType),
-    ]
+A1 = Square.A1
+B1 = Square.B1
+C1 = Square.C1
+D1 = Square.D1
+E1 = Square.E1
+F1 = Square.F1
+G1 = Square.G1
+H1 = Square.H1
+A2 = Square.A2
+B2 = Square.B2
+C2 = Square.C2
+D2 = Square.D2
+E2 = Square.E2
+F2 = Square.F2
+G2 = Square.G2
+H2 = Square.H2
+A3 = Square.A3
+B3 = Square.B3
+C3 = Square.C3
+D3 = Square.D3
+E3 = Square.E3
+F3 = Square.F3
+G3 = Square.G3
+H3 = Square.H3
+A4 = Square.A4
+B4 = Square.B4
+C4 = Square.C4
+D4 = Square.D4
+E4 = Square.E4
+F4 = Square.F4
+G4 = Square.G4
+H4 = Square.H4
+A5 = Square.A5
+B5 = Square.B5
+C5 = Square.C5
+D5 = Square.D5
+E5 = Square.E5
+F5 = Square.F5
+G5 = Square.G5
+H5 = Square.H5
+A6 = Square.A6
+B6 = Square.B6
+C6 = Square.C6
+D6 = Square.D6
+E6 = Square.E6
+F6 = Square.F6
+G6 = Square.G6
+H6 = Square.H6
+A7 = Square.A7
+B7 = Square.B7
+C7 = Square.C7
+D7 = Square.D7
+E7 = Square.E7
+F7 = Square.F7
+G7 = Square.G7
+H7 = Square.H7
+A8 = Square.A8
+B8 = Square.B8
+C8 = Square.C8
+D8 = Square.D8
+E8 = Square.E8
+F8 = Square.F8
+G8 = Square.G8
+H8 = Square.H8
+
+SQUARES = [square for square in Square]
+
+WHITE = Color.WHITE
+BLACK = Color.BLACK
+
+PAWN = PieceType.PAWN
+KNIGHT = PieceType.KNIGHT
+BISHOP = PieceType.BISHOP
+ROOK = PieceType.ROOK
+QUEEN = PieceType.QUEEN
+KING = PieceType.KING
+
+
+PIECE_TYPES = [piece_type for piece_type in PieceType]
+
+class Piece:
+
+    __slots__ = ("__color", "__piece_type", "__struct")
+
 
     def __init__(self, color : Color, piece_type : PieceType):
-        """
-        Create a Piece of the given PieceType and Color
-        """
-        if piece_type != 0:
-            if not (color == WHITE or color == BLACK) or not (piece_type == PAWN or piece_type == BISHOP or piece_type == KNIGHT or piece_type == ROOK or piece_type == QUEEN or piece_type == KING):
-                raise ValueError(f"Invalid piece Piece({color},{piece_type})")
-        self.type = piece_type
-        self.color = color
+        self.__color = color
+        self.__piece_type = piece_type
+    
+    def __new__(cls, color : Color, piece_type : PieceType):
+        if not hasattr(cls, "instances"):
+            Piece.instances = {}
+            for pt in PieceType:
+                for c in Color:
+                    piece = object.__new__(Piece)
+                    Piece.__init__(piece, c, pt)
+                    Piece.instances[(c,pt)] = piece
+        try:
+            return cls.instances[(color, piece_type)]       
+        except:
+            if type(color) != Color:
+                raise ValueError(f"Cannot construct a piece with invalid Color {color}")
+            elif type(piece_type) != PieceType:
+                raise ValueError(f"Cannot construct a piece with invalid PieceType {piece_type}")
+            else:
+                raise Exception("Piece initilization failed")
 
-
-    @staticmethod 
-    def new(color : Color, piece_type : PieceType) -> "Piece":
-        return Piece(color, piece_type)
 
     @staticmethod
     def from_symbol(symbol : str) -> Optional["Piece"]:
         try:
-            return _from_c_piece(_piece_from_string(symbol.encode("utf-8")))
+            return SYMBOLS_TO_PIECES[symbol]
         except:
             raise ValueError(f"Invalid piece symbol: {symbol}")
+        
+    @property
+    def color(self) -> Color:
+        return self.__color
 
-    def get_type(self) -> PieceType:
-        return self.type
+    @property
+    def piece_type(self) -> PieceType:
+        return self.__piece_type
 
-    def get_color(self) -> Color:
-        return self.color    
-    
-    def __str__(self):
-        return _piece_symbol(self).decode()
-    
-    def __repr__(self):
+    def __str__(self) -> str:
+        return PIECE_SYMBOLS[self]
+
+    def __repr__(self) -> str:
         return f"Piece({str(self)})"
 
-    def __eq__(self, other):
-        if type(other) == type(self):
-            return bool(_pieces_equal(self, other))
-        else:
-            return False
-
     def __hash__(self) -> int:
-        return int(_hash_piece(self))
+        return self.__color.value + (2 * self.__piece_type.value)
 
-def Pawn(color : Color) -> Piece:
-    return Piece.new(color, PAWN)
+PIECES = [
+    None,
+    Piece(WHITE,PAWN),
+    Piece(WHITE,KNIGHT),
+    Piece(WHITE,BISHOP),
+    Piece(WHITE,ROOK),
+    Piece(WHITE,QUEEN),
+    Piece(WHITE,KING),
+    Piece(BLACK,PAWN),
+    Piece(BLACK,KNIGHT),
+    Piece(BLACK,BISHOP),
+    Piece(BLACK,ROOK),
+    Piece(BLACK,QUEEN),
+    Piece(BLACK,KING)
+]
 
-def Knight(color : Color) -> Piece:
-    return Piece.new(color, KNIGHT)
+PIECE_INDEXES = {
+    None : 0,
+    Piece(WHITE,PAWN) : 1,
+    Piece(WHITE,KNIGHT) : 2,
+    Piece(WHITE,BISHOP) : 3,
+    Piece(WHITE,ROOK) : 4,
+    Piece(WHITE,QUEEN) : 5,
+    Piece(WHITE,KING) : 6,
+    Piece(BLACK,PAWN) : 7,
+    Piece(BLACK,KNIGHT) : 8,
+    Piece(BLACK,BISHOP) : 9,
+    Piece(BLACK,ROOK) : 10,
+    Piece(BLACK,QUEEN) : 11,
+    Piece(BLACK,KING) : 12
+}
 
-def Bishop(color : Color) -> Piece:
-    return Piece.new(color, BISHOP)
+PIECE_SYMBOLS = {
+    None : '-',
+    Piece(WHITE,PAWN) : 'P',
+    Piece(WHITE,KNIGHT) : 'N',
+    Piece(WHITE,BISHOP) : 'B',
+    Piece(WHITE,ROOK) : 'R',
+    Piece(WHITE,QUEEN) : 'Q',
+    Piece(WHITE,KING) : 'K',
+    Piece(BLACK,PAWN) : 'p',
+    Piece(BLACK,KNIGHT) : 'n',
+    Piece(BLACK,BISHOP) : 'b',
+    Piece(BLACK,ROOK) : 'r',
+    Piece(BLACK,QUEEN) : 'q',
+    Piece(BLACK,KING) : 'k',
+}
 
-def Rook(color : Color) -> Piece:
-    return Piece.new(color, ROOK)
+SYMBOLS_TO_PIECES = {
+    '-': None,
+    'P': Piece(WHITE,PAWN),
+    'N': Piece(WHITE,KNIGHT),
+    'B': Piece(WHITE,BISHOP),
+    'R': Piece(WHITE,ROOK),
+    'Q': Piece(WHITE,QUEEN),
+    'K': Piece(WHITE,KING),
+    'p': Piece(BLACK,PAWN),
+    'n': Piece(BLACK,KNIGHT),
+    'b': Piece(BLACK,BISHOP),
+    'r': Piece(BLACK,ROOK),
+    'q': Piece(BLACK,QUEEN),
+    'k': Piece(BLACK,KING)
+}
 
-def Queen(color : Color) -> Piece:
-    return Piece.new(color, QUEEN)
+class Move:
 
-def King(color : Color) -> Piece:
-    return Piece.new(color, KING)
+    __slots__ = ("__struct",)
 
-
-
-def _from_c_piece(piece : Piece) -> Optional[Piece]:
-    """
-    Bridge for bringing Pieces returned from C into python
-    """
-    if piece.type == _EMPTY_PIECE:
-        return None
-    elif piece.type == _ERROR_PIECE:
-        raise Exception("Invalid Piece")
-    else:
-        return piece
-
-def _to_c_piece(piece : Optional[Piece]) -> Piece:
-    if piece == None:
-        return Piece(_EMPTY_PIECE, _EMPTY_PIECE)
-    return piece
-
-
-
-
-class Move(Structure):
-    "Represents a chess move from an origin to a destination, as well as whether the move is a pawn promotion. Moves can be created `Move.from_uci`, which takes a move specified in long algebraic notation."
-
-    _anonymous_ = ("u",)
-    _fields_ = [
-        ("u", _MOVE_UNION),
-        ("type", c_uint8),
-    ]
-
+    def __init__(self, origin : Square, 
+                       destination : Square, 
+                       promote_to : Optional[PieceType] = None):
+        try:
+            pt = backend._EMPTY_PIECE_TYPE if promote_to == None else promote_to.value
+            self.__struct = backend._make_move_from_parts(origin.value, 
+                                                      destination.value, 
+                                                      pt)
+        except:
+            if type(origin) != Square:
+                raise ValueError(f"Invalid origin is not a Square: {origin}")
+            if type(destination) != Square:
+                raise ValueError(f"Invalid destination is not a Square: {destination}")
+            if promote_to != None and type(promote_to) != PieceType:
+                raise ValueError(f"Invalid promote to value is not a PieceType: {promote_to}")
+            raise Exception(f"Move initialization failed")
+    
     @staticmethod
-    def from_uci(uci_str : str) -> "Move":
-        move = _parse_uci(uci_str.encode("utf-8"))
-        if int(move.type) == 1:
-            raise ValueError(f"Illegal move: {uci_str}")
+    def __inst(__struct : backend._MOVE) -> "Move":
+        move = object.__new__(Move)
+        move.__struct = __struct
         return move
 
-    def is_promotion(self) -> bool:
-        return bool(_is_promotion(self))
+    @staticmethod
+    def from_uci(uci : str) -> "Move":
+        return Move.__inst(backend._init_move_from_uciPY(uci))
 
-    def promotion_to(self) -> Optional[Piece]:
-        return _from_c_piece(_promotes_to(self))
-
+    @property
     def origin(self) -> Square:
-        return _get_origin(self)
+        return Square(backend._get_origin(self.__struct))
 
+    @property
     def destination(self) -> Square:
-        return _get_destination(self)
+        return Square(backend._get_destination(self.__struct))
+    
+    @property
+    def promotes_to(self) -> Optional[PieceType]:
+        return _C_PIECE_STRUCT_TABLE[backend._promotes_to(self.__struct)]
+    
+    def is_promption(self) -> bool:
+        return bool(backend._is_promotion(self.__struct))
 
-    def __str__(self):
-        uci = create_string_buffer(6)
-        _write_uci(self, uci)
-        return uci.raw.rstrip(b'\x00').decode()
-    
-    def __repr__(self):
-        return f"Move({str(self)})"
-    
+    def __str__(self) -> str:
+        return backend._write_uciPY(self.__struct)
+
     def __hash__(self) -> int:
-        return int(_hash_move(self))
+        return int(backend._hash_move(self.__struct))
 
-    def __eq__(self, other):
-        if type(self) == type(other):
-            return bool(_moves_equal(self, other))
+    def __eq__(self, other : Any) -> bool:
+        if type(other) == Move:
+            return bool(backend._moves_equal(self.__struct, other.__struct))
         return False
 
+    def __repr__(self) -> str:
+        return f"Move({str(self)})"
 
-class UndoableMove(Structure):
-    _fields_ = [
-        ("move", Move),
-        ("captured_piece", Piece),
-        ("old_castling_rights", CastlingRights),
-        ("was_castling", CastlingRights),
-        ("old_en_passant", _OPTIONAL_SQUARE),
-        ("old_halfmove", TurnClock)
-    ]
+class Bitboard:
 
-class _BOARD(Structure):
-    _fields_ = [
-        ("position", POINTER(_POSITION)),
-        ("turn", Color),
-        ("castling_rights", CastlingRights),
-        ("en_passant_square", _OPTIONAL_SQUARE),
-        ("halfmove_clock", TurnClock),
-        ("fullmove_number", TurnClock),
-    ]
-   
+    __slots__ = ("__int",)
+
+    def __init__(self, squares : Collection[Square]):
+        squares_array = (backend._SQUARE * 64)(*[square.value for square in squares])
+        self.__int = backend._from_squares(squares_array, len(squares))
 
     @staticmethod
-    def empty() -> "_BOARD":
-        """
-        Creats a new Board for an empty position.
-        """
-        pos_pointer = pointer(_POSITION(0, 0, 0, 0, 0, 0, 0, 0))
-        castling_rights = NO_CASTLING_RIGHTS
-        turn = WHITE
-        en_passant = _OPTIONAL_SQUARE(0, 0)
-        halfmove = TurnClock(0)
-        fullmove = TurnClock(0)
-        full_board = _BOARD(
-            pos_pointer,
-            turn,
-            castling_rights,
-            en_passant,
-            halfmove,
-            fullmove,
-        )
-        return full_board
+    def __inst(__int : backend._BITBOARD) -> "Bitboard":
+        bb = object.__new__(Bitboard)
+        bb.__int = __int
+        return bb
 
-class PiecePatternUnion(Union):
+    def __str__(self):
+        return backend._write_bitboardPY(self.__int)
 
-    _fields_ = [
-        ("count", c_uint8),
-        ("bitboard", Bitboard)
-    ]
+    def __contains__(self, square : Square):
+        if type(square) == Square:
+            return backend._square_in_bitboard(self.__int, square.value); 
+        return False
 
-class PiecePattern(Structure):
+    def __or__(self, other : "Bitboard") -> "Bitboard":
+        return Bitboard.__inst(self.__int | other.__int)
 
-    _anonymous_ = ("u",)
+    def __and__(self, other : "Bitboard") -> "Bitboard":
+        return Bitboard.__inst(self.__int & other.__int)
 
-    _fields_ = [
-        ("piece", Piece),
-        ("type", c_uint8),
-        ("u", PiecePatternUnion)
-    ]
+    def __xor__(self, other : "Bitboard") -> "Bitboard":
+        return Bitboard.__inst(self.__int ^ other.__int)
 
-class Pattern:
+    def __invert__(self) -> "Bitboard":
+        return Bitboard.__inst(~self.__int)
 
-    COUNT_TYPE = c_uint8(1)
-    BITBOARD_TYPE = c_uint8(2)
+    def __eq__(self, other : Any) -> bool:
+        if type(other) == Bitboard:
+            return self.__int == other.__int
+        return False
 
-    """
-    Represents some configuration details about Piece locations in Boards. Can be used to efficiently query if a Board has some configuartion of Pieces.
-    """
-
-    __slots__ = ["__piece_patterns", "__current_buffer"]
-
-    def __init__(self):
-        self.__piece_patterns = []
-        self.__current_buffer = None
-
-    def __update_buffer(self):
-        self.__current_buffer = (PiecePattern * len(self.__piece_patterns))(*self.__piece_patterns)
-
-    def piece_count(self, piece : Optional[Piece], count : int) -> "Pattern":
-        """
-        Adds a requirement to this Pattern for a specified count of the given Piece.
-        """
-        if count < 0 or count > 64:
-            raise Exception("A specified Piece count for a pattern must be >= 0 and <= 64")
-        piece_pattern = PiecePattern(
-            _to_c_piece(piece), Pattern.COUNT_TYPE, PiecePatternUnion(count = c_uint8(count))
-        )
-        self.__piece_patterns.append(piece_pattern)
-        self.__update_buffer()
-        return self
-
-    def from_board(self, 
-                    pieces : typing.Union[PieceType, 
-                                          Optional[Piece], 
-                                          list[Optional[typing.Union[Piece, PieceType]]]], 
-                   board : "Board") -> "Pattern":
-        if type(pieces) != list:
-            pieces = [pieces]
-        new_pieces = []
-        for piece in pieces:
-            if type(piece) != Piece:
-                new_pieces.append(Piece(WHITE, piece))
-                new_pieces.append(Piece(BLACK, piece))
-            else:
-                new_pieces.append(piece)
-        pieces = new_pieces
-        for piece in pieces:
-            pattern = PiecePattern(
-                _to_c_piece(piece), 
-                Pattern.BITBOARD_TYPE, 
-                PiecePatternUnion(bitboard = board.piece_bitboard(piece))            
-            )
-            self.__piece_patterns.append(pattern)
-        self.__update_buffer()
-        return self
 
 
 class Board:
 
-    """A ```bulletchess.Board``` is a wrapper around a C ```struct``` which represents the state of a Chess board.
-This class directly encodes the configuration of pieces, whose turn it is, castling rights, the existance of the en passant square, as well as the halfmove clock and fullmove number."""
-   
-    __slots__ = ['__board', '__move_stack']
 
-    def __init__(self, __board : _BOARD):
-        """
-        """
-        self.__board = pointer(__board)
+    __slots__ = ("__pointer", "__move_stack", "__piece_array")
+
+    def __init__(self):
+        self.__piece_array = (backend._PIECE_INDEX * 64)()
+        self.__pointer = backend._init_starting_boardPY() 
         self.__move_stack = []
-
-  
-    @staticmethod
-    def from_fen(fen : str) -> "Board":
-        """
-        Creates a new Board using the given FEN description. 
-        """
-        if fen == "":
-            raise ValueError(f"Invalid FEN '': Empty FEN")
-        board = Board(_BOARD.empty())
-        Board
-        buffer = create_string_buffer(init = fen.encode("utf-8"))
-        error = _parse_fen(buffer, board.__board)
-        if error == None:
-            return board
-        else:
-            error = bytes(error).decode()
-            raise ValueError(f"Invalid FEN '{fen}': {error}")
-
-    @staticmethod
-    def empty() -> "Board":
-        """
-        Creates a new Board with no Pieces.
-        """
-        return Board(_BOARD.empty())
-
+        backend._fill_piece_index_array(self.__pointer, self.__piece_array)
     
     @staticmethod
     def starting() -> "Board":
-        """
-        Creates a new Board for the starting position.
-        """
-        pos_pointer = pointer(_POSITION(
-            PAWNS_STARTING, 
-            KNIGHTS_STARTING, 
-            BISHOPS_STARTING, 
-            ROOKS_STARTING, 
-            QUEENS_STARTING,
-            KINGS_STARTING,
-            WHITE_STARTING,
-            BLACK_STARTING
-        ))
-        castling_rights = STARTING_CASTLING_RIGHTS
-        en_passant = _OPTIONAL_SQUARE(0, 0)
-        turn = WHITE
-        halfmove = TurnClock(0)
-        fullmove = TurnClock(1)
-        full_board = _BOARD(
-            pos_pointer,
-            turn,
-            castling_rights,
-            en_passant,
-            halfmove,
-            fullmove,
-        )
-        return Board(full_board)
-    
+        return Board()
+
+    @staticmethod
+    def __inst(__pointer : backend.POINTER(backend._BOARD),
+                 __move_stack : list[backend._UNDOABLE_MOVE]):
+        board = object.__new__(Board)
+        board.__piece_array = (backend._PIECE_INDEX * 64)()
+        board.__pointer = __pointer
+        board.__move_stack = __move_stack
+        backend._fill_piece_index_array(board.__pointer, board.__piece_array)
+        return board        
+
+
+    @staticmethod
+    def from_fen(fen : str) -> "Board":
+        pointer = backend._init_board_from_fenPY(fen)
+        return Board.__inst(pointer, [])
+
+    @staticmethod
+    def empty() -> "Board":
+        pointer = backend._init_empty_boardPY()
+        return Board.__inst(pointer, [])
+
     @staticmethod
     def random() -> "Board":
-        """
-        Generates a random Board by applying a random number of randomly selected moves to the starting position.
-        """
-        board = Board.starting()
-        _randomize_board(board.__board)
-        return board
+       board = Board()
+       backend._randomize_board(board.__pointer)
+       return board
 
+    @staticmethod
+    def __make_piece_list(__pointer : backend.POINTER(backend._BOARD)):
+        return [Piece._Piece__inst(struct) for struct in 
+                backend._make_piece_arrayPY(__pointer)[0:64]]
+
+    def copy(self) -> "Board":
+        pointer = backend._alloc_boardPY()
+        cpy = Board.__inst(pointer, self.__move_stack.copy())
+        backend._copy_into(cpy.__pointer, self.__pointer)
+        return cpy
 
     def validate(self):
         """
         Raises an Exception if this Board is invalid 
         """
-        error = _validate_board(self.__board)
+        error = backend._validate_board(self.__pointer)
         if error != None:
             raise ValueError(error.decode("utf-8"))
  
-    def legal_moves(self) -> list[Move]:
-        """
-        Creates a list of legal Moves that can be applied to this Board.
-        """
-        moves_buffer = (Move * 256)()
-        self.__board.contents
-        length = _generate_legal_moves(self.__board, moves_buffer)
-        return moves_buffer[:length]
-    
-    def count_moves(self) -> int:
-        """
-        Counts the number of legal moves for this Board. This is faster than calling
-        `legal_moves()` and checking the length
-        """
-        return int(_count_moves(self.__board))
-
-
-    def apply(self, move : Move) -> None:
-        """
-        Mutates this board by applying the given move
-        """
-        self.__move_stack.append(_apply_move(self.__board, move))
-
-    def undo(self) -> Move:
-        undoable = self.__move_stack.pop()
-        return _undo_move(self.__board, undoable)
-    
-    def in_check(self) -> bool:
-        """
-        Returns `True` if the side to move is in check.
-        """
-        return bool(_in_check(self.__board))
-
-
-    def is_checkmate(self) -> bool:
-        """
-        Returns `True` if the side to move is in checkmate.
-        """
-        return bool(_is_checkmate(self.__board))
-
-    def is_stalemate(self) -> bool:
-        """
-        Returns `True` if the Board is in checkmate. 
-        """
-        return bool(_is_stalemate(self.__board))
-
-    def is_draw(self) -> bool:
-        """
-        Returns `True` if the Board's position is a draw, whether by stalemate,
-        the halfmove clock being 50 or greater (for a position that is not checkmate), 
-        or by threefold repetition
-        """
-        l = len(self.__move_stack)
-        moves_array = (UndoableMove * l)(*self.__move_stack)
-        return bool(_is_draw(self.__board, moves_array, l))
-
-    def get_piece_at(self, square : Square) -> Optional[Piece]:
-        """
-        Gets the Piece at the specified Square
-        """
-        return _from_c_piece(_get_piece_at(self.__board.contents.position, square))
-
-    def remove_piece_at(self, square : Square) -> None:
-        """
-        Removes the Piece specified at the given square
-        """
-        _delete_piece_at(self.__board.contents.position, square)
-    
-    def set_piece_at(self, square : Square, piece : Optional[Piece]) -> None:
-        """
-        Sets the given square to have the given piece
-        """
-        _set_piece_at(self.__board.contents.position, square, _to_c_piece(piece))
 
     @property 
     def ep_square(self) -> Optional[Square]:
         """
         The current en passant Square, or None if it does not exist.
         """
-        optional_square = self.__board.contents.en_passant_square
+        optional_square = self.__pointer.contents.en_passant_square
         if bool(optional_square.exists):
-            return optional_square.square
+            return Square(optional_square.square)
         return None
 
     @ep_square.setter
     def ep_square(self, square : Optional[Square]):
         if square == None:
-            _clear_ep_square(self.__board)
-            
+            backend._clear_ep_square(self.__pointer)
         else:
-            error = _set_ep_square_checked(self.__board, square)
+            if type(square) == Square:
+                error = backend._set_ep_square_checked(self.__pointer, square.value)
+            else:
+                raise ValueError(f"Illegal en passant Square, {square} is not a valid Square")
             if error != None:
-                raise ValueError(error.decode("utf-8").format(ep = square_to_str(square)))
+                raise ValueError(error.decode("utf-8").format(ep = str(square)))
 
     @property
     def turn(self) -> Color:
         """
         The Color of the player whose turn it is.
         """
-        return self.__board.contents.turn
+        return Color(self.__pointer.contents.turn)
 
     @turn.setter
-    def turn(self, value : Color):
-        if value == WHITE or value == BLACK:
-            self.__board.contents.turn = value
+    def turn(self, color : Color):
+        if type(color) == Color:
+            self.__pointer.contents.turn = color.value
         else:
-            raise ValueError(f"Cannot set turn to a value that is not WHITE or BLACK, but got {value}")
+            raise ValueError(f"Cannot set turn to a value that is not WHITE or BLACK, got: {color}")
 
     @property
     def halfmove_clock(self) -> int:
         """
         The number of ply that have passed since a pawn advancement or a capture.
         """
-        return int(self.__board.contents.halfmove_clock)
+        return int(self.__pointer.contents.halfmove_clock)
 
 
     @halfmove_clock.setter
@@ -563,17 +517,15 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
         elif value > 65535:
             raise ValueError(f"Cannot set halfmove clock to a value greater than 65535, but got {value}")
         else:
-            self.__board.contents.halfmove_clock = TurnClock(value) 
-
-
+            self.__pointer.contents.halfmove_clock = backend._TURN_CLOCK(value) 
 
     @property
     def fullmove_number(self) -> int:
         """
-        The turn number of the current Board. After both players have made a move, the fullmove
-        number increments by 1.
+        The turn number of the current Board, which is initialized to 1 in the starting position.
+        After both players have made a move, the fullmove number increments by 1.
         """
-        return int(self.__board.contents.fullmove_number)
+        return int(self.__pointer.contents.fullmove_number)
 
 
     @fullmove_number.setter
@@ -583,541 +535,104 @@ This class directly encodes the configuration of pieces, whose turn it is, castl
         elif value > 65535:
             raise ValueError(f"Cannot set fullmove number to a value greater than 65535, but got {value}")
         else:
-            self.__board.contents.fullmove_number = TurnClock(value) 
+            self.__pointer.contents.fullmove_number = backend._TURN_CLOCK(value) 
+
+    def fen(self) -> str:
+        return backend._make_fenPY(self.__pointer)
+
+    def perft(self, depth: int) -> int:
+        if depth < 0:
+            raise ValueError("Cannot perform perft with a negative depth")
+        if depth > 255:
+            raise ValueError("Cannot perform perft with a value > 255, this would take longer than the heat death of the Universe")
+        return backend._perft(self.__pointer, depth)
 
 
+    def legal_moves(self) -> list[Move]:
+        moves_buffer = (backend._MOVE * 256)()
+        length = backend._generate_legal_moves(self.__pointer, moves_buffer)
+        return [Move._Move__inst(m) for m in moves_buffer[:length]]
+
+    def count_moves(self) -> int:
+        return int(backend._count_moves(self.__pointer))
+
+    def apply(self, move : Move) -> None:
+        if type(move) != Move:
+            raise ValueError(f"Board.apply() expected a Move, got {move}, which is a {type(move)}") 
+        self.__move_stack.append(backend._apply_move(self.__pointer, self.__piece_array, move._Move__struct))
+
+    def undo(self) -> Move:
+        undoable = self.__move_stack.pop()
+        move = Move._Move__inst(backend._undo_move(self.__pointer, self.__piece_array, undoable))
+
+    def in_check(self) -> bool:
+        return bool(backend._in_check(self.__pointer))
+
+    def is_checkmate(self) -> bool:
+        return bool(backend._is_checkmate(self.__pointer))
+
+    def is_stalemate(self) -> bool:
+        return bool(backend._is_stalemate(self.__pointer))
+
+    def is_draw(self) -> bool:
+        ln = len(self.__move_stack)
+        moves_array = (backend._UNDOABLE_MOVE * ln)(*self.__move_stack)
+        return bool(backend._is_draw(self.__pointer, moves_array, ln))
+
+    def bitboard_of(self, piece : Optional[Piece]) -> Bitboard: 
+        struct = _get_piece_struct(piece)
+        return Bitboard(backend._get_piece_bb(self.__pointer, struct))
 
 
-    def __contains__(self, obj : typing.Union[Optional[Piece], Pattern]):
-        """
-        If given a Piece, returns True if it exists in this Board's position. 
-        If given a Pattern, returns True if the Pattern matches this Board's position.
-        """
-        if type(obj) == Piece: 
-            return _contains_piece(self.__board, _to_c_piece(piece))
-        else:
-            return bool(_board_has_patterns(self.__board, 
-                                            obj._Pattern__current_buffer, 
-                                            len(obj._Pattern__piece_patterns)))
+    def get_piece_at(self, square : Square) -> Optional[Piece]:
+        if type(square) != Square:
+            raise ValueError("Board.get_piece_at() expected a Square, got {square}")
+        #return PIECES[backend._get_piece_at(self.__pointer, square.value)]
+        #return PIECES[backend._index_into(self.__piece_array, square.value)]
+        return PIECES[self.__piece_array[square.value]]
 
-    def __eq__(self, other):
+    def set_piece_at(self, square : Square, piece : Optional[Piece]) -> None:
+        if type(square) != Square:
+            raise ValueError("Board.set_piece_at() expected a Square, got {square}")
+        try:
+            index = PIECE_INDEXES[piece]
+        except:
+            raise ValueError(f"Invalid piece: {piece}")
+        backend._set_piece_index(self.__pointer, self.__piece_array, square.value, index)
+
+
+    def delete_piece_at(self, square : Square) -> None:
+        if type(square) != Square:
+            raise Exception("Board.delete_piece_at() expected a Square, got {square}")
+        backend._delete_piece_at(self.__pointer, self.__piece_array, square.value)
+
+    def __eq__(self, other : Any):
         """
         Returns True if compared with another Board that has the same position, as
         well as identical state aspects including the en-passant square, castling rights,
         the halfmove timer, and the fullmove clock.
         """
         if type(other) is type(self):
-            return bool(_boards_equal(self.__board, other.__board))
+            return bool(backend._boards_equal(self.__pointer, other.__pointer))
         return False
-        
-    def fen(self) -> str:
-        """
-        Returns a string of the FEN description of this Board.
-        """
-        fen = create_string_buffer(300)
-        _make_fen(self.__board, fen)
-        return fen.raw.rstrip(b'\x00 ').decode()
-    
+
     def __str__(self) -> str:
-        """
-        Creates a visual representation of this Board in the form of a string.
-        """
-        board = create_string_buffer(300)
-        _make_board_string(self.__board, board)
-        return board.raw.rstrip(b'\x00 ').decode()
-    
+        return backend._make_board_stringPY(self.__pointer)
 
-    def __repr__(self):
-        return f"Board({self.fen()})\n"
-        
+    def __eq__(self, other : Any) -> bool: 
+        if type(other) == Board:
+            return bool(backend._boards_equal(self.__pointer, other.__pointer))
+        return False
+    
     def __hash__(self) -> int:
-        """
-        Returns a 64-bit integer hash of this Board using randomized Zobrist keys.
-        """
-        return int(_hash_board(self.__board, ZORBIST_TABLE))
-
-    def piece_bitboard(self, piece : Optional[Piece]) -> Bitboard:
-        """
-        Returns a Bitboard representing the locations of the specified Piece, or 
-        the empty squares if given None.
-        """
-        return _get_piece_bb(self.__board, _to_c_piece(piece))
-
-    def copy(self) -> "Board":
-        """
-        Returns a copy of this Board.
-        """
-        copy = Board(_BOARD.empty())
-        _copy_into(copy.__board, self.__board)
-        copy.__move_stack = self.__move_stack.copy()
-        return copy
-    
-    def material(self, knight_value : int = 300, bishop_value : int = 300, rook_value : int = 500, queen_value : int = 900) -> int:
-        """
-        Find the material value of the Pieces in this Board, where White Pieces are counted positively and Black Pieces are counted negatively. 
-        The default arguments are the typical material evaluations described in centipawns.
-        """
-        return int(_material(self.__board.position, c_int(knight_value), c_int(bishop_value), c_int(rook_value), c_int(queen_value)))
+        return int(backend._hash_board(self.__pointer))
 
 
-    def debug_position(self, legal_moves : list[Move]):
-        import chess
-        fen = self.fen()
-        chess_board = chess.Board(fen)
-        chess_fen = chess_board.fen(en_passant = "fen")
-        if fen != chess_fen:
-            raise Exception(fen, chess_fen)
-        uci_moves = sorted([str(move) for move in legal_moves])
-        chess_moves = list(chess_board.legal_moves)
-        uci_chess = sorted([str(move) for move in chess_moves])
-        if uci_chess != uci_moves:
-            print(self)
-            _print_bitboard(_make_attack_mask(self.__board, BLACK if self.turn == WHITE else WHITE))
-            raise Exception(fen +"\n" + str(uci_chess) + "\n" +str(uci_moves))
-    
-    def debug_perft(self, depth : int, move_stack : list[Move] = []) -> int:
-        import chess
-        if depth == 0:
-            return 1
-        elif depth == 1:
-            legal_moves = self.legal_moves()
-            self.debug_position(legal_moves)
-            return len(legal_moves)
-        else:
-            moves = self.legal_moves()
-            self.debug_position(moves)
-            if len(moves) == 0:
-                return 1
-            nodes = 0
-            chess_board = chess.Board(fen = self.fen());
-            for move in moves:
-                old_fen = self.fen()
-                self.apply(move)
-                chess_board.push(chess.Move.from_uci(str(move)))
-                fen = self.fen()
-                chess_fen = chess_board.fen(en_passant = "fen")
-                if fen != chess_fen:
-                    raise Exception(fen, chess_fen, move_stack + [move], old_fen)
-                nodes += self.debug_perft(depth - 1, move_stack + [move])
-                self.undo()
-                chess_board.pop()
-            return nodes
 
-    def get_squares_with(self, piece : Optional[Piece]) -> list[Square]:
-        """
-        Returns a list of Squares where the given Piece can be found on this Board.
-        Passing `None` will return a list of squares where there is no Piece.
-        """
-        buffer = (Square * 64)()
-        length = _squares_with_piece(self.__board, _to_c_piece(piece), buffer)
-        return buffer[:length]
-
-    def perft(self, depth : int, debug: bool = False) -> int:
-        """
-        Walks through the move generation tree for this Board to the specified depth, and
-        counts the number of leaf node Boards created. 
-
-        For a more detailed explanation, see: 
-        https://www.chessprogramming.org/Perft
-        """
-        if depth < 0:
-            raise Exception("Cannot perform perft with a negative depth")
-        if debug:
-            print("Running on debug mode...")
-            return self.debug_perft(depth)
-        return _perft(self.__board, c_uint8(depth))
-
-
-    def pseudo_perft(self, depth : int, debug: bool = False) -> int:
-        return _pseudo_perft(self.__board, c_uint8(depth))
-
-
-    
-
-def square_to_str(square : Square) -> str:
-    if square > H8:
-        return f"{square}"
+def _get_piece_struct(piece : Optional[Piece]):
+    if piece == None:
+        return backend._EMPTY_PIECE
     else:
-        rank = chr(square // 8 + ord('1'))
-        file = chr(square % 8 + ord('a'))
-        return f"{file}{rank}"
-
-
-# C LIBRARY IMPORTS
-
-_piece_from_string = clib.piece_from_string
-_piece_from_string.argtypes = [c_char_p]
-_piece_from_string.restype = Piece
-
-
-# _material = clib.material
-# _material.restype = c_int
-# _material.argtypes = [POINTER(_POSITION), c_int, c_int, c_int, c_int]
-
-_get_piece_at = clib.get_piece_at
-_get_piece_at.restype = Piece
-_get_piece_at.argtypes = [POINTER(_POSITION), Square]
-
-
-_set_piece_at = clib.set_piece_at
-_set_piece_at.argtypes = [POINTER(_POSITION), Square, Piece]
-
-_delete_piece_at = clib.delete_piece_at
-_delete_piece_at.argtypes = [POINTER(_POSITION), Square]
-
-_get_pawn_value = clib.get_pawn_val
-_get_pawn_value.restype = PieceType
-
-_get_knight_value = clib.get_knight_val
-_get_knight_value.restype = PieceType
-
-_get_bishop_value = clib.get_bishop_val
-_get_bishop_value.restype = PieceType
-
-_get_rook_value = clib.get_rook_val
-_get_rook_value.restype = PieceType
-
-_get_king_value = clib.get_king_val
-_get_king_value.restype = PieceType
-
-_get_queen_value = clib.get_queen_val
-_get_queen_value.restype = PieceType
-
-_get_white_value = clib.get_white_val
-_get_white_value.restype = Color
-
-_get_black_value = clib.get_black_val
-_get_black_value.restype = Color
-
-_get_empty_value = clib.get_empty_val
-_get_empty_value.restype = PieceType
-
-_get_error_value = clib.get_error_val
-_get_error_value.restype = PieceType
-
-_piece_is_type = clib.piece_is_type
-_piece_is_type.restype = c_bool
-_piece_is_type.argtypes = [Piece, PieceType]
-
-_piece_is_empty = clib.piece_is_empty
-_piece_is_empty.restype = c_bool
-_piece_is_empty.argtypes = [Piece]
-
-_piece_is_color = clib.piece_is_color
-_piece_is_color.restype = c_bool
-_piece_is_color.argtypes = [Piece, Color]
-
-
-_piece_symbol = clib.piece_symbol
-_piece_symbol.restype = c_char
-_piece_symbol.argtypes = [Piece]
-
-_pieces_equal = clib.pieces_equal
-_pieces_equal.restype = c_bool
-_pieces_equal.argtypes = [Piece, Piece]
-
-_same_color = clib.same_color
-_same_color.restype = c_bool
-_same_color.argtypes = [Piece, Piece]
-
-_same_type = clib.same_type
-_same_type.restype = c_bool
-_same_type.argtypes = [Piece, Piece]
-
-_hash_piece = clib.hash_piece
-_hash_piece.restype = c_int64
-_hash_piece.argtypes = [Piece]
-
-_has_kingside_castling_rights  = clib.has_kingside_castling_rights
-_has_kingside_castling_rights.restype = c_bool
-_has_kingside_castling_rights.argtypes = [POINTER(_BOARD), Color]
-
-_has_queenside_castling_rights = clib.has_queenside_castling_rights
-_has_queenside_castling_rights.restype = c_bool
-_has_queenside_castling_rights.argtypes = [POINTER(_BOARD), Color]
-
-_has_castling_rights = clib.has_castling_rights
-_has_castling_rights.restype = c_bool 
-_has_castling_rights.argtypes = [POINTER(_BOARD), Color]
-
-
-_clear_castling_rights = clib.clear_castling_rights
-_clear_castling_rights.argtypes = [POINTER(_BOARD), Color]
-
-_set_full_castling_rights = clib.set_full_castling_rights
-_set_full_castling_rights.argtypes = [POINTER(_BOARD)]
-
-_update_castling_rights = clib.update_castling_rights
-_update_castling_rights.argtypes = [POINTER(_BOARD), Color]
-
-_update_all_castling_rights = clib.update_all_castling_rights
-_update_all_castling_rights.argtypes = [POINTER(_BOARD)]
-
-_contains_piece = clib.contains_piece
-_contains_piece.argtypes = [POINTER(_POSITION), Piece]
-_contains_piece.restype = c_bool
-
-_is_subset = clib.is_subset
-_is_subset.argtypes = [POINTER(_POSITION), POINTER(_POSITION)]
-_is_subset.restype = c_bool
-
-_boards_equal = clib.boards_equal
-_boards_equal.argtypes = [POINTER(_BOARD), POINTER(_BOARD)]
-_boards_equal.restype = c_bool
-
-
-_create_zobrist_table = clib.create_zobrist_table
-_create_zobrist_table.restype = POINTER(_ZORBIST_TABLE)
-
-_hash_board = clib.hash_board
-_hash_board.argtypes = [POINTER(_BOARD), POINTER(_ZORBIST_TABLE)]
-_hash_board.restype = c_uint64
-
-_add_castling_rights = clib.add_castling_rights
-_add_castling_rights.argtypes = [POINTER(_BOARD), c_bool, Color]
-
-_clear_ep_square = clib.clear_ep_square
-_clear_ep_square.argtypes = [POINTER(_BOARD)]
-
-_set_ep_square_checked = clib.set_ep_square_checked
-_set_ep_square_checked.argtypes = [POINTER(_BOARD), Square]
-_set_ep_square_checked.restype = c_char_p
-
-_make_fen = clib.make_fen
-_make_fen.argtypes = [POINTER(_BOARD), c_char_p]
-
-_split_fen = clib.split_fen
-_split_fen.argtypes = [c_char_p]
-_split_fen.restype = POINTER(_SPLIT_FEN)
-
-_parse_fen = clib.parse_fen
-_parse_fen.argtypes = [c_char_p, POINTER(_BOARD)]
-_parse_fen.restype = c_char_p
-
-_parse_uci = clib.parse_uci
-_parse_uci.argtypes = [c_char_p]
-_parse_uci.restype = Move
-
-_write_uci = clib.write_uci
-_write_uci.argtypes = [Move, c_char_p]
-_write_uci.restype = c_bool
-
-
-_is_error_move = clib.is_error_move
-_is_error_move.argtypes = [Move]
-_is_error_move.restype = c_bool
-
-_is_null_move = clib.is_null_move
-_is_null_move.argtypes = [Move]
-_is_null_move.restype = c_bool
-
-_apply_move = clib.apply_move
-_apply_move.argtypes = [POINTER(_BOARD), Move]
-_apply_move.restype = UndoableMove
-
-_undo_move = clib.undo_move
-_undo_move.argtypes = [POINTER(_BOARD), UndoableMove]
-_undo_move.restype = Move
-
-# _generate_pseudo_legal_moves = clib.generate_pseudo_legal_moves
-# _generate_pseudo_legal_moves.argtypes = [POINTER(_BOARD), Color, POINTER(Move)]
-# _generate_pseudo_legal_moves.restype = c_uint8
-
-_generate_legal_moves = clib.generate_legal_moves
-_generate_legal_moves.argtypes = [POINTER(_BOARD), POINTER(Move)]
-_generate_legal_moves.restype = c_uint8
-
-_make_board_string = clib.make_board_string
-_make_board_string.argtypes = [POINTER(_BOARD), c_char_p]
-
-_make_attack_mask = clib.make_attack_mask
-_make_attack_mask.argtypes = [POINTER(_BOARD), Color]
-_make_attack_mask.restype = Bitboard
-
-_in_check = clib.in_check
-_in_check.argtypes = [POINTER(_BOARD)]
-_in_check.restype = c_bool
-
-_copy_into = clib.copy_into
-_copy_into.argtypes = [POINTER(_BOARD), POINTER(_BOARD)]
-
-_debug_print_board = clib.debug_print_board
-_debug_print_board.argtypes = [POINTER(_BOARD)]
-
-_print_bitboard = clib.print_bitboard
-_print_bitboard.argtypes = [Bitboard]
-
-_perft = clib.perft
-_perft.argtypes = [POINTER(_BOARD), c_uint8]
-_perft.restype = c_uint64
-
-
-_pseudo_perft = clib.pseudo_perft
-_pseudo_perft.argtypes = [POINTER(_BOARD), c_uint8]
-_pseudo_perft.restype = c_uint64
-
-
-_get_origin = clib.get_origin
-_get_origin.argtypes = [Move]
-_get_origin.restype = Square
-
-_get_destination = clib.get_destination
-_get_destination.argtypes = [Move]
-_get_destination.restype = Square
-
-_is_promotion = clib.is_promotion
-_is_promotion.argtypes = [Move]
-_is_promotion.restype = c_bool
-
-_promotes_to = clib.promotes_to
-_promotes_to.argtypes = [Move]
-_promotes_to.restype = Piece
-
-_hash_move = clib.hash_move
-_hash_move.argtypes = [Move]
-_hash_move.restype = c_uint64
-
-_moves_equal = clib.moves_equal
-_moves_equal.argtypes = [Move, Move]
-_moves_equal.restype = c_bool
-
-_validate_board = clib.validate_board
-_validate_board.argtypes = [POINTER(_BOARD)]
-_validate_board.restype = c_char_p
-
-
-_count_moves = clib.count_legal_moves
-_count_moves.argtypes = [POINTER(_BOARD)]
-_count_moves.restype = c_uint8
-
-_is_stalemate = clib.is_stalemate
-_is_stalemate.argtypes = [POINTER(_BOARD)]
-_is_stalemate.restype = c_bool
-
-
-_is_checkmate = clib.is_checkmate
-_is_checkmate.argtypes = [POINTER(_BOARD)]
-_is_checkmate.restype = c_bool
-
-_randomize_board = clib.randomize_board
-_randomize_board.argtypes = [POINTER(_BOARD)]
-
-_get_piece_bb = clib.get_piece_bb_from_board
-_get_piece_bb.argtypes = [POINTER(_BOARD), Piece]
-_get_piece_bb.restype = Bitboard
-
-_squares_with_piece = clib.squares_with_piece
-_squares_with_piece.argtypes = [POINTER(_BOARD), Piece, POINTER(Square)]
-_squares_with_piece.restype = c_uint8
-
-_board_has_patterns = clib.board_has_patterns
-_board_has_patterns.argtypes = [POINTER(_BOARD), POINTER(PiecePattern), c_uint64]
-_board_has_patterns.restype = c_bool
-
-_is_draw = clib.is_draw
-_is_draw.argtypes = [POINTER(_BOARD), POINTER(UndoableMove), c_uint16]
-_is_draw.restype = c_bool
-
-# _prepare_move_table = clib.prepare_move_table
-ZORBIST_TABLE = _create_zobrist_table()
-# _prepare_move_table()
-
-# CONSTANT DECLARATIONS 
-
-PAWN : PieceType = _get_pawn_value()
-BISHOP : PieceType = _get_bishop_value()
-KNIGHT : PieceType = _get_knight_value()
-ROOK : PieceType = _get_rook_value()
-QUEEN : PieceType = _get_queen_value()
-KING : PieceType = _get_king_value()
-
-_EMPTY_PIECE : PieceType = _get_empty_value()
-_ERROR_PIECE : PieceType = _get_error_value()
-
-_ERR_MOVE_VAL = c_uint8(1)
-
-PIECE_TYPES = [PAWN, BISHOP, KNIGHT, ROOK, QUEEN, KING]
-
-WHITE : Color = _get_white_value()
-BLACK : Color = _get_black_value()
-
-
-PAWNS_STARTING = Bitboard(71776119061282560)
-KNIGHTS_STARTING = Bitboard(4755801206503243842)
-BISHOPS_STARTING = Bitboard(2594073385365405732)
-ROOKS_STARTING = Bitboard(9295429630892703873)
-QUEENS_STARTING = Bitboard(576460752303423496)
-KINGS_STARTING = Bitboard(1152921504606846992)
-WHITE_STARTING = Bitboard(65535)
-BLACK_STARTING = Bitboard(18446462598732840960)
-
-STARTING_CASTLING_RIGHTS = CastlingRights(0xF)
-NO_CASTLING_RIGHTS = CastlingRights(0)
-
-SQUARES: list[Square] = list(range(64))
-A1: Square = 0
-B1: Square = 1
-C1: Square = 2
-D1: Square = 3
-E1: Square = 4
-F1: Square = 5
-G1: Square = 6
-H1: Square = 7
-A2: Square = 8
-B2: Square = 9
-C2: Square = 10
-D2: Square = 11
-E2: Square = 12
-F2: Square = 13
-G2: Square = 14
-H2: Square = 15
-A3: Square = 16
-B3: Square = 17
-C3: Square = 18
-D3: Square = 19
-E3: Square = 20
-F3: Square = 21
-G3: Square = 22
-H3: Square = 23
-A4: Square = 24
-B4: Square = 25
-C4: Square = 26
-D4: Square = 27
-E4: Square = 28
-F4: Square = 29
-G4: Square = 30
-H4: Square = 31
-A5: Square = 32
-B5: Square = 33
-C5: Square = 34
-D5: Square = 35
-E5: Square = 36
-F5: Square = 37
-G5: Square = 38
-H5: Square = 39
-A6: Square = 40
-B6: Square = 41
-C6: Square = 42
-D6: Square = 43
-E6: Square = 44
-F6: Square = 45
-G6: Square = 46
-H6: Square = 47
-A7: Square = 48
-B7: Square = 49
-C7: Square = 50
-D7: Square = 51
-E7: Square = 52
-F7: Square = 53
-G7: Square = 54
-H7: Square = 55
-A8: Square = 56
-B8: Square = 57
-C8: Square = 58
-D8: Square = 59
-E8: Square = 60
-F8: Square = 61
-G8: Square = 62
-H8: Square = 63
-
+        return piece._Piece__struct
+        
 

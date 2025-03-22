@@ -27,7 +27,7 @@ VALID_MOVES = [
 
 GARBLED_MOVES = ["", "a1", "b3a", "aij31", "12ij31", "r2d2"]
 
-ILLEGAL_MOVES = ["a4a5q", "b5h6", "c5a1", "a7a8k", "b1b1"]
+ILLEGAL_MOVES = ["a4a5q", "b5h6", "c5a1", "a7a8k", "b1b1", "e2e4q"]
 
 FILE_CHARS = ['a','b','c','d','e','f','g','h']
 RANK_CHARS = ['1','2','3','4','5','6','7','8']
@@ -81,6 +81,11 @@ class TestMove(unittest.TestCase):
         self.assertGreater(len(all_legal), 1000)
         hash_count = len({hash(move) for move in all_legal})
         self.assertEqual(len(all_legal), hash_count)
+
+    def testNull(self):
+        null = Move.from_uci("0000")
+        self.assertEqual(null, "0000")
+
 
 if __name__ == "__main__":
     unittest.main()

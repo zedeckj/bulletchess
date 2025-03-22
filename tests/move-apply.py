@@ -142,6 +142,11 @@ class TestMoveApply(unittest.TestCase):
             board.undo()
             self.assertEqual(board, copy)
 
+    def testGetPiece(self):
+        board = Board()
+        board.apply(Move(E2, E4))
+        self.assertEqual(board.get_piece_at(E4), Piece(WHITE, PAWN))
+    
     def testNullMove(self):
         board = Board.starting()
         null_move = Move.from_uci("0000")

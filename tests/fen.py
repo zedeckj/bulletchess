@@ -70,7 +70,7 @@ class TestFen(unittest.TestCase):
         testBoardInvalid(self, "rnbqkbnr/pppppppp/8/8/3Q3P/8/PPPPPPP1/RNBQKBNR w KQkq - 0 1", err)
 
     def testBoardInvalidFens(self):
-        err = "Empty FEN"
+        err = "No position specified"
         testFenInvalid(self, "", err)
         err = "Position does not describe entire board"
         testFenInvalid(self, "r", err)

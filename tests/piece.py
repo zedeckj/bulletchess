@@ -20,8 +20,7 @@ EXPECTED_SYMBOLS = {
     (WHITE, BISHOP): "B",
     (WHITE, ROOK): "R",
     (WHITE, QUEEN): "Q",
-    (WHITE, KING): "K"
-
+    (WHITE, KING): "K",
 
 }
 
@@ -61,11 +60,11 @@ class TestPiece(unittest.TestCase):
 
         for piece_type in PIECE_TYPES:
             piece = Piece(WHITE, piece_type)
-            self.assertEqual(piece.get_color(), WHITE)
-            self.assertEqual(piece.get_type(), piece_type)
+            self.assertEqual(piece.color, WHITE)
+            self.assertEqual(piece.piece_type, piece_type)
             piece = Piece(BLACK, piece_type)
-            self.assertEqual(piece.get_color(), BLACK)
-            self.assertEqual(piece.get_type(), piece_type)
+            self.assertEqual(piece.color, BLACK)
+            self.assertEqual(piece.piece_type, piece_type)
                  
     def test_equality(self):
         self.assertEqual(None, Piece.from_symbol("-"))
@@ -96,6 +95,10 @@ class TestPiece(unittest.TestCase):
                 pieces.append(Piece(color, piece_type))
         hashes = {hash(piece) for piece in pieces + [None]}
         self.assertEqual(len(hashes), 13)
+
+    def test_empy(self):
+        piece = Piece.from_symbol("-")
+        self.assertEqual(piece, None)
 
 if __name__ == "__main__":
     unittest.main()
