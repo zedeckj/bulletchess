@@ -4,20 +4,20 @@ from ctypes import *
 path = os.path.dirname(os.path.abspath(__file__))
 clib = CDLL(path + "/chess_c.so")
 
-_BITBOARD = c_uint64
-_PIECE_TYPE = c_uint8
-_COLOR = c_uint8
-_SQUARE = c_uint8
-_CASTLING_RIGHTS = c_uint8
-_TURN_CLOCK = c_uint16
+BITBOARD = c_uint64
+PIECE_TYPE = c_uint8
+COLOR = c_uint8
+SQUARE = c_uint8
+CASTLING_RIGHTS = c_uint8
+TURN_CLOCK = c_uint16
 
-_PIECE_INDEX = c_uint8
-_OUTCOME = c_uint8
+PIECE_INDEX = c_uint8
+OUTCOME = c_uint8
 
-class _OPTIONAL_SQUARE(Structure):
+class OPTIONAL_SQUARE(Structure):
 
     _fields_ = [
-        ("square", _SQUARE),
+        ("square", SQUARE),
         ("exists", c_bool),
     ]
 
@@ -28,14 +28,14 @@ class _POSITION(Structure):
     """
 
     _fields_ = [
-        ("pawns", _BITBOARD),
-        ("knights", _BITBOARD),
-        ("bishops", _BITBOARD),
-        ("rooks", _BITBOARD),
-        ("queens", _BITBOARD),
-        ("kings", _BITBOARD),
-        ("white_oc", _BITBOARD),
-        ("black_ok", _BITBOARD),
+        ("pawns", BITBOARD),
+        ("knights", BITBOARD),
+        ("bishops", BITBOARD),
+        ("rooks", BITBOARD),
+        ("queens", BITBOARD),
+        ("kings", BITBOARD),
+        ("white_oc", BITBOARD),
+        ("black_ok", BITBOARD),
     ]
 
 
@@ -63,26 +63,26 @@ class _SPLIT_FEN(Structure):
 
 class _GENERIC_MOVE(Structure):
     _fields_ = [
-        ("origin", _SQUARE),
-        ("destination", _SQUARE),
+        ("origin", SQUARE),
+        ("destination", SQUARE),
     ]
 
 class _PROMOTION_MOVE(Structure):
     _fields_ = [
         ("body", _GENERIC_MOVE),
-        ("promote_to", _PIECE_TYPE),
+        ("promote_to", PIECE_TYPE),
     ]
 
 class _FULL_MOVE(Structure):
     _fields_ = [
         ("body", _GENERIC_MOVE),
-        ("place_type", _PIECE_TYPE),
-        ("new_ep_square", _OPTIONAL_SQUARE),
+        ("place_type", PIECE_TYPE),
+        ("new_ep_square", OPTIONAL_SQUARE),
         ("removes_castling", c_bool),
         ("resets_halfmove", c_bool),
     ]
 
-class _MOVE_UNION(Union):
+class MOVE_UNION(Union):
     _fields_ = [
         ("generic", _GENERIC_MOVE),
         ("promotion", _PROMOTION_MOVE),
@@ -90,8 +90,8 @@ class _MOVE_UNION(Union):
 
 class _PIECE(Structure):
     _fields_ = [
-        ("color", _COLOR),
-        ("type", _PIECE_TYPE)
+        ("color", COLOR),
+        ("type", PIECE_TYPE)
     ]
 
     def __hash__(self):
@@ -100,38 +100,38 @@ class _PIECE(Structure):
     def __eq__(self, other : "_PIECE"):
         return bool(_pieces_equal(self, other))
 
-class _MOVE(Structure):
+class MOVE(Structure):
     _anonymous_ = ("u",)
     _fields_ = [
-        ("u", _MOVE_UNION),
+        ("u", MOVE_UNION),
         ("type", c_uint8),
     ]
 
-class _UNDOABLE_MOVE(Structure):
+class UNDOABLE_MOVE(Structure):
     _fields_ = [
-        ("move", _MOVE),
+        ("move", MOVE),
         ("captured_piece", _PIECE),
-        ("old_castling_rights", _CASTLING_RIGHTS),
-        ("was_castling", _CASTLING_RIGHTS),
-        ("old_en_passant", _OPTIONAL_SQUARE),
-        ("old_halfmove", _TURN_CLOCK)
+        ("old_castling_rights", CASTLING_RIGHTS),
+        ("was_castling", CASTLING_RIGHTS),
+        ("old_en_passant", OPTIONAL_SQUARE),
+        ("old_halfmove", TURN_CLOCK)
     ]
 
-class _BOARD(Structure):
+class BOARD(Structure):
     _fields_ = [
         ("position", POINTER(_POSITION)),
-        ("turn", _COLOR),
-        ("castling_rights", _CASTLING_RIGHTS),
-        ("en_passant_square", _OPTIONAL_SQUARE),
-        ("halfmove_clock", _TURN_CLOCK),
-        ("fullmove_number", _TURN_CLOCK),
+        ("turn", COLOR),
+        ("castling_rights", CASTLING_RIGHTS),
+        ("en_passant_square", OPTIONAL_SQUARE),
+        ("halfmove_clock", TURN_CLOCK),
+        ("fullmove_number", TURN_CLOCK),
     ]
 
 class _PIECE_PATTERN_UNION(Union):
 
     _fields_ = [
         ("count", c_uint8),
-        ("bitboard", _BITBOARD)
+        ("bitboard", BITBOARD)
     ]
 
 class _PIECE_PATTERN(Structure):
@@ -146,21 +146,21 @@ class _PIECE_PATTERN(Structure):
 
 
 
-def _alloc_boardPY() -> POINTER(_BOARD):
+def alloc_boardPY() -> POINTER(BOARD):
     pos = pointer(_POSITION())
-    board = pointer(_BOARD(pos))
+    board = pointer(BOARD(pos))
     return board
 
-def _init_empty_boardPY() -> POINTER(_BOARD):
+def init_empty_boardPY() -> POINTER(BOARD):
     pos_pointer = pointer(_POSITION(
         0,0,0,0,0,0,0,0
     ))
     castling_rights = NO_CASTLING_RIGHTS  
-    en_passant = _OPTIONAL_SQUARE(0, 0)
-    turn = _WHITE
-    halfmove = _TURN_CLOCK(0)
-    fullmove = _TURN_CLOCK(1)
-    full_board = _BOARD(
+    en_passant = OPTIONAL_SQUARE(0, 0)
+    turn = WHITE
+    halfmove = TURN_CLOCK(0)
+    fullmove = TURN_CLOCK(1)
+    full_board = BOARD(
         pos_pointer,
         turn,
         castling_rights,
@@ -172,7 +172,7 @@ def _init_empty_boardPY() -> POINTER(_BOARD):
 
 
 
-def _init_starting_boardPY() -> POINTER(_BOARD):
+def init_starting_boardPY() -> POINTER(BOARD):
     pos_pointer = pointer(_POSITION(
         PAWNS_STARTING, 
         KNIGHTS_STARTING, 
@@ -184,11 +184,11 @@ def _init_starting_boardPY() -> POINTER(_BOARD):
         BLACK_STARTING
     ))
     castling_rights = STARTING_CASTLING_RIGHTS
-    en_passant = _OPTIONAL_SQUARE(0, 0)
-    turn = _WHITE
-    halfmove = _TURN_CLOCK(0)
-    fullmove = _TURN_CLOCK(1)
-    full_board = _BOARD(
+    en_passant = OPTIONAL_SQUARE(0, 0)
+    turn = WHITE
+    halfmove = TURN_CLOCK(0)
+    fullmove = TURN_CLOCK(1)
+    full_board = BOARD(
         pos_pointer,
         turn,
         castling_rights,
@@ -201,11 +201,11 @@ def _init_starting_boardPY() -> POINTER(_BOARD):
 
 
 
-def _init_board_from_fenPY(fen : str) -> tuple[POINTER(_BOARD), (_PIECE_INDEX * 64)]:
+def init_board_from_fenPY(fen : str) -> tuple[POINTER(BOARD), (PIECE_INDEX * 64)]:
     pos_pointer = pointer(_POSITION())
-    board = pointer(_BOARD(pos_pointer))
-    piece_array = (_PIECE_INDEX * 64)()
-    error = _parse_fen(fen.encode("utf-8"), board, piece_array)
+    board = pointer(BOARD(pos_pointer))
+    piece_array = (PIECE_INDEX * 64)()
+    error = parse_fen(fen.encode("utf-8"), board, piece_array)
     if error == None:
         return board, piece_array
     else:
@@ -213,521 +213,521 @@ def _init_board_from_fenPY(fen : str) -> tuple[POINTER(_BOARD), (_PIECE_INDEX * 
         raise ValueError(f"Invalid FEN '{fen}': {error}")
 
 
-def san_to_movePY(board : POINTER(_BOARD), san : str) -> _MOVE:
-    struct = _san_to_move(board, san.encode("utf-8"))
-    if struct.type == _ERR_MOVE_VAL:
+def san_to_movePY(board : POINTER(BOARD), san : str) -> MOVE:
+    struct = san_to_move(board, san.encode("utf-8"))
+    if struct.type == ERR_MOVE_VAL:
         raise ValueError(f"Invalid Move SAN: {san}")
     return struct
 
 
 
 
-def _init_move_from_uciPY(uci : str) -> _MOVE:
-    struct = _parse_uci(uci.encode("utf-8")) 
-    if struct.type == _ERR_MOVE_VAL:
+def init_move_from_uciPY(uci : str) -> MOVE:
+    struct = parse_uci(uci.encode("utf-8")) 
+    if struct.type == ERR_MOVE_VAL:
         raise ValueError(f"Invalid Move UCI: '{uci}'")
     return struct
 
-def _make_fenPY(board : POINTER(_BOARD)) -> str:
+def make_fenPY(board : POINTER(BOARD)) -> str:
     fen = create_string_buffer(300)
-    _make_fen(board, fen)
+    make_fen(board, fen)
     return fen.raw.rstrip(b'\x00 ').decode()
 
-def _make_board_stringPY(board : POINTER(_BOARD)) -> str:
+def make_board_stringPY(board : POINTER(BOARD)) -> str:
     str_buffer = create_string_buffer(300)
-    _fill_board_string(board, str_buffer)
+    fill_board_string(board, str_buffer)
     return str_buffer.raw.rstrip(b'\x00 ').decode()
 
-def _write_uciPY(struct : _MOVE) -> str:
+def write_uciPY(struct : MOVE) -> str:
     uci = create_string_buffer(6)
-    _write_uci(struct, uci)
+    write_uci(struct, uci)
     return uci.raw.rstrip(b'\x00').decode()
 
-def _pointer_write_uciPY(pointer : POINTER(_MOVE), index : c_uint64) -> str:
+def pointer_write_uciPY(pointer : POINTER(MOVE), index : c_uint64) -> str:
     uci = create_string_buffer(6)
-    _pointer_write_uci(pointer, index, uci)
+    pointer_write_uci(pointer, index, uci)
     return uci.raw.rstrip(b'\x00').decode()
 
 
-def _write_bitboardPY(bitboard : _BITBOARD) -> str:
+def write_bitboardPY(bitboard : BITBOARD) -> str:
     s = create_string_buffer(137)
-    _write_bitboard(bitboard, s)
+    write_bitboard(bitboard, s)
     return s.raw.rstrip(b'\x00 ').decode()
 
-def _make_piece_arrayPY(board : POINTER(_BOARD)) -> _PIECE * 64:
+def make_piece_arrayPY(board : POINTER(BOARD)) -> _PIECE * 64:
     array = (_PIECE * 64)()
-    _fill_piece_list(board, array)
+    fill_piece_list(board, array)
     return array
 
-def construct_movePY(origin : _SQUARE, destination : _SQUARE, promote_to : _PIECE_TYPE):
-    struct = _MOVE();
-    err = _ext_construct_move(origin, destination, promote_to, byref(struct))
+def construct_movePY(origin : SQUARE, destination : SQUARE, promote_to : PIECE_TYPE):
+    struct = MOVE();
+    err = ext_construct_move(origin, destination, promote_to, byref(struct))
     if err:
         return bytes(err).rstrip(b'\x00').decode("utf-8")
     return struct
 
-_piece_from_string = clib.piece_from_string
-_piece_from_string.argtypes = [c_char_p]
-_piece_from_string.restype = _PIECE
+piece_from_string = clib.piece_from_string
+piece_from_string.argtypes = [c_char_p]
+piece_from_string.restype = _PIECE
 
 
 # _material = clib.material
 # _material.restype = c_int
 # _material.argtypes = [POINTER(_POSITION), c_int, c_int, c_int, c_int]
 
-_get_piece_at = clib.get_piece_at_board
-_get_piece_at.restype = c_uint8
-_get_piece_at.argtypes = [POINTER(_BOARD), _SQUARE]
+get_piece_at = clib.get_piece_at_board
+get_piece_at.restype = c_uint8
+get_piece_at.argtypes = [POINTER(BOARD), SQUARE]
 
 
-_is_quiescent = clib.is_quiescent
-_is_quiescent.argtypes = [POINTER(_BOARD)]
-_is_quiescent.restype = c_bool
+is_quiescent = clib.is_quiescent
+is_quiescent.argtypes = [POINTER(BOARD)]
+is_quiescent.restype = c_bool
 
-_set_piece_index = clib.set_piece_index
-_set_piece_index.argtypes = [POINTER(_BOARD), POINTER(_PIECE_INDEX), _SQUARE, _PIECE_INDEX]
+set_piece_index = clib.set_piece_index
+set_piece_index.argtypes = [POINTER(BOARD), POINTER(PIECE_INDEX), SQUARE, PIECE_INDEX]
 
-_delete_piece_at = clib.delete_piece_at_board
-_delete_piece_at.argtypes = [POINTER(_BOARD), POINTER(_PIECE_INDEX), _SQUARE]
+delete_piece_at = clib.delete_piece_at_board
+delete_piece_at.argtypes = [POINTER(BOARD), POINTER(PIECE_INDEX), SQUARE]
 
-_get_pawn_value = clib.get_pawn_val
-_get_pawn_value.restype = _PIECE_TYPE
+get_pawn_value = clib.get_pawn_val
+get_pawn_value.restype = PIECE_TYPE
 
-_get_knight_value = clib.get_knight_val
-_get_knight_value.restype = _PIECE_TYPE
+get_knight_value = clib.get_knight_val
+get_knight_value.restype = PIECE_TYPE
 
-_get_bishop_value = clib.get_bishop_val
-_get_bishop_value.restype = _PIECE_TYPE
+get_bishop_value = clib.get_bishop_val
+get_bishop_value.restype = PIECE_TYPE
 
-_get_rook_value = clib.get_rook_val
-_get_rook_value.restype = _PIECE_TYPE
+get_rook_value = clib.get_rook_val
+get_rook_value.restype = PIECE_TYPE
 
-_get_king_value = clib.get_king_val
-_get_king_value.restype = _PIECE_TYPE
+get_king_value = clib.get_king_val
+get_king_value.restype = PIECE_TYPE
 
-_get_queen_value = clib.get_queen_val
-_get_queen_value.restype = _PIECE_TYPE
+get_queen_value = clib.get_queen_val
+get_queen_value.restype = PIECE_TYPE
 
-_get_white_value = clib.get_white_val
-_get_white_value.restype = _COLOR
+get_white_value = clib.get_white_val
+get_white_value.restype = COLOR
 
-_get_black_value = clib.get_black_val
-_get_black_value.restype = _COLOR
+get_black_value = clib.get_black_val
+get_black_value.restype = COLOR
 
-_get_empty_value = clib.get_empty_val
-_get_empty_value.restype = _PIECE_TYPE
+get_empty_value = clib.get_empty_val
+get_empty_value.restype = PIECE_TYPE
 
-_get_error_value = clib.get_error_val
-_get_error_value.restype = _PIECE_TYPE
+get_error_value = clib.get_error_val
+get_error_value.restype = PIECE_TYPE
 
-_piece_is_type = clib.piece_is_type
-_piece_is_type.restype = c_bool
-_piece_is_type.argtypes = [_PIECE, _PIECE_TYPE]
+piece_is_type = clib.piece_is_type
+piece_is_type.restype = c_bool
+piece_is_type.argtypes = [_PIECE, PIECE_TYPE]
 
-_piece_is_empty = clib.piece_is_empty
-_piece_is_empty.restype = c_bool
-_piece_is_empty.argtypes = [_PIECE]
+piece_is_empty = clib.piece_is_empty
+piece_is_empty.restype = c_bool
+piece_is_empty.argtypes = [_PIECE]
 
-_piece_is_color = clib.piece_is_color
-_piece_is_color.restype = c_bool
-_piece_is_color.argtypes = [_PIECE, _COLOR]
-
-
-_piece_symbol = clib.piece_symbol
-_piece_symbol.restype = c_char
-_piece_symbol.argtypes = [_PIECE]
-
-_pieces_equal = clib.pieces_equal
-_pieces_equal.restype = c_bool
-_pieces_equal.argtypes = [_PIECE, _PIECE]
-
-_same_color = clib.same_color
-_same_color.restype = c_bool
-_same_color.argtypes = [_PIECE, _PIECE]
-
-_same_type = clib.same_type
-_same_type.restype = c_bool
-_same_type.argtypes = [_PIECE, _PIECE]
-
-_hash_piece = clib.hash_piece
-_hash_piece.restype = c_int64
-_hash_piece.argtypes = [_PIECE]
-
-_has_kingside_castling_rights  = clib.has_kingside_castling_rights
-_has_kingside_castling_rights.restype = c_bool
-_has_kingside_castling_rights.argtypes = [POINTER(_BOARD), _COLOR]
-
-_has_queenside_castling_rights = clib.has_queenside_castling_rights
-_has_queenside_castling_rights.restype = c_bool
-_has_queenside_castling_rights.argtypes = [POINTER(_BOARD), _COLOR]
-
-_has_castling_rights = clib.has_castling_rights
-_has_castling_rights.restype = c_bool 
-_has_castling_rights.argtypes = [POINTER(_BOARD), _COLOR]
+piece_is_color = clib.piece_is_color
+piece_is_color.restype = c_bool
+piece_is_color.argtypes = [_PIECE, COLOR]
 
 
-_clear_castling_rights = clib.clear_castling_rights
-_clear_castling_rights.argtypes = [POINTER(_BOARD), _COLOR]
+piece_symbol = clib.piece_symbol
+piece_symbol.restype = c_char
+piece_symbol.argtypes = [_PIECE]
 
-_set_full_castling_rights = clib.set_full_castling_rights
-_set_full_castling_rights.argtypes = [POINTER(_BOARD)]
+pieces_equal = clib.pieces_equal
+pieces_equal.restype = c_bool
+pieces_equal.argtypes = [_PIECE, _PIECE]
 
-_update_castling_rights = clib.update_castling_rights
-_update_castling_rights.argtypes = [POINTER(_BOARD), _COLOR]
+same_color = clib.same_color
+same_color.restype = c_bool
+same_color.argtypes = [_PIECE, _PIECE]
 
-_update_all_castling_rights = clib.update_all_castling_rights
-_update_all_castling_rights.argtypes = [POINTER(_BOARD)]
+same_type = clib.same_type
+same_type.restype = c_bool
+same_type.argtypes = [_PIECE, _PIECE]
 
-_contains_piece = clib.contains_piece
-_contains_piece.argtypes = [POINTER(_POSITION), _PIECE]
-_contains_piece.restype = c_bool
+hash_piece = clib.hash_piece
+hash_piece.restype = c_int64
+hash_piece.argtypes = [_PIECE]
 
-_is_subset = clib.is_subset
-_is_subset.argtypes = [POINTER(_POSITION), POINTER(_POSITION)]
-_is_subset.restype = c_bool
+has_kingside_castling_rights  = clib.has_kingside_castling_rights
+has_kingside_castling_rights.restype = c_bool
+has_kingside_castling_rights.argtypes = [POINTER(BOARD), COLOR]
 
-_boards_equal = clib.boards_equal
-_boards_equal.argtypes = [POINTER(_BOARD), POINTER(_BOARD)]
-_boards_equal.restype = c_bool
+has_queenside_castling_rights = clib.has_queenside_castling_rights
+has_queenside_castling_rights.restype = c_bool
+has_queenside_castling_rights.argtypes = [POINTER(BOARD), COLOR]
 
-
-_create_zobrist_table = clib.create_zobrist_table
-_create_zobrist_table.restype = POINTER(_ZORBIST_TABLE)
-
-_hash_board = clib.hash_board
-_hash_board.argtypes = [POINTER(_BOARD), POINTER(_ZORBIST_TABLE)]
-_hash_board.restype = c_uint64
-
-_add_castling_rights = clib.add_castling_rights
-_add_castling_rights.argtypes = [POINTER(_BOARD), c_bool, _COLOR]
-
-_clear_ep_square = clib.clear_ep_square
-_clear_ep_square.argtypes = [POINTER(_BOARD)]
-
-_set_ep_square_checked = clib.set_ep_square_checked
-_set_ep_square_checked.argtypes = [POINTER(_BOARD), _SQUARE]
-_set_ep_square_checked.restype = c_char_p
-
-_make_fen = clib.make_fen
-_make_fen.argtypes = [POINTER(_BOARD), c_char_p]
-
-_split_fen = clib.split_fen
-_split_fen.argtypes = [c_char_p]
-_split_fen.restype = POINTER(_SPLIT_FEN)
-
-_parse_fen = clib.parse_fen
-_parse_fen.argtypes = [c_char_p, POINTER(_BOARD), POINTER(_PIECE_INDEX)]
-_parse_fen.restype = c_char_p
-
-_parse_uci = clib.parse_uci
-_parse_uci.argtypes = [c_char_p]
-_parse_uci.restype = _MOVE
-
-_write_uci = clib.write_uci
-_write_uci.argtypes = [_MOVE, c_char_p]
-_write_uci.restype = c_bool
+has_castling_rights = clib.has_castling_rights
+has_castling_rights.restype = c_bool 
+has_castling_rights.argtypes = [POINTER(BOARD), COLOR]
 
 
-_is_error_move = clib.is_error_move
-_is_error_move.argtypes = [_MOVE]
-_is_error_move.restype = c_bool
+clear_castling_rights = clib.clear_castling_rights
+clear_castling_rights.argtypes = [POINTER(BOARD), COLOR]
 
-_is_null_move = clib.is_null_move
-_is_null_move.argtypes = [_MOVE]
-_is_null_move.restype = c_bool
+set_full_castling_rights = clib.set_full_castling_rights
+set_full_castling_rights.argtypes = [POINTER(BOARD)]
 
-_apply_move = clib.apply_move
-_apply_move.argtypes = [POINTER(_BOARD), _MOVE]
-_apply_move.restype = _UNDOABLE_MOVE
+update_castling_rights = clib.update_castling_rights
+update_castling_rights.argtypes = [POINTER(BOARD), COLOR]
 
-_undo_move = clib.undo_move
-_undo_move.argtypes = [POINTER(_BOARD), _UNDOABLE_MOVE]
+update_all_castling_rights = clib.update_all_castling_rights
+update_all_castling_rights.argtypes = [POINTER(BOARD)]
+
+contains_piece = clib.contains_piece
+contains_piece.argtypes = [POINTER(_POSITION), _PIECE]
+contains_piece.restype = c_bool
+
+is_subset = clib.is_subset
+is_subset.argtypes = [POINTER(_POSITION), POINTER(_POSITION)]
+is_subset.restype = c_bool
+
+boards_equal = clib.boards_equal
+boards_equal.argtypes = [POINTER(BOARD), POINTER(BOARD)]
+boards_equal.restype = c_bool
+
+
+create_zobrist_table = clib.create_zobrist_table
+create_zobrist_table.restype = POINTER(_ZORBIST_TABLE)
+
+hash_board = clib.hash_board
+hash_board.argtypes = [POINTER(BOARD), POINTER(_ZORBIST_TABLE)]
+hash_board.restype = c_uint64
+
+add_castling_rights = clib.add_castling_rights
+add_castling_rights.argtypes = [POINTER(BOARD), c_bool, COLOR]
+
+clear_ep_square = clib.clear_ep_square
+clear_ep_square.argtypes = [POINTER(BOARD)]
+
+set_ep_square_checked = clib.set_ep_square_checked
+set_ep_square_checked.argtypes = [POINTER(BOARD), SQUARE]
+set_ep_square_checked.restype = c_char_p
+
+make_fen = clib.make_fen
+make_fen.argtypes = [POINTER(BOARD), c_char_p]
+
+split_fen = clib.split_fen
+split_fen.argtypes = [c_char_p]
+split_fen.restype = POINTER(_SPLIT_FEN)
+
+parse_fen = clib.parse_fen
+parse_fen.argtypes = [c_char_p, POINTER(BOARD), POINTER(PIECE_INDEX)]
+parse_fen.restype = c_char_p
+
+parse_uci = clib.parse_uci
+parse_uci.argtypes = [c_char_p]
+parse_uci.restype = MOVE
+
+write_uci = clib.write_uci
+write_uci.argtypes = [MOVE, c_char_p]
+write_uci.restype = c_bool
+
+
+is_error_move = clib.is_error_move
+is_error_move.argtypes = [MOVE]
+is_error_move.restype = c_bool
+
+is_null_move = clib.is_null_move
+is_null_move.argtypes = [MOVE]
+is_null_move.restype = c_bool
+
+apply_move = clib.apply_move
+apply_move.argtypes = [POINTER(BOARD), MOVE]
+apply_move.restype = UNDOABLE_MOVE
+
+undo_move = clib.undo_move
+undo_move.argtypes = [POINTER(BOARD), UNDOABLE_MOVE]
 
 # _generate_pseudo_legal_moves = clib.generate_pseudo_legal_moves
-# _generate_pseudo_legal_moves.argtypes = [POINTER(_BOARD), _COLOR, POINTER(_MOVE)]
+# _generate_pseudo_legal_moves.argtypes = [POINTER(BOARD), COLOR, POINTER(MOVE)]
 # _generate_pseudo_legal_moves.restype = c_uint8
 
-_generate_legal_moves = clib.generate_legal_moves
-_generate_legal_moves.argtypes = [POINTER(_BOARD), POINTER(_MOVE)]
-_generate_legal_moves.restype = c_uint8
+generate_legal_moves = clib.generate_legal_moves
+generate_legal_moves.argtypes = [POINTER(BOARD), POINTER(MOVE)]
+generate_legal_moves.restype = c_uint8
 
-_fill_board_string = clib.fill_board_string
-_fill_board_string.argtypes = [POINTER(_BOARD), c_char_p]
+fill_board_string = clib.fill_board_string
+fill_board_string.argtypes = [POINTER(BOARD), c_char_p]
 
-_make_attack_mask = clib.make_attack_mask
-_make_attack_mask.argtypes = [POINTER(_BOARD), _COLOR]
-_make_attack_mask.restype = _BITBOARD
+make_attack_mask = clib.make_attack_mask
+make_attack_mask.argtypes = [POINTER(BOARD), COLOR]
+make_attack_mask.restype = BITBOARD
 
-_in_check = clib.in_check
-_in_check.argtypes = [POINTER(_BOARD)]
-_in_check.restype = c_bool
+in_check = clib.in_check
+in_check.argtypes = [POINTER(BOARD)]
+in_check.restype = c_bool
 
-_copy_into = clib.copy_into
-_copy_into.argtypes = [POINTER(_BOARD), POINTER(_BOARD)]
+copy_into = clib.copy_into
+copy_into.argtypes = [POINTER(BOARD), POINTER(BOARD)]
 
-_debug_print_board = clib.debug_print_board
-_debug_print_board.argtypes = [POINTER(_BOARD)]
+debug_print_board = clib.debug_print_board
+debug_print_board.argtypes = [POINTER(BOARD)]
 
-_print_bitboard = clib.print_bitboard
-_print_bitboard.argtypes = [_BITBOARD]
+print_bitboard = clib.print_bitboard
+print_bitboard.argtypes = [BITBOARD]
 
-_perft = clib.perft
-_perft.argtypes = [POINTER(_BOARD), c_uint8]
-_perft.restype = c_uint64
-
-
-_pseudo_perft = clib.pseudo_perft
-_pseudo_perft.argtypes = [POINTER(_BOARD), c_uint8]
-_pseudo_perft.restype = c_uint64
+perft = clib.perft
+perft.argtypes = [POINTER(BOARD), c_uint8]
+perft.restype = c_uint64
 
 
-_get_origin = clib.get_origin
-_get_origin.argtypes = [_MOVE]
-_get_origin.restype = _SQUARE
+pseudo_perft = clib.pseudo_perft
+pseudo_perft.argtypes = [POINTER(BOARD), c_uint8]
+pseudo_perft.restype = c_uint64
 
-_get_destination = clib.get_destination
-_get_destination.argtypes = [_MOVE]
-_get_destination.restype = _SQUARE
 
-_is_promotion = clib.is_promotion
-_is_promotion.argtypes = [_MOVE]
-_is_promotion.restype = c_bool
+get_origin = clib.get_origin
+get_origin.argtypes = [MOVE]
+get_origin.restype = SQUARE
 
-_promotes_to = clib.promotes_to
-_promotes_to.argtypes = [_MOVE]
-_promotes_to.restype = _PIECE_INDEX
+get_destination = clib.get_destination
+get_destination.argtypes = [MOVE]
+get_destination.restype = SQUARE
 
-_hash_move = clib.hash_move
-_hash_move.argtypes = [_MOVE]
-_hash_move.restype = c_uint64
+is_promotion = clib.is_promotion
+is_promotion.argtypes = [MOVE]
+is_promotion.restype = c_bool
 
-_unhash_move = clib.unhash_move
-_unhash_move.argtypes = [c_uint64]
-_unhash_move.restype = _MOVE
+promotes_to = clib.promotes_to
+promotes_to.argtypes = [MOVE]
+promotes_to.restype = PIECE_INDEX
 
-_moves_equal = clib.moves_equal
-_moves_equal.argtypes = [_MOVE, _MOVE]
-_moves_equal.restype = c_bool
+hash_move = clib.hash_move
+hash_move.argtypes = [MOVE]
+hash_move.restype = c_uint64
 
-_move_to_san = clib.move_to_san_str
-_move_to_san.argtypes = [POINTER(_BOARD), _MOVE, c_char_p]
-_move_to_san.restype = c_bool
+unhash_move = clib.unhash_move
+unhash_move.argtypes = [c_uint64]
+unhash_move.restype = MOVE
 
-def move_to_sanPY(board : POINTER(_BOARD), move : _MOVE) -> str:
+moves_equal = clib.moves_equal
+moves_equal.argtypes = [MOVE, MOVE]
+moves_equal.restype = c_bool
+
+move_to_san = clib.move_to_san_str
+move_to_san.argtypes = [POINTER(BOARD), MOVE, c_char_p]
+move_to_san.restype = c_bool
+
+def move_to_sanPY(board : POINTER(BOARD), move : MOVE) -> str:
     out = create_string_buffer(10)
-    res = _move_to_san(board, move, out)
+    res = move_to_san(board, move, out)
     #if not res:
     #    raise ValueError(f"{_write_uciPY(move)}")
     return bytes(out).rstrip(b'\x00 ').decode("utf-8")
 
 
 
-_validate_board = clib.validate_board
-_validate_board.argtypes = [POINTER(_BOARD)]
-_validate_board.restype = c_char_p
+validate_board = clib.validate_board
+validate_board.argtypes = [POINTER(BOARD)]
+validate_board.restype = c_char_p
 
-_write_bitboard = clib.write_bitboard
-_write_bitboard.argtypes = [_BITBOARD, c_char_p]
+write_bitboard = clib.write_bitboard
+write_bitboard.argtypes = [BITBOARD, c_char_p]
 
-_count_moves = clib.count_legal_moves
-_count_moves.argtypes = [POINTER(_BOARD)]
-_count_moves.restype = c_uint8
+count_moves = clib.count_legal_moves
+count_moves.argtypes = [POINTER(BOARD)]
+count_moves.restype = c_uint8
 
-_is_stalemate = clib.is_stalemate
-_is_stalemate.argtypes = [POINTER(_BOARD)]
-_is_stalemate.restype = c_bool
+is_stalemate = clib.is_stalemate
+is_stalemate.argtypes = [POINTER(BOARD)]
+is_stalemate.restype = c_bool
 
-_is_checkmate = clib.is_checkmate
-_is_checkmate.argtypes = [POINTER(_BOARD)]
-_is_checkmate.restype = c_bool
+is_checkmate = clib.is_checkmate
+is_checkmate.argtypes = [POINTER(BOARD)]
+is_checkmate.restype = c_bool
 
-_randomize_board = clib.randomize_board
-_randomize_board.argtypes = [POINTER(_BOARD)]
+randomize_board = clib.randomize_board
+randomize_board.argtypes = [POINTER(BOARD)]
 
-_get_piece_bb = clib.get_piece_bb_from_board
-_get_piece_bb.argtypes = [POINTER(_BOARD), _PIECE]
-_get_piece_bb.restype = _BITBOARD
+get_piece_bb = clib.get_piece_bb_from_board
+get_piece_bb.argtypes = [POINTER(BOARD), _PIECE]
+get_piece_bb.restype = BITBOARD
 
-_squares_with_piece = clib.squares_with_piece
-_squares_with_piece.argtypes = [POINTER(_BOARD), _PIECE, POINTER(_SQUARE)]
-_squares_with_piece.restype = c_uint8
+squares_with_piece = clib.squares_with_piece
+squares_with_piece.argtypes = [POINTER(BOARD), _PIECE, POINTER(SQUARE)]
+squares_with_piece.restype = c_uint8
 
-_board_has_patterns = clib.board_has_patterns
-_board_has_patterns.argtypes = [POINTER(_BOARD), POINTER(_PIECE_PATTERN), c_uint64]
-_board_has_patterns.restype = c_bool
+board_has_patterns = clib.board_has_patterns
+board_has_patterns.argtypes = [POINTER(BOARD), POINTER(_PIECE_PATTERN), c_uint64]
+board_has_patterns.restype = c_bool
 
-_get_outcome = clib.get_status
-_get_outcome.argtypes = [POINTER(_BOARD), POINTER(_UNDOABLE_MOVE), c_uint16]
-_get_outcome.restype = _OUTCOME
+get_outcome = clib.get_status
+get_outcome.argtypes = [POINTER(BOARD), POINTER(UNDOABLE_MOVE), c_uint16]
+get_outcome.restype = OUTCOME
 
-_ext_construct_move = clib.ext_construct_move
-_ext_construct_move.argtypes = [_SQUARE, _SQUARE, _PIECE_TYPE, POINTER(_MOVE)]
-_ext_construct_move.restype = c_char_p
+ext_construct_move = clib.ext_construct_move
+ext_construct_move.argtypes = [SQUARE, SQUARE, PIECE_TYPE, POINTER(MOVE)]
+ext_construct_move.restype = c_char_p
 
-_square_in_bitboard = clib.square_in_bitboard
-_square_in_bitboard.argtypes = [_BITBOARD, _SQUARE]
-_square_in_bitboard.restype = c_bool
+square_in_bitboard = clib.square_in_bitboard
+square_in_bitboard.argtypes = [BITBOARD, SQUARE]
+square_in_bitboard.restype = c_bool
 
-_bitboard_and = clib.bitboard_and
-_bitboard_and.argtypes = [_BITBOARD, _BITBOARD]
-_bitboard_and.restype = _BITBOARD
+bitboard_and = clib.bitboard_and
+bitboard_and.argtypes = [BITBOARD, BITBOARD]
+bitboard_and.restype = BITBOARD
 
-_bitboard_or = clib.bitboard_or
-_bitboard_or.argtypes = [_BITBOARD, _BITBOARD]
-_bitboard_or.restype = _BITBOARD
+bitboard_or = clib.bitboard_or
+bitboard_or.argtypes = [BITBOARD, BITBOARD]
+bitboard_or.restype = BITBOARD
 
-_bitboard_xor = clib.bitboard_xor
-_bitboard_xor.argtypes = [_BITBOARD, _BITBOARD]
-_bitboard_xor.restype = _BITBOARD
+bitboard_xor = clib.bitboard_xor
+bitboard_xor.argtypes = [BITBOARD, BITBOARD]
+bitboard_xor.restype = BITBOARD
 
-_bitboard_not = clib.bitboard_not
-_bitboard_not.argtypes = [_BITBOARD]
-_bitboard_not.restype = _BITBOARD
+bitboard_not = clib.bitboard_not
+bitboard_not.argtypes = [BITBOARD]
+bitboard_not.restype = BITBOARD
 
-_fill_piece_index_array = clib.fill_piece_index_array
-_fill_piece_index_array.argtypes = [POINTER(_BOARD), POINTER(_PIECE_INDEX)]
+fill_piece_index_array = clib.fill_piece_index_array
+fill_piece_index_array.argtypes = [POINTER(BOARD), POINTER(PIECE_INDEX)]
 
-_index_into = clib.index_into
-_index_into.argtypes = [POINTER(_PIECE_INDEX), _SQUARE]
-_index_into.restype = _PIECE_INDEX
+index_into = clib.index_into
+index_into.argtypes = [POINTER(PIECE_INDEX), SQUARE]
+index_into.restype = PIECE_INDEX
 
-_from_squares = clib.from_squares
-_from_squares.argtypes = [POINTER(_SQUARE), c_uint8]
-_from_squares.restype = _BITBOARD
+from_squares = clib.from_squares
+from_squares.argtypes = [POINTER(SQUARE), c_uint8]
+from_squares.restype = BITBOARD
 
-_count_piece_type = clib.count_piece_type
-_count_piece_type.argtypes = [POINTER(_BOARD), _PIECE_TYPE]
-_count_piece_type.restype = c_uint8
+count_piece_type = clib.count_piece_type
+count_piece_type.argtypes = [POINTER(BOARD), PIECE_TYPE]
+count_piece_type.restype = c_uint8
 
-_count_color = clib.count_color
-_count_color.argtypes = [POINTER(_BOARD), _PIECE_TYPE]
-_count_color.restype = c_uint8
-
-
-_count_color = clib.count_color
-_count_color.argtypes = [POINTER(_BOARD), _PIECE_INDEX]
-_count_color.restype = c_uint8
-
-_generate_legal_move_hashes = clib.generate_legal_move_hashes
-_generate_legal_move_hashes.argtypes = [POINTER(_BOARD), POINTER(c_uint64)]
-_generate_legal_move_hashes.restype = c_uint8
+count_color = clib.count_color
+count_color.argtypes = [POINTER(BOARD), PIECE_TYPE]
+count_color.restype = c_uint8
 
 
-_count_backwards_pawns = clib.count_backwards_pawns
-_count_backwards_pawns.argtypes = [POINTER(_BOARD), _COLOR]
-_count_backwards_pawns.restype = c_uint8
+count_color = clib.count_color
+count_color.argtypes = [POINTER(BOARD), PIECE_INDEX]
+count_color.restype = c_uint8
 
-_count_doubled_pawns = clib.count_doubled_pawns
-_count_doubled_pawns.argtypes = [POINTER(_BOARD), _COLOR]
-_count_doubled_pawns.restype = c_uint8
-
-_count_isolated_pawns = clib.count_isolated_pawns
-_count_isolated_pawns.argtypes = [POINTER(_BOARD), _COLOR]
-_count_isolated_pawns.restype = c_uint8
-
-_net_backwards_pawns = clib.net_backwards_pawns
-_net_backwards_pawns.argtypes = [POINTER(_BOARD)]
-_net_backwards_pawns.restype = c_int8
-
-_net_doubled_pawns = clib.net_doubled_pawns
-_net_doubled_pawns.argtypes = [POINTER(_BOARD)]
-_net_doubled_pawns.restype = c_int8
-
-_net_isolated_pawns = clib.net_isolated_pawns
-_net_isolated_pawns.argtypes = [POINTER(_BOARD)]
-_net_isolated_pawns.restype = c_int8
-
-_net_mobility = clib.net_mobility
-_net_mobility.argtypes = [POINTER(_BOARD)]
-_net_mobility.restype = c_int16
+generate_legal_move_hashes = clib.generate_legal_move_hashes
+generate_legal_move_hashes.argtypes = [POINTER(BOARD), POINTER(c_uint64)]
+generate_legal_move_hashes.restype = c_uint8
 
 
-_net_piece_type = clib.net_piece_type
-_net_piece_type.argtypes = [POINTER(_BOARD), _PIECE_TYPE]
-_net_piece_type.restype = c_int8
+count_backwards_pawns = clib.count_backwards_pawns
+count_backwards_pawns.argtypes = [POINTER(BOARD), COLOR]
+count_backwards_pawns.restype = c_uint8
 
-_ext_get_pinned_mask = clib.ext_get_pinned_mask
-_ext_get_pinned_mask.argtypes = [POINTER(_BOARD), _SQUARE]
-_ext_get_pinned_mask.restype = _BITBOARD
+count_doubled_pawns = clib.count_doubled_pawns
+count_doubled_pawns.argtypes = [POINTER(BOARD), COLOR]
+count_doubled_pawns.restype = c_uint8
 
-_ext_get_attack_mask = clib.ext_get_attack_mask 
-_ext_get_attack_mask.argtypes = [POINTER(_BOARD)]
-_ext_get_attack_mask.restype = _BITBOARD
+count_isolated_pawns = clib.count_isolated_pawns
+count_isolated_pawns.argtypes = [POINTER(BOARD), COLOR]
+count_isolated_pawns.restype = c_uint8
 
-_above_bb = clib.above_bb
-_above_bb.argtypes = [_BITBOARD]
-_above_bb.restype = _BITBOARD
+net_backwards_pawns = clib.net_backwards_pawns
+net_backwards_pawns.argtypes = [POINTER(BOARD)]
+net_backwards_pawns.restype = c_int8
 
-_below_bb = clib.below_bb
-_below_bb.argtypes = [_BITBOARD]
-_below_bb.restype = _BITBOARD
+net_doubled_pawns = clib.net_doubled_pawns
+net_doubled_pawns.argtypes = [POINTER(BOARD)]
+net_doubled_pawns.restype = c_int8
 
-_left_bb = clib.left_bb
-_left_bb.argtypes = [_BITBOARD]
-_left_bb.restype = _BITBOARD
+net_isolated_pawns = clib.net_isolated_pawns
+net_isolated_pawns.argtypes = [POINTER(BOARD)]
+net_isolated_pawns.restype = c_int8
 
-_right_bb = clib.right_bb
-_right_bb.argtypes = [_BITBOARD]
-_right_bb.restype = _BITBOARD
+net_mobility = clib.net_mobility
+net_mobility.argtypes = [POINTER(BOARD)]
+net_mobility.restype = c_int16
 
-_piece_attacks = clib.ext_piece_attacks
-_piece_attacks.argtypes = [_PIECE_INDEX, _SQUARE]
-_piece_attacks.restype = _BITBOARD
+
+net_piece_type = clib.net_piece_type
+net_piece_type.argtypes = [POINTER(BOARD), PIECE_TYPE]
+net_piece_type.restype = c_int8
+
+ext_get_pinned_mask = clib.ext_get_pinned_mask
+ext_get_pinned_mask.argtypes = [POINTER(BOARD), SQUARE]
+ext_get_pinned_mask.restype = BITBOARD
+
+ext_get_attack_mask = clib.ext_get_attack_mask 
+ext_get_attack_mask.argtypes = [POINTER(BOARD)]
+ext_get_attack_mask.restype = BITBOARD
+
+above_bb = clib.above_bb
+above_bb.argtypes = [BITBOARD]
+above_bb.restype = BITBOARD
+
+below_bb = clib.below_bb
+below_bb.argtypes = [BITBOARD]
+below_bb.restype = BITBOARD
+
+left_bb = clib.left_bb
+left_bb.argtypes = [BITBOARD]
+left_bb.restype = BITBOARD
+
+right_bb = clib.right_bb
+right_bb.argtypes = [BITBOARD]
+right_bb.restype = BITBOARD
+
+piece_attacks = clib.ext_piece_attacks
+piece_attacks.argtypes = [PIECE_INDEX, SQUARE]
+piece_attacks.restype = BITBOARD
 
 """
-_shannon_evaluation = clib.shannon_evaluation
-_shannon_evaluation.argtypes = [POINTER(_BOARD), POINTER(_UNDOABLE_MOVE), c_uint8]
-_shannon_evaluation.restype = c_int32
+shannon_evaluation = clib.shannon_evaluation
+shannon_evaluation.argtypes = [POINTER(BOARD), POINTER(UNDOABLE_MOVE), c_uint8]
+shannon_evaluation.restype = c_int32
 """
 
-_roundtrip_san = clib.roundtrip_san
-_roundtrip_san.argtypes = [c_char_p, c_char_p]
-_roundtrip_san.restype = c_bool
+roundtrip_san = clib.roundtrip_san
+roundtrip_san.argtypes = [c_char_p, c_char_p]
+roundtrip_san.restype = c_bool
 
-_san_to_move = clib.san_str_to_move
-_san_to_move.argtypes = [POINTER(_BOARD), c_char_p]
-_san_to_move.restype = _MOVE
-def roundtrip_san(san : str) -> str:
+san_to_move = clib.san_str_to_move
+san_to_move.argtypes = [POINTER(BOARD), c_char_p]
+san_to_move.restype = MOVE
+def roundtrip_sanPY(san : str) -> str:
     out = create_string_buffer(10)
-    res = _roundtrip_san(san.encode("utf-8"), out)
+    res = roundtrip_san(san.encode("utf-8"), out)
     if not res:
         print(f"incorrect: {san} => {bytes(out)}")
     return False if not res else bytes(out).rstrip(b'\x00 ').decode("utf-8")
 
-_PAWN : _PIECE_TYPE = _get_pawn_value()
-_BISHOP : _PIECE_TYPE = _get_bishop_value()
-_KNIGHT : _PIECE_TYPE = _get_knight_value()
-_ROOK : _PIECE_TYPE = _get_rook_value()
-_QUEEN : _PIECE_TYPE = _get_queen_value()
-_KING : _PIECE_TYPE = _get_king_value()
+PAWN_VAL : PIECE_TYPE = get_pawn_value()
+BISHOP_VAL : PIECE_TYPE = get_bishop_value()
+KNIGHT_VAL : PIECE_TYPE = get_knight_value()
+ROOK_VAL : PIECE_TYPE = get_rook_value()
+QUEEN_VAL : PIECE_TYPE = get_queen_value()
+KING_VAL : PIECE_TYPE = get_king_value()
 
-_WHITE : _COLOR = _get_white_value()
-_BLACK : _COLOR = _get_black_value()
+WHITE : COLOR = get_white_value()
+BLACK : COLOR = get_black_value()
 
-_EMPTY_PIECE_TYPE : _PIECE_TYPE = _get_empty_value()
-_ERROR_PIECE_TYPE : _PIECE_TYPE = _get_error_value()
-
-
-_EMPTY_PIECE : _PIECE = _PIECE(_EMPTY_PIECE_TYPE, _EMPTY_PIECE_TYPE)
-_ERR_MOVE_VAL = 1
-_NULL_MOVE_VAL = 0
-
-PAWNS_STARTING = _BITBOARD(71776119061282560)
-KNIGHTS_STARTING = _BITBOARD(4755801206503243842)
-BISHOPS_STARTING = _BITBOARD(2594073385365405732)
-ROOKS_STARTING = _BITBOARD(9295429630892703873)
-QUEENS_STARTING = _BITBOARD(576460752303423496)
-KINGS_STARTING = _BITBOARD(1152921504606846992)
-WHITE_STARTING = _BITBOARD(65535)
-BLACK_STARTING = _BITBOARD(18446462598732840960)
+EMPTY_PIECE_TYPE : PIECE_TYPE = get_empty_value()
+ERROR_PIECE_TYPE : PIECE_TYPE = get_error_value()
 
 
-STARTING_CASTLING_RIGHTS = _CASTLING_RIGHTS(0xF)
-NO_CASTLING_RIGHTS = _CASTLING_RIGHTS(0)
+EMPTY_PIECE : _PIECE = _PIECE(EMPTY_PIECE_TYPE, EMPTY_PIECE_TYPE)
+ERR_MOVE_VAL = 1
+NULL_MOVE_VAL = 0
+
+PAWNS_STARTING = BITBOARD(71776119061282560)
+KNIGHTS_STARTING = BITBOARD(4755801206503243842)
+BISHOPS_STARTING = BITBOARD(2594073385365405732)
+ROOKS_STARTING = BITBOARD(9295429630892703873)
+QUEENS_STARTING = BITBOARD(576460752303423496)
+KINGS_STARTING = BITBOARD(1152921504606846992)
+WHITE_STARTING = BITBOARD(65535)
+BLACK_STARTING = BITBOARD(18446462598732840960)
+
+
+STARTING_CASTLING_RIGHTS = CASTLING_RIGHTS(0xF)
+NO_CASTLING_RIGHTS = CASTLING_RIGHTS(0)
 
 
 # Piece Return Type Signals
 
 
 
-ZORBIST_TABLE = _create_zobrist_table
+ZORBIST_TABLE = create_zobrist_table()

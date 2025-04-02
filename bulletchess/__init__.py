@@ -24,8 +24,8 @@ class Color(Enum):
     and their pieces.
     """
 
-    BLACK = backend._BLACK
-    WHITE = backend._WHITE
+    BLACK = backend.BLACK
+    WHITE = backend.WHITE
 
     def __str__(self):
         return self.name
@@ -51,12 +51,12 @@ class PieceType(Enum):
     either a Pawn, a Knight, a Bishop, a Rook, a Queen, or a King.
     """
 
-    PAWN = backend._PAWN
-    KNIGHT = backend._KNIGHT
-    BISHOP = backend._BISHOP
-    ROOK = backend._ROOK
-    QUEEN = backend._QUEEN
-    KING = backend._KING
+    PAWN = backend.PAWN_VAL
+    KNIGHT = backend.KNIGHT_VAL
+    BISHOP = backend.BISHOP_VAL
+    ROOK = backend.ROOK_VAL
+    QUEEN = backend.QUEEN_VAL
+    KING = backend.KING_VAL
 
     def __str__(self):
         return self.name
@@ -330,7 +330,7 @@ class Move:
         An error is raised if no chess Piece could legally enact the described move
         in any position.
         """
-        pt = backend._EMPTY_PIECE_TYPE if promote_to == None else promote_to.value
+        pt = backend.EMPTY_PIECE_TYPE if promote_to == None else promote_to.value
         struct = backend.construct_movePY(origin.value, destination.value, pt)
 
         if type(struct) == str:
@@ -340,7 +340,7 @@ class Move:
         self.__struct = struct
     
     @staticmethod
-    def __inst(__struct : backend._MOVE) -> "Move":
+    def __inst(__struct : backend.MOVE) -> "Move":
         move = object.__new__(Move)
         move.__struct = __struct
         return move
@@ -351,7 +351,7 @@ class Move:
         Constructs a Move from Long Algebraic Notation, which is 
         used by the UCI protocol.
         """
-        return Move.__inst(backend._init_move_from_uciPY(uci))
+        return Move.__inst(backend.init_move_from_uciPY(uci))
 
     @staticmethod
     def from_san(san : str, board : "Board") -> "Move":
@@ -373,14 +373,14 @@ class Move:
         """
         Gets the origin Square of this Move.
         """
-        return Square(backend._get_origin(self.__struct))
+        return Square(backend.get_origin(self.__struct))
 
     @property
     def destination(self) -> Square:
         """
         Gets the destination Square of this Move.
         """
-        return Square(backend._get_destination(self.__struct))
+        return Square(backend.get_destination(self.__struct))
 
     @property
     def promotes_to(self) -> Optional[Piece]:
@@ -388,13 +388,13 @@ class Move:
         For promoting moves, returns the Piece that a Pawn would promote to.
         Returns None for non-promotions.
         """
-        return PIECES[backend._promotes_to(self.__struct)]
+        return PIECES[backend.promotes_to(self.__struct)]
 
     def is_promption(self) -> bool:
         """
         Returns `True` if this Move is a promotion.
         """
-        return bool(backend._is_promotion(self.__struct))
+        return bool(backend.is_promotion(self.__struct))
 
     def status_from(self, board : "Board") -> "BoardStatus":
         """
@@ -404,14 +404,14 @@ class Move:
 
 
     def __str__(self) -> str:
-        return backend._write_uciPY(self.__struct)
+        return backend.write_uciPY(self.__struct)
 
     def __hash__(self) -> int:
-        return int(backend._hash_move(self.__struct))
+        return int(backend.hash_move(self.__struct))
 
     def __eq__(self, other : Any) -> bool:
         try:
-            return bool(backend._moves_equal(self.__struct, other.__struct))
+            return bool(backend.moves_equal(self.__struct, other.__struct))
         except:
             return False
 
@@ -433,32 +433,32 @@ class Bitboard:
 
     @staticmethod
     def from_squares(squares : Collection[Square]) -> "Bitboard":
-        squares_array = (backend._SQUARE * 64)(*[square.value for square in squares])
-        return Bitboard(int(backend._from_squares(squares_array, len(squares))))
+        squares_array = (backend.SQUARE * 64)(*[square.value for square in squares])
+        return Bitboard(int(backend.from_squares(squares_array, len(squares))))
 
     
     @staticmethod
     def piece_attacking(piece : Piece, from_square : Square) -> "Bitboard":
-        return Bitboard(int(backend._piece_attacks(PIECE_INDEXES[piece], from_square.value)))
+        return Bitboard(int(backend.piece_attacks(PIECE_INDEXES[piece], from_square.value)))
     
 
     def left(self) -> "Bitboard":
-        return Bitboard(backend._left_bb(self.__int))
+        return Bitboard(backend.left_bb(self.__int))
 
     def right(self) -> "Bitboard":
-        return Bitboard(backend._right_bb(self.__int))
+        return Bitboard(backend.right_bb(self.__int))
 
     def above(self) -> "Bitboard":
-        return Bitboard(backend._above_bb(self.__int))
+        return Bitboard(backend.above_bb(self.__int))
 
     def below(self) -> "Bitboard":
-        return Bitboard(backend._below_bb(self.__int))
+        return Bitboard(backend.below_bb(self.__int))
 
     def __str__(self):
-        return backend._write_bitboardPY(self.__int)
+        return backend.write_bitboardPY(self.__int)
 
     def __contains__(self, square : Square):
-        return backend._square_in_bitboard(self.__int, square.value); 
+        return backend.square_in_bitboard(self.__int, square.value); 
 
     def __or__(self, other : "Bitboard") -> "Bitboard":
         return Bitboard(self.__int | other.__int)
@@ -534,7 +534,7 @@ class Board:
         Initializes a Board representing the standard starting position of a game.
         """
 
-        self.__pointer = backend._init_starting_boardPY() 
+        self.__pointer = backend.init_starting_boardPY() 
         self.__undoable_stack = []
         self.__move_stack = []
         self.__create_piece_array()
@@ -544,10 +544,10 @@ class Board:
         return Board()
 
     @staticmethod
-    def __inst(__pointer : backend.POINTER(backend._BOARD),
-                 __undoable_stack : list[backend._UNDOABLE_MOVE],
+    def __inst(__pointer : backend.POINTER(backend.BOARD),
+                 __undoable_stack : list[backend.UNDOABLE_MOVE],
                 __move_stack : list[Move],
-               __piece_array : (backend._PIECE_INDEX * 64)):
+               __piece_array : (backend.PIECE_INDEX * 64)):
         board = object.__new__(Board)
         board.__pointer = __pointer
         board.__undoable_stack = __undoable_stack
@@ -557,8 +557,8 @@ class Board:
 
 
     def __create_piece_array(self):
-        self.__piece_array = (backend._PIECE_INDEX * 64)()
-        backend._fill_piece_index_array(self.__pointer, self.__piece_array)
+        self.__piece_array = (backend.PIECE_INDEX * 64)()
+        backend.fill_piece_index_array(self.__pointer, self.__piece_array)
 
     def __clear_piece_array(self):
         self.__piece_array = None
@@ -572,7 +572,7 @@ class Board:
         """
         Constructs a Board using Forsyth-Edwards Notation. 
         """
-        pointer, piece_array = backend._init_board_from_fenPY(fen)
+        pointer, piece_array = backend.init_board_from_fenPY(fen)
         return Board.__inst(pointer, [], [], piece_array)
 
     #@staticmethod
@@ -584,7 +584,7 @@ class Board:
         """
         Constructs a completely empty Board with no Pieces.
         """
-        pointer = backend._init_empty_boardPY()
+        pointer = backend.init_empty_boardPY()
         return Board.__inst(pointer, [], [], None)
 
     @staticmethod
@@ -594,7 +594,7 @@ class Board:
        moves to the starting position.
        """
        board = Board()
-       backend._randomize_board(board.__pointer)
+       backend.randomize_board(board.__pointer)
        board.__piece_array = None
        return board
 
@@ -604,8 +604,8 @@ class Board:
         Creates a copy of this Board, including the history of Moves
         that have been played.
         """
-        pointer = backend._alloc_boardPY()
-        backend._copy_into(pointer, self.__pointer)
+        pointer = backend.alloc_boardPY()
+        backend.copy_into(pointer, self.__pointer)
         cpy = Board.__inst(pointer, self.__undoable_stack.copy(), 
                            self.__move_stack.copy(), self.__piece_array)
         return cpy
@@ -614,7 +614,7 @@ class Board:
         """
         Raises an Exception if this Board is invalid. 
         """
-        error = backend._validate_board(self.__pointer)
+        error = backend.validate_board(self.__pointer)
         if error != None:
             raise ValueError(error.decode("utf-8"))
  
@@ -635,10 +635,10 @@ class Board:
         Sets the en passant Square, checking if the given value is a valid Square
         """
         if square == None:
-            backend._clear_ep_square(self.__pointer)
+            backend.clear_ep_square(self.__pointer)
         else:
             if type(square) == Square:
-                error = backend._set_ep_square_checked(self.__pointer, square.value)
+                error = backend.set_ep_square_checked(self.__pointer, square.value)
             else:
                 raise ValueError(f"Illegal en passant Square, {square} is not a valid Square")
             if error != None:
@@ -673,7 +673,7 @@ class Board:
         elif value > 65535:
             raise ValueError(f"Cannot set halfmove clock to a value greater than 65535, but got {value}")
         else:
-            self.__pointer.contents.halfmove_clock = backend._TURN_CLOCK(value) 
+            self.__pointer.contents.halfmove_clock = backend.TURN_CLOCK(value) 
 
     @property
     def fullmove_number(self) -> int:
@@ -691,16 +691,16 @@ class Board:
         elif value > 65535:
             raise ValueError(f"Cannot set fullmove number to a value greater than 65535, but got {value}")
         else:
-            self.__pointer.contents.fullmove_number = backend._TURN_CLOCK(value) 
+            self.__pointer.contents.fullmove_number = backend.TURN_CLOCK(value) 
 
     def fen(self) -> str:
-        return backend._make_fenPY(self.__pointer)
+        return backend.make_fenPY(self.__pointer)
 
     def get_status(self) -> "BoardStatus":
         ln = len(self.__undoable_stack)
-        moves_array = (backend._UNDOABLE_MOVE * ln)(*self.__undoable_stack)
+        moves_array = (backend.UNDOABLE_MOVE * ln)(*self.__undoable_stack)
         status = object.__new__(BoardStatus)
-        status.value = backend._get_outcome(self, moves_array, ln)
+        status.value = backend.get_outcome(self, moves_array, ln)
         return status
 
 
@@ -714,15 +714,15 @@ class Board:
             raise ValueError("Cannot perform perft with a negative depth")
         if depth > 255:
             raise ValueError("Cannot perform perft with a value > 255, this would take longer than the heat death of the Universe")
-        return backend._perft(self.__pointer, depth)
+        return backend.perft(self.__pointer, depth)
 
 
     def legal_moves(self) -> list[Move]:
         """
         Produces a list of legal Moves that could be performed at the current position.
         """
-        moves_buffer = (backend._MOVE * 256)()
-        length = backend._generate_legal_moves(self.__pointer, moves_buffer)
+        moves_buffer = (backend.MOVE * 256)()
+        length = backend.generate_legal_moves(self.__pointer, moves_buffer)
         return self._make_move_objs(moves_buffer, length)
 
     def _make_move_objs(self, moves_buffer, length):
@@ -736,7 +736,7 @@ class Board:
         """
         self.__clear_piece_array()
         self.__move_stack.append(move)
-        self.__undoable_stack.append(backend._apply_move(self.__pointer, 
+        self.__undoable_stack.append(backend.apply_move(self.__pointer, 
                                                              move._Move__struct))
     def undo(self) -> Move:
         """
@@ -744,7 +744,7 @@ class Board:
         """
         self.__clear_piece_array()
         undoable = self.__undoable_stack.pop()
-        backend._undo_move(self.__pointer, undoable)
+        backend.undo_move(self.__pointer, undoable)
         return self.__move_stack.pop()
 
     
@@ -752,19 +752,19 @@ class Board:
         """
         Returns `True` if the player to move is in check.
         """
-        return bool(backend._in_check(self.__pointer))
+        return bool(backend.in_check(self.__pointer))
 
     def is_checkmate(self) -> bool:
         """
         Returns `True` if this position is checkmate.
         """
-        return bool(backend._is_checkmate(self.__pointer))
+        return bool(backend.is_checkmate(self.__pointer))
 
     def is_stalemate(self) -> bool:
         """
         Returns `True` if this position is stalemate.
         """
-        return bool(backend._is_stalemate(self.__pointer))
+        return bool(backend.is_stalemate(self.__pointer))
 
     def is_draw(self) -> bool:
         """
@@ -774,12 +774,12 @@ class Board:
         advancement.
         """
         ln = len(self.__undoable_stack)
-        moves_array = (backend._UNDOABLE_MOVE * ln)(*self.__undoable_stack)
-        return bool(backend._is_draw(self.__pointer, moves_array, ln))
+        moves_array = (backend.UNDOABLE_MOVE * ln)(*self.__undoable_stack)
+        return bool(backend.is_draw(self.__pointer, moves_array, ln))
 
     def get_piece_at(self, square : Square) -> Optional[Piece]:
-        #backend._fill_piece_index_array(self.__pointer, self.__piece_array)
-        #return PIECES[backend._get_piece_at(self.__pointer, square.value)]
+        #backend.fill_piece_index_array(self.__pointer, self.__piece_array)
+        #return PIECES[backend.get_piece_at(self.__pointer, square.value)]
         self.__verify_piece_array()
         return PIECES[self.__piece_array[square.value]]
 
@@ -801,14 +801,14 @@ class Board:
             index = PIECE_INDEXES[piece]
         except:
             raise ValueError(f"Invalid piece: {piece}")
-        backend._set_piece_index(self.__pointer, self.__piece_array, square.value, index)
+        backend.set_piece_index(self.__pointer, self.__piece_array, square.value, index)
 
 
     def delete_piece_at(self, square : Square) -> None:
         """
         Deletes the Piece, if there is one, at the specified Square.
         """
-        backend._delete_piece_at(self.__pointer, self.__piece_array, square.value)
+        backend.delete_piece_at(self.__pointer, self.__piece_array, square.value)
 
     def __eq__(self, other : Any):
         """
@@ -816,14 +816,14 @@ class Board:
         well as identical state aspects including the en-passant square, castling rights,
         the halfmove timer, and the fullmove clock.
         """
-        return bool(backend._boards_equal(self.__pointer, other.__pointer))
+        return bool(backend.boards_equal(self.__pointer, other.__pointer))
 
     def __str__(self) -> str:
-        return backend._make_board_stringPY(self.__pointer)
+        return backend.make_board_stringPY(self.__pointer)
 
     
     def __hash__(self) -> int:
-        return int(backend._hash_board(self.__pointer))
+        return int(backend.hash_board(self.__pointer))
 
 
     @property
@@ -832,8 +832,8 @@ class Board:
     
     def evaluate(self) -> int:
         ln = len(self.__undoable_stack)
-        moves_array = (backend._UNDOABLE_MOVE * ln)(*self.__undoable_stack)
-        return int(backend._shannon_evaluation(self.__pointer, moves_array, ln))
+        moves_array = (backend.UNDOABLE_MOVE * ln)(*self.__undoable_stack)
+        return int(backend.shannon_evaluation(self.__pointer, moves_array, ln))
 
     def material(self) -> int:
         ...
@@ -845,7 +845,7 @@ class Board:
         without putting its own King in check. This method gets the pinned mask 
         corresponding to the given square
         """
-        return Bitboard(int(backend._ext_get_pinned_mask(
+        return Bitboard(int(backend.ext_get_pinned_mask(
                         self.__pointer, origin.value)))
 
     def attack_mask(self) -> Bitboard:
@@ -855,7 +855,7 @@ class Board:
         at that Square. This is used to avoid generating moves in which 
         a players King moves itself into check
         """
-        return Bitboard(int(backend._ext_get_attack_mask(self.__pointer)))
+        return Bitboard(int(backend.ext_get_attack_mask(self.__pointer)))
 
  
  
@@ -864,7 +864,7 @@ class Board:
         Determines if this Board's position is 'quiescent', meaning that there are 
         no possible captures that could be made.
         """
-        return bool(backend._is_quiescent(self.__pointer))
+        return bool(backend.is_quiescent(self.__pointer))
 
     
 
@@ -874,43 +874,43 @@ class Board:
         constructing the Move objects. This is much faster than doing 
         `len(Board.legal_moves())`
         """
-        return int(backend._count_moves(self.__pointer))
+        return int(backend.count_moves(self.__pointer))
 
 
     def count_piece(self, piece : Optional[Piece]) -> int:
-        return backend._countpiece(self.__pointer, PIECE_INDEXES[piece])
+        return backend.countpiece(self.__pointer, PIECE_INDEXES[piece])
 
     def count_color(self, color : Color) -> int:
-        return backend._count_color(self.__pointer, color.value)
+        return backend.count_color(self.__pointer, color.value)
 
     def count_piece_type(self, piece_type : PieceType) -> int:
-        return backend._count_piece_type(self.__pointer, piece_type.value)
+        return backend.count_piece_type(self.__pointer, piece_type.value)
 
 
     def count_backwards_pawns(self, color : Color) -> int:
-        return backend._count_backwards_pawns(self.__pointer, color.value)
+        return backend.count_backwards_pawns(self.__pointer, color.value)
 
     def count_doubled_pawns(self, color : Color) -> int:
-        return backend._count_doubled_pawns(self.__pointer, color.value)
+        return backend.count_doubled_pawns(self.__pointer, color.value)
 
     def count_isolated_pawns(self, color : Color) -> int:
-        return backend._count_isolated_pawns(self.__pointer, color.value)
+        return backend.count_isolated_pawns(self.__pointer, color.value)
 
 
     def net_backwards_pawns(self) -> int:
-        return backend._net_backwards_pawns(self.__pointer)
+        return backend.net_backwards_pawns(self.__pointer)
 
     def net_doubled_pawns(self) -> int:
-        return backend._net_doubled_pawns(self.__pointer)
+        return backend.net_doubled_pawns(self.__pointer)
 
     def net_isolated_pawns(self) -> int:
-        return backend._net_isolated_pawns(self.__pointer)
+        return backend.net_isolated_pawns(self.__pointer)
 
     def net_mobility(self) -> int:
-        return backend._net_mobility(self.__pointer)
+        return backend.net_mobility(self.__pointer)
 
     def net_piece_type(self, piece_type : PieceType) -> int:
-        return backend._net_piece_type(self.__pointer, piece_type.value)
+        return backend.net_piece_type(self.__pointer, piece_type.value)
 
 
 class BoardStatus:
