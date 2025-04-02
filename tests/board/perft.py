@@ -26,6 +26,7 @@ def native_perft(board : Board, depth : int) -> int:
     if depth == 0:
         return 1
     elif depth == 1:
+        #return len(board.legal_moves())
         return board.count_moves()
     else:
         moves = board.legal_moves()
@@ -164,3 +165,4 @@ if __name__ == "__main__":
     #board = Board.starting()
     #board.perft(7, debug = True),
     #native_perft(Board(),6)
+    #native_perft(Board(), 6)

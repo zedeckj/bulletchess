@@ -1,0 +1,359 @@
+#include "move.h"
+
+move_t error_move() {
+    move_t move;
+    move.type = ERROR_MOVE;
+    return move;
+}
+
+move_t null_move() {
+    move_t move;
+    move.type = NULL_MOVE;
+    return move;
+}
+
+generic_move_t move_body(square_t origin, square_t destination){
+    generic_move_t generic;
+    generic.origin = origin;
+    generic.destination = destination;
+    return generic;
+}
+
+move_t generic_move(generic_move_t body) {
+    move_t move;
+    move.type = GENERIC_MOVE;
+    move.generic = body;
+    return move;
+}
+
+
+move_t promotion_move(generic_move_t body, piece_type_t promote_to) {
+    move_t move;
+    move.type = PROMOTION_MOVE;
+    move.promotion.body = body;
+    move.promotion.promote_to = promote_to;
+    return move;
+}
+
+move_t make_move_from_parts(square_t origin, square_t destination, piece_type_t promote_to) {
+	generic_move_t body;
+	body.origin = origin;
+	body.destination = destination;
+	if (promote_to == EMPTY_VAL) {
+		return generic_move(body);
+	}
+	else {
+		return promotion_move(body, promote_to);
+	}
+}
+
+
+u_int64_t hash_move(move_t move) {
+  u_int64_t origin;
+  u_int64_t destination;
+  u_int64_t promotion = 0;
+  if (move.type == PROMOTION_MOVE) {
+    promotion_move_t prm = move.promotion;
+    origin = prm.body.origin;
+    destination = prm.body.destination;
+    promotion = prm.promote_to;
+  }
+  else {
+    origin = move.generic.origin;
+    destination = move.generic.destination;
+  }
+  return (origin << 16) + (destination << 8) + promotion;
+}
+
+
+move_t unhash_move(u_int64_t move_hash) {
+	square_t origin = move_hash >> 16;
+	square_t destination = (move_hash & 0xFF00) >> 8;
+	piece_type_t promotion = move_hash & 0xFF;
+	return make_move_from_parts(origin, destination, promotion);
+}
+
+bool moves_equal(move_t move1, move_t move2) {
+  if (move1.type == PROMOTION_MOVE){
+    return move2.type == PROMOTION_MOVE && move1.promotion.body.origin == move2.promotion.body.origin
+            && move1.promotion.body.destination == move2.promotion.body.destination;
+  }
+  else if (move1.type == GENERIC_MOVE) {
+    return move2.type == GENERIC_MOVE && move1.generic.origin == move2.generic.origin &&
+           move1.generic.destination == move2.generic.destination;
+  }
+  else return false;
+}
+
+bool pointer_moves_equal(move_t *move1, u_int64_t index1, move_t *move2, u_int64_t index2){
+	return moves_equal(move1[index1], move2[index2]);
+}
+
+
+bool is_error_move(move_t move) {
+    return move.type == ERROR_MOVE;
+}
+
+bool is_null_move(move_t move) {
+    return move.type == NULL_MOVE;
+}
+
+void debug_print_board(full_board_t * board) {
+    printf("white occupied\n");
+    print_bitboard(board->position->white_oc);
+    printf("black occupied\n");
+    print_bitboard(board->position->black_oc);
+    printf("pawns\n");
+    print_bitboard(board->position->pawns);
+    printf("bishops\n");
+    print_bitboard(board->position->bishops);
+    printf("knights\n");
+    print_bitboard(board->position->knights);
+    printf("rooks\n");
+    print_bitboard(board->position->rooks);
+    printf("queens\n");
+    print_bitboard(board->position->queens);
+    printf("kings\n");
+    print_bitboard(board->position->kings);
+}
+
+
+
+void write_uci_body(generic_move_t move, char * buffer) {
+    buffer[0] = file_char_of_square(move.origin);
+    buffer[1] = rank_char_of_square(move.origin);
+    buffer[2] = file_char_of_square(move.destination);
+    buffer[3] = rank_char_of_square(move.destination);
+}
+
+bool write_uci(move_t move, char * buffer) {
+    switch(move.type) {
+
+        case GENERIC_MOVE: 
+        write_uci_body(move.generic, buffer);
+        buffer[4] = '\0';
+        return true;
+        /*
+        case CASTLING_MOVE: 
+            switch (move.castling) {
+                case WHITE_KINGSIDE:
+                strcpy(buffer, "e1g1");
+                return true;
+                case WHITE_QUEENSIDE:
+                strcpy(buffer, "e1c1");
+                return true;
+                case BLACK_KINGSIDE:
+                strcpy(buffer, "e8g8");
+                return true;
+                case BLACK_QUEENSIDE:
+                strcpy(buffer, "e8c8");
+                return true;
+            }
+            return false;
+        */
+    case PROMOTION_MOVE: 
+        write_uci_body(move.promotion.body, buffer);
+        buffer[4] = piece_type_symbol(move.promotion.promote_to);
+        buffer[5] = '\0';
+        return true;
+
+    case ERROR_MOVE:
+        return false;
+
+    case NULL_MOVE: 
+        strcpy(buffer, "0000");
+        return true;
+    }
+    return false;
+}
+
+bool pointer_write_uci(move_t *move, u_int64_t index, char * buffer) {
+	return write_uci(move[index], buffer);
+}	
+
+bool validate_promotion_move(char origin_file, char origin_rank, char dest_file, char dest_rank) {
+    return ((origin_rank == '7' && dest_rank == '8') 
+          || (origin_rank == '2' && dest_rank == '1')) 
+          && (dest_file == origin_file 
+              || dest_file == origin_file + 1 
+              || dest_file == origin_file - 1); 
+} 
+
+
+bool validate_generic_move(char origin_file, char origin_rank, char dest_file, char dest_rank) {
+    if (dest_file == origin_file) return origin_rank != dest_rank;
+    if (dest_rank == origin_rank) return origin_file != dest_file;
+    int8_t dist;
+    if ((dist = abs(dest_file - origin_file)) == abs(dest_rank - origin_rank)) return dist != 0;
+    int8_t file_diff = abs(dest_file - origin_file);
+    int8_t rank_diff = abs(dest_rank - origin_rank);
+    return ((file_diff == 1 && rank_diff == 2) || (file_diff == 2 && rank_diff == 1)); 
+}
+
+
+
+move_t parse_uci(char * str) {
+    if (!str) return error_move();
+    bool all_zero = true;
+    for (int i = 0; i < 4; i++) {
+        if (!str[i]) {
+            return error_move();
+        }
+        else if (str[i] != '0') {
+            all_zero = false;
+            break;
+        }
+    }
+    if (all_zero) {
+			return str[5] ? error_move() : null_move();
+    }
+    if (valid_square_chars(str[0], str[1]) && 
+        valid_square_chars(str[2], str[3])) {
+            if (!str[4] || isspace(str[4])) {
+              if (validate_generic_move(str[0], str[1], str[2], str[3])){
+                move_t move = generic_move(
+                        move_body(
+                            make_square(str[0], str[1]), 
+                            make_square(str[2], str[3])));
+                return move;
+              }
+            }
+            else if (!str[5] || isspace(str[5])){
+                char c = tolower(str[4]);
+                piece_type_t promote_to;
+                switch (c) {
+                    case 'q':
+                    promote_to = QUEEN_VAL;
+                    break;
+                    case 'n':
+                    promote_to = KNIGHT_VAL;
+                    break;
+                    case 'b':
+                    promote_to = BISHOP_VAL;
+                    break;
+                    case 'r':
+                    promote_to = ROOK_VAL;
+                    break;
+                    default:
+                    return error_move();
+                }
+                if (validate_promotion_move(str[0], str[1], str[2], str[3])) {
+                  return promotion_move(
+                    move_body(
+                        make_square(str[0], str[1]), 
+                        make_square(str[2], str[3])),
+                      promote_to);
+               }
+            }
+    }
+    return error_move();
+}
+
+piece_type_t san_parse_piece_type(char symbol) {
+	switch(symbol) {
+			case 'B': return BISHOP_VAL;
+			case 'N': return KNIGHT_VAL;
+			case 'R': return ROOK_VAL;
+			case 'Q': return QUEEN_VAL;
+			case 'K': return KING_VAL;
+			default: return EMPTY_VAL;
+	}
+}
+san_move_t parse_pawn_capture_san(char * str){
+
+}
+
+san_move_t parse_pawn_push_san(char * str) {
+	optional_square_t maybe_dest = parse_square(str);
+	if (maybe_dest.exists) {
+		san_move_t san;
+		san.pawn_push.destination = maybe_dest.square;
+		san.pawn_push.promote_to = san_parse_piece_type(str[2]);	
+	}
+	san_move_t err;
+	err.type = SAN_ERR;
+	return err;
+}
+
+san_move_t parse_pawn_san(char * str) {
+	if (str[1]) {
+		if (!str[2] || !str[3]) return parse_pawn_push_san(str); 
+		return parse_pawn_capture_san(str);
+	}
+	san_move_t err;
+	err.type = SAN_ERR;
+	return err;
+}
+
+san_move_t parse_std_san(char * str, piece_type_t type);
+
+san_move_t parse_san(char * str){
+	if (str && str[0]) {
+		piece_type_t type = san_parse_piece_type(str[0]);
+		if (type == EMPTY_VAL) return parse_pawn_san(str);
+		return parse_std_san(str, type);
+	}			
+	san_move_t san;
+	san.type = SAN_ERR;
+	return san;	
+}	
+
+
+
+square_t get_origin(move_t move){
+  generic_move_t body;
+  if (move.type == PROMOTION_MOVE) body = move.promotion.body;
+  else body = move.generic;
+  return body.origin;
+}
+
+square_t get_destination(move_t move) {
+  generic_move_t body;
+  if (move.type == PROMOTION_MOVE) body = move.promotion.body;
+  else body = move.generic;
+  return body.destination;
+}
+
+bool is_promotion(move_t move){
+  return move.type == PROMOTION_MOVE;
+}
+
+
+piece_t promotes_to(move_t move) {
+  if (move.type != PROMOTION_MOVE) return empty_piece();
+  piece_t out;
+  out.type = move.promotion.promote_to; 
+  out.color = move.promotion.body.destination & RANK_8 ? WHITE_VAL : BLACK_VAL;
+  return out;
+}
+
+
+
+square_t pointer_get_origin(move_t *move_p, u_int64_t index){
+	move_t move = move_p[index];
+	return get_origin(move);
+}
+
+square_t pointer_get_destination(move_t *move_p, u_int64_t index) {
+	move_t move = move_p[index];
+	return get_destination(move);
+}
+
+
+bool pointer_is_promotion(move_t *move_p, u_int64_t index) {
+	move_t move = move_p[index];
+	return is_promotion(move);
+}
+
+
+piece_t pointer_promotes_to(move_t *move_p, u_int64_t index) {
+	move_t move = move_p[index];
+	return promotes_to(move);
+}
+
+
+
+
+
+
+

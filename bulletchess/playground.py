@@ -76,7 +76,7 @@ Board
 #for i in range(1000000):
 #    j = i & (i + 1)
 
-for i in range(1000000):
-    j = bulletchess.backend._bitboard_and(i, i+1)
 
-
+fen = "rnb1kbnr/pppp1ppp/8/8/7q/8/PPPPP1PP/RNBQKBNR b KQkq - 0 1"
+board = Board.from_fen(fen)
+print(board)

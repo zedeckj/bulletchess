@@ -79,9 +79,10 @@ class TestMove(unittest.TestCase):
                             except:
                                 continue
         self.assertGreater(len(all_legal), 1000)
-        hash_count = len({hash(move) for move in all_legal})
+        hashes = [hash(move) for move in all_legal]
+        hash_count = len(set(hashes))
         self.assertEqual(len(all_legal), hash_count)
-
+        print(len(all_legal))
     def testNull(self):
         null = Move.from_uci("0000")
         self.assertEqual(null, "0000")

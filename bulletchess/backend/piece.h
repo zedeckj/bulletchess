@@ -69,13 +69,29 @@ piece_t white_piece(piece_type_t type);
 // Creates a black piece of the given type
 piece_t black_piece(piece_type_t type);
 
+// Returns a preconstructed error type piece
 piece_t error_piece();
 
 // Checks if a given piece is empty
 bool piece_is_empty(piece_t piece);
 
+// Converts a piece to an index, which can be used quickly for transport to python
 piece_index_t piece_to_index(piece_t piece);
 
+// Turns an index back into a piece
 piece_t index_to_piece(piece_index_t index);
+
+// Gets the symbol of this piece_type
+char piece_type_symbol(piece_type_t piece_type);
+
+// Gets the character representation of a piece
+char piece_symbol(piece_t piece);
+
+// Parses the given symbol to a Piece. An error piece
+// is returned if the symbol is invalid
+piece_t piece_from_symbol(char symbol);
+
+// Parses a piece from a string, asserting that the string is only of length 1
+piece_t piece_from_string(char *piece_string);
 
 #endif

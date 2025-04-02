@@ -1,6 +1,7 @@
 #ifndef CHESSHEADER 
 #define CHESSHEADER 0
 #include "piece.h"
+#include "bitboard.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -9,148 +10,8 @@
 #include <math.h>
 #include <string.h>
 
-// from whites perspective
-#define ABOVE(s) ((s) + 8)
-#define BELOW(s) ((s) - 8)
-#define LEFT(s) ((s) - 1)
-#define RIGHT(s) ((s) + 1)
-#define RANKNUM(s) (((s) % 8) + 1)
-#define FILE(s) (((s) / 8) + 1) // 1 indexed
-#define LSB(s) ((s) & -(s))
-
-#define A1 0
-#define B1 1
-#define C1 2
-#define D1 3
-#define E1 4
-#define F1 5
-#define G1 6
-#define H1 7
-#define A2 8
-#define B2 9
-#define C2 10
-#define D2 11
-#define E2 12
-#define F2 13
-#define G2 14
-#define H2 15
-#define A3 16
-#define B3 17
-#define C3 18
-#define D3 19
-#define E3 20
-#define F3 21
-#define G3 22
-#define H3 23
-#define A4 24
-#define B4 25
-#define C4 26
-#define D4 27
-#define E4 28
-#define F4 29
-#define G4 30
-#define H4 31
-#define A5 32
-#define B5 33
-#define C5 34
-#define D5 35
-#define E5 36
-#define F5 37
-#define G5 38
-#define H5 39
-#define A6 40
-#define B6 41
-#define C6 42
-#define D6 43
-#define E6 44
-#define F6 45
-#define G6 46
-#define H6 47
-#define A7 48
-#define B7 49
-#define C7 50
-#define D7 51
-#define E7 52
-#define F7 53
-#define G7 54
-#define H7 55
-#define A8 56
-#define B8 57
-#define C8 58
-#define D8 59
-#define E8 60
-#define F8 61
-#define G8 62
-#define H8 63
 #define EMPTY_EP 64
 
-#define SQUARE_TO_BB(s) (1llu << (s))
-
-#define A1_BB (1llu << A1)
-#define B1_BB (1llu << B1)
-#define C1_BB (1llu << C1)
-#define D1_BB (1llu << D1)
-#define E1_BB (1llu << E1)
-#define F1_BB (1llu << F1)
-#define G1_BB (1llu << G1)
-#define H1_BB (1llu << H1)
-
-
-#define E8_BB (1llu << E8)
-#define G8_BB (1llu << G8)
-#define F8_BB (1llu << F8)
-#define C8_BB (1llu << C8)
-#define A8_BB (1llu << A8)
-#define H8_BB (1llu << H8)
-#define D8_BB (1llu << D8)
-
-#define RANK_1 0xffllu
-#define RANK_2 (0xffllu << 8)
-#define RANK_3 (0xffllu << 16)
-#define RANK_4 (0xffllu << 24)
-#define RANK_5 (0xffllu << 32)
-#define RANK_6 (0xffllu << 40)
-#define RANK_7 (0xffllu << 48)
-#define RANK_8 (0xffllu << 56)
-
-#define FULL_BB 0xFFFFFFFFFFFFFFFFllu
-#define FILE_A 0x0101010101010101llu
-#define FILE_B (FILE_A << 1)
-#define FILE_F (FILE_A << 6)
-#define FILE_H (FILE_A << 7)
-
-
-
-#define ABOVE_BB(bb) ((bb) << 8)
-#define BELOW_BB(bb) ((bb) >> 8)
-
-#define SAFE_ABOVE_BB(bb) (((bb) & ~RANK_8) << 8)
-#define SAFE_BELOW_BB(bb) (((bb) & ~RANK_1) >> 8)
-
-#define SAFE_TWO_ABOVE_BB(bb) (((bb) & ~RANK_8 & ~RANK_7) << 16)
-#define SAFE_TWO_BELOW_BB(bb) (((bb) & ~RANK_1 & ~RANK_2) >> 16)
-
-#define SAFE_LEFT_BB(bb) (((bb) & ~FILE_A) >> 1)
-#define SAFE_RIGHT_BB(bb) (((bb) & ~FILE_H) << 1)
-
-#define SAFE_TWO_LEFT_BB(bb) (((bb) & ~FILE_A & ~FILE_B) >> 2)
-#define SAFE_TWO_RIGHT_BB(bb) (((bb) & ~FILE_H & ~FILE_F) << 2)
-
-#define SAFE_KNIGHT_MOVE_BB1(bb) SAFE_LEFT_BB(SAFE_TWO_ABOVE_BB(bb))
-#define SAFE_KNIGHT_MOVE_BB2(bb) SAFE_RIGHT_BB(SAFE_TWO_ABOVE_BB(bb))
-
-#define SAFE_KNIGHT_MOVE_BB3(bb) SAFE_LEFT_BB(SAFE_TWO_BELOW_BB(bb))
-#define SAFE_KNIGHT_MOVE_BB4(bb) SAFE_RIGHT_BB(SAFE_TWO_BELOW_BB(bb))
-
-#define SAFE_KNIGHT_MOVE_BB5(bb) SAFE_TWO_LEFT_BB(SAFE_ABOVE_BB(bb))
-#define SAFE_KNIGHT_MOVE_BB6(bb) SAFE_TWO_RIGHT_BB(SAFE_ABOVE_BB(bb))
-
-#define SAFE_KNIGHT_MOVE_BB7(bb) SAFE_TWO_LEFT_BB(SAFE_BELOW_BB(bb))
-#define SAFE_KNIGHT_MOVE_BB8(bb) SAFE_TWO_RIGHT_BB(SAFE_BELOW_BB(bb))
-
-
-typedef uint8_t square_t;
-typedef uint64_t bitboard_t;
 
 typedef u_int8_t move_type_t;
 
@@ -199,7 +60,7 @@ typedef struct {
 
 typedef uint8_t castling_rights_t;
 
-#define NO_CASTLING
+#define NO_CASTLING 0
 #define WHITE_KINGSIDE 1
 #define WHITE_QUEENSIDE 2
 #define BLACK_KINGSIDE 4
@@ -220,12 +81,6 @@ typedef uint8_t castling_rights_t;
 #define BLACK_STARTING 18446462598732840960ull
 
 typedef uint16_t turn_clock_t;
-
-typedef struct {
-    square_t square;
-    bool exists;
-} optional_square_t;
-
 typedef piece_color_t piece_color8_t __attribute__ ((vector_size(8)));
 
 typedef struct {
@@ -240,16 +95,32 @@ typedef struct {
 
 
 
-u_int8_t count_bits(bitboard_t bb);
-
+// Returns true if the specified square index is empty
 bool square_empty(position_t * board, square_t square);
+
+// Clears the en passant square by setting the `exists` flag to false,
+// and setting the square value to a dummy value
 void clear_ep_square(full_board_t * board);
+
+// Sets the en passant square and sets the `exists` flag to true.
 void set_ep_square(full_board_t * board, square_t square);
+
+// Deletes whatever piece is currently at the given square in the position.
+// Has no effect if the square is already empty.
 void delete_piece_at(position_t * position, square_t square);
+
+// Only keeps bitboard values in the board which are the result
+// of being &'d with the given mask
 void mask_board_with(position_t * board, bitboard_t keep_bb);
+
+// Sets the piece at the given square by updating the relvant bitboard
+// and clearing all others 
 void set_piece_at(position_t *position, square_t square, piece_t piece);
 
+// Gets the piece at the given square
 piece_t get_piece_at(position_t *position, square_t square);
+
+// Makes the given position fully empty  
 void clear_board(position_t *position);
 
 // Checks if the given color has king-side castling rights
@@ -277,30 +148,70 @@ void update_castling_rights(full_board_t * board, piece_color_t color);
 // in the given board's piece configuation
 void update_all_castling_rights(full_board_t * board);
 
-square_t fen_index_to_square(u_int8_t index);
-
-
+// Returns true if the given positions are identical
 bool positions_equal(position_t *pos1, position_t *pos2);
 
+// Returns true if the given boards are equal in all aspects besides
+// the halfmove and fullmove clocks, which are ignored
+bool boards_legally_equal(full_board_t *board1, full_board_t * board2);
 
+
+// TODO, dont belong here
 bool in_check(full_board_t *board);
 bool opponent_in_check(full_board_t * board);
-
 u_int8_t get_checkers(full_board_t *board);
+square_t fen_index_to_square(u_int8_t index);
 
+// Returns true if the specified color occupies the given square
 bool color_occupies(position_t * board, square_t square, piece_color_t color);
+
+
+// Returns true if white occupies the given square
 bool white_occupies(position_t * position, square_t square);
+
+
+// Returns true if black occupies the given square
 bool black_occupies(position_t * position, square_t square);
 
+// Returns true if the en passant square is the same as the provided
+// square. Will always return False if the en passant square does not exist
 bool en_passant_is(full_board_t * board, square_t square);
 
+// Gets the piece at the given bitboard (What happens if there are multiple of the
+// same piece?)
 piece_t get_piece_at_bb(position_t * board, bitboard_t bb);
 
-void print_bitboard(bitboard_t board);
-
+// Copies the contents of the source board to the dst board
 void copy_into(full_board_t * dst, full_board_t * source);
 
 
+// Counts the number of squares which have the given piece_type
+u_int8_t count_piece_type(full_board_t * board, piece_type_t type); 
+
+// Fills out an array reperesetnation of the board's position, with
+// each square being an index and the value being an integer representation of
+// a piece
 void fill_piece_index_array(full_board_t *board, piece_index_t* index_array);
+
+// Counts the number of pieces of a given type, with white counting positively
+// and black counting negatively
+int8_t net_piece_type(full_board_t * board, piece_type_t type);
+
+// Pretty prints a Board's piece configuration
+void print_board(full_board_t * board);
+
+// Fills the given buffer with a string representing the piece configuartion of
+// the given board
+void fill_board_string(full_board_t * board, char * buffer); 
+
+// Validates some basic aspects about the given board make it legal
+// Returns an error string if invalid, or 0 if it is valid
+char * validate_board(full_board_t * board);
+
+// Gets a bitboard for the given piece type
+bitboard_t get_piece_type_bb(position_t* position, piece_type_t piece_type);
+
+
+bitboard_t get_piece_bb(position_t* position, piece_t piece);
 #endif
 

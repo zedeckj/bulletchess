@@ -18,5 +18,21 @@ class TestBoard(unittest.TestCase):
         self.assertIsNot(board, board.copy())
 
 
+    def test_piece_at(self):
+        board = Board.random()
+        copy = board.copy()
+        for square in SQUARES:
+            self.assertEqual(board.get_piece_at(square), 
+                             copy.get_piece_at(square))
+
+    def test_copied_move_stack(self):
+        board = Board.starting()
+        board.apply(Move.from_san("e4", board))
+        copy = board.copy()
+        move = copy.undo()
+        self.assertEqual(copy, Board.starting())
+        self.assertEqual(move, Move.from_uci("e2e4"))
+
+
 if __name__ == "__main__":
     unittest.main()

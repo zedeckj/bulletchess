@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include "board.h"
 
+
+// A struct used to hash boards
 typedef struct {  
     u_int64_t ** square_piece_rands; 
     u_int64_t white_to_move_rand;

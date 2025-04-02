@@ -7,8 +7,8 @@ def testMoves(tester : unittest.TestCase, expected_ucis : set[str], board : Boar
     real_moves = set(board.legal_moves())
     expected_moves = {Move.from_uci(uci) for uci in expected_ucis}
     real_ucis = {str(move) for move in real_moves}
-    tester.assertEqual(expected_moves, real_moves)
-    tester.assertEqual(expected_ucis, real_ucis)
+    tester.assertEqual(expected_moves, real_moves, msg = board.fen())
+    tester.assertEqual(expected_ucis, real_ucis, msg = board.fen())
      
 
 class TestMoveGeneration(unittest.TestCase):
@@ -22,7 +22,7 @@ class TestMoveGeneration(unittest.TestCase):
         real_moves = board.legal_moves()
         ucis = {"a2a3", "a2a4", "b2b3", "b2b4", "c2c3", "c2c4", "d2d3", "d2d4", "e2e3", "e2e4", "f2f3", "f2f4", "g2g3", "g2g4", "h2h3", "h2h4", "b1a3", "b1c3", "g1f3", "g1h3"}
         testMoves(self, ucis, board)
-
+        
     def testEnPassant(self):
         fen = "r1bqkbnr/ppp1pppp/2n5/3pP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 3"
         board = Board.from_fen(fen)
@@ -69,6 +69,11 @@ class TestMoveGeneration(unittest.TestCase):
         board = Board.from_fen(fen2)
         testMoves(self, ucis | {"d4e3"}, board)
 
+    def testOther(self):
+        board = Board.from_fen("rnb3r1/R3Q3/2p5/1p1k1p1r/1n1P4/8/4P3/2K2B1r b - - 3 69")
+        moves = set(board.legal_moves())
+        self.assertIn(Move.from_uci("g8h8"), moves)
+
     # Illegal board tests
     def testEmpty(self):
         empty = Board.empty()
@@ -76,12 +81,11 @@ class TestMoveGeneration(unittest.TestCase):
 
     def testPawnOnBackRank(self):
         board = Board.empty()
+        # flip the turn to black
         board.apply(Move.from_uci("0000"))
         board.set_piece_at(A1, Piece(BLACK, PAWN))
         self.assertEqual(len(board.legal_moves()), 0)
         board.set_piece_at(A8, Piece(BLACK, PAWN))
-        print("")
-        print(board)
         moves = board.legal_moves()
         self.assertEqual(len(moves), 1)
         self.assertTrue(Move.from_uci("a8a7"), board)

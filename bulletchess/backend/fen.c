@@ -1,87 +1,10 @@
-#include "serialization.h"
+#include "fen.h"
 
 
 square_t fen_index_to_square(u_int8_t index) {
     return (square_t)(8 * (7 - index/8) + (index % 8)); 
 }
 
-square_t make_square(char file, char rank) {
-    return (file - 'a') + ((rank - '1')* 8);
-}
-
-bool valid_square_chars(char file, char rank) {
-    return rank >= '1' && rank<= '8' && (file>= 'a' && file<= 'h');
-}
-
-piece_t piece_from_symbol(char symbol) {
-  piece_type_t type;
-  char upper = toupper(symbol);
-  switch (upper) {
-    case '-':
-    return empty_piece();
-    case 'P':
-    type = PAWN_VAL;
-    break;
-    case 'N':
-    type = KNIGHT_VAL;
-    break;
-    case 'B':
-    type = BISHOP_VAL;
-    break;
-    case 'R':
-    type = ROOK_VAL;
-    break;
-    case 'Q':
-    type = QUEEN_VAL;
-    break;
-    case 'K':
-    type = KING_VAL;
-    break;
-    default:
-    return error_piece();
-  }
-  piece_t piece;
-  piece.type = type; 
-  if (upper != symbol) piece.color = BLACK_VAL;
-  else piece.color = WHITE_VAL;
-  return piece;
-}
-
-piece_t piece_from_string(char *piece_string) {
-  if (piece_string[0] && !piece_string[1]) {
-    return piece_from_symbol(piece_string[0]);
-  }
-  return error_piece();
-}
-
-char piece_type_symbol(piece_type_t piece_type) {
-    switch (piece_type) {
-        case EMPTY_VAL:
-            return '-';
-        case PAWN_VAL:
-            return 'p';
-        case KNIGHT_VAL:
-            return 'n';
-        case BISHOP_VAL:
-            return 'b';
-        case ROOK_VAL:
-            return 'r';
-        case QUEEN_VAL:
-            return 'q';
-        case KING_VAL:
-            return 'k';    
-    }
-    return '?';
-}
-
-char piece_symbol(piece_t piece) {
-    bool is_white = piece.color == WHITE_VAL;
-    char symbol = piece_type_symbol(piece.type);
-    if (is_white) {
-        symbol = toupper(symbol);
-    }
-    return symbol;
-}
 
 
 int use_empties(char * fen_buffer, int empties, int index) {
@@ -90,14 +13,6 @@ int use_empties(char * fen_buffer, int empties, int index) {
         return index + 1;
     }
     return index;
-}
-
-char file_char_of_square(square_t square) {
-    return (square % 8) + 'a';
-}
-
-char rank_char_of_square(square_t square) {
-    return (square / 8) + '1';
 }
 
 int write_num(char * buffer, int offset, int num) {
@@ -129,7 +44,6 @@ split_fen_t *split_fen(char * fen) {
     int pi = 0;
     bool in_space = true;
     for (int i = 0; i == 0 || fen[i - 1]; i++) {
-      printf("i: %d, pi: %d, current_pointer: %d\n", i, pi, current_pointer);
       if (fen[i] && !isspace(fen[i])) {
             in_space = false;
             if (pi > lengths[current_pointer]) {
@@ -151,8 +65,8 @@ split_fen_t *split_fen(char * fen) {
     return split;
 }
 
-char * parse_position(char * str, position_t * position) {
-    if (!str) return "No position specified";
+char * parse_position(char * str, position_t * position, piece_index_t * index_array) {
+		if (!str) return "No position specified";
     u_int8_t rank = 0;
     u_int8_t file = 0;
     u_int8_t index = 0;
@@ -177,36 +91,57 @@ char * parse_position(char * str, position_t * position) {
         else {
             if (str[i] >= '0' && str[i] < '9') {
                 u_int8_t count = str[i] - '0';
-                file += count;
+								if (index_array) {
+									square_t first = fen_index_to_square(index);
+									for (square_t square = first;
+															square < first + count; square++) {
+										index_array[square] = EMPTY_INDEX;	
+									}	
+								}
+
+								file += count;
                 index += count;
             }
             else {
-                bitboard_t square_bb = SQUARE_TO_BB(fen_index_to_square(index));
+								square_t square = fen_index_to_square(index);
+                bitboard_t square_bb = SQUARE_TO_BB(square);
                 char lower = tolower(str[i]);
+								piece_index_t piece_index;
                 switch (lower) {
                     case 'p':
                     pawns |= square_bb;
+										piece_index = PAWN_INDEX;
                     break;
                     case 'n':
                     knights |= square_bb;
+										piece_index = KNIGHT_INDEX;
                     break;
                     case 'b':
                     bishops |= square_bb;
+										piece_index = BISHOP_INDEX;
                     break;
                     case 'r':
                     rooks |= square_bb;
+										piece_index = ROOK_INDEX;
                     break;
                     case 'q':
                     queens |= square_bb;
+										piece_index = QUEEN_INDEX;
                     break;
                     case 'k':
                     kings |= square_bb;
+										piece_index = KING_INDEX;
                     break;
                     default:
                     return "Position has unknown character";
                 }
                 if (lower != str[i]) white_oc |= square_bb;
-                else black_oc |= square_bb;
+                else {
+										black_oc |= square_bb;
+										piece_index += BLACK_OFFSET;
+								}
+
+								if (index_array) index_array[square] = piece_index;
                 ++file;
                 ++index;
             }
@@ -228,7 +163,8 @@ char * parse_position(char * str, position_t * position) {
 }
 
 char * parse_turn(char * str, piece_color_t * color) {
-    if (!str) return "No turn specified";
+
+		if (!str) return "No turn specified";
     if (str[0]) {
         if (!str[1]) {
             if (str[0] == 'w') {
@@ -256,7 +192,7 @@ char * parse_turn(char * str, piece_color_t * color) {
 
 
 char * parse_castling(char * str, castling_rights_t * castling) {
-    if (!str || !str[0]) return "No castling rights specified";
+		if (!str || !str[0]) return "No castling rights specified";
     *castling = 0;
     if (str[0] == '-' && str[1] == '\0') {
         return 0;
@@ -301,7 +237,8 @@ char * parse_castling(char * str, castling_rights_t * castling) {
 
 
 char * parse_ep_square(char * str, optional_square_t * ep) {
-    if (!str || !str[0]) return "Missing en-passant square";
+    
+		if (!str || !str[0]) return "Missing en-passant square";
     if (str[0] == '-' && str[1] == '\0') {
         ep->exists = false;
         ep->square = EMPTY_EP;
@@ -319,12 +256,12 @@ char * parse_ep_square(char * str, optional_square_t * ep) {
 }
 
 char * parse_clock(char * str, turn_clock_t * clock) {
-    if (!str || !str[0]) return "Missing move timer";
+		if (!str || !str[0]) return "Missing move timer";
     turn_clock_t num = 0;
     if (str[0]) {
         for (int i = 0; str[i]; i++) {
             if (str[i] < '0' || str[i] > '9') {
-                return "Clock includes a non-digit";
+							return "Clock includes a non-digit";
             }
         }
         int parsed = atoi(str);
@@ -339,29 +276,36 @@ char * parse_clock(char * str, turn_clock_t * clock) {
 
 // Fills out a board from parsing the given FEN. 
 // Returns boolean of if parsing was a success
-char * parse_fen(char * fen, full_board_t * board) {
-    piece_color_t turn;
-    turn_clock_t halfmove;
-    turn_clock_t fullmove;
-    optional_square_t ep;
-    castling_rights_t castling;
-    if (!fen) return "Empty FEN";
-    char *rest;
-    char * error = parse_position(strtok_r(fen, " ", &rest), board->position);
+char * parse_fen(char * fen, full_board_t * board, piece_index_t * index_array) {
+		if (!fen) return "Empty FEN";
+    char *rest = 0;
+    char * error = parse_position(strtok_r(fen, " ", &rest), board->position, index_array);
     if (error) return error;
     error = parse_turn(strtok_r(0, " ", &rest), &(board->turn));
     if (error) return error;
     error = parse_castling(strtok_r(0, " ", &rest), &(board->castling_rights));
     if (error) return error;    
     error = parse_ep_square(strtok_r(0, " ", &rest), &(board->en_passant_square));
-    if (error) return error;
-    error = parse_clock(strtok_r(0, " ", &rest), &(board->halfmove_clock));
+		if (error) return error;
+		error = parse_clock(strtok_r(0, " ", &rest), &(board->halfmove_clock));
     if (error) return error;
     error = parse_clock(strtok_r(0, " ", &rest), &(board->fullmove_number));
     if (error) return error;
     if (strtok_r(0, " ", &rest)) return "FEN has too many terms";
     return 0;
 }
+
+
+/*
+char * parse_fen_array(char ** fens, full_board_t *boards, u_int64_t count) {
+	char * error;
+	for (int i = 0; i < count; i++) {
+		error = parse_fen(fens[i], boards[i]);
+		if (error) return error;
+	}
+	return 0;
+}
+*/
 
 void make_fen(full_board_t *board, char * fen_buffer) {
     if (!fen_buffer) {
@@ -419,28 +363,4 @@ void make_fen(full_board_t *board, char * fen_buffer) {
 }
 
 
-void make_board_string(full_board_t *board, char *string_buffer) {
-    if (string_buffer) {
-        int string_i = 0;
-        int i = 0;
-        for (bitboard_t rank = RANK_8; i < 8; i++) {
-            int j = 0;
-            for (bitboard_t file = FILE_A; j < 8; j++) {
-                piece_t piece = get_piece_at_bb(board->position, rank & file);
-                string_buffer[string_i++] = piece_symbol(piece);
-                string_buffer[string_i++] = ' ';
-                file = SAFE_RIGHT_BB(file);
-            }
-            string_buffer[string_i++] = '\n';
-            rank = BELOW_BB(rank);
-        }
-        string_buffer[string_i++] = '\0';
-    }
-}
 
-
-void print_board(full_board_t *board) {
-    char buffer[255];
-    make_board_string(board, buffer);
-    printf("%s\n", buffer);
-}

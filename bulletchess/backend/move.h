@@ -1,7 +1,6 @@
 #ifndef MOVEHEADER
 #define MOVEHEADER 0
 #include "board.h"
-#include "serialization.h"
 // The move.c file will not only define moves, but their application to boards
 
 // typedef struct {
@@ -14,6 +13,66 @@
 //     square_t destination;
 //     piece_type_t promote_to;
 // } promotion_t;
+
+typedef struct {
+	bool exists;
+	u_int8_t value;
+} optional_u_int8_t;
+
+#define SAN_ERR 0
+#define SAN_STD 1
+#define SAN_PAWN_PUSH 2
+#define SAN_PAWN_CAPTURE 3
+#define SAN_CASTLING 4
+
+typedef struct {
+	piece_type_t moving_piece;
+	optional_u_int8_t from_file;
+	optional_u_int8_t from_rank;
+	bool is_capture;
+	square_t destination;
+	
+} san_std_move_t;
+
+typedef struct {
+	optional_u_int8_t from_file;
+	optional_u_int8_t from_rank;
+	square_t destination;
+	piece_type_t promote_to;
+} san_pawn_push_t;
+
+typedef struct {
+	u_int8_t from_file;
+	optional_u_int8_t from_rank;
+	square_t destination;
+	piece_type_t promote_to;
+} san_pawn_capture_t;
+
+#define NO_ANN 0
+#define BLUNDER_ANN 1
+#define MISTAKE_ANN 2
+#define DUBIOUS_ANN 3
+#define INTEREST_ANN 4
+#define GOOD_ANN 5
+#define BRILLIANT_ANN 6 
+#define ERROR_ANN 7
+
+#define SAN_NOCHECK 0
+#define SAN_CHECK 1
+#define SAN_CHECKMATE 2
+
+typedef struct {
+	union {
+		san_std_move_t std_move;
+		san_pawn_push_t pawn_push;
+		san_pawn_capture_t pawn_capture;
+		bool castling_kingside;
+	};
+	u_int8_t type;
+	u_int8_t ann_type;
+	u_int8_t check_status;
+} san_move_t;
+
 typedef struct {
     square_t origin;
     square_t destination;
@@ -56,59 +115,54 @@ typedef struct {
 } undoable_move_t;
 
 
-/*
-typedef struct move_list {
-	undoable_move_t car;
-	struct move_list * cdr;
-} move_list_t;
+// constructors
 
-// Represents a board with extra state used for move generation
-typedef struct {
-	full_board_t * board;
-	move_list_t * move_list_t;
-} stateful_board_t;
-	
-// Pushes an undoable move to the move stack, growing the stack's 
-// capacity if needed, and increasing the length by 1
-*/
+move_t error_move();
+
+move_t null_move();
+
+generic_move_t move_body(square_t origin, square_t destination);
+
+move_t generic_move(generic_move_t move);
+
+move_t make_move_from_parts(square_t origin, square_t destination, piece_type_t promote_to);
+
+move_t promotion_move(generic_move_t body, piece_type_t promote_to);
 
 
+// Uniquely hashes a move
+u_int64_t hash_move(move_t move);
 
-inline void do_castling(full_board_t * board, square_t king_origin, square_t king_dest, square_t rook_origin, bitboard_t rook_dest);
-inline void do_white_kingside(full_board_t *board);
-inline void do_white_queenside(full_board_t *board);
-inline void do_black_kingside(full_board_t *board);
-inline void do_black_quenside(full_board_t *board);
-// Aplies a move to the given board
+// Unhashes a move
+move_t unhash_move(u_int64_t move_hash);
 
 
-undoable_move_t apply_move(full_board_t *board, move_t move);
+// Parses a valid move from a given uci str
+move_t parse_uci(char * str);
 
-move_t undo_move(full_board_t * board, undoable_move_t move);	
-
-
-//void full_apply_move(stateful_board_t *stateful_board, );
-
+// Produces an error string if this move is invalid in any way
+char * error_from_move(move_t move);
 
 
+// Writes a Move into a string using Standard Algebraic Notation,
+// returns false if there was an error
+bool write_san(san_move_t move, char * buffer);
 
-// Parses a UCI formatted string into a move_t, returns an Error move
-// if the given string is ill-formatted
-move_t parse_uci(char * uci_str);
-
-// Writes the given move's UCI representation to a provided buffer of length 6
-// Returns false if given an invalid move.
+// Writes a Move into a string using UCI notation
+// returns false if there was an error
 bool write_uci(move_t move, char * buffer);
 
 
 
-u_int8_t generate_legal_moves(full_board_t * board, move_t * buffer);
+castling_rights_t get_castling_type(move_t move, full_board_t *board);
 
+san_move_t error_san();
 
+san_move_t parse_san(char * str);
 
-// // Initializes the global move table if it is not already
-// void prepare_move_table();
+square_t get_origin(move_t move);
 
+square_t get_destination(move_t move);
 
 
 #endif

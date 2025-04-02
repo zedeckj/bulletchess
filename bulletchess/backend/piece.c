@@ -126,6 +126,7 @@ piece_index_t piece_to_index(piece_t piece) {
 		case KING_VAL:
 		return index + KING_INDEX;
 	}
+	return EMPTY_INDEX;
 }
 
 
@@ -156,4 +157,77 @@ piece_t index_to_piece(piece_index_t index){
 	piece.color = type_index + 1 == index ? WHITE_VAL : BLACK_VAL;
 	return piece;
 }
+
+
+piece_t piece_from_symbol(char symbol) {
+  piece_type_t type;
+  char upper = toupper(symbol);
+  switch (upper) {
+    case '-':
+    return empty_piece();
+    case 'P':
+    type = PAWN_VAL;
+    break;
+    case 'N':
+    type = KNIGHT_VAL;
+    break;
+    case 'B':
+    type = BISHOP_VAL;
+    break;
+    case 'R':
+    type = ROOK_VAL;
+    break;
+    case 'Q':
+    type = QUEEN_VAL;
+    break;
+    case 'K':
+    type = KING_VAL;
+    break;
+    default:
+    return error_piece();
+  }
+  piece_t piece;
+  piece.type = type; 
+  if (upper != symbol) piece.color = BLACK_VAL;
+  else piece.color = WHITE_VAL;
+  return piece;
+}
+
+piece_t piece_from_string(char *piece_string) {
+  if (piece_string[0] && !piece_string[1]) {
+    return piece_from_symbol(piece_string[0]);
+  }
+  return error_piece();
+}
+
+char piece_type_symbol(piece_type_t piece_type) {
+    switch (piece_type) {
+        case EMPTY_VAL:
+            return '-';
+        case PAWN_VAL:
+            return 'p';
+        case KNIGHT_VAL:
+            return 'n';
+        case BISHOP_VAL:
+            return 'b';
+        case ROOK_VAL:
+            return 'r';
+        case QUEEN_VAL:
+            return 'q';
+        case KING_VAL:
+            return 'k';    
+    }
+    return '?';
+}
+
+char piece_symbol(piece_t piece) {
+    bool is_white = piece.color == WHITE_VAL;
+    char symbol = piece_type_symbol(piece.type);
+    if (is_white) {
+        symbol = toupper(symbol);
+    }
+    return symbol;
+}
+
+
 
