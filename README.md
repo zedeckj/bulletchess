@@ -1,10 +1,13 @@
-### `bulletchess`
+## `bulletchess`
 
-`bulletchess` is a Python module for playing, analyzing, and building engines for Chess. Unlike other Chess libraries in Python, the core of `bulletchess` is written
-in C, allowing it to be **much** more performant that alternatives.
+`bulletchess` is a Python module for playing, analyzing, and building engines for Chess. Unlike other Chess libraries in Python, the core of `bulletchess` is written in C, allowing it to be **much** more performant that alternatives.
 
-For example, consider the following near identical appearing implementations of 
-[Perft](https://www.chessprogramming.org/Perft_Results) in `python-chess` 
+
+### Examples
+
+#### Move Generation
+Consider the following near identical appearing implementations of 
+[Perft](https://www.chessprogramming.org/Perft) in `python-chess` 
 and `bulletchess`.
 
 ```python
@@ -64,6 +67,53 @@ print(f"bullet_perft returned {result} in {time.time() - start:.4}s")
 ```
 chess_perft returned 4865609 in 3.703s
 bullet_perft returned 4865609 in 0.343s
+```
+
+#### Parsing and Writing FEN
+
+`bulletchess` is performant in parsining and writing positions specified in [Forsyth-Edwards Notation](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation), or FEN. 
+
+Another example, comparing `bulletchess` and `python-chess`:
+
+```python
+import json
+# JSON file with a list of 100k FENs
+with open("fens.json", "r") as f:
+    fens = json.load(f)
+
+# "roundtrip" functions parse a list of FENs into
+# Boards, then produce a new list of FENs from serializing
+# each parsed Board into a FEN string. The output should list
+# should be identical to the input
+
+import bulletchess
+def bullet_roundtrip(fens : list[str]):
+    boards = [bulletchess.Board.from_fen(fen)
+              for fen in fens]
+    return [board.fen() for board in boards]
+
+import chess
+def chess_roundtrip(fens : list[str]):
+    boards = [chess.Board(fen) for fen in fens]
+    return [board.fen(en_passant = "fen") for board in boards]
+
+
+import time
+start = time.time()
+bullet_fens = bullet_roundtrip(fens)
+print(f"`bullet_roundtrip` took {time.time() - start:.4}")
+
+start = time.time()
+chess_fens = chess_roundtrip(fens)
+print(f"`chess_roundtrip` took {time.time() - start:.4}")
+
+assert(fens == bullet_fens)
+assert(fens == chess_fens)
+```
+
+```
+`bullet_roundtrip` took 0.4865
+`chess_roundtrip` took 4.186
 ```
 
 
