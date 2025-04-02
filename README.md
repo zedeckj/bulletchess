@@ -112,8 +112,8 @@ assert(fens == chess_fens)
 ```
 
 ```
-`bullet_roundtrip` took 0.4865
-`chess_roundtrip` took 4.186
+bullet_roundtrip took 0.4865s
+chess_roundtrip took 4.186s
 ```
 
 
