@@ -23,19 +23,19 @@ class TestPawnInfo(unittest.TestCase):
         for entry in FEN_DICT:
             board = Board.from_fen(entry)
             for color in COLORS:
-                self.assertEqual(board.count_backwards_pawns(color), get_backwards(entry, color), msg = str(color) + "\n" + str(board)) 
+                self.assertEqual(utils.count_backwards_pawns(board, color), get_backwards(entry, color), msg = str(color) + "\n" + str(board)) 
     def test_doubled(self):
 
         for entry in FEN_DICT:
             board = Board.from_fen(entry)
             for color in COLORS:
-                self.assertEqual(board.count_doubled_pawns(color), get_doubled(entry, color), msg = str(color) + "\n" + str(board))
+                self.assertEqual(utils.count_doubled_pawns(board, color), get_doubled(entry, color), msg = str(color) + "\n" + str(board))
 
     def test_isolated(self):
         for entry in FEN_DICT:
             board = Board.from_fen(entry)
             for color in COLORS:
-                self.assertEqual(board.count_isolated_pawns(color), get_isolated(entry, color), msg = str(color) + "\n" + str(board))
+                self.assertEqual(utils.count_isolated_pawns(board, color), get_isolated(entry, color), msg = str(color) + "\n" + str(board))
 
 
 

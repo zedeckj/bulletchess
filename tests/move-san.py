@@ -103,14 +103,14 @@ class TestSAN(unittest.TestCase):
         if FOCUS:
             return
         for san in STRICT_SANS:
-            self.assertEqual(san, backend.roundtrip_san(san), msg = san)
+            self.assertEqual(san, backend.roundtrip_sanPY(san), msg = san)
    
     def test_rountrip_invalid(self):
         
         if FOCUS:
             return
         for san in INVALID_SANS:
-            self.assertFalse(backend.roundtrip_san(san), msg = san)
+            self.assertFalse(backend.roundtrip_sanPY(san), msg = san)
 
     def test_starting(self):
         testSanEq(self, "a3", "a2a3")

@@ -13,19 +13,19 @@ class TestAttackMask(unittest.TestCase):
         ])
         
         board = Board()
-        attack = board.attack_mask()
+        attack = utils.attack_mask(board)
         self.assertEqual(expected, attack)
 
     def testRook(self):
         expected = (FILE_B | RANK_5 | Bitboard.from_squares([H7, G7, G8])) & ~Bitboard.from_squares([B5])
         board = Board.from_fen("7k/8/8/1r6/8/8/8/7K w - - 0 1")
-        attack = board.attack_mask()
+        attack = utils.attack_mask(board)
         self.assertEqual(expected,attack)
     
     def testKnight(self):
         expected = Bitboard.from_squares([H6, F6, E7])
         board = Board.from_fen("6n1/8/8/8/8/8/8/8 w - - 0 1")
-        attack = board.attack_mask()
+        attack = utils.attack_mask(board)
         self.assertEqual(expected,attack)
 
 if __name__ == "__main__":
