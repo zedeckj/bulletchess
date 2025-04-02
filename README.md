@@ -1,14 +1,14 @@
 ## `bulletchess`
 
-`bulletchess` is a Python module for playing, analyzing, and building engines for Chess. Unlike other Chess libraries in Python, the core of `bulletchess` is written in C, allowing it to be **much** more performant that alternatives.
+`bulletchess` is a Python module for playing, analyzing, and building engines for chess. Unlike other chess libraries in Python, the core of `bulletchess` is written in C, allowing it to be **much** more performant than alternatives.
 
 
 ### Examples
 
 #### Move Generation
-Consider the following near identical appearing implementations of 
+Consider the following nearly identical implementations of 
 [Perft](https://www.chessprogramming.org/Perft) in `python-chess` 
-and `bulletchess`.
+and `bulletchess`:
 
 ```python
 import chess
