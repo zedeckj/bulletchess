@@ -7,7 +7,7 @@ For example, consider the following near identical appearing implementations of
 [Perft](https://www.chessprogramming.org/Perft_Results) in `python-chess` 
 and `bulletchess`.
 
-```
+```python
 import chess
 
 def chess_perft(board : chess.Board, depth : int) -> int:
@@ -24,7 +24,7 @@ def chess_perft(board : chess.Board, depth : int) -> int:
         return nodes
 ```
 
-```
+```python
 import bulletchess
 from bulletchess import utils
 
@@ -43,7 +43,7 @@ def bullet_perft(board : bulletchess.Board, depth : int) -> int:
 ```
 
 Comparing the results and run times...
-```
+```python
 import time
 chess_board = chess.Board() 
 bullet_board = bulletchess.Board()
@@ -61,7 +61,7 @@ print(f"bullet_perft returned {result} in {time.time() - start:.4}s")
 
 `bulletchess` is almost 11x faster.
 
-```
+```python
 chess_perft returned 4865609 in 3.703s
 bullet_perft returned 4865609 in 0.343s
 ```
