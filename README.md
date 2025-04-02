@@ -61,7 +61,7 @@ print(f"bullet_perft returned {result} in {time.time() - start:.4}s")
 
 `bulletchess` is almost 11x faster.
 
-```python
+```
 chess_perft returned 4865609 in 3.703s
 bullet_perft returned 4865609 in 0.343s
 ```
