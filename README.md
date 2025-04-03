@@ -2,6 +2,15 @@
 
 `bulletchess` is a Python module for playing, analyzing, and building engines for chess. Unlike other chess libraries in Python, the core of `bulletchess` is written in C, allowing it to be **much** more performant than alternatives.
 
+### Overview
+At a high level, `bulletchess` includes:
+- A complete game model with intuitive representations for pieces, moves, and positions.
+- Extensively tested legal move generation, application, and undoing.
+- Parsing and writing of positions specified in [Forsyth-Edwards Notation](https://www.chessprogramming.org/Forsyth-Edwards_Notation) (FEN), 
+and moves specified in both [Long Algebraic Notation](https://www.chessprogramming.org/Algebraic_Chess_Notation#Long_Algebraic_Notation_.28LAN.29) and [Standard Algebraic Notation](https://www.chessprogramming.org/Algebraic_Chess_Notation#Standard_Algebraic_Notation_.28SAN.29).
+- Methods to determine if a position is check, checkmate, stalemate, and each specific type of draw.
+- Efficient hashing of positions using [Zobrist Keys](https://en.wikipedia.org/wiki/Zobrist_hashing).
+- Utility functions for writing engines. 
 
 ### Examples
 
@@ -69,11 +78,17 @@ chess_perft returned 4865609 in 3.703s
 bullet_perft returned 4865609 in 0.343s
 ```
 
+A `perft` function with a backend fully in C is provided in `bulletchess.utils`, which is even faster:
+
+```
+built-in perft returned 4865609 in 0.04637s
+```
+
 #### Parsing and Writing FEN
 
-`bulletchess` is performant in parsining and writing positions specified in [Forsyth-Edwards Notation](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation), or FEN. 
+`bulletchess` is performant in parsing and writing positions specified in [Forsyth-Edwards Notation](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation), or FEN. 
 
-Another example, comparing `bulletchess` and `python-chess`:
+Another example, comparing `bulletchess` to `python-chess`:
 
 ```python
 import json
@@ -116,4 +131,7 @@ bullet_roundtrip took 0.4865s
 chess_roundtrip took 4.186s
 ```
 
+#### Plans and TODO
 
+This project is a work in progress and not in its release stage. Before making installable via `pip`, I'd like to clean up some internal object representations and provide more utility functions. 
+Major new features are still planned, specifically the parsing of [Portable Game Notation](https://en.wikipedia.org/wiki/Portable_Game_Notation), as well as a "prefab" configurable [UCI]("https://en.wikipedia.org/wiki/Universal_Chess_Interface") engine.
