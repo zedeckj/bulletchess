@@ -131,6 +131,47 @@ bullet_roundtrip took 0.4865s
 chess_roundtrip took 4.186s
 ```
 
+#### Board Analysis
+
+Using the same dataset of FENs, lets compare `bulletchess` to `python-chess` in checking the number of positions that are checkmate, a draw, or ongoing. 
+
+``` python
+def bullet_statuses(boards : list[Board]) -> dict:
+    outcomes = {"ongoing": 0, "checkmate": 0, "draw": 0}
+    for board in boards:
+        if board.status.checkmate:
+            outcomes["checkmate"] += 1
+        elif board.status.claim_draw:
+            outcomes["draw"] += 1
+        else:
+            outcomes["ongoing"] += 1
+    return outcomes
+```
+
+``` python
+def chess_statuses(boards : list[chess.Board]) -> dict:
+    outcomes = {"ongoing": 0, "checkmate": 0, "draw": 0}
+    for board in boards:
+        outcome = board.outcome(claim_draw = True)
+        if outcome == None:
+            outcomes["ongoing"] += 1
+        elif outcome.winner != None:
+            outcomes["checkmate"] += 1
+        else:
+            outcomes["draw"] += 1
+    return outcomes
+```
+
+```
+bulletchess results:
+{'ongoing': 93477, 'checkmate': 3910, 'draw': 2613}
+took: 0.2492s
+python-chess results:
+{'ongoing': 93477, 'checkmate': 3910, 'draw': 2613}
+took: 10.98s
+```
+
+
 #### Plans and TODO
 
 This project is a work in progress and not in its release stage. Before making installable via `pip`, I'd like to clean up some internal object representations and provide more utility functions. 
