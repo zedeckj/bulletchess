@@ -2,8 +2,8 @@
 
 `bulletchess` is a Python module for playing, analyzing, and building engines for chess. Unlike other chess libraries in Python, the core of `bulletchess` is written in C, allowing it to be **much** more performant than alternatives.
 
-The examples provided compare the performance of `bulletchess` against the popular library `python-chess`. The origin of `bulletchess` if from my realization that the speed of `python-chess` was restrictive in my personal machine learning projects for chess. As a long time user of `python-chess` I've happened to model much of the API of `bulletchess`
-off of `python-chess`, mostly out of comfort for what is familiar. I've used `python-chess` singificantly in testing `bulletchess`, but have not taken any actual code from the library, or referenced its inner workings to any real extent. It was much easier for me to expiriment by trial and error, rather than attempt to simply port `python-chess` to Cand write a wrapper around it. That wouldn't have been as much fun anyways. 
+The examples provided compare the performance of `bulletchess` against the popular library `python-chess`. The origin of `bulletchess` stemmed from a realization that the speed of `python-chess` was restrictive in my personal machine learning projects for chess. As a long-time user of `python-chess` I've happened to model much of the API of `bulletchess`
+off of `python-chess`, mostly out of comfort for what is familiar. I've used `python-chess` singificantly in testing `bulletchess`, but have not taken any actual code from the library, or referenced its inner workings to any real extent. It was much easier for me to expiriment by trial and error, rather than attempt to simply port `python-chess` to C and write a wrapper around it. That wouldn't have been as much fun anyway. 
 
 ### Overview
 At a high level, `bulletchess` includes:
@@ -101,7 +101,7 @@ with open("fens.json", "r") as f:
 
 # "roundtrip" functions parse a list of FENs into
 # Boards, then produce a new list of FENs from serializing
-# each parsed Board into a FEN string. The output should list
+# each parsed Board into a FEN string. The output list
 # should be identical to the input
 
 import bulletchess
@@ -211,4 +211,4 @@ chess_piece_at_e1 took: 1.919s
 #### Plans and TODO
 
 This project is a work in progress and not in its release stage. Before making installable via `pip`, I'd like to clean up some internal object representations and provide more utility functions. 
-Major new features are still planned, specifically the parsing of [Portable Game Notation](https://en.wikipedia.org/wiki/Portable_Game_Notation), as well as a "prefab" configurable [UCI]("https://en.wikipedia.org/wiki/Universal_Chess_Interface") engine.
+Major new features are still planned, specifically the parsing of [Portable Game Notation](https://en.wikipedia.org/wiki/Portable_Game_Notation), as well as a "prefab" configurable [UCI](https://en.wikipedia.org/wiki/Universal_Chess_Interface) engine.
