@@ -32,8 +32,6 @@ class TestBitboard(unittest.TestCase):
         self.assertEqual(Bitboard.from_squares([F7, G6]), knight)
        
         knight = Bitboard.piece_attacking(Piece(BLACK, KNIGHT), G1)
-
-        print(knight)
         
         self.assertEqual(Bitboard.from_squares([H3, F3, E2]), knight)
         

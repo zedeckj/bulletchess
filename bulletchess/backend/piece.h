@@ -20,7 +20,7 @@ typedef uint8_t piece_color_t;
 #define ERROR_VAL 9
 
 #define WHITE_VAL 1
-#define BLACK_VAL 2
+#define BLACK_VAL 0
 
 typedef struct {
     piece_color_t color;

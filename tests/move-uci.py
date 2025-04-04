@@ -83,10 +83,11 @@ class TestMove(unittest.TestCase):
         hash_count = len(set(hashes))
         self.assertEqual(len(all_legal), hash_count)
         print(len(all_legal))
+
     def testNull(self):
         null = Move.from_uci("0000")
-        self.assertEqual(null, "0000")
-
+        self.assertEqual(str(null), "0000")
+        self.assertEqual(null, Move.from_uci("0000"))
 
 if __name__ == "__main__":
     unittest.main()

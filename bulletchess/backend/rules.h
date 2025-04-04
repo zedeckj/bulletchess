@@ -42,9 +42,6 @@ bool is_nfold_repetition(full_board_t *board, undoable_move_t *move_stack,
 // returns true if there is insufficient mating material, a condition for a draw
 bool is_insufficient_material(full_board_t * board);
 
-// Returns true if the given position is a draw
-bool is_draw(full_board_t *board, undoable_move_t * move_stack, u_int16_t stack_size);
-
 // Returns true if the side to move is in check
 bool in_check(full_board_t *board);
 
@@ -66,6 +63,8 @@ board_status_t get_status(full_board_t * board,
 								u_int16_t stack_size);
 
 
+// Returns true if the given status is a draw
+bool is_draw(board_status_t status);
 
 #endif
 

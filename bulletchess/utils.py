@@ -24,9 +24,7 @@ def evaluate(board : Board) -> int:
     † Shannon, C. E. (1950). XXII. Programming a computer for playing chess. The London,    Edinburgh, and Dublin Philosophical Magazine and Journal of Science, 41(314), 256–27    5. https://doi.org/10.1080/14786445008521796
 
     """
-    ln = len(self.__undoable_stack)
-    moves_array = (_backend.UNDOABLE_MOVE * ln)(*self.__undoable_stack)
-    return int(_backend.shannon_evaluation(board, moves_array, ln))
+    return board._callback(_backend.shannon_evaluation)
 
 def material(board : Board,
              pawn_value : int = 100,
@@ -38,7 +36,7 @@ def material(board : Board,
     Calculates the net material value on the provided Board. By default,
     uses the standard evaluations of each PieceType measured in centipawns.
     """
-
+    
 
 def pinned_mask(board : Board, origin : Square) -> Bitboard:
     """
@@ -88,7 +86,7 @@ def count_color(board : Board, color : Color) -> int:
     """
     Counts the number of Pieces on the given board with the provided Color.
     """
-    return _backend.count_color(board, color.value)
+    return _backend.count_color(board, int(color))
 
 def count_piece_type(board : Board, piece_type : PieceType) -> int:
     """
@@ -104,7 +102,7 @@ def count_backwards_pawns(board : Board, color : Color) -> int:
     provided Board's position. 
     TODO: DEFINE
     """
-    return _backend.count_backwards_pawns(board, color.value)
+    return _backend.count_backwards_pawns(board, int(color))
 
 def count_doubled_pawns(board : Board, color : Color) -> int:
     """
@@ -112,7 +110,7 @@ def count_doubled_pawns(board : Board, color : Color) -> int:
     Board's position. A Pawn is considered to be "doubled" if there is 
     a friendly Pawn in its File with in a higher Rank. 
     """
-    return _backend.count_doubled_pawns(board, color.value)
+    return _backend.count_doubled_pawns(board, int(color))
 
 def count_isolated_pawns(board : Board, color : Color) -> int:
     """
@@ -120,22 +118,37 @@ def count_isolated_pawns(board : Board, color : Color) -> int:
     Board's position. A Pawn is considered to be "isolated" if there are
     no friendly pawns in the Files adjacent to it. 
     """
-    return _backend.count_isolated_pawns(board, color.value)
-
+    return _backend.count_isolated_pawns(board, int(color))
 
 def net_backwards_pawns(board : Board) -> int:
+    """
+    Gets the number of backwards Pawns that are White subtracted by the number that are Black
+    """
     return _backend.net_backwards_pawns(board)
 
 def net_doubled_pawns(board : Board) -> int:
+    """
+    Gets the number of doubled Pawns that are White subtracted by the number that are Black
+    """
     return _backend.net_doubled_pawns(board)
 
 def net_isolated_pawns(board : Board) -> int:
+    """
+    Gets the number of isolated Pawns that are White subtracted by the number that are Black
+    """
     return _backend.net_isolated_pawns(board)
 
 def net_mobility(board : Board) -> int:
+    """
+    Find the number of Moves White could make from the given Board, subtracted by the number of Moves
+    Black could make. For positions where one side is in check, the opponent capturing the King is considered a Move.
+    """
     return _backend.net_mobility(board)
 
 def net_piece_type(board : Board, piece_type : PieceType) -> int:
+    """
+    Gets the number of the given PieceType that are White, subtracted by the number that are Black.
+    """
     return _backend.net_piece_type(board, piece_type.value)
 
 

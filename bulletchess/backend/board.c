@@ -312,6 +312,38 @@ bool contains_piece(position_t * position, piece_t piece) {
         }
 }
 
+bool contains_piece_index(full_board_t *board, piece_index_t index) {
+	position_t * pos = board->position;
+	switch(index) {
+		case EMPTY_INDEX:
+			return ~(pos->white_oc | pos->black_oc);
+		case PAWN_INDEX:
+			return pos->white_oc & pos->pawns;
+		case KNIGHT_INDEX:
+			return pos->white_oc & pos->knights;
+		case BISHOP_INDEX:
+			return pos->white_oc & pos->bishops;
+		case ROOK_INDEX:
+			return pos->white_oc & pos->rooks;
+		case QUEEN_INDEX:
+			return pos->white_oc & pos->queens;
+		case KING_INDEX:
+			return pos->white_oc & pos->kings;
+		case PAWN_INDEX + BLACK_OFFSET:
+			return pos->black_oc & pos->pawns;
+		case KNIGHT_INDEX + BLACK_OFFSET:
+			return pos->black_oc & pos->knights;
+		case BISHOP_INDEX + BLACK_OFFSET:
+			return pos->black_oc & pos->bishops;
+		case ROOK_INDEX + BLACK_OFFSET:
+			return pos->black_oc & pos->rooks;
+		case QUEEN_INDEX + BLACK_OFFSET:
+			return pos->black_oc & pos->queens;
+		case KING_INDEX + BLACK_OFFSET:
+			return pos->black_oc & pos->kings;
+	}
+}
+
 bool is_subset(position_t * source, position_t * check) {
     // For a position to be a subset of another,
     // it must not have any pieces that are not in the superset.

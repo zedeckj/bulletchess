@@ -1,13 +1,24 @@
 #! /usr/bin/env bash
 
+run_py() {
+			if [[ "$pys" ==  *.py ]]; then
+        echo "running $pys..."
+        venv/bin/python "$pys"
+      fi 
+}
 cd "$(dirname "$0")"
 source venv/bin/activate
 path=tests
 for entry in "$path"/*
     do
-      if [[ "$entry" ==  *.py ]]; then
-        echo "running $entry..."
-        venv/bin/python "$entry"
-      fi 
+      if [[ -d "$entry" ]]; then
+				for subfile in "$entry"/* 
+				do
+					pys="$subfile"
+					run_py
+				done
+			fi
+		  pys="$entry"	
+			run_py
 done
 

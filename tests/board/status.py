@@ -22,19 +22,33 @@ CHECKMATE_FENS = [
 STALEMATE_FENS = [
     "8/Kbk5/8/8/8/8/8/8 w - - 0 1",
     "8/5KBk/8/8/8/8/8/8 b - - 0 1",
-    "2R5/5B2/5K2/4N1B1/3k4/7R/3N4/8 b - - 0 1"
+    "2R5/5B2/5K2/4N1B1/3k4/7R/3N4/8 b - - 0 1",
+    "8/8/qnnp1k2/6p1/8/4b3/r7/1K6 w - - 0 83",
 ]
 
+INSF_MATERIAL = [
+    "8/8/8/8/4B1b1/8/7k/5K2 b - - 44 156",
+    "8/8/2K3B1/8/3k4/8/2b5/8 w - - 22 158",
+    "8/1k6/8/8/8/5K2/8/8 w - - 0 1",
+    "8/2b2k2/8/8/8/8/2K2B2/8 w - - 0 1",
+    "8/2n2k2/8/8/8/8/2K5/8 w - - 0 1",
+
+]
+
+NOT_INSF_MATERIAL = [
+    "2b5/5k2/8/8/8/8/2K2B2/8 w - - 0 1",
+    "8/2n2k2/8/8/8/6N1/2K5/8 w - - 0 1"
+]
 
 
 class TestDraw(unittest.TestCase):
 
     def assertOngoing(self, board : Board):
-        status = board.get_status()
+        status = board.status
         self.assertTrue(status.ongoing)
         self.assertFalse(status.stalemate)
-        self.assertFalse(status.is_draw())
-        self.assertFalse(status.is_draw(False))
+        self.assertFalse(status.claim_draw)
+        self.assertFalse(status.forced_draw)
         self.assertFalse(status.gameover)
         self.assertFalse(status.checkmate)
         self.assertFalse(status.fifty_move_timeout)
@@ -45,11 +59,11 @@ class TestDraw(unittest.TestCase):
         self.assertFalse(status.insufficient_material)
 
     def assertStalemate(self, board : Board):
-        status = board.get_status()
+        status = board.status
         self.assertFalse(status.ongoing)
         self.assertTrue(status.stalemate)
-        self.assertTrue(status.is_draw())
-        self.assertTrue(status.is_draw(False))
+        self.assertTrue(status.claim_draw)
+        self.assertTrue(status.forced_draw)
         self.assertTrue(status.gameover)
         self.assertFalse(status.checkmate)
         self.assertFalse(status.fifty_move_timeout)
@@ -60,11 +74,11 @@ class TestDraw(unittest.TestCase):
         self.assertFalse(status.insufficient_material)
     
     def assertCheckmate(self, board : Board):
-        status = board.get_status()
+        status = board.status
         self.assertFalse(status.stalemate)
         self.assertFalse(status.ongoing)
-        self.assertFalse(status.is_draw())
-        self.assertFalse(status.is_draw(False))
+        self.assertFalse(status.claim_draw)
+        self.assertFalse(status.forced_draw)
         self.assertTrue(status.gameover)
         self.assertTrue(status.checkmate)
         self.assertFalse(status.fifty_move_timeout)
@@ -75,11 +89,11 @@ class TestDraw(unittest.TestCase):
         self.assertFalse(status.insufficient_material)
         
     def assertThreefold(self, board : Board):
-        status = board.get_status()
+        status = board.status
         self.assertFalse(status.stalemate)
-        self.assertTrue(status.is_draw())
+        self.assertTrue(status.claim_draw)
         self.assertFalse(status.ongoing)
-        self.assertFalse(status.is_draw(False))
+        self.assertFalse(status.forced_draw)
         self.assertTrue(status.gameover)
         self.assertFalse(status.checkmate)
         self.assertFalse(status.fifty_move_timeout)
@@ -90,11 +104,11 @@ class TestDraw(unittest.TestCase):
         self.assertFalse(status.insufficient_material)
 
     def assertFiftyMove(self, board : Board):
-        status = board.get_status()
+        status = board.status
         self.assertFalse(status.stalemate)
         self.assertFalse(status.ongoing)
-        self.assertTrue(status.is_draw())
-        self.assertFalse(status.is_draw(False))
+        self.assertTrue(status.claim_draw)
+        self.assertFalse(status.forced_draw)
         self.assertTrue(status.gameover)
         self.assertFalse(status.checkmate)
         self.assertTrue(status.fifty_move_timeout)
@@ -105,10 +119,10 @@ class TestDraw(unittest.TestCase):
         self.assertFalse(status.insufficient_material)
     
     def assertFivefold(self, board : Board):
-        status = board.get_status()
+        status = board.status
         self.assertFalse(status.stalemate)
-        self.assertTrue(status.is_draw())
-        self.assertTrue(status.is_draw(False))
+        self.assertTrue(status.claim_draw)
+        self.assertTrue(status.forced_draw)
         self.assertFalse(status.ongoing)
         self.assertTrue(status.gameover)
         self.assertFalse(status.checkmate)
@@ -120,10 +134,10 @@ class TestDraw(unittest.TestCase):
         self.assertFalse(status.insufficient_material)
 
     def assertSeventyfive(self, board : Board):
-        status = board.get_status()
+        status = board.status
         self.assertFalse(status.stalemate)
-        self.assertTrue(status.is_draw())
-        self.assertTrue(status.is_draw(False))
+        self.assertTrue(status.claim_draw)
+        self.assertTrue(status.forced_draw)
         self.assertFalse(status.ongoing)
         self.assertTrue(status.gameover)
         self.assertFalse(status.checkmate)
@@ -135,10 +149,10 @@ class TestDraw(unittest.TestCase):
         self.assertFalse(status.insufficient_material)
 
     def assertInsufficientMaterial(self, board : Board):
-        status = board.get_status()
+        status = board.status
         self.assertFalse(status.stalemate)
-        self.assertTrue(status.is_draw())
-        self.assertTrue(status.is_draw(False))
+        self.assertTrue(status.claim_draw)
+        self.assertTrue(status.forced_draw)
         self.assertFalse(status.ongoing)
         self.assertTrue(status.gameover)
         self.assertFalse(status.checkmate)
@@ -195,7 +209,7 @@ class TestDraw(unittest.TestCase):
 
     def testSeventyFive(self):
         board = Board()
-        board.halfmove_clock = 74
+        board.halfmove_clock = 149
         self.assertFiftyMove(board)
         board.apply(Move.from_uci("g1f3"))
         self.assertSeventyfive(board)
@@ -203,35 +217,45 @@ class TestDraw(unittest.TestCase):
 
     def testFifty(self):
         board = Board()
-        board.halfmove_clock = 49
+        board.halfmove_clock = 98
         self.assertOngoing(board)
         board.apply(Move.from_uci("g1f3"))
         self.assertFiftyMove(board)
-
+        board = Board.from_fen("r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 100 4")
+        self.assertFalse(board.status.fifty_move_timeout)
 
     def testCheck(self):
         for fen in CHECK_FENS:
             board = Board.from_fen(fen)
-            self.assertTrue(board.in_check(), msg = fen)
-            self.assertFalse(board.is_checkmate(), msg = fen)
-            self.assertFalse(board.is_stalemate(), msg = fen)
+            self.assertTrue(board.status.check, msg = fen)
+            self.assertFalse(board.status.checkmate, msg = fen)
+            self.assertFalse(board.status.stalemate, msg = fen)
 
     def testCheckmate(self):
         for fen in CHECKMATE_FENS:
             board = Board.from_fen(fen)
-            self.assertTrue(board.in_check(), msg = fen)
-            self.assertTrue(board.is_checkmate(), msg = fen)
-            self.assertFalse(board.is_stalemate(), msg = fen)
+            self.assertTrue(board.status.check, msg = fen)
+            self.assertTrue(board.status.checkmate, msg = fen)
+            self.assertFalse(board.status.stalemate, msg = fen)
 
     
     def testStalemate(self):
         for fen in STALEMATE_FENS:
             board = Board.from_fen(fen)
-            self.assertFalse(board.in_check(), msg = fen)
-            self.assertFalse(board.is_checkmate(), msg = fen)
-            self.assertTrue(board.is_stalemate(), msg = fen)
+            self.assertFalse(board.status.check, msg = fen)
+            self.assertFalse(board.status.checkmate, msg = fen)
+            self.assertTrue(board.status.stalemate, msg = fen)
 
 
+    def testInsufficientMaterialMore(self):
+        for fen in INSF_MATERIAL:
+            board = Board.from_fen(fen)
+            self.assertTrue(board.status.insufficient_material, msg = fen)
+            self.assertFalse(board.status.stalemate, msg = fen)
+        for fen in NOT_INSF_MATERIAL:
+            board = Board.from_fen(fen)
+            self.assertFalse(board.status.insufficient_material, msg = fen)
+            
 if __name__ == "__main__":
     unittest.main()
 

@@ -16,7 +16,8 @@ char * parse_fen(char * fen, full_board_t * board, piece_index_t * index_array);
 
 
 // Writes a FEN description of the given board to the provided buffer
-void make_fen(full_board_t *board, char *fen_buffer);
+// returns the length of the created string
+u_int8_t make_fen(full_board_t *board, wchar_t *fen_buffer);
 
 void print_board(full_board_t *board);
 

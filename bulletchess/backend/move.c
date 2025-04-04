@@ -83,15 +83,22 @@ move_t unhash_move(u_int64_t move_hash) {
 }
 
 bool moves_equal(move_t move1, move_t move2) {
-  if (move1.type == PROMOTION_MOVE){
-    return move2.type == PROMOTION_MOVE && move1.promotion.body.origin == move2.promotion.body.origin
-            && move1.promotion.body.destination == move2.promotion.body.destination;
-  }
-  else if (move1.type == GENERIC_MOVE) {
-    return move2.type == GENERIC_MOVE && move1.generic.origin == move2.generic.origin &&
-           move1.generic.destination == move2.generic.destination;
-  }
-  else return false;
+	switch (move1.type) {
+		case PROMOTION_MOVE:
+			return move2.type == PROMOTION_MOVE 
+						 && move1.promotion.body.origin 
+								 == move2.promotion.body.origin
+             && move1.promotion.body.destination 
+						 		 == move2.promotion.body.destination;
+		case GENERIC_MOVE:
+ 			return move2.type == GENERIC_MOVE 
+						 && move1.generic.origin == move2.generic.origin 
+						 && move1.generic.destination == move2.generic.destination;
+  	case NULL_MOVE:
+			return move2.type == NULL_MOVE;
+		default:
+			return false;
+	}
 }
 
 bool pointer_moves_equal(move_t *move1, u_int64_t index1, move_t *move2, u_int64_t index2){
@@ -281,31 +288,38 @@ char * error_from_move(move_t move) {
 	}
 }
 
-move_t parse_uci(char * str) {
-    if (!str) return error_move();
-    bool all_zero = true;
+char *parse_uci(char * str, move_t *move) {
+    char * default_msg = "Not a legal move: '{uci}'";
+		if (!str) return "Cannot parse empty string: '{uci}'";
+		bool all_zero = true;
     for (int i = 0; i < 4; i++) {
-        if (!str[i]) {
-            return error_move();
-        }
+        if (!str[i])  
+        	return "UCI must be at least 4 characters long: '{uci}'";
         else if (str[i] != '0') {
             all_zero = false;
             break;
         }
     }
     if (all_zero) {
-			return str[5] ? error_move() : null_move();
-    }
+			if (str[4]) return default_msg;
+			else {
+				*move = null_move();
+				return 0;
+			}
+		}
     if (valid_square_chars(str[0], str[1]) && 
         valid_square_chars(str[2], str[3])) {
             if (!str[4] || isspace(str[4])) {
-              if (!err_generic_move_with(str[0], str[1], str[2], str[3])){
-                move_t move = generic_move(
+              char * err;
+							if (!(err = err_generic_move_with(str[0], str[1], str[2], str[3]))){
+                move_t gen = generic_move(
                         move_body(
                             make_square(str[0], str[1]), 
                             make_square(str[2], str[3])));
-                return move;
+								*move = gen;
+								return 0;
               }
+							else return err;
             }
             else if (!str[5] || isspace(str[5])){
                 char c = tolower(str[4]);
@@ -323,19 +337,28 @@ move_t parse_uci(char * str) {
                     case 'r':
                     promote_to = ROOK_VAL;
                     break;
+										case 'p':
+										return "Cannot promote to a Pawn: '{uci}'";
+										case 'k':
+										return "Cannot promote to a King: '{uci}'";
                     default:
-                    return error_move();
-                }
-                if (!err_promotion_move_with(str[0], str[1], str[2], str[3])) {
-                  return promotion_move(
+                		return default_msg;
+								}
+								char *err;
+								if (!(err = err_promotion_move_with(str[0], 
+														str[1], str[2], str[3]))) {
+									move_t pro = promotion_move(
                     move_body(
                         make_square(str[0], str[1]), 
                         make_square(str[2], str[3])),
                       promote_to);
+									*move = pro;
+									return 0;
                }
-            }
+							 else return err;
+				}
     }
-    return error_move();
+    return default_msg;
 }
 
 piece_type_t san_parse_piece_type(char symbol) {
@@ -680,7 +703,7 @@ san_move_t parse_castling_san(char * str) {
 	return err;
 }
 
-san_move_t parse_san(char * str){
+san_move_t parse_san_inner(char * str){
 	if (str && str[0]) {
 		if (str[0] == 'O') return parse_castling_san(str);
 		piece_type_t type = san_parse_piece_type(str[0]);
@@ -690,6 +713,12 @@ san_move_t parse_san(char * str){
 	san_move_t san;
 	san.type = SAN_ERR;
 	return san;	
+}
+
+san_move_t parse_san(char * str, bool * err) {
+	san_move_t san = parse_san_inner(str);
+	*err = san.type == SAN_ERR;
+	return san;
 }
 
 bool write_san_ann(u_int8_t ann, char * buffer, char * made) {
@@ -871,7 +900,8 @@ bool write_san(san_move_t move, char * buffer) {
 }
 
 bool roundtrip_san(char * in_san, char * out_buffer) {
-	san_move_t san = parse_san(in_san);
+	bool err;
+	san_move_t san = parse_san(in_san, &err);
 	return write_san(san, out_buffer);
 }
 

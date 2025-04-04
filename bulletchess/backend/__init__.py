@@ -39,7 +39,7 @@ class _POSITION(Structure):
     ]
 
 
-class _ZORBIST_TABLE(Structure):
+class _ZOBRIST_TABLE(Structure):
 
     _fields_ = [
         ("square_piece_rands", POINTER(POINTER(c_uint64))),
@@ -199,13 +199,16 @@ def init_starting_boardPY() -> POINTER(BOARD):
     return pointer(full_board)
 
 
+def encode(fen) -> bytes:
+    return fen.encode("utf-8")
+
 
 
 def init_board_from_fenPY(fen : str) -> tuple[POINTER(BOARD), (PIECE_INDEX * 64)]:
     pos_pointer = pointer(_POSITION())
     board = pointer(BOARD(pos_pointer))
-    piece_array = (PIECE_INDEX * 64)()
-    error = parse_fen(fen.encode("utf-8"), board, piece_array)
+    piece_array = bytes(64)
+    error = parse_fen(encode(fen), board, piece_array)
     if error == None:
         return board, piece_array
     else:
@@ -214,8 +217,10 @@ def init_board_from_fenPY(fen : str) -> tuple[POINTER(BOARD), (PIECE_INDEX * 64)
 
 
 def san_to_movePY(board : POINTER(BOARD), san : str) -> MOVE:
-    struct = san_to_move(board, san.encode("utf-8"))
-    if struct.type == ERR_MOVE_VAL:
+    err = c_bool(False)
+    struct = san_to_move(board, san.encode("utf-8"), byref(err))
+    #TODO: struct decomposition is slow, dont do this
+    if err:
         raise ValueError(f"Invalid Move SAN: {san}")
     return struct
 
@@ -223,15 +228,18 @@ def san_to_movePY(board : POINTER(BOARD), san : str) -> MOVE:
 
 
 def init_move_from_uciPY(uci : str) -> MOVE:
-    struct = parse_uci(uci.encode("utf-8")) 
-    if struct.type == ERR_MOVE_VAL:
-        raise ValueError(f"Invalid Move UCI: '{uci}'")
+    err = c_bool(False)
+    struct = MOVE()
+    err = parse_uci(uci.encode("utf-8"), byref(struct)) 
+    #TODO: struct decomposition is slow, dont do this
+    if err:
+        raise ValueError(err.rstrip(b'\x00 ').decode().format(uci = uci))
     return struct
 
 def make_fenPY(board : POINTER(BOARD)) -> str:
-    fen = create_string_buffer(300)
-    make_fen(board, fen)
-    return fen.raw.rstrip(b'\x00 ').decode()
+    fen = create_unicode_buffer(200)
+    l = make_fen(board, fen)
+    return fen[:l-1]
 
 def make_board_stringPY(board : POINTER(BOARD)) -> str:
     str_buffer = create_string_buffer(300)
@@ -285,10 +293,10 @@ is_quiescent.argtypes = [POINTER(BOARD)]
 is_quiescent.restype = c_bool
 
 set_piece_index = clib.set_piece_index
-set_piece_index.argtypes = [POINTER(BOARD), POINTER(PIECE_INDEX), SQUARE, PIECE_INDEX]
+set_piece_index.argtypes = [POINTER(BOARD), c_char_p, SQUARE, PIECE_INDEX]
 
 delete_piece_at = clib.delete_piece_at_board
-delete_piece_at.argtypes = [POINTER(BOARD), POINTER(PIECE_INDEX), SQUARE]
+delete_piece_at.argtypes = [POINTER(BOARD), c_char_p, SQUARE]
 
 get_pawn_value = clib.get_pawn_val
 get_pawn_value.restype = PIECE_TYPE
@@ -378,8 +386,8 @@ update_castling_rights.argtypes = [POINTER(BOARD), COLOR]
 update_all_castling_rights = clib.update_all_castling_rights
 update_all_castling_rights.argtypes = [POINTER(BOARD)]
 
-contains_piece = clib.contains_piece
-contains_piece.argtypes = [POINTER(_POSITION), _PIECE]
+contains_piece = clib.contains_piece_index
+contains_piece.argtypes = [POINTER(BOARD), PIECE_INDEX]
 contains_piece.restype = c_bool
 
 is_subset = clib.is_subset
@@ -392,11 +400,14 @@ boards_equal.restype = c_bool
 
 
 create_zobrist_table = clib.create_zobrist_table
-create_zobrist_table.restype = POINTER(_ZORBIST_TABLE)
+create_zobrist_table.restype = POINTER(_ZOBRIST_TABLE)
 
 hash_board = clib.hash_board
-hash_board.argtypes = [POINTER(BOARD), POINTER(_ZORBIST_TABLE)]
+hash_board.argtypes = [POINTER(BOARD), POINTER(_ZOBRIST_TABLE)]
 hash_board.restype = c_uint64
+
+def hash_board_wrapper(board : POINTER(BOARD)): 
+    return hash_board(board, ZOBRIST_TABLE)
 
 add_castling_rights = clib.add_castling_rights
 add_castling_rights.argtypes = [POINTER(BOARD), c_bool, COLOR]
@@ -409,19 +420,16 @@ set_ep_square_checked.argtypes = [POINTER(BOARD), SQUARE]
 set_ep_square_checked.restype = c_char_p
 
 make_fen = clib.make_fen
-make_fen.argtypes = [POINTER(BOARD), c_char_p]
-
-split_fen = clib.split_fen
-split_fen.argtypes = [c_char_p]
-split_fen.restype = POINTER(_SPLIT_FEN)
+make_fen.argtypes = [POINTER(BOARD), c_wchar_p]
+make_fen.restype = c_uint8
 
 parse_fen = clib.parse_fen
-parse_fen.argtypes = [c_char_p, POINTER(BOARD), POINTER(PIECE_INDEX)]
+parse_fen.argtypes = [c_char_p, POINTER(BOARD), c_char_p]
 parse_fen.restype = c_char_p
 
 parse_uci = clib.parse_uci
-parse_uci.argtypes = [c_char_p]
-parse_uci.restype = MOVE
+parse_uci.argtypes = [c_char_p, POINTER(MOVE)]
+parse_uci.restype = c_char_p
 
 write_uci = clib.write_uci
 write_uci.argtypes = [MOVE, c_char_p]
@@ -585,10 +593,10 @@ bitboard_not.argtypes = [BITBOARD]
 bitboard_not.restype = BITBOARD
 
 fill_piece_index_array = clib.fill_piece_index_array
-fill_piece_index_array.argtypes = [POINTER(BOARD), POINTER(PIECE_INDEX)]
+fill_piece_index_array.argtypes = [POINTER(BOARD), c_char_p]
 
 index_into = clib.index_into
-index_into.argtypes = [POINTER(PIECE_INDEX), SQUARE]
+index_into.argtypes = [c_char_p, SQUARE]
 index_into.restype = PIECE_INDEX
 
 from_squares = clib.from_squares
@@ -674,19 +682,18 @@ piece_attacks = clib.ext_piece_attacks
 piece_attacks.argtypes = [PIECE_INDEX, SQUARE]
 piece_attacks.restype = BITBOARD
 
-"""
 shannon_evaluation = clib.shannon_evaluation
 shannon_evaluation.argtypes = [POINTER(BOARD), POINTER(UNDOABLE_MOVE), c_uint8]
 shannon_evaluation.restype = c_int32
-"""
 
 roundtrip_san = clib.roundtrip_san
 roundtrip_san.argtypes = [c_char_p, c_char_p]
 roundtrip_san.restype = c_bool
 
 san_to_move = clib.san_str_to_move
-san_to_move.argtypes = [POINTER(BOARD), c_char_p]
+san_to_move.argtypes = [POINTER(BOARD), c_char_p, POINTER(c_bool)]
 san_to_move.restype = MOVE
+
 def roundtrip_sanPY(san : str) -> str:
     out = create_string_buffer(10)
     res = roundtrip_san(san.encode("utf-8"), out)
@@ -730,4 +737,4 @@ NO_CASTLING_RIGHTS = CASTLING_RIGHTS(0)
 
 
 
-ZORBIST_TABLE = create_zobrist_table()
+ZOBRIST_TABLE = create_zobrist_table()

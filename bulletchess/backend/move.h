@@ -137,8 +137,9 @@ u_int64_t hash_move(move_t move);
 move_t unhash_move(u_int64_t move_hash);
 
 
-// Parses a valid move from a given uci str
-move_t parse_uci(char * str);
+// Parses a valid move from a given uci str. 
+// Returns any generated error messages
+char *parse_uci(char * str, move_t *move);
 
 // Produces an error string if this move is invalid in any way
 char * error_from_move(move_t move);
@@ -158,7 +159,7 @@ castling_rights_t get_castling_type(move_t move, full_board_t *board);
 
 san_move_t error_san();
 
-san_move_t parse_san(char * str);
+san_move_t parse_san(char * str, bool * err);
 
 square_t get_origin(move_t move);
 

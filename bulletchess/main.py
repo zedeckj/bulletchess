@@ -1,4 +1,4 @@
-from typing import Optional, Any, Collection, NewType, Union, Literal, TypeAlias
+from typing import Optional, Any, Collection, NewType, Callable, Union, Literal, TypeAlias
 from warnings import deprecated
 import typing
 from enum import Enum, unique
@@ -12,34 +12,40 @@ sys.path.append(path)
 import backend as _backend
 
 
-
-
-@unique
-class Color(Enum):
+class Color:
 
     """
     Represents either White or Black, used to identity the two players 
     and their pieces.
     """
 
-    BLACK = _backend.BLACK
-    WHITE = _backend.WHITE
 
-    def __str__(self):
-        return self.name
+    def __init__(self, value : bool):
+        self.__value = bool(value)
 
-    def __repr__(self):
+    def __str__(self) -> str:
+        return ["BLACK", "WHITE"][self.__value]
+
+    def __repr__(self) -> str:
         return str(self)
     
-    def __neg__(self):
-        if self == WHITE:
-            return BLACK
-        return WHITE
+    def __invert__(self) -> "Color":
+        return Color(not self.__value)
 
-    def __bool__(self):
-        return self == WHITE
+    def __bool__(self) -> bool:
+        return self.__value
 
+    def __int__(self) -> int:
+        return int(self.__value)
 
+    def __eq__(self, other : Any) -> bool:
+        try:
+            return self.__value == other.__value
+        except:
+            return False
+
+    def __hash__(self) -> int:
+        return int(self)
 
 @unique
 class PieceType(Enum):
@@ -160,9 +166,8 @@ H8 = Square(63)
 
 SQUARES = [Square(i) for i in range(64)]
 
-WHITE = Color.WHITE
-BLACK = Color.BLACK
-
+WHITE = Color(True)
+BLACK = Color(False)
 COLORS = [WHITE, BLACK]
 
 PAWN = PieceType.PAWN
@@ -172,7 +177,6 @@ ROOK = PieceType.ROOK
 QUEEN = PieceType.QUEEN
 KING = PieceType.KING
 
-TEST_WHITE = WHITE.value
 
 
 PIECE_TYPES = [piece_type for piece_type in PieceType]
@@ -200,7 +204,7 @@ class Piece:
         if not hasattr(cls, "instances"):
             Piece.instances : dict[tuple[Color, PieceType], "Piece"]= {}
             for pt in PieceType:
-                for c in Color:
+                for c in COLORS:
                     piece = object.__new__(Piece)
                     Piece.__init__(piece, c, pt)
                     Piece.instances[(c,pt)] = piece
@@ -245,7 +249,7 @@ class Piece:
         return f"Piece({str(self)})"
 
     def __hash__(self) -> int:
-        return self.__color.value + (2 * self.__piece_type.value)
+        return int(self.__color) + (2 * self.__piece_type.value)
 
 PIECES = [
     None,
@@ -512,18 +516,18 @@ class Board:
     fullmove number. 
     """
 
-    __slots__ = ("__pointer", "__undoable_stack", "__piece_array", "__move_stack")
+    __slots__ = ("__pointer", "__undoable_stack", "__piece_array", "__move_stack", "__status")
 
     def __init__(self):
         """
         Initializes a Board representing the standard starting position of a game.
         """
-
         self.__pointer = _backend.init_starting_boardPY() 
         self.__undoable_stack = []
         self.__move_stack = []
         self.__create_piece_array()
-
+        self.__status = None
+    
     @staticmethod
     def starting() -> "Board":
         return Board()
@@ -538,16 +542,22 @@ class Board:
         board.__undoable_stack = __undoable_stack
         board.__move_stack = __move_stack
         board.__piece_array = __piece_array
+        board.__status = None
         return board        
 
 
     def __create_piece_array(self):
-        self.__piece_array = (_backend.PIECE_INDEX * 64)()
+
+        self.__piece_array = bytes(64)
         _backend.fill_piece_index_array(self.__pointer, self.__piece_array)
 
+
+    def __clear_status(self):
+        self.__status = None
+    
     def __clear_piece_array(self):
         self.__piece_array = None
-
+        
     def __verify_piece_array(self):
         if self.__piece_array == None:
             self.__create_piece_array()
@@ -560,8 +570,6 @@ class Board:
         pointer, piece_array = _backend.init_board_from_fenPY(fen)
         return Board.__inst(pointer, [], [], piece_array)
 
-    #@staticmethod
-    #def from_fen_list(fens : list[str]) -> list["Board"]:
         
 
     @staticmethod
@@ -619,6 +627,7 @@ class Board:
         """
         Sets the en passant Square, checking if the given value is a valid Square
         """
+        self.__clear_status()
         if square == None:
             _backend.clear_ep_square(self.__pointer)
         else:
@@ -638,8 +647,9 @@ class Board:
 
     @turn.setter
     def turn(self, color : Color):
+        self.__clear_status()
         if type(color) == Color:
-            self.__pointer.contents.turn = color.value
+            self.__pointer.contents.turn = int(color)
         else:
             raise ValueError(f"Cannot set turn to a value that is not WHITE or BLACK, got: {color}")
 
@@ -653,6 +663,7 @@ class Board:
 
     @halfmove_clock.setter
     def halfmove_clock(self, value : int):
+        self.__clear_status()
         if value < 0:
             raise ValueError(f"Cannot set halfmove clock to a negative value, but got {value}")
         elif value > 65535:
@@ -681,12 +692,15 @@ class Board:
     def fen(self) -> str:
         return _backend.make_fenPY(self.__pointer)
 
-    def get_status(self) -> "BoardStatus":
-        ln = len(self.__undoable_stack)
-        moves_array = (_backend.UNDOABLE_MOVE * ln)(*self.__undoable_stack)
-        status = object.__new__(BoardStatus)
-        status.value = _backend.get_outcome(self, moves_array, ln)
-        return status
+    @property
+    def status(self) -> "BoardStatus":
+        if self.__status == None:
+            ln = len(self.__undoable_stack)
+            moves_array = (_backend.UNDOABLE_MOVE * ln)(*self.__undoable_stack)
+            status = object.__new__(BoardStatus)
+            status.value = _backend.get_outcome(self, moves_array, ln)
+            self.__status = status
+        return self.__status
 
 
     def legal_moves(self) -> list[Move]:
@@ -699,13 +713,12 @@ class Board:
 
     def _make_move_objs(self, moves_buffer, length):
         return [Move._Move__inst(m) for m in moves_buffer[:length]]
-        #return [Move.unhash(h) for h in moves_buffer[:length]]
-        #return [Move._Move__inst(movesview[i]) for i in range(length)]
                 
     def apply(self, move : Move) -> None:
         """
         Applies the given Move to this Board, without checking for legality.
         """
+        self.__clear_status()
         self.__clear_piece_array()
         self.__move_stack.append(move)
         self.__undoable_stack.append(_backend.apply_move(self.__pointer, 
@@ -714,49 +727,16 @@ class Board:
         """
         Undoes and returns the last Move performed on this Board.
         """
+        self.__clear_status()
         self.__clear_piece_array()
         undoable = self.__undoable_stack.pop()
         _backend.undo_move(self.__pointer, undoable)
         return self.__move_stack.pop()
 
-    
-    def in_check(self) -> bool:
-        """
-        Returns `True` if the player to move is in check.
-        """
-        return bool(_backend.in_check(self.__pointer))
-
-    def is_checkmate(self) -> bool:
-        """
-        Returns `True` if this position is checkmate.
-        """
-        return bool(_backend.is_checkmate(self.__pointer))
-
-    def is_stalemate(self) -> bool:
-        """
-        Returns `True` if this position is stalemate.
-        """
-        return bool(_backend.is_stalemate(self.__pointer))
-
-    def is_draw(self) -> bool:
-        """
-        Returns `True` if this position could be considered a draw,
-        whether by insufficent mating material, threefold repetion,
-        or by 50 or more halfmoves passing since the last capture or Pawn 
-        advancement.
-        """
-        ln = len(self.__undoable_stack)
-        moves_array = (_backend.UNDOABLE_MOVE * ln)(*self.__undoable_stack)
-        return bool(_backend.is_draw(self.__pointer, moves_array, ln))
-
     def get_piece_at(self, square : Square) -> Optional[Piece]:
-        #_backend.fill_piece_index_array(self.__pointer, self.__piece_array)
-        #return PIECES[_backend.get_piece_at(self.__pointer, square.value)]
         self.__verify_piece_array()
         return PIECES[self.__piece_array[square.value]]
 
-    def _index_piece_array(self,index):
-        return self.__piece_array[index]
 
     def _square_value(self, square):
         return square.value
@@ -774,14 +754,16 @@ class Board:
         except:
             raise ValueError(f"Invalid piece: {piece}")
         _backend.set_piece_index(self.__pointer, self.__piece_array, square.value, index)
-
+        self.__clear_status()
 
     def delete_piece_at(self, square : Square) -> None:
         """
         Deletes the Piece, if there is one, at the specified Square.
         """
         _backend.delete_piece_at(self.__pointer, self.__piece_array, square.value)
-
+        
+        self.__clear_status()
+    
     def __eq__(self, other : Any):
         """
         Returns True if compared with another Board that has the same position, as
@@ -790,14 +772,25 @@ class Board:
         """
         return bool(_backend.boards_equal(self.__pointer, other.__pointer))
 
-    def __str__(self) -> str:
-        return _backend.make_board_stringPY(self.__pointer)
 
+    def _callback(self, func : Callable[[_backend.BOARD, 
+                                _backend.POINTER(_backend.UNDOABLE_MOVE),
+                                int], Any]):
+        ln = len(self.__undoable_stack)
+        moves_array = _backend.UNDOABLE_MOVE * ln
+        moves_array = (moves_array)(*self.__undoable_stack)
+        return func(self.__pointer, moves_array, ln)
+
+ 
+    def __str__(self) -> str:
+        return _backend.make_board_stringPY(self)
     
     def __hash__(self) -> int:
-        return int(_backend.hash_board(self.__pointer))
+        return int(_backend.hash_board_wrapper(self.__pointer))
 
-
+    def __contains__(self, piece : Optional[Piece]) -> bool:
+        return bool(_backend.contains_piece(self, PIECE_INDEXES[piece]))
+    
     @property
     def _as_parameter_(self):
         return self.__pointer
@@ -824,58 +817,118 @@ class BoardStatus:
 
     @property    
     def ongoing(self) -> bool:
+        """
+        True if the Board is part of an ongoing Game.
+        """
         return not self.gameover
     
     @property
     def gameover(self) -> bool:
-        return self.is_draw(True) or self.checkmate or self.resignation
+        """
+        True if the Board is the last position of a Game.
+        """
+        return self.claim_draw or self.checkmate or self.resignation
 
     @property
     def checkmate(self) -> bool:
+        """
+        True if the Board's position is checkmate. 
+        """
         return self.mate and self.check
 
     @property
     def stalemate(self) -> bool:
+        """
+        True if the Board's position is stalemate.
+        """
         return self.mate and not self.check
 
-    def is_draw(self, claim : bool = True):
-        return (self.stalemate or 
-                (claim and 
-                    (self.threefold_repetition
-                    or self.fifty_move_timeout))
-                or self.fivefold_repetition
-                or self.insufficient_material
-                or self.seventyfive_move_timeout)
+    @property
+    def claim_draw(self) -> bool:
+        """
+        True if the Board's position is inherently a draw,
+        or if either player can claim a draw from the Fifty Move rule 
+        or by Threefold repetition.
+        """
+        return (self.forced_draw or 
+                self.threefold_repetition or 
+                self.fifty_move_timeout)
+
+    @property
+    def forced_draw(self) -> bool:
+        """
+        True if the Board's positition is inherently a draw.
+        """
+        return (self.stalemate or
+                self.fivefold_repetition or 
+                self.seventyfive_move_timeout or
+                self.insufficient_material)
 
     @property
     def check(self) -> bool:
+        """
+        True if the Player to move is currently in check.
+        """
         return bool(self.value & BoardStatus.CHECK)
 
     @property
     def mate(self) -> bool:
+        """
+        True if the Player to move has no legal moves,
+        either from stalemate or checkmate.
+        """
         return bool(self.value & BoardStatus.MATE)
 
     @property
     def threefold_repetition(self) -> bool:
+        """
+        True if the Board's position has been repeated three times.
+        A Board's position being repeated not only depends on comparing
+        the configuration of Pieces, but castling rights and the 
+        en-passant square as well. This enables a player to claim a draw.
+        """
         return bool(self.value & BoardStatus.THREEFOLD_REPETITION)
 
     @property
     def insufficient_material(self) -> bool:
+        """
+        True if either player has insufficient mating material,
+        meaning that there is no sequence of Moves that could be taken
+        to lead to checkmate.
+        """
         return bool(self.value & BoardStatus.INSUFFICIENT_MATERIAL)
 
     @property
     def fifty_move_timeout(self):
+        """
+        True if it has been at least 50 halfmoves since the last
+        capture or pawn advancement, enabling a player to claim a draw.
+        """
         return bool(self.value & BoardStatus.FIFTY_MOVE_TIMEOUT)
     
     @property
     def fivefold_repetition(self):
+        """
+        True if the Board's position has been repeated five times.
+        A Board's position being repeated not only depends on comparing
+        the configuration of Pieces, but castling rights and the 
+        en-passant square as well. This condition being True forces a draw.
+        """
         return bool(self.value & BoardStatus.FIVEFOLD_REPETITION)
 
     @property
     def seventyfive_move_timeout(self):
+        """
+        True if it has been at least 75 halfmoves since the last
+        capture or pawn advancement, forcing a draw.
+        """
         return bool(self.value & BoardStatus.SEVENTY_FIVE_MOVE_TIMEOUT)
     
     @property
     def resignation(self):
+        """
+        True if the Board is the last position in a game due to a Player
+        resigining. (Currently this is never True)
+        """
         return bool(self.value & BoardStatus.RESIGNATION)
 
