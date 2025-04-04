@@ -2,6 +2,9 @@
 
 `bulletchess` is a Python module for playing, analyzing, and building engines for chess. Unlike other chess libraries in Python, the core of `bulletchess` is written in C, allowing it to be **much** more performant than alternatives.
 
+The examples provided compare the performance of `bulletchess` against the popular library `python-chess`. The origin of `bulletchess` if from my realization that the speed of `python-chess` was restrictive in my personal machine learning projects for chess. As a long time user of `python-chess` I've happened to model much of the API of `bulletchess`
+off of `python-chess`, mostly out of comfort for what is familiar. I've used `python-chess` singificantly in testing `bulletchess`, but have not taken any actual code from the library, or referenced its inner workings to any real extent. It was much easier for me to expiriment by trial and error, rather than attempt to simply port `python-chess` to Cand write a wrapper around it. That wouldn't have been as much fun anyways. 
+
 ### Overview
 At a high level, `bulletchess` includes:
 - A complete game model with intuitive representations for pieces, moves, and positions.
@@ -136,6 +139,7 @@ chess_roundtrip took 4.186s
 Using the same dataset of FENs, lets compare `bulletchess` to `python-chess` in checking the number of positions that are checkmate, a draw, or ongoing. 
 
 ``` python
+from bulletchess import *
 def bullet_statuses(boards : list[Board]) -> dict:
     outcomes = {"ongoing": 0, "checkmate": 0, "draw": 0}
     for board in boards:
@@ -149,6 +153,7 @@ def bullet_statuses(boards : list[Board]) -> dict:
 ```
 
 ``` python
+import chess
 def chess_statuses(boards : list[chess.Board]) -> dict:
     outcomes = {"ongoing": 0, "checkmate": 0, "draw": 0}
     for board in boards:
@@ -171,6 +176,37 @@ python-chess results:
 took: 10.98s
 ```
 
+### Other Features
+
+#### Hashing
+
+`python-chess`'s `Board` class does not implement the `__hash__` method, making `Board` instances unable to be put directly in `sets` and as keys in `dicts`
+
+```python
+>>> from chess import *
+>>> {Board() : 0}
+Traceback (most recent call last):
+  File "<python-input-1>", line 1, in <module>
+    {Board() : 0}
+TypeError: unhashable type: 'Board'
+```
+
+`bulletchess` does, using a hash function written in the C backend. This makes doing any large scale data analysis using chess positions much quicker.
+
+``` python
+def bullet_piece_at_e1(boards : list[bulletchess.Board]):
+    return {board:board.get_piece_at(bulletchess.E1)
+            for board in boards}
+
+def chess_piece_at_e1(boards : list[chess.Board]):
+    return {board.fen() : board.piece_at(chess.E1)
+            for board in boards}
+```
+
+```
+bullet_piece_at_e1 took: 0.1034s
+chess_piece_at_e1 took: 1.919s
+```
 
 #### Plans and TODO
 

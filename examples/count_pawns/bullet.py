@@ -8,9 +8,6 @@ with open("examples/fens.json", "r") as f:
 boards = [Board.from_fen(fen) for fen in fens]
 pawns = 0
 for board in boards:
-    for square in SQUARES:
-        piece = board.get_piece_at(square) # instinct was `piece_at`
-        if piece != None and piece.piece_type == PAWN: # and `type`, None check is annoying
-            pawns += 1
+    pawns += board.count_piece_type(PAWN)
 
 print(pawns/len(boards))
