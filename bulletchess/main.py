@@ -709,11 +709,8 @@ class Board:
         """
         moves_buffer = (_backend.MOVE * 256)()
         length = _backend.generate_legal_moves(self.__pointer, moves_buffer)
-        return self._make_move_objs(moves_buffer, length)
-
-    def _make_move_objs(self, moves_buffer, length):
         return [Move._Move__inst(m) for m in moves_buffer[:length]]
-                
+
     def apply(self, move : Move) -> None:
         """
         Applies the given Move to this Board, without checking for legality.
@@ -721,8 +718,10 @@ class Board:
         self.__clear_status()
         self.__clear_piece_array()
         self.__move_stack.append(move)
-        self.__undoable_stack.append(_backend.apply_move(self.__pointer, 
-                                                             move._Move__struct))
+        undoable = _backend.UNDOABLE_MOVE()
+        undoable = _backend.apply_move(self.__pointer, move._Move__struct)
+        self.__undoable_stack.append(undoable)
+
     def undo(self) -> Move:
         """
         Undoes and returns the last Move performed on this Board.

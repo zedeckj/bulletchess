@@ -99,6 +99,9 @@ typedef struct {
 #define GENERIC_MOVE 2
 // A move with no information besides that it is not a promotion (UCI limitation)
 #define PROMOTION_MOVE 3
+
+// the following are unused, but may be later
+
 // A promotion, resets halfmoves, resets EP (NOTICE PAWN MOVE)
 // Following are only from internally generated
 #define CASTLING_MOVE 4
@@ -164,6 +167,25 @@ san_move_t parse_san(char * str, bool * err);
 square_t get_origin(move_t move);
 
 square_t get_destination(move_t move);
+
+// Returns the empty piece val for a non promotion move
+piece_type_t get_promotes_to(move_t move);
+
+#define US_ORIGIN_INDEX 0
+#define US_DEST_INDEX 1
+#define US_PROMOTE_TO_INDEX 2
+#define US_OLD_CASTLING_RIGHTS_INDEX 3
+#define US_WAS_CASTLING_INDEX 4
+#define US_OLD_EP_EXISTS_INDEX 5
+#define US_OLD_EP_VALUE_INDEX 6
+#define US_OLD_HALF_UPPER_INDEX 7
+#define US_OLD_HALF_LOWER_INDEX 8
+#define US_END_INDEX 9
+
+// Encodes a move into as a null terminated string, not human readable
+void encode_undoable(char *dst, undoable_move_t move);
+
+undoable_move_t decode_undoable(char * encoded_undos, u_int16_t index);
 
 
 #endif

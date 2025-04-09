@@ -919,6 +919,11 @@ square_t get_destination(move_t move) {
   return body.destination;
 }
 
+piece_type_t get_promotes_to(move_t move) {
+	if (move.type != PROMOTION_MOVE) return EMPTY_VAL;
+	return move.promotion.promote_to;
+}
+
 bool is_promotion(move_t move){
   return move.type == PROMOTION_MOVE;
 }
@@ -932,17 +937,28 @@ piece_index_t promotes_to(move_t move) {
   return piece_to_index(out);
 }
 
-
-
-
 san_move_t error_san(){
 	san_move_t err;
 	err.type = SAN_ERR;
 	return err;
 }
 
+void encode_undoable(char *dst, undoable_move_t undo) {
+	move_t move = undo.move;
+	dst[US_ORIGIN_INDEX] = get_origin(move) + 1; // add1 to prevent null 	
+	dst[US_DEST_INDEX] = get_destination(move) + 1;
+	dst[US_PROMOTE_TO_INDEX] = get_promotes_to(move ) + 1;
+	dst[US_OLD_CASTLING_RIGHTS_INDEX] = undo.old_castling_rights + 1;
+ 	dst[US_WAS_CASTLING_INDEX] = undo.was_castling + 1;	
+	dst[US_OLD_EP_EXISTS_INDEX] = undo.old_en_passant.exists + 1;
+	dst[US_OLD_EP_VALUE_INDEX] = undo.old_en_passant.square + 1;
+	dst[US_OLD_HALF_LOWER_INDEX] = undo.old_halfmove & 0xff;
+	dst[US_OLD_HALF_UPPER_INDEX] = (undo.old_halfmove & 0xff00) >> 8;
+	dst[US_END_INDEX] = 0;
+}
 
-
+undoable_move_t decode_undoable(char * dst, u_int16_t index) {		
+}
 
 
 

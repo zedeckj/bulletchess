@@ -219,7 +219,6 @@ def init_board_from_fenPY(fen : str) -> tuple[POINTER(BOARD), (PIECE_INDEX * 64)
 def san_to_movePY(board : POINTER(BOARD), san : str) -> MOVE:
     err = c_bool(False)
     struct = san_to_move(board, san.encode("utf-8"), byref(err))
-    #TODO: struct decomposition is slow, dont do this
     if err:
         raise ValueError(f"Invalid Move SAN: {san}")
     return struct
@@ -231,7 +230,6 @@ def init_move_from_uciPY(uci : str) -> MOVE:
     err = c_bool(False)
     struct = MOVE()
     err = parse_uci(uci.encode("utf-8"), byref(struct)) 
-    #TODO: struct decomposition is slow, dont do this
     if err:
         raise ValueError(err.rstrip(b'\x00 ').decode().format(uci = uci))
     return struct

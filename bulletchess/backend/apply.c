@@ -179,7 +179,9 @@ piece_t apply_pawn_other(full_board_t * board, square_t square_origin, bitboard_
 
 
 
-undoable_move_t apply_king_move(full_board_t * board, bitboard_t origin, bitboard_t destination, undoable_move_t out_move){
+void apply_king_move(full_board_t * board, bitboard_t origin, 
+																bitboard_t destination, 
+																undoable_move_t *out_move){
     position_t * position = board->position;
     bitboard_t * hostile_oc;
     bitboard_t * friendly_oc;
@@ -223,9 +225,9 @@ undoable_move_t apply_king_move(full_board_t * board, bitboard_t origin, bitboar
         captured.color = WHITE_VAL;
     }
     else {
-				out_move.captured_piece = captured;
-        return out_move;
-    }  
+				out_move->captured_piece = captured;
+    		return;
+		}  
     bitboard_t at_home;
     if ((at_home = (origin & king_home)) && (kingside_dest & destination)) {
         bitboard_t not_origin = ~origin;
@@ -237,7 +239,7 @@ undoable_move_t apply_king_move(full_board_t * board, bitboard_t origin, bitboar
         *friendly_oc &= (not_origin & not_kingside);
         *friendly_oc |= (destination | kingside_rook_dest);
         board->halfmove_clock += 1;
-   			out_move.was_castling = ANY_KINGSIDE; 
+   			out_move->was_castling = ANY_KINGSIDE; 
 	 	} 
     else if (at_home &&  (queenside_dest & destination)) {
         bitboard_t not_origin = ~origin;
@@ -249,7 +251,7 @@ undoable_move_t apply_king_move(full_board_t * board, bitboard_t origin, bitboar
         *friendly_oc &= (not_origin & not_queenside);
         *friendly_oc |= (destination | queenside_rook_dest);
         board->halfmove_clock += 1;
-				out_move.was_castling = ANY_QUEENSIDE;
+				out_move->was_castling = ANY_QUEENSIDE;
     }
     else {
         if (*hostile_oc & destination) {
@@ -289,8 +291,8 @@ undoable_move_t apply_king_move(full_board_t * board, bitboard_t origin, bitboar
     }
     board->en_passant_square.exists = false;
     board->en_passant_square.square = EMPTY_EP;
-    out_move.captured_piece = captured;
-		return out_move;
+    out_move->captured_piece = captured;
+		return;
 }
 
 piece_t other_apply_move(full_board_t * board, bitboard_t origin, bitboard_t destination) {
@@ -400,13 +402,12 @@ piece_t other_apply_move(full_board_t * board, bitboard_t origin, bitboard_t des
 
 // function responsible for making the changes to the position and state 
 // of a move
-undoable_move_t apply_move(full_board_t * board, move_t move) {
-    undoable_move_t out_move;
-		out_move.old_halfmove = board->halfmove_clock;
-		out_move.old_castling_rights = board->castling_rights;
-		out_move.old_en_passant = board->en_passant_square;
-		out_move.move = move;
-		out_move.was_castling = 0;
+void apply_move_ext(full_board_t * board, move_t move, undoable_move_t *out_move){
+		out_move->old_halfmove = board->halfmove_clock;
+		out_move->old_castling_rights = board->castling_rights;
+		out_move->old_en_passant = board->en_passant_square;
+		out_move->move = move;
+		out_move->was_castling = 0;
 		if (move.type == NULL_MOVE) {
 			if (board->turn == WHITE_VAL){
 				board->turn = BLACK_VAL;
@@ -418,30 +419,38 @@ undoable_move_t apply_move(full_board_t * board, move_t move) {
 			board->halfmove_clock += 1;
 			board->en_passant_square.exists = false;
 			board->en_passant_square.square = EMPTY_EP;
-			return out_move;
+			return;
 		}
 		else if (move.type == PROMOTION_MOVE) {
         bitboard_t origin = SQUARE_TO_BB(move.promotion.body.origin);
         bitboard_t destination = SQUARE_TO_BB(move.promotion.body.destination);
-        out_move.captured_piece = apply_pawn_promotion(board, origin, destination, move.promotion.promote_to);
+        out_move->captured_piece = apply_pawn_promotion(board, origin, destination, 
+																												move.promotion.promote_to);
     }
 		else {
     	bitboard_t origin = SQUARE_TO_BB(move.generic.origin);
     	bitboard_t destination = SQUARE_TO_BB(move.generic.destination);
     	position_t *position = board->position;
     	if (origin & position->pawns) {
-        out_move.captured_piece = apply_pawn_other(board, move.generic.origin, origin, destination);
+        out_move->captured_piece = apply_pawn_other(board, move.generic.origin, origin, destination);
     	}
     	else if (origin & position->kings) {
         return apply_king_move(board, origin, destination, out_move);
     	}
 			else {
-				out_move.captured_piece = other_apply_move(board, origin, destination);
+				out_move->captured_piece = other_apply_move(board, origin, destination);
 			}
 		}
-		return out_move;
+		return;
 }
 
+undoable_move_t apply_move(full_board_t *board, move_t move) {
+	undoable_move_t undo;
+	apply_move_ext(board, move, &undo);
+	return undo;
+}
+
+/*
 undoable_move_t apply_move_ext(full_board_t * board, piece_index_t* index_array, move_t move) {
 		undoable_move_t out = apply_move(board, move);
 		fill_piece_index_array(board, index_array);
@@ -451,7 +460,7 @@ undoable_move_t apply_move_ext(full_board_t * board, piece_index_t* index_array,
 undoable_move_t apply_pointer_move(full_board_t *board, move_t *move, u_int64_t index) {
 	return apply_move(board, move[index]);
 }
-
+*/
 
 void undo_move(full_board_t *board, undoable_move_t move) {
 	position_t * position = board->position;
