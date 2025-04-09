@@ -14,11 +14,11 @@ def chess_perft(board : chess.Board, depth : int) -> int:
             board.pop()
         return nodes
 
-board = chess.Board() # starting position
+#board = chess.Board() # starting position
 
-start = time.time()
-result = chess_perft(board, 5)
-print(f"chess_perft returned {result} in {time.time() - start:.4}s") 
+#start = time.time()
+#result = chess_perft(board, 5)
+#print(f"chess_perft returned {result} in {time.time() - start:.4}s") 
 
 import sys
 sys.path.append("../")
