@@ -931,3 +931,5 @@ class BoardStatus:
         """
         return bool(self.value & BoardStatus.RESIGNATION)
 
+
+
