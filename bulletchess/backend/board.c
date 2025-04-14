@@ -342,6 +342,7 @@ bool contains_piece_index(full_board_t *board, piece_index_t index) {
 		case KING_INDEX + BLACK_OFFSET:
 			return pos->black_oc & pos->kings;
 	}
+	return false;
 }
 
 bool is_subset(position_t * source, position_t * check) {

@@ -145,11 +145,123 @@ class _PIECE_PATTERN(Structure):
     ]
 
 
+class _DATE(Structure):
+    _fields_ = [
+        ("known_year", c_int, 1),
+        ("year", c_uint16),
+
+        ("known_month", c_int,1),
+        ("month", c_uint8),
+
+        ("known_day", c_int, 1),
+        ("month", c_uint8)
+    ]
+
+class _OPT_U8(Structure):
+    _fields_ = [
+        ("exists", c_bool),
+        ("value", c_uint8),
+    ]
+
+
+class _SAN_STD(Structure):
+    _fields_ = [
+        ("moving_piece", PIECE_TYPE),
+        ("from_file", _OPT_U8),
+        ("from_rank", _OPT_U8),
+        ("is_capture", c_bool),
+        ("destination", SQUARE),
+    ]
+
+
+class _SAN_PAWN_PUSH(Structure):
+    _fields_ = [
+        ("from_file", _OPT_U8),
+        ("from_rank", _OPT_U8),
+        ("destination", SQUARE),
+        ("promote_to", PIECE_TYPE),
+    ]
+
+class _SAN_PAWN_CAPTURE(Structure):
+    _fields_ = [
+        ("from_file", c_uint8),
+        ("from_rank", _OPT_U8),
+        ("destination", SQUARE),
+        ("piece_type_t", PIECE_TYPE),
+    ]
+
+class _SAN_UNION(Union):
+    _fields_ = [
+        ("std_move", _SAN_STD),
+        ("pawn_push", _SAN_PAWN_PUSH),
+        ("pawn_capture", _SAN_PAWN_CAPTURE),
+        ("castling_kingside", c_bool)
+    ]
+
+class _SAN_MOVE(Structure):
+
+    _anonymous_ = ("u",)
+
+    _fields_ = [
+       ("u", _SAN_UNION),
+       ("type", c_uint8),
+       ("ann_type", c_uint8),
+       ("check_status", c_uint8)
+    ]
+class _PGN_TAGS(Structure):
+    
+    _fields_ = [
+        ("event", c_char_p),
+        ("site", c_char_p),
+        ("date", c_char_p),
+        ("round", c_char_p),
+        ("white_player", c_char_p),
+        ("black_player", c_char_p),
+        ("result", c_char_p),
+        ("FEN", c_char_p)
+    ]
+
+
+class PGN(Structure):
+
+    _fields_ = [
+        ("tags", _PGN_TAGS),
+        ("moves", POINTER(_SAN_MOVE)),
+        ("count", c_uint16)
+    ]
+
+def charp_to_str(c : c_char_p) -> str:
+    return c.raw.rstrip(b'\x00').decode()
+
+def init_pgn() -> POINTER(PGN):
+    LINE_LEN = 256
+    pgn = PGN()
+    pgn.moves = (_SAN_MOVE * 300)()
+    pgn.count = 300
+    pgn.tags = _PGN_TAGS()
+    pgn.tags.event = cast(create_string_buffer(255), c_char_p)
+    pgn.tags.site = cast(create_string_buffer(255), c_char_p)
+    pgn.tags.date = cast(create_string_buffer(20), c_char_p)
+    pgn.tags.round = cast(create_string_buffer(20), c_char_p)
+    pgn.tags.white_player = cast(create_string_buffer(255), c_char_p)
+    pgn.tags.black_player = cast(create_string_buffer(255), c_char_p)
+    pgn.tags.fen = cast(create_string_buffer(100), c_char_p)
+    pgn.tags.result = cast(create_string_buffer(10), c_char_p) 
+    return pointer(pgn)
 
 def alloc_boardPY() -> POINTER(BOARD):
     pos = pointer(_POSITION())
     board = pointer(BOARD(pos))
     return board
+
+
+def read_pgn(filename : str) -> POINTER(PGN):
+    pgn = init_pgn()
+    err = create_string_buffer(255)
+    filename = filename.encode("utf-8")
+    if not read_pgn_file(filename, pgn, err):
+        raise Exception(charp_to_str(err))
+    return pgn
 
 def init_empty_boardPY() -> POINTER(BOARD):
     pos_pointer = pointer(_POSITION(
@@ -691,6 +803,13 @@ roundtrip_san.restype = c_bool
 san_to_move = clib.san_str_to_move
 san_to_move.argtypes = [POINTER(BOARD), c_char_p, POINTER(c_bool)]
 san_to_move.restype = MOVE
+
+
+
+read_pgn_file = clib.read_pgn_file
+read_pgn_file.argtypes = [c_char_p, POINTER(PGN), c_char_p]
+read_pgn_file.restype = c_bool
+
 
 def roundtrip_sanPY(san : str) -> str:
     out = create_string_buffer(10)

@@ -932,4 +932,43 @@ class BoardStatus:
         return bool(self.value & BoardStatus.RESIGNATION)
 
 
+class Game:
+    
+    _slots_ = ["__pointer"]
+
+    def __init__(self, filename : str):
+        """
+        Loads a Game from a file containing PGN
+        """
+        self.__pointer = _backend.read_pgn(filename)
+
+    @property
+    def event(self):
+        return self.__pointer.contents.tags.event.decode("utf-8")
+
+    @property
+    def site(self):
+        return self.__pointer.contents.tags.site.decode("utf-8")
+
+    @property
+    def round(self):
+        return self.__pointer.contents.tags.round.decode("utf-8")
+
+
+    @property
+    def date(self):
+        return self.__pointer.contents.tags.date.decode("utf-8")
+
+    @property
+    def white(self):
+        return self.__pointer.contents.tags.white_player.decode("utf-8")
+
+    @property
+    def black(self):
+        return self.__pointer.contents.tags.black_player.decode("utf-8")
+
+    @property
+    def result(self):
+        return self.__pointer.contents.tags.result.decode("utf-8")
+    
 

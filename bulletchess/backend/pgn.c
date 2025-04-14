@@ -1,190 +1,283 @@
 #include "pgn.h"
 
-pgn_res_t make_err(char * str, size_t line) {
-	pgn_res_t err = {.err = str, .error_line = line};
+
+char *alloc_err(const char *msg, token_t *tok) {
+	char loc_str[100];
+	if (tok) {
+		write_loc(tok->location, loc_str);
+	}
+	else {
+		// hopefully this case doesnt happen...
+		sprintf(loc_str, " ");
+	}
+	char *err = malloc(strlen(loc_str) + strlen(msg) + 10);
+	sprintf(err, "<%s>: Error When Parsing PGN: %s, got %s", 
+			loc_str, msg, tok->string);
+	free_token(tok);
 	return err;
 }
 
-pgn_res_t make_ok() {
-	pgn_res_t ok = {.err = 0};
-	return ok;
+
+bool tag_eq(token_t *tok, char *expect, dict_t *dict) {
+	if (!strcmp(tok->string, expect)) {
+		dict_add(dict, tok->string, expect);
+		return true;
+	}
+	return false;
 }
 
-char *parse_tag_pair(char *line, char *name_dest, char *value_dest) {
-	if (!line) return "Expected a tag pair, got an empty line";
-	char *brkt;
-	char *sep = " \t";
-	char *tok = strtok_r(line, sep, &brkt);	
-	if (tok && !strcmp(tok, "[")) {
-		char *name_tok = strtok_r(0, sep, &brkt);
-		if (name_tok) {
-			char *value_tok = strtok_r(0, sep, &brkt);
-			if (value_tok) {
-				size_t len = strlen(value_tok);
-				if (value_tok[0] == '"' && value_tok[len - 1] == '"') {
-					value_tok[len - 1] = 0;
-					value_tok++;
-					strcpy(name_dest, name_tok);
-					strcpy(value_dest, value_tok);
-					return 0;	
+void copy_tok(char *dest, token_t *tok) {
+	strcpy(dest, tok->string);
+	free_token(tok);
+}
+
+dict_t *make_dst_dict(pgn_tag_section_t *tags) {
+	dict_t *dict = new_dict(20);
+	printf("tags event %p\n", tags->event);
+	dict_add(dict, "Event", tags->event);
+ 	printf("tags lookup %p\n", dict_lookup(dict, "Event"));
+	dict_add(dict, "Site", tags->site);
+	dict_add(dict, "Date", tags->date);
+	dict_add(dict, "Round", tags->round);
+	dict_add(dict, "White", tags->white_player);
+	dict_add(dict, "Black", tags->black_player);
+	dict_add(dict, "Result", tags->result);
+	dict_add(dict, "FEN", tags->fen);
+	return dict;
+}
+
+char *add_tag_pair(token_t *name, token_t *val, dict_t *dict){
+	printf("adding pair %s %s\n", name->string, val->string);
+	char *ptr = dict_remove(dict, name->string);
+	printf("added\n");
+	if (!ptr) return alloc_err("Unexpected tag name", name);
+	char *scratch = val->string;
+	scratch++;
+	scratch[strlen(scratch) - 1] = 0;
+	strcpy(ptr, scratch);
+	free_token(val);
+	free_token(name);
+	printf("copied %p\n", ptr);
+	return 0;
+}
+
+char *read_tag_pair(FILE *stream, tok_context_t *ctx, dict_t* dict, token_t *first) {
+		token_t *name = ftoken(stream, ctx);
+		if (name) {
+			printf("got name %s\n", name->string);
+			free_token(first);
+			token_t *val = ftoken(stream, ctx);
+			if (!val) return alloc_err("Missing value for tag pair", name);
+			printf("got val %s\n", val->string);
+			if (val->string[0] == '"') {
+				token_t *last = ftoken(stream, ctx);
+				if (!last) {
+					free_token(name);
+					return alloc_err("Tag pair missing ending ]", val);
 				}
-				else return "Invalid tag pair, value must quotes enclosed string";
-			} 
-			else return "Invalid tag pair, no value provided";
+				else if (token_is(last, "]")) {
+					printf("got last %s\n", last->string);
+					add_tag_pair(name, val,  dict); 
+					return 0;
+				}
+				else {
+					free_token(name);
+					free_token(val);
+					return alloc_err("Tag pair missing ending ]", last);
+				}
+			}
+			else {
+				free_token(name);
+				return alloc_err("Tag value must be a string", val);
+			}
+		}
+		else {
+			return alloc_err("No tag name given", first);
+		}
+}
+
+
+char *read_tagss(FILE *stream, pgn_tag_section_t *tags, tok_context_t *ctx) {
+	dict_t *dict = make_dst_dict(tags);
+	do {
+		printf("before ftok\n");
+		token_t *first = ftoken(stream, ctx);
+		printf("after ftok\n");
+		if (!first){
+		 	printf("no more\n");
+			break;
+		}
+		printf("got first %s\n", first->string);
+		if (token_is(first, "[")) {
+			char *err = read_tag_pair(stream, ctx, dict, first);
+			if (err) return err;
+		}
+		else if (token_is(first, "1")){
+			printf("here\n");
+			untoken(first, ctx);	
+			break;
+		}
+		else {
+			return alloc_err("Expected a tag pair or the beginning of a Movetext block", first);
+		}
+	} while (true);
+	return 0;	
+}
+
+struct read_num_res {
+	char *err;
+	bool ret;
+};
+
+struct read_num_res read_turn_number(FILE *stream, token_t *num_tok, int num, tok_context_t *ctx) {
+	char numstr[10];
+	sprintf(numstr, "%d", num);
+	if (!num_tok) {
+		return (struct read_num_res){.err = 0, .ret = false};
+	}
+	
+	if (!token_is(num_tok, numstr)){
+		if (atoi(num_tok->string)) {
+			char msg[100];
+			sprintf(msg, "Expected the move number %s", numstr);
+			char *err = alloc_err(msg, num_tok); 
+			return (struct read_num_res){.err = err, .ret = true};
+		}
+		return (struct read_num_res){.err = 0, .ret = false};
+	}	
+	do {
+		token_t *dot = ftoken(stream, ctx);
+		if (!token_is(dot, ".")) {
+			untoken(dot, ctx);
+			break;
+		}
+		else free_token(dot);	
+	} 
+	while(true);
+	return (struct read_num_res){.err = 0, .ret = true};	
+}
+
+
+struct read_move_res {
+	char *err;
+	bool done;
+};
+
+
+
+struct read_move_res read_move_tok(token_t *token, 
+																	 token_t *last,
+																	 FILE *stream,
+																	 tok_context_t *ctx,
+																	 int *move_num, 
+																	 bool *white,
+																	 dict_t *res_dict,
+																	 san_move_t *moves,
+																	 u_int16_t moves_i) {
+	if (!token){
+	 	char * err = alloc_err("Unexpected end of file after last token", last);
+		return (struct read_move_res){.err = err, .done = false};
+	}
+	struct read_num_res res 
+		= read_turn_number(stream, token, *move_num, ctx); 
+	if (res.err) 
+		return (struct read_move_res){.err = res.err, .done = true};
+	else if (res.ret) 
+		return (struct read_move_res){.err = 0, .done = true};
+	free_token(last);
+	// skips comments
+	if (token->string[0] == '{') {
+		return (struct read_move_res){.err = 0, .done = false};
+	}
+	bool is_err;
+	san_move_t san = parse_san(token->string, &is_err);
+	if (is_err) {
+		if (!white && dict_lookup(res_dict, token->string)) {
+				return (struct read_move_res){.err = 0, .done = true};
+		}
+		else {
+			char *err = alloc_err("Invalid move found", token);
+		 	return (struct read_move_res){.err = err, .done = false};	
 		}	
-		else return "Invalid tag pair, [ followed by nothing";
-	} else return "Expected an opening [ to start a tag pair";
+	}
+	if (!*white) (*move_num)++;
+	*white = !*white;
+	moves[moves_i] = san;
+	return (struct read_move_res){.err = 0, .done = false};
 }
 
 
-pgn_res_t read_date(pgn_date_t *date, char *str, size_t current_line) {
-	char *rest;	
-	char *sep = ".";
-	char *year = strtok_r(date, sep, &rest);
- 	if (!year) return make_err("Missing year from date", current_line);
-	if (strlen(year) != 4) return make_err("Year must be exactly 4 digits", current_line);
-	int year_int;
-	scanf(year, "%d", &year_int);
-	if (year_int < 0 || year_int > 9999) 
-		return make_err("Year must be between 0000 and 9999", current_line);
-	date->year = year_int;
 
-	char *month = strtok_r(0, sep, &rest);
- 	if (!month) return make_err("missing moth from date", current_line);
-	if (strlen(month) != 2) return make_err("month must be exactly 2 digits", current_line);
-	int month_int;
-	scanf(month, "%d", &month_int);
-	if (month_int < 0 || month_int > 12) 
-		return make_err("year must be between 00 and 12", current_line);
-	date->month = month_int;
-	
-	char *day = strtok_r(0, sep, &rest);
- 	if (!day) return make_err("Missing day from date", current_line);
-	if (strlen(day) != 2) return make_err("Day must be exactly 2 digits", current_line);
-	int day_int;
-	scanf(day, "%d", &day_int);
-	if (year_int < 0 || year_int > 9999) 
-		return make_err("Year must be between 0000 and 9999", current_line);
-	date->year = year_int;
-	
-}
-pgn_res_t read_result(pgn_result_t *result, char *str);
+char *read_moves(FILE *stream, san_move_t *moves, u_int16_t *count,
+	 					tok_context_t *ctx) {
+	u_int16_t max_count = 500; // arbitrary
+	u_int16_t move_i = 0;
+	dict_t *res_dict = new_dict(4);
+	dict_add(res_dict, "1/2-1/2", ""); 
+	dict_add(res_dict, "1-0", ""); 
+	dict_add(res_dict, "0-1", ""); 
+	dict_add(res_dict, "*", ""); 
+	bool is_white = true;
+	token_t *last = 0;
+	int turn_num = 1;
+	for (int i = 0; i < max_count; i++) {
+		token_t *tok = ftoken(stream, ctx);
+		struct read_move_res res 
+			= read_move_tok(tok, last, stream, ctx, &turn_num, 
+					&is_white, res_dict, moves, move_i);  	
+		if (res.err) return res.err;
+		if (last) free_token(last);
+		if (res.done) break;
+		
+		/*
+		if (read_turn_number(stream, num_tok, i, ctx)) {
+			token_t *wtok = ftoken(stream, ctx);
+			read_turn_number(stream, wtok, i, ctx); 
+			struct read_move_res res 
+				= read_move_tok(wtok, num_tok, true, res_dict, moves, move_i); 
+			if (res.err) return res.err;
 
-
-#define PGN_NEEDED_TAGS 7
-pgn_res_t read_tags(FILE *stream, pgn_tag_section_t *tags, size_t *current_line) {
-	dict_t *dict = new_dict(100);
-	char *err = 0;
-	int tag_count = 0;
-	while (!err) {
-		char line[PGN_LINE];
-		char key[PGN_LINE];
-		char value[PGN_LINE];
-		fgets(line,PGN_LINE, stream);
-		bool is_empty = true;
-	 	for (int i = 0; i < PGN_LINE && line[i]; i++) {
-			if (!isspace(line[i])) {
-				is_empty = true;
+			token_t *btok = ftoken(stream, ctx);
+			res = read_move_tok(btok, wtok, false, res_dict, moves, move_i); 
+			if (res.err) return res.err;
+			free_token(btok);
+			if (res.done) {
 				break;
 			}
 		}
-		if (is_empty) break;	
-		err = parse_tag_pair(line, key, value);	
-		if (tag_count++ < PGN_NEEDED_TAGS && err) return make_err(err, *current_line);
-		dict_add(dict, key, value);
-		(*current_line)++;
-	}
-
-	if (dict_remove(dict, "Event")) {
-		strcpy(tags->event, dict->retrieved);
-	} else return make_err("Missing Event tag", *current_line); 
-	if (dict_remove(dict, "Site")) {
-		strcpy(tags->site, dict->retrieved);
-	} else return make_err("Missing Site tag", *current_line);
-	if (dict_remove(dict, "Date")) {
-		pgn_res_t res = read_date(&tags->date, dict->retrieved);
-		if (res.err) return res;
-	} else return make_err("Missing Date tag", *current_line);
-	if (dict_remove(dict, "Round")) {
-		strcpy(tags->round, dict->retrieved);		
-	} else return make_err("Missing Round tag", *current_line);
-	if (dict_remove(dict, "White")) {
-		strcpy(tags->white_player, dict->retrieved);
-	} else return make_err("Missing White tag", *current_line);
-	if (dict_remove(dict, "Black")) {
-		strcpy(tags->black_player, dict->retrieved);
-	}	else return make_err("Missing Black tag", *current_line);
-	if (dict_remove(dict, "Result")) {
-		pgn_res_t res = read_result(&tags->result, dict->retrieved);
-		if (res.err) return res;	
-	} else return make_err("Missing Result tag", *current_line);
-
-	// TODO Iterate through optional other tags
-
-	return make_ok();	
-}
-
-#define NUM_MODE 0
-#define WHITE_MODE 1
-#define BLACK_MODE 2
-#define RES_MODE 3
-pgn_res_t read_moves(FILE * stream, san_move_t *moves, u_int16_t *count, size_t *current_line) {
-	u_int16_t max_count = *count;
-	char *rest;	
-	char *space = " \t";
-	char line[PGN_LINE];
-	int move_i = 0;
-	char mode = 0;
-	char *tok = 0;
-	while (fgets(line, PGN_LINE, stream)) {
-		do {
-			tok = strtok_r(tok ? NULL : line, space, &rest);
-			switch (mode) {
-				case NUM_MODE: {
-					char expect[20];
-					sprintf(expect, "%d.", move_i + 1);		
-					if (strcmp(expect, tok)) {
-						return make_err("Invalid turn number", *current_line);
-					}
-				}
-				break;
-				case RES_MODE: {
-					pgn_result_t res; // unused
-					return read_result(&res, tok);
-				}
-				case BLACK_MODE:
-				case WHITE_MODE: {
-					bool err;
-					san_move_t san = parse_san(tok, &err);
-					if (err) {
-						return make_err("Invalid move specified", *current_line);
-					}
-					moves[move_i++] = san;
-					if (move_i == max_count) mode = RES_MODE;
-					else mode = (mode + 1) % 3;	
-				}
-				break;
-			}
-		} while(tok != 0);
-		(*current_line)++;
+		else {
+			char err[255];
+			sprintf(err, "Expected the turn number indicator %s", num);
+			return alloc_err(err, num_tok);
+		}
+		*/
 	}
 	*count = move_i;
-	return make_ok();	
+	return 0;
+}	
+
+char *read_pgn(FILE *stream, pgn_game_t *dst) {
+	tok_context_t *ctx = start_context("pgn", "[].*()<>", "\"\"{}", '\\');
+	char *out  = read_tagss(stream, &dst->tags, ctx);
+	if (out) goto cleanup;
+	out = read_moves(stream, dst->moves, &(dst->count), ctx);
+	cleanup:
+	end_context(ctx);
+	printf("event `%p`\n", dst->tags.event);
+	return out;	
 }
 
-pgn_res_t read_pgn(FILE *stream, pgn_game_t *dst, size_t *current_line) {
-	pgn_res_t res = read_tags(stream, &dst->tags, current_line);
-	if (res.err) return res;
-	res = read_moves(stream, dst->moves, &dst->count, current_line);
-	return res;
-}
 
-pgn_res_t read_file(char * filename, pgn_game_t *dst) {
-	size_t current_line = 0;
+bool read_pgn_file(char *filename, pgn_game_t *dst, char *err) {
 	FILE *stream = fopen(filename, "r");
-	pgn_res_t res = read_pgn(stream, dst, &current_line);
+	char *tmp = read_pgn(stream, dst);
 	fclose(stream);
-	return res;
+	if (tmp) {
+		strcpy(err, tmp);
+		free(tmp);
+		return false;	
+	}
+	return true;
 }
 
 

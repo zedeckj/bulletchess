@@ -721,7 +721,7 @@ san_move_t parse_san(char * str, bool * err) {
 	return san;
 }
 
-bool write_san_ann(u_int8_t ann, char * buffer, char * made) {
+bool write_san_ann(u_int8_t ann, char * buffer) {
 	switch (ann) {
 		case NO_ANN:
 		buffer[0] = 0;
@@ -896,7 +896,7 @@ bool write_san(san_move_t move, char * buffer) {
 	if (index == -1) return false;
 	int8_t add_i = write_san_check_status(move, buffer + index);
 	if (add_i == -1) return false;
-	return write_san_ann(move.ann_type, buffer + index + add_i, buffer);
+	return write_san_ann(move.ann_type, buffer + index + add_i);
 }
 
 bool roundtrip_san(char * in_san, char * out_buffer) {
@@ -942,23 +942,4 @@ san_move_t error_san(){
 	err.type = SAN_ERR;
 	return err;
 }
-
-void encode_undoable(char *dst, undoable_move_t undo) {
-	move_t move = undo.move;
-	dst[US_ORIGIN_INDEX] = get_origin(move) + 1; // add1 to prevent null 	
-	dst[US_DEST_INDEX] = get_destination(move) + 1;
-	dst[US_PROMOTE_TO_INDEX] = get_promotes_to(move ) + 1;
-	dst[US_OLD_CASTLING_RIGHTS_INDEX] = undo.old_castling_rights + 1;
- 	dst[US_WAS_CASTLING_INDEX] = undo.was_castling + 1;	
-	dst[US_OLD_EP_EXISTS_INDEX] = undo.old_en_passant.exists + 1;
-	dst[US_OLD_EP_VALUE_INDEX] = undo.old_en_passant.square + 1;
-	dst[US_OLD_HALF_LOWER_INDEX] = undo.old_halfmove & 0xff;
-	dst[US_OLD_HALF_UPPER_INDEX] = (undo.old_halfmove & 0xff00) >> 8;
-	dst[US_END_INDEX] = 0;
-}
-
-undoable_move_t decode_undoable(char * dst, u_int16_t index) {		
-}
-
-
 

@@ -1,0 +1,180 @@
+#include "pgn.h"
+
+pgn_res_t make_err(const char * str, source_loc_t *loc) {
+	pgn_res_t err = {.err = str, .loc = loc};
+	return err;
+}
+
+pgn_res_t make_ok() {
+	pgn_res_t ok = {.err = 0};
+	return ok;
+}
+
+char *parse_tag_pair(char *line, char *name_dest, char *value_dest) {
+	if (!line) return "Expected a tag pair, got an empty line";
+	char *brkt;
+	char *sep = " \t";
+	char *tok = strtok_r(line, sep, &brkt);	
+	printf("tok %s\n", tok);
+	if (tok && tok[0] == '[') {
+		
+		char *name_tok = strtok_r(0, sep, &brkt);
+		if (name_tok) {
+			char *value_tok = strtok_r(0, sep, &brkt);
+			if (value_tok) {
+				size_t len = strlen(value_tok);
+				if (value_tok[0] == '"' && value_tok[len - 1] == '"') {
+					value_tok[len - 1] = 0;
+					value_tok++;
+					strcpy(name_dest, name_tok);
+					strcpy(value_dest, value_tok);
+					return 0;	
+				}
+				else return "Invalid tag pair, value must quotes enclosed string";
+			} 
+			else return "Invalid tag pair, no value provided";
+		}	
+		else return "Invalid tag pair, [ followed by nothing";
+	} else return "Expected an opening [ to start a tag pair";
+}
+
+
+
+
+pgn_res_t read_date(date_t *date, char *str, size_t current_line) {
+	const char * err = parse_date(date, str, '.');
+	if (err) {
+		return make_err(err, current_line);
+	}
+	return make_ok();	
+}
+
+pgn_res_t read_result(pgn_result_t *result, char *str, size_t current_line) {
+	if (!strcmp(str, "1-0")) *result = WHITE_RES; 
+	else if (!strcmp(str, "0-1")) *result = BLACK_RES;
+	else if (!strcmp(str, "1/2-1/2")) *result = DRAW_RES;
+	else if (!strcmp(str, "*")) *result = UNK_RES;
+	else return make_err("Unknown result type", current_line);
+	return make_ok();
+}
+
+#define PGN_NEEDED_TAGS 7
+pgn_res_t read_tags(FILE *stream, pgn_tag_section_t *tags, size_t *current_line) {
+	dict_t *dict = new_dict(100);
+	char *err = 0;
+	int tag_count = 0;
+	while (!err) {
+		char line[PGN_LINE];
+		char key[PGN_LINE];
+		char value[PGN_LINE];
+		if (!fgets(line,PGN_LINE, stream)) break;
+		bool is_empty = true;
+	 	for (int i = 0; i < PGN_LINE && line[i]; i++) {
+			if (!isspace(line[i])) {
+				is_empty = false;
+				break;
+			}
+		}
+		if (is_empty) break;	
+		err = parse_tag_pair(line, key, value);	
+		if (tag_count++ < PGN_NEEDED_TAGS && err) return make_err(err, *current_line);
+		dict_add(dict, key, value);
+		(*current_line)++;
+	}
+
+	if (dict_remove(dict, "Event")) {
+		strcpy(tags->event, dict->retrieved);
+	} else return make_err("Missing Event tag", *current_line); 
+	if (dict_remove(dict, "Site")) {
+		strcpy(tags->site, dict->retrieved);
+	} else return make_err("Missing Site tag", *current_line);
+	if (dict_remove(dict, "Date")) {
+		pgn_res_t res = read_date(&tags->date, dict->retrieved, *current_line);
+		if (res.err) return res;
+	} else return make_err("Missing Date tag", *current_line);
+	if (dict_remove(dict, "Round")) {
+		strcpy(tags->round, dict->retrieved);		
+	} else return make_err("Missing Round tag", *current_line);
+	if (dict_remove(dict, "White")) {
+		strcpy(tags->white_player, dict->retrieved);
+	} else return make_err("Missing White tag", *current_line);
+	if (dict_remove(dict, "Black")) {
+		strcpy(tags->black_player, dict->retrieved);
+	}	else return make_err("Missing Black tag", *current_line);
+	if (dict_remove(dict, "Result")) {
+		pgn_res_t res = read_result(&tags->result, dict->retrieved, *current_line);
+		if (res.err) return res;	
+	} else return make_err("Missing Result tag", *current_line);
+
+	// TODO Iterate through optional other tags
+	dict_free(dict);
+	return make_ok();	
+}
+
+#define NUM_MODE 0
+#define WHITE_MODE 1
+#define BLACK_MODE 2
+#define RES_MODE 3
+pgn_res_t read_moves(FILE * stream, san_move_t *moves, u_int16_t *count, size_t *current_line) {
+	u_int16_t max_count = *count;
+	char *rest;	
+	char *space = " \t";
+	char line[PGN_LINE];
+	int move_i = 0;
+	char mode = 0;
+	char *tok = 0;
+	while (fgets(line, PGN_LINE, stream)) {
+		do {
+			tok = strtok_r(tok ? NULL : line, space, &rest);
+			switch (mode) {
+				case NUM_MODE: {
+					char expect[20];
+					sprintf(expect, "%d.", move_i + 1);		
+					if (strcmp(expect, tok)) {
+						return make_err("Invalid turn number", *current_line);
+					}
+				}
+				break;
+				case RES_MODE: {
+					pgn_result_t res; // unused
+					return read_result(&res, tok, *current_line);
+				}
+				case BLACK_MODE:
+				case WHITE_MODE: {
+					bool err;
+					san_move_t san = parse_san(tok, &err);
+					if (err) {
+						return make_err("Invalid move specified", *current_line);
+					}
+					moves[move_i++] = san;
+					if (move_i == max_count) mode = RES_MODE;
+					else mode = (mode + 1) % 3;	
+				}
+				break;
+			}
+		} while(tok != 0);
+		(*current_line)++;
+	}
+	*count = move_i;
+	return make_ok();	
+}
+
+pgn_res_t read_pgn(FILE *stream, pgn_game_t *dst, size_t *current_line) {
+	pgn_res_t res = read_tags(stream, &dst->tags, current_line);
+	if (res.err) return res;
+	res = read_moves(stream, dst->moves, &dst->count, current_line);
+	return res;
+}
+
+bool read_pgn_file(char * filename, pgn_game_t *dst, char *err) {
+	size_t current_line = 0;
+	FILE *stream = fopen(filename, "r");
+	pgn_res_t res = read_pgn(stream, dst, &current_line);
+	fclose(stream);
+	if (res.err) {
+		sprintf(err, "Error when parsing PGN: %s on line %ld of %s", res.err, res.error_line, filename);
+	}
+	return res.err == 0;
+}
+
+
