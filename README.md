@@ -22,9 +22,7 @@ R N B Q K B N R
 Piece(K)
 >>> board.legal_moves()
 [Move(b1a3), Move(b1c3), Move(g1f3), Move(g1h3), Move(a2a3), Move(a2a4), Move(b2b3), 
-
 Move(b2b4), Move(c2c3), Move(c2c4), Move(d2d3), Move(d2d4), Move(e2e3), Move(e2e4), 
-
 Move(f2f3), Move(f2f4), Move(g2g3), Move(g2g4), Move(h2h3), Move(h2h4)]
 ```
 
