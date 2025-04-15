@@ -2,7 +2,8 @@
 #include "dictionary/dict.h"
 #include "date-parsing/date.h"
 #include "tokenizer/tokenizer.h"
-
+#include "fen.h"
+#include "rules.h"
 #define ALL_KNOWN 0
 #define DAY_UNK 1
 #define MONTH_UNK 2

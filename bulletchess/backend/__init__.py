@@ -245,7 +245,7 @@ def init_pgn() -> POINTER(PGN):
     pgn.tags.round = cast(create_string_buffer(20), c_char_p)
     pgn.tags.white_player = cast(create_string_buffer(255), c_char_p)
     pgn.tags.black_player = cast(create_string_buffer(255), c_char_p)
-    pgn.tags.fen = cast(create_string_buffer(100), c_char_p)
+    pgn.tags.FEN = cast(create_string_buffer(100), c_char_p)
     pgn.tags.result = cast(create_string_buffer(10), c_char_p) 
     return pointer(pgn)
 
@@ -255,7 +255,7 @@ def alloc_boardPY() -> POINTER(BOARD):
     return board
 
 
-def read_pgn(filename : str) -> POINTER(PGN):
+def read_pgnPY(filename : str) -> POINTER(PGN):
     pgn = init_pgn()
     err = create_string_buffer(255)
     filename = filename.encode("utf-8")
@@ -316,7 +316,9 @@ def encode(fen) -> bytes:
 
 
 
-def init_board_from_fenPY(fen : str) -> tuple[POINTER(BOARD), (PIECE_INDEX * 64)]:
+
+
+def init_board_from_fenPY(fen : str) -> tuple[POINTER(BOARD), bytes]:
     pos_pointer = pointer(_POSITION())
     board = pointer(BOARD(pos_pointer))
     piece_array = bytes(64)
@@ -805,7 +807,24 @@ san_to_move.argtypes = [POINTER(BOARD), c_char_p, POINTER(c_bool)]
 san_to_move.restype = MOVE
 
 
+pgn_to_board_and_moves = clib.pgn_to_board_and_moves
+pgn_to_board_and_moves.argtypes = [POINTER(PGN), POINTER(BOARD), 
+                                   c_char_p, POINTER(MOVE), c_char_p]
+pgn_to_board_and_moves.restype = c_uint16
 
+
+def pgn_to_board_movesPY(pgn : POINTER(PGN)) -> tuple[POINTER(BOARD),
+                                                      bytes,list[MOVE]]:
+    board = alloc_boardPY() 
+    piece_array = bytes(64)
+    error = cast(create_string_buffer(200), c_char_p)
+    moves = (MOVE * 300)()
+    print("go..")
+    num = pgn_to_board_and_moves(pgn, board, piece_array, moves, error)
+    if num == 0:
+        raise Exception(bytes(error).encode("utf-8"))
+    else:
+        return board, piece_array, [m for m in moves[:num]]                         
 read_pgn_file = clib.read_pgn_file
 read_pgn_file.argtypes = [c_char_p, POINTER(PGN), c_char_p]
 read_pgn_file.restype = c_bool

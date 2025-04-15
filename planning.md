@@ -129,4 +129,8 @@ Timeline
 
 4/9/25
 
-
+4/15/25
+"Soft" published already.
+Notes to work on:
+- Found a weird error when creating a bad move
+- PGN file stream 

@@ -46,6 +46,21 @@ dict_t *make_dst_dict(pgn_tag_section_t *tags) {
 	return dict;
 }
 
+void skip_comment(FILE *stream, token_t *tok, tok_context_t *ctx) {
+	if (token_is(tok, ";")) {
+		free_token(tok);
+		size_t line = tok->location->line;
+		do {
+			tok = ftoken(stream, ctx);
+			if (tok->location->line > line){
+				untoken(tok, ctx);
+				break;
+			}	
+			else free_token(tok);
+		} while(true);
+	}
+}
+
 char *add_tag_pair(token_t *name, token_t *val, dict_t *dict){
 	printf("adding pair %s %s\n", name->string, val->string);
 	char *ptr = dict_remove(dict, name->string);
@@ -98,7 +113,9 @@ char *read_tag_pair(FILE *stream, tok_context_t *ctx, dict_t* dict, token_t *fir
 
 
 char *read_tagss(FILE *stream, pgn_tag_section_t *tags, tok_context_t *ctx) {
+	printf("called tags\n");
 	dict_t *dict = make_dst_dict(tags);
+	printf("made dict\n");
 	do {
 		printf("before ftok\n");
 		token_t *first = ftoken(stream, ctx);
@@ -136,7 +153,8 @@ struct read_num_res read_turn_number(FILE *stream, token_t *num_tok, int num, to
 		return (struct read_num_res){.err = 0, .ret = false};
 	}
 	
-	if (!token_is(num_tok, numstr)){
+	if (!token_is(num_tok, numstr)){	
+		
 		if (atoi(num_tok->string)) {
 			char msg[100];
 			sprintf(msg, "Expected the move number %s", numstr);
@@ -173,36 +191,44 @@ struct read_move_res read_move_tok(token_t *token,
 																	 bool *white,
 																	 dict_t *res_dict,
 																	 san_move_t *moves,
-																	 u_int16_t moves_i) {
+																	 u_int16_t *moves_i) {
+	printf("got a token\n");
 	if (!token){
 	 	char * err = alloc_err("Unexpected end of file after last token", last);
 		return (struct read_move_res){.err = err, .done = false};
 	}
-	struct read_num_res res 
-		= read_turn_number(stream, token, *move_num, ctx); 
-	if (res.err) 
-		return (struct read_move_res){.err = res.err, .done = true};
-	else if (res.ret) 
-		return (struct read_move_res){.err = 0, .done = true};
-	free_token(last);
+	printf("parsing move thing %s\n", token->string);
+	skip_comment(stream, token, ctx);
+	printf("before free\n");
+	if (last) free_token(last);
+	printf("here now\n");
 	// skips comments
 	if (token->string[0] == '{') {
 		return (struct read_move_res){.err = 0, .done = false};
 	}
 	bool is_err;
+	printf("parsing san\n");
 	san_move_t san = parse_san(token->string, &is_err);
 	if (is_err) {
-		if (!white && dict_lookup(res_dict, token->string)) {
+		if (dict_lookup(res_dict, token->string)) {
 				return (struct read_move_res){.err = 0, .done = true};
 		}
 		else {
+			struct read_num_res res = read_turn_number(stream, token, *move_num, ctx); 
+			printf("checked for num\n");
+			if (res.err) 
+				return (struct read_move_res){.err = res.err, .done = false};
+			else if (res.ret) 
+				return (struct read_move_res){.err = 0, .done = false};
+
 			char *err = alloc_err("Invalid move found", token);
 		 	return (struct read_move_res){.err = err, .done = false};	
 		}	
 	}
+	printf("parsed a move\n");
 	if (!*white) (*move_num)++;
 	*white = !*white;
-	moves[moves_i] = san;
+	moves[(*moves_i)++] = san;
 	return (struct read_move_res){.err = 0, .done = false};
 }
 
@@ -224,9 +250,8 @@ char *read_moves(FILE *stream, san_move_t *moves, u_int16_t *count,
 		token_t *tok = ftoken(stream, ctx);
 		struct read_move_res res 
 			= read_move_tok(tok, last, stream, ctx, &turn_num, 
-					&is_white, res_dict, moves, move_i);  	
+					&is_white, res_dict, moves, &move_i);  	
 		if (res.err) return res.err;
-		if (last) free_token(last);
 		if (res.done) break;
 		
 		/*
@@ -257,20 +282,29 @@ char *read_moves(FILE *stream, san_move_t *moves, u_int16_t *count,
 }	
 
 char *read_pgn(FILE *stream, pgn_game_t *dst) {
-	tok_context_t *ctx = start_context("pgn", "[].*()<>", "\"\"{}", '\\');
+	
+	strcpy(dst->tags.fen, 
+			"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+	printf("makign ctx\n");
+	tok_context_t *ctx = start_context("pgn", ";[].*()<>", "\"\"{}", '\\');
+	printf("ctx made\n");
 	char *out  = read_tagss(stream, &dst->tags, ctx);
+	printf("tagsgs\n");
 	if (out) goto cleanup;
 	out = read_moves(stream, dst->moves, &(dst->count), ctx);
 	cleanup:
 	end_context(ctx);
 	printf("event `%p`\n", dst->tags.event);
+	printf("count %d\n", dst->count);
 	return out;	
 }
 
 
 bool read_pgn_file(char *filename, pgn_game_t *dst, char *err) {
 	FILE *stream = fopen(filename, "r");
+	printf("start\n");
 	char *tmp = read_pgn(stream, dst);
+	printf("end\n");
 	fclose(stream);
 	if (tmp) {
 		strcpy(err, tmp);
@@ -279,5 +313,41 @@ bool read_pgn_file(char *filename, pgn_game_t *dst, char *err) {
 	}
 	return true;
 }
+
+
+
+u_int16_t pgn_to_board_and_moves(pgn_game_t *pgn, 
+														full_board_t *board, 
+														piece_index_t *index_array,
+														move_t *moves,
+														char *err){
+	printf("call\n");
+	char *fen_err = parse_fen(pgn->tags.fen, board, index_array);
+	printf("fen parsed\n");
+	if (fen_err){
+		printf("fen err\n");
+	 	strcpy(err, fen_err);
+		return 0;
+	}
+	for (int i = 0; i < pgn->count; i++) {
+		printf("creating move %d\n", i);
+		san_move_t san = pgn->moves[i];
+		move_t move = san_to_move(board, san);
+		if (move.type == ERROR_MOVE) {
+			char buf[10];
+			write_san(san, buf); 
+			sprintf(err, "The move %s is not legal", buf);
+			printf("move err: %s\n", err);
+			return 0;
+		}
+		else {
+			moves[i] = move;
+			apply_move(board, move);
+		}
+	}
+	return pgn->count;	
+}
+
+
 
 

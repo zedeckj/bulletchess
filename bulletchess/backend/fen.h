@@ -12,7 +12,7 @@
 
 // Parses the given FEN into the given board, returns a pointer to an error message,
 // or NULL if no error.
-char * parse_fen(char * fen, full_board_t * board, piece_index_t * index_array);
+char *parse_fen(char * fen, full_board_t * board, piece_index_t * index_array);
 
 
 // Writes a FEN description of the given board to the provided buffer

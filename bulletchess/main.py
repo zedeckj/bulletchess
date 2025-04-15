@@ -940,7 +940,7 @@ class Game:
         """
         Loads a Game from a file containing PGN
         """
-        self.__pointer = _backend.read_pgn(filename)
+        self.__pointer = _backend.read_pgnPY(filename)
 
     @property
     def event(self):
@@ -953,7 +953,6 @@ class Game:
     @property
     def round(self):
         return self.__pointer.contents.tags.round.decode("utf-8")
-
 
     @property
     def date(self):
@@ -971,4 +970,12 @@ class Game:
     def result(self):
         return self.__pointer.contents.tags.result.decode("utf-8")
     
-
+    
+    def board_moves(self):
+        """
+        Returns a Board representing the starting position of this game,
+        and a list of moves that were played.
+        """
+        bp, piece_arr, moves = _backend.pgn_to_board_movesPY(self.__pointer)
+        board = Board._Board__inst(bp, [], [], piece_arr)
+        return board, [Move._Move__inst(m) for m in moves]

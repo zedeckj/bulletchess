@@ -182,10 +182,6 @@ piece_type_t get_promotes_to(move_t move);
 #define US_OLD_HALF_LOWER_INDEX 8
 #define US_END_INDEX 9
 
-// Encodes a move into as a null terminated string, not human readable
-void encode_undoable(char *dst, undoable_move_t move);
-
-undoable_move_t decode_undoable(char * encoded_undos, u_int16_t index);
 
 
 #endif
