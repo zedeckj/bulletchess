@@ -1,2 +1,2 @@
 from .main import *
-from .utils import *
+import utils

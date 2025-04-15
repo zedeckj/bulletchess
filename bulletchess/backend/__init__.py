@@ -255,11 +255,11 @@ def alloc_boardPY() -> POINTER(BOARD):
     return board
 
 
-def read_pgnPY(filename : str) -> POINTER(PGN):
+def next_pgnPY(fp : c_void_p) -> POINTER(PGN):
     pgn = init_pgn()
     err = create_string_buffer(255)
-    filename = filename.encode("utf-8")
-    if not read_pgn_file(filename, pgn, err):
+    has_err = not next_pgn(fp, pgn, err)
+    if has_err:
         raise Exception(charp_to_str(err))
     return pgn
 
@@ -813,6 +813,8 @@ pgn_to_board_and_moves.argtypes = [POINTER(PGN), POINTER(BOARD),
 pgn_to_board_and_moves.restype = c_uint16
 
 
+
+
 def pgn_to_board_movesPY(pgn : POINTER(PGN)) -> tuple[POINTER(BOARD),
                                                       bytes,list[MOVE]]:
     board = alloc_boardPY() 
@@ -825,9 +827,9 @@ def pgn_to_board_movesPY(pgn : POINTER(PGN)) -> tuple[POINTER(BOARD),
         raise Exception(bytes(error).encode("utf-8"))
     else:
         return board, piece_array, [m for m in moves[:num]]                         
-read_pgn_file = clib.read_pgn_file
-read_pgn_file.argtypes = [c_char_p, POINTER(PGN), c_char_p]
-read_pgn_file.restype = c_bool
+next_pgn = clib.next_pgn
+next_pgn.argtypes = [c_void_p, POINTER(PGN)]
+next_pgn.restype = c_bool
 
 
 def roundtrip_sanPY(san : str) -> str:
@@ -869,8 +871,14 @@ STARTING_CASTLING_RIGHTS = CASTLING_RIGHTS(0xF)
 NO_CASTLING_RIGHTS = CASTLING_RIGHTS(0)
 
 
-# Piece Return Type Signals
-
-
-
 ZOBRIST_TABLE = create_zobrist_table()
+
+
+
+## stdlib
+open_pgn = clib.open_pgn
+open_pgn.argtypes = [c_char_p]
+open_pgn.restype = c_void_p
+
+close_pgn = clib.close_pgn
+close_pgn.argtypes = [c_void_p]

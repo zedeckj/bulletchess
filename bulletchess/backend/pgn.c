@@ -7,8 +7,8 @@ char *alloc_err(const char *msg, token_t *tok) {
 		write_loc(tok->location, loc_str);
 	}
 	else {
-		// hopefully this case doesnt happen...
-		sprintf(loc_str, " ");
+		fprintf(stderr,"INTERNAL ERROR, CANT MAKE MSG\n");
+		exit(1);
 	}
 	char *err = malloc(strlen(loc_str) + strlen(msg) + 10);
 	sprintf(err, "<%s>: Error When Parsing PGN: %s, got %s", 
@@ -193,10 +193,11 @@ struct read_move_res read_move_tok(token_t *token,
 																	 san_move_t *moves,
 																	 u_int16_t *moves_i) {
 	printf("got a token\n");
-	if (!token){
+	if (!token) {
 	 	char * err = alloc_err("Unexpected end of file after last token", last);
 		return (struct read_move_res){.err = err, .done = false};
 	}
+	printf("about to print token\n");
 	printf("parsing move thing %s\n", token->string);
 	skip_comment(stream, token, ctx);
 	printf("before free\n");
@@ -281,7 +282,7 @@ char *read_moves(FILE *stream, san_move_t *moves, u_int16_t *count,
 	return 0;
 }	
 
-char *read_pgn(FILE *stream, pgn_game_t *dst) {
+char *read_pgn_inner(FILE *stream, pgn_game_t *dst) {
 	
 	strcpy(dst->tags.fen, 
 			"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
@@ -299,7 +300,18 @@ char *read_pgn(FILE *stream, pgn_game_t *dst) {
 	return out;	
 }
 
+bool next_pgn(FILE *file, pgn_game_t *dst, char *err) {
+	printf("NEXT PGN\n\n");
+	char * tmp = read_pgn_inner(file, dst);
+	if (tmp) {
+		strcpy(err, tmp);
+		free(tmp);
+		return false;	
+	}
+	return true;
+}
 
+/*
 bool read_pgn_file(char *filename, pgn_game_t *dst, char *err) {
 	FILE *stream = fopen(filename, "r");
 	printf("start\n");
@@ -313,7 +325,7 @@ bool read_pgn_file(char *filename, pgn_game_t *dst, char *err) {
 	}
 	return true;
 }
-
+*/
 
 
 u_int16_t pgn_to_board_and_moves(pgn_game_t *pgn, 
@@ -349,5 +361,11 @@ u_int16_t pgn_to_board_and_moves(pgn_game_t *pgn,
 }
 
 
+FILE *open_pgn(char *filepath){
+	return fopen(filepath, "r");
+}
 
+void close_pgn(FILE *pgn_file) {
+	fclose(pgn_file);
+}
 

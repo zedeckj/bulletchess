@@ -6,6 +6,24 @@ The examples provided compare the performance of `bulletchess` against the popul
 off of `python-chess`, mostly out of comfort for what is familiar. I've used `python-chess` singificantly in testing `bulletchess`, but have not taken any actual code from the library, or referenced its inner workings to any real extent. It was much easier for me to experiment by trial and error, rather than attempt to simply port `python-chess` to C and write a wrapper around it. That wouldn't have been as much fun anyway. 
 
 ### Overview
+``` python
+>>> board = Board()
+>>> print(board)
+r n b q k b n r 
+p p p p p p p p 
+- - - - - - - - 
+- - - - - - - - 
+- - - - - - - - 
+- - - - - - - - 
+P P P P P P P P 
+R N B Q K B N R 
+
+>>> board.get_piece_at(E1)
+Piece(K)
+>>> board.legal_moves()
+[Move(b1a3), Move(b1c3), Move(g1f3), Move(g1h3), Move(a2a3), Move(a2a4), Move(b2b3), Move(b2b4), Move(c2c3), Move(c2c4), Move(d2d3), Move(d2d4), Move(e2e3), Move(e2e4), Move(f2f3), Move(f2f4), Move(g2g3), Move(g2g4), Move(h2h3), Move(h2h4)]
+```
+
 At a high level, `bulletchess` includes:
 - A complete game model with intuitive representations for pieces, moves, and positions.
 - Extensively tested legal move generation, application, and undoing.

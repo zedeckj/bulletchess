@@ -932,15 +932,11 @@ class BoardStatus:
         return bool(self.value & BoardStatus.RESIGNATION)
 
 
+
 class Game:
     
-    _slots_ = ["__pointer"]
+    __slots__ = ["__pointer"]
 
-    def __init__(self, filename : str):
-        """
-        Loads a Game from a file containing PGN
-        """
-        self.__pointer = _backend.read_pgnPY(filename)
 
     @property
     def event(self):
@@ -970,7 +966,11 @@ class Game:
     def result(self):
         return self.__pointer.contents.tags.result.decode("utf-8")
     
+    @property
+    def _as_argument(self):
+        return self.__pointer
     
+
     def board_moves(self):
         """
         Returns a Board representing the starting position of this game,
@@ -979,3 +979,48 @@ class Game:
         bp, piece_arr, moves = _backend.pgn_to_board_movesPY(self.__pointer)
         board = Board._Board__inst(bp, [], [], piece_arr)
         return board, [Move._Move__inst(m) for m in moves]
+
+
+
+class PGNReader:
+
+    class PGNFile:
+        
+        __slots__ = ["__path", "__fp"]
+
+        def __init__(self, fp):
+            self.__fp = fp
+
+        def close(self):
+            _backend.close_pgn(self.__fp)
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, a, b, c):
+            self.close()
+
+        def next_game(self) -> Game:
+            # terrible, dont do this
+            game = Game()
+            game._Game__pointer = _backend.next_pgnPY(self.__fp) 
+            return game
+
+        def __str__(self):
+            return "foo thingy!"
+
+    __slots__ = ["__path"]
+
+    def __init__(path : str):
+        self.__path = path.encode("utf-8")
+        return pgnf
+    
+    @staticmethod
+    def open(path : str):
+        fp = _backend.open_pgn(path.encode("utf-8"))
+        if not fp:
+            raise FileNotFoundError(f"PGN File {path} not found")
+        pgn_file = PGNReader.PGNFile(fp)
+        print(pgn_file)
+        return pgn_file
+

@@ -7,13 +7,12 @@ FILEPATH = "/Users/jordan/Documents/C/ChessLibrary/tests/pgn/example.pgn"
 
 class TestPGN(unittest.TestCase):
 
-
     def assertMoveEq(self, move, uci):
         self.assertEqual(move, Move.from_uci(uci))
 
     def test_tags(self):
-        return
-        game = Game(FILEPATH)
+        with PGNReader.open(FILEPATH) as f:
+            game = f.next_game()
         self.assertEqual(game.event, "F/S Return Match")
         self.assertEqual(game.site, "Belgrade, Serbia JUG")
         self.assertEqual(game.date, "1992.11.04")
@@ -23,7 +22,9 @@ class TestPGN(unittest.TestCase):
         self.assertEqual(game.result, "1/2-1/2")
 
     def test_moves(self):
-        game = Game(FILEPATH)
+        with PGNReader.open(FILEPATH) as f:
+            game = f.next_game()
+            _ = f.next_game()
         board, moves = game.board_moves()
         self.assertMoveEq(moves[0], "e2e4")
         self.assertMoveEq(moves[1], "e7e5")
@@ -31,6 +32,8 @@ class TestPGN(unittest.TestCase):
         self.assertMoveEq(moves[3], "b8c6")
         self.assertMoveEq(moves[4], "f1b5")
         self.assertMoveEq(moves[5], "a7a6")
+
+
 
 if __name__ == "__main__":
     unittest.main()
