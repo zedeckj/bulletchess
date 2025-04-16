@@ -771,7 +771,6 @@ class Board:
         """
         return bool(_backend.boards_equal(self.__pointer, other.__pointer))
 
-
     def _callback(self, func : Callable[[_backend.BOARD, 
                                 _backend.POINTER(_backend.UNDOABLE_MOVE),
                                 int], Any]):
@@ -783,7 +782,10 @@ class Board:
  
     def __str__(self) -> str:
         return _backend.make_board_stringPY(self)
-    
+   
+    def __repr__(self) -> str:
+        return f"Board({self.fen()})"
+
     def __hash__(self) -> int:
         return int(_backend.hash_board_wrapper(self.__pointer))
 
@@ -971,14 +973,20 @@ class Game:
         return self.__pointer
     
 
-    def board_moves(self):
+    @property
+    def move_count(self) -> int:
+        return int(self.__pointer.contents.count)
+    
+    def board_moves(self) -> tuple[Board, list[Move]]:
         """
         Returns a Board representing the starting position of this game,
         and a list of moves that were played.
         """
+        
         bp, piece_arr, moves = _backend.pgn_to_board_movesPY(self.__pointer)
         board = Board._Board__inst(bp, [], [], piece_arr)
-        return board, [Move._Move__inst(m) for m in moves]
+        moves = [Move._Move__inst(m) for m in moves]
+        return board, moves
 
 
 
@@ -986,31 +994,39 @@ class PGNReader:
 
     class PGNFile:
         
-        __slots__ = ["__path", "__fp"]
+        __slots__ = ["__fp"]
 
         def __init__(self, fp):
             self.__fp = fp
 
         def close(self):
+            print("closing file")
             _backend.close_pgn(self.__fp)
 
         def __enter__(self):
             return self
 
         def __exit__(self, a, b, c):
+            print("exiting ctx python")
             self.close()
 
         def next_game(self) -> Game:
-            # terrible, dont do this
+            print("called next game")
+            p = _backend.next_pgnPY(self.__fp)
+            print("back in next game frontend")
+            if p == None:
+                return None
+            print("about to init game")
             game = Game()
-            game._Game__pointer = _backend.next_pgnPY(self.__fp) 
+            game._Game__pointer = p
+            print("returned game")
             return game
 
         def __str__(self):
             return "foo thingy!"
 
     __slots__ = ["__path"]
-
+    
     def __init__(path : str):
         self.__path = path.encode("utf-8")
         return pgnf
@@ -1021,6 +1037,5 @@ class PGNReader:
         if not fp:
             raise FileNotFoundError(f"PGN File {path} not found")
         pgn_file = PGNReader.PGNFile(fp)
-        print(pgn_file)
         return pgn_file
 

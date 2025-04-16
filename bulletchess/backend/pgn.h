@@ -1,3 +1,4 @@
+#include "board.h"
 #include "apply.h"
 #include "dictionary/dict.h"
 #include "date-parsing/date.h"
@@ -84,8 +85,10 @@ typedef struct {
 	source_loc_t *loc;
 } pgn_res_t;
 
-
-
+typedef struct {
+	FILE *file;
+	tok_context_t *ctx;
+} pgn_file_t;
 
 /* parsing functions assume pgn has been fully allocated in python */
 

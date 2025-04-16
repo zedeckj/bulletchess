@@ -1,0 +1,3 @@
+- Bad error for invalid moves
+- Empty SAN for invalid board ?
+- "d8=Q" should be valid, apparently

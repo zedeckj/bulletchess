@@ -3,6 +3,8 @@ import sys
 sys.path.append("./")
 from bulletchess import *
 
+from bulletchess.backend import is_san_correctPY
+
 
 """
 <SAN move descriptor piece moves>   
@@ -32,7 +34,8 @@ STRICT_SANS = [
     "axb2?!",
     "c6??",
     "Na3xa2!",
-    
+    "d8=Q",
+    "hxg8=Q+"
 ]
 
 INVALID_SANS = [
@@ -99,20 +102,18 @@ def roundtripPerft(tester : unittest.TestCase,
 
 class TestSAN(unittest.TestCase):
 
-    """
     def test_rountrip_strict(self):
         if FOCUS:
             return
         for san in STRICT_SANS:
-            self.assertEqual(san, roundtrip_san(san), msg = san)
+            self.assertTrue(is_san_correctPY(san), msg = san)
    
     def test_rountrip_invalid(self):
         
         if FOCUS:
             return
         for san in INVALID_SANS:
-            self.assertFalse(roundtrip_san(san), msg = san)
-    """
+            self.assertFalse(is_san_correctPY(san), msg = san)
 
     def test_starting(self):
         testSanEq(self, "a3", "a2a3")

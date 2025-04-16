@@ -76,7 +76,9 @@ Board
 #for i in range(1000000):
 #    j = i & (i + 1)
 
+san = "hxg8=Q+"
+import backend 
+print(san)
+print(backend.is_san_correctPY(san))
 
-fen = "rnb1kbnr/pppp1ppp/8/8/7q/8/PPPPP1PP/RNBQKBNR b KQkq - 0 1"
-board = Board.from_fen(fen)
-print(board)
+#fen = "rnb1kbnr/pppp1ppp/8/8/7q/8/PPPPP1PP/RNBQKBNR b KQkq - 0 1"

@@ -360,6 +360,43 @@ bool is_subset(position_t * source, position_t * check) {
         ((source->kings & check->kings) == source->kings)
     );
 }
+/*
+void debug_equal(full_board_t *board1, full_board_t *board2) {
+	if (!board1) fprintf(stdout, "Board1 is null\n");
+	if (!board2) fprintf(stdout, "Board2 is null\n");
+	if (board1->castling_rights != board2->castling_rights)
+		fprintf(stdout, "Castling rights do not match");
+	if (board1->turn != board2->turn)
+		fprintf(stdout, "Turns do not match");
+	if (!board1->position) 
+		fprintf(stdout, "Pos1 is null");
+	if (!board2->position)
+		fprintf(stdout, "Pos2 is null");
+	if (board1->position->pawns != board2->position->pawns)
+		fprintf(stdout, "Pawns mismatch");
+  if (board1->position->knights != board2->position->knights)
+		fprintf(stdout, "Knights mismatch");
+	if (board1->position->bishops != board2->position->bishops)
+		fprintf(stdout, "Bishops mismatch");
+	if (board1->position->queens != board2->position->queens)
+		fprintf(stdout, "Queens mismatch");
+	if (board1->position->kings != board2->position->kings)
+		fprintf(stdout, "Kings mismatch");
+	optional_square_t ep1 = board1->en_passant_square;
+  optional_square_t ep2 = board2->en_passant_square;
+	if (ep1.exists && !ep2.exists) 
+		fprintf(stdout, "EP1 exists but not ep2");
+	if (!ep1.exists && ep2.exists)
+		fprintf(stdout, "EP1 does not exists but EP2 does");
+	if (ep1.exists && ep2.exists)
+		if (ep1.square != ep2.square) fprintf(stdout, "eps mismatch");
+  
+
+	fprintf(stdout, "EQ WAS TESTED !!!!!!!!!!!!!!!!!!!!!!!!1\n\n\n");	
+}
+*/
+
+
 
 bool positions_equal(position_t *pos1, position_t *pos2){
 		return 
@@ -373,9 +410,11 @@ bool positions_equal(position_t *pos1, position_t *pos2){
         pos1->rooks == pos2->rooks &&
 				pos1->kings == pos2->kings;
 
+
 }
 bool boards_legally_equal(full_board_t *board1, full_board_t *board2) {
-    if (board1 && board2 &&
+		//debug_equal(board1, board2);
+		if (board1 && board2 &&
         board1->castling_rights == board2->castling_rights &&
         board1->turn == board2->turn &&
         positions_equal(board1->position, board2->position)

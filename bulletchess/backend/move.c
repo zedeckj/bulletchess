@@ -466,9 +466,17 @@ san_move_t parse_pawn_capture_san(char * str){
 		if (str[x_off] == 'x' && str[x_off + 1] && str[x_off + 2]) {
 			optional_square_t maybe_dest = parse_square(str + x_off + 1);
 			if (maybe_dest.exists) {
-				piece_type_t promote_to = san_parse_piece_type(str[x_off + 3]);
-				u_int8_t index = x_off + (promote_to == EMPTY_VAL ? 3 : 4);
-				if (promote_to != EMPTY_VAL) ++index;
+				piece_type_t promote_to;
+				u_int8_t index = x_off;
+				if (str[x_off +3] == '=') {
+					piece_type_t promote_to = san_parse_piece_type(str[x_off + 4]);
+					if (promote_to == EMPTY_VAL) goto err;
+					index += 5;	
+				}
+				else {
+					promote_to = san_parse_piece_type(str[x_off + 3]);
+					index = x_off + (promote_to == EMPTY_VAL ? 3 : 4);
+				}
 				u_int8_t status;
 				index += parse_san_status(str + index, &status);	
 				u_int8_t ann = parse_ann(str + index);
@@ -498,10 +506,18 @@ san_move_t parse_pawn_push_san(char * str) {
 		san_move_t san;
 		san.type = SAN_PAWN_PUSH; 
 		san.pawn_push.destination = maybe_dest.square;
-		san.pawn_push.promote_to = san_parse_piece_type(str[2]);	
 		u_int8_t end;
-		if (san.pawn_push.promote_to != EMPTY_VAL) end = 3;
-		else end = 2;
+		if (str[2] == '=') {
+			printf("here2\n");			
+			san.pawn_push.promote_to = san_parse_piece_type(str[3]);	
+			if (san.pawn_push.promote_to == EMPTY_VAL) goto err;
+			end = 4;
+		}	
+		else {
+			san.pawn_push.promote_to = san_parse_piece_type(str[2]);	
+			if (san.pawn_push.promote_to != EMPTY_VAL) end = 3;
+			else end = 2;
+		}
 		u_int8_t status;
 		end += parse_san_status(str + end, &status);
 		san.check_status = status;
@@ -590,9 +606,11 @@ san_move_t parse_std_san(char * str, piece_type_t type) {
 			if (file.exists) index ++;
 			rank = san_parse_rank(str[index]);
 			if (rank.exists) index ++;
+			
 			optional_square_t dest = parse_square(str + index);
 			if (!dest.exists) {
-				if (file.exists && rank.exists) {
+				if (file.exists && rank.exists && !isdigit(str[3])) {
+					 
 					dest = parse_square(str + 1);
 					if (!dest.exists) goto err;
 					file.exists = false;
@@ -715,10 +733,17 @@ san_move_t parse_san_inner(char * str){
 	return san;	
 }
 
-san_move_t parse_san(char * str, bool * err) {
+san_move_t parse_san(char *str, bool *err) {
 	san_move_t san = parse_san_inner(str);
 	*err = san.type == SAN_ERR;
 	return san;
+}
+
+
+bool is_san_correct(char *str) {
+	bool out;
+	parse_san(str, &out);
+	return !out;
 }
 
 bool write_san_ann(u_int8_t ann, char * buffer) {

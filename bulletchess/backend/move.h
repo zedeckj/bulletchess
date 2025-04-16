@@ -157,6 +157,12 @@ bool write_san(san_move_t move, char * buffer);
 bool write_uci(move_t move, char * buffer);
 
 
+// Checks if the given string can be parsed as a san-move.
+// This does not determine if it is legal for a given board,
+// but well formed in general
+bool is_san_correct(char *buffer);
+
+
 
 castling_rights_t get_castling_type(move_t move, full_board_t *board);
 

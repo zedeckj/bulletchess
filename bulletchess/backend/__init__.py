@@ -230,23 +230,53 @@ class PGN(Structure):
         ("count", c_uint16)
     ]
 
+
+class _TOKLOC(Structure):
+    _fields_ = [
+        ("source_name", c_char_p),
+        ("line", c_size_t),
+        ("row", c_size_t)
+    ]
+
+class _TOKCTX(Structure):
+    _fields_ = [
+        ("loc", _TOKLOC),
+        ("index", c_size_t),
+        ("pntr", c_void_p),
+        ("escape", c_char),
+        ("operators", c_char_p),
+        ("delims", c_char_p),
+        ("ungot", c_void_p)
+    ]
+
+
+
+class _PGN_FILE(Structure):
+    _fields_ = [
+        ("file", c_void_p),
+        ("ctx", POINTER(_TOKCTX)),
+    ]
+
 def charp_to_str(c : c_char_p) -> str:
-    return c.raw.rstrip(b'\x00').decode()
+    return c.raw.rstrip(b'\x00').decode("utf-8")
 
 def init_pgn() -> POINTER(PGN):
+    print("inside init pgn") 
     LINE_LEN = 256
     pgn = PGN()
-    pgn.moves = (_SAN_MOVE * 300)()
-    pgn.count = 300
+    pgn.moves = (_SAN_MOVE * 500)()
+    pgn.count = 500
     pgn.tags = _PGN_TAGS()
+    print("tags and moves ready")
     pgn.tags.event = cast(create_string_buffer(255), c_char_p)
     pgn.tags.site = cast(create_string_buffer(255), c_char_p)
-    pgn.tags.date = cast(create_string_buffer(20), c_char_p)
-    pgn.tags.round = cast(create_string_buffer(20), c_char_p)
+    pgn.tags.date = cast(create_string_buffer(255), c_char_p)
+    pgn.tags.round = cast(create_string_buffer(255), c_char_p)
     pgn.tags.white_player = cast(create_string_buffer(255), c_char_p)
     pgn.tags.black_player = cast(create_string_buffer(255), c_char_p)
-    pgn.tags.FEN = cast(create_string_buffer(100), c_char_p)
-    pgn.tags.result = cast(create_string_buffer(10), c_char_p) 
+    pgn.tags.FEN = cast(create_string_buffer(255), c_char_p)
+    pgn.tags.result = cast(create_string_buffer(255), c_char_p) 
+    print("returning pointer")
     return pointer(pgn)
 
 def alloc_boardPY() -> POINTER(BOARD):
@@ -256,11 +286,19 @@ def alloc_boardPY() -> POINTER(BOARD):
 
 
 def next_pgnPY(fp : c_void_p) -> POINTER(PGN):
+    print("in next_pgnPY")
     pgn = init_pgn()
-    err = create_string_buffer(255)
-    has_err = not next_pgn(fp, pgn, err)
-    if has_err:
-        raise Exception(charp_to_str(err))
+    print("init pgn")
+    err = cast(create_string_buffer(300), c_char_p)
+    print("entering c world")
+    status = int(next_pgn(fp, pgn, err))
+    print("back in python world")
+    if status != 0:
+        if status == 2:
+            return None
+        else:
+            raise Exception(charp_to_str(err))
+    print("exiting next pgn backend")
     return pgn
 
 def init_empty_boardPY() -> POINTER(BOARD):
@@ -281,8 +319,6 @@ def init_empty_boardPY() -> POINTER(BOARD):
         fullmove,
     )
     return pointer(full_board)
-
-
 
 def init_starting_boardPY() -> POINTER(BOARD):
     pos_pointer = pointer(_POSITION(
@@ -314,10 +350,6 @@ def init_starting_boardPY() -> POINTER(BOARD):
 def encode(fen) -> bytes:
     return fen.encode("utf-8")
 
-
-
-
-
 def init_board_from_fenPY(fen : str) -> tuple[POINTER(BOARD), bytes]:
     pos_pointer = pointer(_POSITION())
     board = pointer(BOARD(pos_pointer))
@@ -329,16 +361,12 @@ def init_board_from_fenPY(fen : str) -> tuple[POINTER(BOARD), bytes]:
         error = bytes(error).decode()
         raise ValueError(f"Invalid FEN '{fen}': {error}")
 
-
 def san_to_movePY(board : POINTER(BOARD), san : str) -> MOVE:
     err = c_bool(False)
     struct = san_to_move(board, san.encode("utf-8"), byref(err))
     if err:
         raise ValueError(f"Invalid Move SAN: {san}")
     return struct
-
-
-
 
 def init_move_from_uciPY(uci : str) -> MOVE:
     err = c_bool(False)
@@ -368,7 +396,6 @@ def pointer_write_uciPY(pointer : POINTER(MOVE), index : c_uint64) -> str:
     pointer_write_uci(pointer, index, uci)
     return uci.raw.rstrip(b'\x00').decode()
 
-
 def write_bitboardPY(bitboard : BITBOARD) -> str:
     s = create_string_buffer(137)
     write_bitboard(bitboard, s)
@@ -389,7 +416,6 @@ def construct_movePY(origin : SQUARE, destination : SQUARE, promote_to : PIECE_T
 piece_from_string = clib.piece_from_string
 piece_from_string.argtypes = [c_char_p]
 piece_from_string.restype = _PIECE
-
 
 # _material = clib.material
 # _material.restype = c_int
@@ -813,23 +839,30 @@ pgn_to_board_and_moves.argtypes = [POINTER(PGN), POINTER(BOARD),
 pgn_to_board_and_moves.restype = c_uint16
 
 
+is_san_correct = clib.is_san_correct 
+is_san_correct.argtypes = [c_char_p]
+is_san_correct.restype = c_bool
+
+def is_san_correctPY(san_str : str) -> bool:
+    san = san_str.encode("utf-8")
+    return bool(is_san_correct(san))
 
 
 def pgn_to_board_movesPY(pgn : POINTER(PGN)) -> tuple[POINTER(BOARD),
                                                       bytes,list[MOVE]]:
     board = alloc_boardPY() 
     piece_array = bytes(64)
-    error = cast(create_string_buffer(200), c_char_p)
+    error = create_string_buffer(300)
     moves = (MOVE * 300)()
-    print("go..")
+    print("go..\ngo\n")
     num = pgn_to_board_and_moves(pgn, board, piece_array, moves, error)
     if num == 0:
-        raise Exception(bytes(error).encode("utf-8"))
+        raise Exception(bytes(error).decode("utf-8"))
     else:
         return board, piece_array, [m for m in moves[:num]]                         
 next_pgn = clib.next_pgn
-next_pgn.argtypes = [c_void_p, POINTER(PGN)]
-next_pgn.restype = c_bool
+next_pgn.argtypes = [c_void_p, POINTER(PGN), c_char_p]
+next_pgn.restype = c_int
 
 
 def roundtrip_sanPY(san : str) -> str:
@@ -878,7 +911,7 @@ ZOBRIST_TABLE = create_zobrist_table()
 ## stdlib
 open_pgn = clib.open_pgn
 open_pgn.argtypes = [c_char_p]
-open_pgn.restype = c_void_p
+open_pgn.restype = POINTER(_PGN_FILE)
 
 close_pgn = clib.close_pgn
-close_pgn.argtypes = [c_void_p]
+close_pgn.argtypes = [POINTER(_PGN_FILE)]

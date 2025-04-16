@@ -1,0 +1,3 @@
+#!/bin/zsh
+DYLD_INSERT_LIBRARIES=
+python3 $1

@@ -331,7 +331,6 @@ char * parse_clock(char * str, turn_clock_t * clock, char * missing) {
 		if (!str || !str[0]) {
 			return missing;
 		}
-    turn_clock_t num = 0;
     if (str[0]) {
         for (int i = 0; str[i]; i++) {
 						if (!isdigit(str[i])) {
