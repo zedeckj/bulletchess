@@ -12,7 +12,7 @@ square_t fen_index_to_square(u_int8_t index) {
 
 
 
-int use_empties(wchar_t * fen_buffer, int empties, int index) {
+int use_empties(char * fen_buffer, int empties, int index) {
     if (empties > 0) {
         fen_buffer[index] = '0' + empties;
         return index + 1;
@@ -20,7 +20,7 @@ int use_empties(wchar_t * fen_buffer, int empties, int index) {
     return index;
 }
 
-int write_num(wchar_t * buffer, int offset, int num) {
+int write_num(char * buffer, int offset, int num) {
     switch (num) {
 			NUMCASES(0):
 				buffer[offset++] = num + '0';
@@ -393,7 +393,7 @@ char * parse_fen_array(char ** fens, full_board_t *boards, u_int64_t count) {
 
 
 // massive switch case to minimize branching
-u_int8_t write_castling(castling_rights_t castling, wchar_t *fen_buffer, 
+u_int8_t write_castling(castling_rights_t castling, char *fen_buffer, 
 								u_int8_t s_i) {
 	switch (castling) {
 		case NO_CASTLING: {
@@ -471,7 +471,7 @@ u_int8_t write_castling(castling_rights_t castling, wchar_t *fen_buffer,
 	return s_i;
 }
 
-u_int8_t make_fen(full_board_t *board, wchar_t *fen_buffer) {
+u_int8_t make_fen(full_board_t *board, char *fen_buffer) {
 	if (!fen_buffer) return 0;
 	int s_i = 0;
 	int empties = 0;
@@ -524,60 +524,6 @@ u_int8_t make_fen(full_board_t *board, wchar_t *fen_buffer) {
 	return s_i;
 }
 
-
-u_int8_t make_fen_old(full_board_t *board, wchar_t * fen_buffer) {
-    if (!fen_buffer) {
-        return 0;
-    }
-    int s_i = 0;
-    int empties = 0;
-    for (u_int8_t index = 0; index < 64; index++) {
-        square_t square = fen_index_to_square(index);
-        if ((index && (index % 8) == 0)) {
-            s_i = use_empties(fen_buffer, empties, s_i);
-            empties = 0;
-            fen_buffer[s_i++] = '/';
-        }
-        piece_t piece = get_piece_at(board->position, square);
-        if (piece.type == EMPTY_VAL) {
-            empties += 1;
-        }
-        else {
-            s_i = use_empties(fen_buffer, empties, s_i);
-            empties = 0;
-            fen_buffer[s_i++] = piece_symbol(piece);
-        }
-    }
-    s_i = use_empties(fen_buffer, empties, s_i);
-    fen_buffer[s_i++] = ' ';
-    fen_buffer[s_i++] = board->turn == WHITE_VAL ? 'w' : 'b';
-    fen_buffer[s_i++] = ' ';
-    castling_rights_t castling = board->castling_rights;
-    if (castling == 0) {
-        fen_buffer[s_i++] = '-';
-    }
-    else {
-        if (castling & WHITE_KINGSIDE) fen_buffer[s_i++] = 'K';
-        if (castling & WHITE_QUEENSIDE) fen_buffer[s_i++] = 'Q';
-        if (castling & BLACK_KINGSIDE) fen_buffer[s_i++] = 'k';
-        if (castling & BLACK_QUEENSIDE) fen_buffer[s_i++] = 'q';
-    }
-    fen_buffer[s_i++] = ' ';
-    optional_square_t ep = board->en_passant_square;
-    if (ep.exists) {
-        fen_buffer[s_i++] = file_char_of_square(ep.square);
-        fen_buffer[s_i++] = rank_char_of_square(ep.square);
-    }
-    else fen_buffer[s_i++] = '-';
-    fen_buffer[s_i++] = ' ';
-    turn_clock_t halfmoves = board->halfmove_clock;
-    s_i = write_num(fen_buffer, s_i, halfmoves);
-    fen_buffer[s_i++] = ' ';
-    turn_clock_t fulmoves = board->fullmove_number;
-    s_i = write_num(fen_buffer, s_i, fulmoves);
-    fen_buffer[s_i++] = '\0';
-		return s_i;
-}
 
 
 

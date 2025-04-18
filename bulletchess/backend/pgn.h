@@ -33,7 +33,7 @@ typedef struct {
 
 typedef struct {
 	pgn_tag_section_t tags;
-	san_move_t *moves;
+	move_t *moves;
 	u_int16_t count;
 } pgn_game_t;
 

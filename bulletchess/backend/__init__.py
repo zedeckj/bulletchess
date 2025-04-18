@@ -226,7 +226,7 @@ class PGN(Structure):
 
     _fields_ = [
         ("tags", _PGN_TAGS),
-        ("moves", POINTER(_SAN_MOVE)),
+        ("moves", POINTER(MOVE)),
         ("count", c_uint16)
     ]
 
@@ -258,16 +258,16 @@ class _PGN_FILE(Structure):
     ]
 
 def charp_to_str(c : c_char_p) -> str:
-    return c.raw.rstrip(b'\x00').decode("utf-8")
+    b = bytes(c)
+    print(b)
+    return b.decode("utf-8")
 
 def init_pgn() -> POINTER(PGN):
-    print("inside init pgn") 
     LINE_LEN = 256
     pgn = PGN()
-    pgn.moves = (_SAN_MOVE * 500)()
+    pgn.moves = (MOVE* 500)()
     pgn.count = 500
     pgn.tags = _PGN_TAGS()
-    print("tags and moves ready")
     pgn.tags.event = cast(create_string_buffer(255), c_char_p)
     pgn.tags.site = cast(create_string_buffer(255), c_char_p)
     pgn.tags.date = cast(create_string_buffer(255), c_char_p)
@@ -276,7 +276,6 @@ def init_pgn() -> POINTER(PGN):
     pgn.tags.black_player = cast(create_string_buffer(255), c_char_p)
     pgn.tags.FEN = cast(create_string_buffer(255), c_char_p)
     pgn.tags.result = cast(create_string_buffer(255), c_char_p) 
-    print("returning pointer")
     return pointer(pgn)
 
 def alloc_boardPY() -> POINTER(BOARD):
@@ -286,19 +285,14 @@ def alloc_boardPY() -> POINTER(BOARD):
 
 
 def next_pgnPY(fp : c_void_p) -> POINTER(PGN):
-    print("in next_pgnPY")
     pgn = init_pgn()
-    print("init pgn")
-    err = cast(create_string_buffer(300), c_char_p)
-    print("entering c world")
+    err = cast(create_string_buffer(500), c_char_p)
     status = int(next_pgn(fp, pgn, err))
-    print("back in python world")
     if status != 0:
         if status == 2:
             return None
         else:
-            raise Exception(charp_to_str(err))
-    print("exiting next pgn backend")
+            raise Exception(err.value.decode("utf-8"))
     return pgn
 
 def init_empty_boardPY() -> POINTER(BOARD):
@@ -363,9 +357,12 @@ def init_board_from_fenPY(fen : str) -> tuple[POINTER(BOARD), bytes]:
 
 def san_to_movePY(board : POINTER(BOARD), san : str) -> MOVE:
     err = c_bool(False)
-    struct = san_to_move(board, san.encode("utf-8"), byref(err))
+    msg = bytes(300)
+    struct = san_to_move(board, san.encode("utf-8"), byref(err), msg)
     if err:
-        raise ValueError(f"Invalid Move SAN: {san}")
+        raise ValueError(f"Could not read {san} for position " 
+                         f"{make_fenPY(board)}:\n\t"
+                         f"{msg.decode('utf-8')}")
     return struct
 
 def init_move_from_uciPY(uci : str) -> MOVE:
@@ -377,9 +374,9 @@ def init_move_from_uciPY(uci : str) -> MOVE:
     return struct
 
 def make_fenPY(board : POINTER(BOARD)) -> str:
-    fen = create_unicode_buffer(200)
+    fen = create_string_buffer(200)
     l = make_fen(board, fen)
-    return fen[:l-1]
+    return fen[:l-1].decode("utf-8")
 
 def make_board_stringPY(board : POINTER(BOARD)) -> str:
     str_buffer = create_string_buffer(300)
@@ -558,7 +555,7 @@ set_ep_square_checked.argtypes = [POINTER(BOARD), SQUARE]
 set_ep_square_checked.restype = c_char_p
 
 make_fen = clib.make_fen
-make_fen.argtypes = [POINTER(BOARD), c_wchar_p]
+make_fen.argtypes = [POINTER(BOARD), c_char_p]
 make_fen.restype = c_uint8
 
 parse_fen = clib.parse_fen
@@ -829,15 +826,15 @@ roundtrip_san.argtypes = [c_char_p, c_char_p]
 roundtrip_san.restype = c_bool
 
 san_to_move = clib.san_str_to_move
-san_to_move.argtypes = [POINTER(BOARD), c_char_p, POINTER(c_bool)]
+san_to_move.argtypes = [POINTER(BOARD), c_char_p, POINTER(c_bool), c_char_p]
 san_to_move.restype = MOVE
 
-
+"""
 pgn_to_board_and_moves = clib.pgn_to_board_and_moves
 pgn_to_board_and_moves.argtypes = [POINTER(PGN), POINTER(BOARD), 
                                    c_char_p, POINTER(MOVE), c_char_p]
 pgn_to_board_and_moves.restype = c_uint16
-
+"""
 
 is_san_correct = clib.is_san_correct 
 is_san_correct.argtypes = [c_char_p]
@@ -847,7 +844,7 @@ def is_san_correctPY(san_str : str) -> bool:
     san = san_str.encode("utf-8")
     return bool(is_san_correct(san))
 
-
+"""
 def pgn_to_board_movesPY(pgn : POINTER(PGN)) -> tuple[POINTER(BOARD),
                                                       bytes,list[MOVE]]:
     board = alloc_boardPY() 
@@ -860,6 +857,7 @@ def pgn_to_board_movesPY(pgn : POINTER(PGN)) -> tuple[POINTER(BOARD),
         raise Exception(bytes(error).decode("utf-8"))
     else:
         return board, piece_array, [m for m in moves[:num]]                         
+"""
 next_pgn = clib.next_pgn
 next_pgn.argtypes = [c_void_p, POINTER(PGN), c_char_p]
 next_pgn.restype = c_int

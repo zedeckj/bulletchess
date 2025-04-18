@@ -134,3 +134,10 @@ Timeline
 Notes to work on:
 - Found a weird error when creating a bad move
 - PGN file stream 
+
+
+4/16/25
+PGN TODO:
+Instead of allocating an arbitrarily large number of char* fields and moves in python, 
+dynamically allocate in C, then realloc in python, copy, then free? 
+That all seems very slow. 

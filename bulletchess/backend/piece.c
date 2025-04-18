@@ -1,4 +1,5 @@
 #include "piece.h"
+#include <string.h>
 
 piece_type_t get_rook_val(){
     return ROOK_VAL;
@@ -230,4 +231,21 @@ char piece_symbol(piece_t piece) {
 }
 
 
-
+void write_name(piece_type_t type, char *buffer){
+	switch (type) {
+		case PAWN_VAL: strcpy(buffer, "Pawn");
+									 break;
+		case BISHOP_VAL: strcpy(buffer, "Bishop");
+									 break;
+		case KNIGHT_VAL: strcpy(buffer, "Knight");
+									 break;
+		case ROOK_VAL: strcpy(buffer, "Rook");
+									 break;
+		case QUEEN_VAL: strcpy(buffer, "Queen");
+									 break;
+		case KING_VAL: strcpy(buffer, "King");
+									 break;
+		default: strcpy(buffer, "Unknown");
+	}
+	
+}

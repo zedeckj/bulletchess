@@ -1,11 +1,11 @@
 #include "pgn.h"
 
-#define strncpy2(s1, s2, n) (printf("%s copied on %d\n", s2, __LINE__), \
-		 										strncpy(s1, s2, n))
 
 
 //#define free_token(tok) (printf("freeing %s on %d. %p, %p, %p\n", tok->string, __LINE__, tok->string, tok->location, tok), free_token(tok))
 //#define free(p) (printf("free on line %d %p\n", __LINE__, p), free(p))
+
+#define printf(...) 0
 
 char *alloc_err(tok_context_t *ctx, const char *msg, token_t *tok) {
 	char loc_str[500];
@@ -67,9 +67,9 @@ char *add_tag_pair(token_t *name, token_t *val, dict_t *dict, tok_context_t *ctx
 	printf("added\n");
 	if (!ptr) return alloc_err(ctx,"Unexpected tag name", name);
 	char scratch[255];
-	strncpy2(scratch, val->string + 1, 255);
+	strncpy(scratch, val->string + 1, 255);
 	scratch[strlen(scratch) - 1] = 0;
-	strncpy2(ptr, scratch, 255);
+	strncpy(ptr, scratch, 255);
 	free_token(val);
 	free_token(name);
 	printf("copied %p\n", ptr);
@@ -197,8 +197,9 @@ struct read_move_res read_move_tok(token_t *token,
 																	 int *move_num, 
 																	 bool *white,
 																	 dict_t *res_dict,
-																	 san_move_t *moves,
-																	 u_int16_t *moves_i) {
+																	 move_t *moves,
+																	 u_int16_t *moves_i,
+																	 full_board_t *board) {
 	if (!token) {
 	 	char *err = alloc_err(ctx,"Unexpected end of file after last token", token);
 		printf("err here is %s", err);
@@ -234,14 +235,27 @@ struct read_move_res read_move_tok(token_t *token,
 	bool is_white = !*white;
 	if (is_white) (*move_num)++;
 	*white = is_white;
-	moves[(*moves_i)++] = san;
+	char err[100];
+	move_t move = san_to_move(board, san, err);
+	apply_move(board, move);
+	if (move.type == ERROR_MOVE) {
+		 	char msg[200];
+			char fen[100];
+		 	make_fen(board, fen); 
+			sprintf(msg, "Could not read move for the position %s, %s", 
+					fen, err);
+			return (struct read_move_res)
+			{.err = alloc_err(ctx, msg, token), .done = false};
+	}
+	
+	moves[(*moves_i)++] = move;
 	printf("continuing...\n");
 	return (struct read_move_res){.err = 0, .done = false};
 }
 
 
 
-char *read_moves(FILE *stream, san_move_t *moves, u_int16_t *count,
+char *read_moves(FILE *stream, char *fen, move_t *moves, u_int16_t *count,
 	 					tok_context_t *ctx) {
 	
 	printf("reading moves\n");
@@ -254,14 +268,22 @@ char *read_moves(FILE *stream, san_move_t *moves, u_int16_t *count,
 	bool is_white = true;
 	int turn_num = 1;
 	bool done;
+	
+	position_t pos;
+	full_board_t board;
+	board.position = &pos;
+	piece_index_t index[120];
+	char *fen_err = parse_fen(fen, &board, index);
+	// TODO ^^
+	printf("fen err: %s\n", fen_err);
 	do {
 		token_t *tok = ftoken(stream, ctx);
 		struct read_move_res res 
 			= read_move_tok(tok, stream, ctx, &turn_num, 
-					&is_white, res_dict, moves, &move_i);  	
+					&is_white, res_dict, moves, &move_i, &board);  	
 		printf("res: err %s, done %d\n", res.err, res.done);
-		free_token(tok);
 		if (res.err) return res.err;
+		free_token(tok);
 		done = res.done;
 	} while(!done);
 	printf("exiting move loop\n");
@@ -275,7 +297,7 @@ char *read_pgn_inner(FILE *stream, tok_context_t *ctx, pgn_game_t *dst) {
 			"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 	char *out = read_tagss(stream, &dst->tags, ctx);
 	if (out) return out; 
-	out = read_moves(stream, dst->moves, &(dst->count), ctx);
+	out = read_moves(stream, dst->tags.fen, dst->moves, &(dst->count), ctx);
 	printf("err here in inner %s\n", out);
 	printf("count %d\n", dst->count);
 	return out;	
@@ -291,8 +313,8 @@ int next_pgn(pgn_file_t *pf, pgn_game_t *dst, char *err) {
 	printf("got err %s\n", tmp);
 	if (tmp) {
 		printf("about to copy\n");
-		strncpy2(err, tmp, 300);
-		printf("copied\n\n");
+		strncpy(err, tmp, 300);
+		printf("copied .%s.\n", err);
 		free(tmp);
 		printf("returned 1 to python\n");
 		return 1;	
@@ -316,46 +338,6 @@ bool read_pgn_file(char *filename, pgn_game_t *dst, char *err) {
 	return true;
 }
 */
-
-
-u_int16_t pgn_to_board_and_moves(pgn_game_t *pgn, 
-														full_board_t *board, 
-														piece_index_t *index_array,
-														move_t *moves,
-														char *err){
-	printf("call\n");
-	char fen[100];
-	strncpy2(fen,pgn->tags.fen, 100); 
-	char *fen_err = parse_fen(fen, board, index_array);
-	position_t pos;
-	full_board_t copy;
-	copy.position = &pos;
-	copy_into(&copy, board);
-	//parse_fen(fen, &copy, index_array);
-	printf("fen parsed\n");
-	if (fen_err){
-		printf("fen err\n");
-	 	strncpy2(err, fen_err, 300);
-		return 0;
-	}
-	for (int i = 0; i < pgn->count; i++) {
-		printf("creating move %d\n", i);
-		san_move_t san = pgn->moves[i];
-		move_t move = san_to_move(&copy, san);
-		if (move.type == ERROR_MOVE) {
-			char buf[20];
-			write_san(san, buf); 
-			sprintf(err, "The move %s is not legal", buf);
-			printf("move err: %s\n", err);
-			return 0;
-		}
-		else {
-			moves[i] = move;
-			apply_move(&copy, move);
-		}
-	}
-	return pgn->count;	
-}
 
 
 pgn_file_t *open_pgn(char *filepath){

@@ -74,6 +74,14 @@ class TestMoveGeneration(unittest.TestCase):
         moves = set(board.legal_moves())
         self.assertIn(Move.from_uci("g8h8"), moves)
 
+    def testRegression(self):
+        board = Board.from_fen("rnbk3r/pp3pbp/2p2np1/4p1B1/2P1P3/2N2P2/PP2N1PP/4KB1R b K - 2 9")
+        moves = set(board.legal_moves())
+        self.assertIn(Move.from_uci("b8d7"), moves)
+
+
+
+
     # Illegal board tests
     def testEmpty(self):
         empty = Board.empty()

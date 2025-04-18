@@ -191,6 +191,30 @@ class TestSAN(unittest.TestCase):
             board = Board.random()
             roundtripPerft(self, board, 3)
 
+    def test_ambigious_pseudolegal(self):
+        FEN = "rnbk3r/pp3pbp/2p2np1/4p1B1/2P1P3/2N2P2/PP2N1PP/4KB1R b K - 2 9"
+        board = Board.from_fen(FEN)
+        san = "Nd7"
+        self.assertTrue(is_san_correctPY(san))
+        move = Move.from_san(san, board)
+        print(move._Move__struct.type)
+        san2 = Move.to_san(move, board)
+        #self.assertEqual(san, san2) # Nbd7 currently
+        self.assertEqual(move, Move.from_uci("b8d7"))
+
+
+    def test_ambigious_pseudolegal2(self):
+        FEN = "2R2rk1/1p5p/3p2rq/p2P1Q2/2P1P3/P7/1P5P/5R1K b - - 2 36"
+        board = Board.from_fen(FEN)
+        san = "Rf6"
+        self.assertTrue(is_san_correctPY(san))
+        move = Move.from_san(san, board)
+        print(move._Move__struct.type)
+        san2 = Move.to_san(move, board)
+        #self.assertEqual(san, san2) # Nbd7 currently
+        self.assertEqual(move, Move.from_uci("g6f6"))
+
+
     def test_castling(self):
         if FOCUS:
             return

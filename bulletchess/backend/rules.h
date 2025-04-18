@@ -45,7 +45,7 @@ bool is_insufficient_material(full_board_t * board);
 // Returns true if the side to move is in check
 bool in_check(full_board_t *board);
 
-move_t san_to_move(full_board_t * board, san_move_t san);
+move_t san_to_move(full_board_t * board, san_move_t san, char *err);
 typedef u_int8_t board_status_t;
 #define NO_STATUS 0
 #define CHECK_STATUS 1

@@ -1188,6 +1188,9 @@ bitboard_t possible_pawn_origins(piece_color_t color,
 	return origins;
 }
 
+
+
+
 // From the given board, determines the origin
 // of a move specified by piece type and destination
 // Returns a non existant square if there is no possible
@@ -1199,7 +1202,8 @@ optional_square_t determine_origin(full_board_t *board,
 																	piece_type_t piece_type,
 																	bool is_capture,
 																	square_t destination,
-																	bitboard_t allowed_origins) {
+																	bitboard_t allowed_origins,
+																	char *err) {
 	
 	position_t * pos = board->position;	
 	bitboard_t dest_bb = SQUARE_TO_BB(destination);
@@ -1223,7 +1227,21 @@ optional_square_t determine_origin(full_board_t *board,
 	piece.color = board->turn;
 	bitboard_t piece_bb = get_piece_bb(pos, piece);
 	bitboard_t possible_origins;
-	bool actual_capture;
+	allowed_origins &= piece_bb;
+	if (!allowed_origins) {
+		char piece_name[10];
+		write_name(piece_type, piece_name);
+		char dest[3];
+		serialize_square(destination, dest);
+		sprintf(err, "%s has no %s to move", 
+				board->turn == WHITE_VAL ? "White" : "Black", 
+				piece_name);
+		optional_square_t no_sq;
+		no_sq.exists = false;
+		return no_sq;	
+	}
+	bool actual_capture;	
+	
 	if (piece_type == PAWN_VAL) {
 		actual_capture = dest_bb & (hostile_oc | make_ep_bb(board->en_passant_square));
 		possible_origins = possible_pawn_origins(piece.color, dest_bb, empty, is_capture);
@@ -1232,7 +1250,17 @@ optional_square_t determine_origin(full_board_t *board,
 		actual_capture = dest_bb & hostile_oc;
 		possible_origins = piece_attack_mask(piece, dest_bb, FULL_BB, empty);
 	}
-	if (actual_capture != is_capture) goto err;
+	if (actual_capture != is_capture) {
+		char piece_name[10];
+		write_name(piece_type, piece_name);
+		char dest[3];
+		serialize_square(destination, dest);
+		sprintf(err, "A %s moving to %s is not a capture", 
+				piece_name, dest);
+		optional_square_t no_sq;
+		no_sq.exists = false;
+		return no_sq;	
+	}
 	possible_origins &= allowed_origins & piece_bb;
 	if (possible_origins) {
 		optional_square_t single_origin = bitboard_to_square(possible_origins);
@@ -1243,40 +1271,53 @@ optional_square_t determine_origin(full_board_t *board,
 			move_t piece_moves[64];	
 			u_int8_t count = generate_piece_moves(board, piece_type, piece_moves);
 			for (u_int8_t i = 0; i < count; i++) {
-				refined_origins |= get_origin(piece_moves[i]);	
+				if (get_destination(piece_moves[i]) == destination)
+					refined_origins |= SQUARE_TO_BB(get_origin(piece_moves[i]));	
 			}
 			optional_square_t origin = bitboard_to_square(refined_origins);
-			// still not certain if the given move and position are weird
-			return origin; 
+			// still not certain if the given move 
+			// and position are "weird"
+			// dont ask me for an example
+			if (origin.exists) return origin; 
 		}
 	}
-	err: {
-		optional_square_t no_sq;
-		no_sq.exists = false;
-		return no_sq;	
-	}
+	char piece_name[10];
+	write_name(piece_type, piece_name);
+	char dest[3];
+	serialize_square(destination, dest);
+	sprintf(err, "Ambigious origin for %s moving to %s", 
+			piece_name, dest); 
+	optional_square_t no_sq;
+	no_sq.exists = false;
+	return no_sq;	
 }
 
-
-move_t san_pawn_push_to_move(full_board_t * board, san_pawn_push_t move) {
+move_t san_pawn_push_to_move(full_board_t * board, 
+														 san_pawn_push_t move,
+														 char *err) {
 	//return get_matching_move(board, PAWN_VAL, FULL_BB, move.promote_to, false, move.destination); 	
 	square_t destination = move.destination;
 	optional_square_t origin = determine_origin(board, PAWN_VAL, 
-																false, destination, FULL_BB);
+																false, destination, FULL_BB, err);
 	if (origin.exists) {
 		if (move.promote_to == EMPTY_VAL)
 			return generic_move(move_body(origin.square, destination));
 		else return promotion_move(move_body(origin.square, destination), 
 															move.promote_to);
-	} else return error_move();
+	} 
+	else {
+		// error msg already set by determine origin
+		return error_move();
+	}
 }
 
-move_t san_pawn_capture_to_move(full_board_t * board, san_pawn_capture_t move){
+move_t san_pawn_capture_to_move(full_board_t * board, san_pawn_capture_t move, char *err){
 	bitboard_t allowed_origins = FILE_A << (move.from_file);
-	if (move.from_rank.exists) allowed_origins &= RANK_1 << (8 * move.from_rank.value);
+	if (move.from_rank.exists) 
+		allowed_origins &= RANK_1 << (8 * move.from_rank.value);
 	square_t destination = move.destination;
 	optional_square_t origin = determine_origin(board, PAWN_VAL, true,
-																destination, allowed_origins);
+																destination, allowed_origins, err);
 
 	if (origin.exists) {
 		if (move.promote_to == EMPTY_VAL)
@@ -1286,7 +1327,9 @@ move_t san_pawn_capture_to_move(full_board_t * board, san_pawn_capture_t move){
 	} else return error_move();
 }
 
-move_t san_std_to_move(full_board_t * board, san_std_move_t move) {
+move_t san_std_to_move(full_board_t * board, 
+											 san_std_move_t move,
+											 char *err) {
 	bitboard_t origins_bb = FULL_BB;
 	if (move.from_file.exists) {
 		origins_bb &= (FILE_A << move.from_file.value);
@@ -1295,11 +1338,15 @@ move_t san_std_to_move(full_board_t * board, san_std_move_t move) {
 		origins_bb &= (RANK_1 << 8 * move.from_rank.value);
 	}
 	square_t destination = move.destination;
-	optional_square_t origin = determine_origin(board, move.moving_piece,
-																move.is_capture, destination, origins_bb);
+	optional_square_t origin = 
+		determine_origin(board, move.moving_piece,
+				move.is_capture, destination, origins_bb, err);
 	if (origin.exists) {
 		return generic_move(move_body(origin.square, destination));
-	} else return error_move();
+	} 
+	else {
+		return error_move();
+	}
 }
 
 move_t san_castling_to_move(full_board_t * board, bool kingside) {
@@ -1316,18 +1363,33 @@ move_t san_castling_to_move(full_board_t * board, bool kingside) {
 
 }
 
-move_t san_to_move(full_board_t * board, san_move_t san) {
+move_t san_to_move(full_board_t * board, san_move_t san, char* err) {
 	switch (san.type) {
-	case SAN_STD: return san_std_to_move(board, san.std_move);
-	case SAN_PAWN_PUSH: return san_pawn_push_to_move(board, san.pawn_push);
-	case SAN_PAWN_CAPTURE: return san_pawn_capture_to_move(board, san.pawn_capture);
-	case SAN_CASTLING: return san_castling_to_move(board, san.castling_kingside);
-	default: return error_move();
+	case SAN_STD: 
+		return san_std_to_move(board, san.std_move, err);
+	case SAN_PAWN_PUSH: 
+		return san_pawn_push_to_move(board, san.pawn_push, err);
+	case SAN_PAWN_CAPTURE: 
+		return san_pawn_capture_to_move(board, san.pawn_capture, err);
+	case SAN_CASTLING: 
+		return san_castling_to_move(board, san.castling_kingside);
+	default: 
+		strcpy(err, "Invalid SAN");								 
+		return error_move();
 	}
 }
 
-move_t san_str_to_move(full_board_t *board, char * str, bool *error) {
-	return san_to_move(board, parse_san(str, error));
+move_t san_str_to_move(full_board_t *board, char *str, 
+		bool *is_err, char *error) {
+	bool parse_err;
+	san_move_t san = parse_san(str, &parse_err);
+	if (parse_err) {
+		*is_err = true;
+		return error_move();
+	}
+	move_t move = san_to_move(board, san, error);
+	if (move.type == ERROR_MOVE) *is_err = true; 
+	return move;
 }
 
 
@@ -1780,7 +1842,9 @@ u_int8_t generate_legal_moves(full_board_t *board, move_t * move_buffer) {
 
 u_int8_t generate_piece_moves(full_board_t *board, piece_type_t for_piece, move_t *move_buffer) {
 		piece_color_t for_color = board->turn;
-    bitboard_t attack_mask = make_attack_mask(board, WHITE_VAL == for_color ? BLACK_VAL : WHITE_VAL);
+    bitboard_t attack_mask = 
+			make_attack_mask(board, 
+					WHITE_VAL == for_color ? BLACK_VAL : WHITE_VAL);
     check_info_t info = make_check_info(board, for_color, attack_mask);
 		bitboard_t allowed = get_piece_type_bb(board->position, for_piece);
     return generate_moves(board, for_color, attack_mask, info, allowed, move_buffer);

@@ -260,19 +260,20 @@ char * err_generic_move(generic_move_t move) {
 char * err_promotion_move(promotion_move_t move) {
 	piece_type_t pro = move.promote_to;
 	switch (pro) {
-					case QUEEN_VAL:
-					case KNIGHT_VAL:
-					case ROOK_VAL:
-					case BISHOP_VAL: {
-						char dest_file = file_char_of_square(move.body.destination);
-						char dest_rank = rank_char_of_square(move.body.destination);
-						char origin_file = file_char_of_square(move.body.origin);
-						char origin_rank = rank_char_of_square(move.body.origin);
-						return err_promotion_move_with(origin_file, origin_rank, dest_file, dest_rank);
-					}
-					default:
-					return "Invalid promotion Move, a Pawn cannot promote to a {promote_to}";
-	}	
+			case QUEEN_VAL:
+			case KNIGHT_VAL:
+			case ROOK_VAL:
+			case BISHOP_VAL: {
+				char dest_file = file_char_of_square(move.body.destination);
+				char dest_rank = rank_char_of_square(move.body.destination);
+				char origin_file = file_char_of_square(move.body.origin);
+				char origin_rank = rank_char_of_square(move.body.origin);
+			return err_promotion_move_with(origin_file, origin_rank, dest_file, dest_rank);
+			}
+			default:
+			return 
+		"Invalid promotion Move, a Pawn cannot promote to a {promote_to}";
+}	
 }
 
 char * error_from_move(move_t move) {
@@ -448,7 +449,7 @@ u_int8_t parse_san_status(char * str, u_int8_t *status) {
 			*status = SAN_NOCHECK;
 			return 0;
 		}
-	}
+}
 	*status = SAN_NOCHECK;
 	return 0;
 }
@@ -468,8 +469,9 @@ san_move_t parse_pawn_capture_san(char * str){
 			if (maybe_dest.exists) {
 				piece_type_t promote_to;
 				u_int8_t index = x_off;
-				if (str[x_off +3] == '=') {
-					piece_type_t promote_to = san_parse_piece_type(str[x_off + 4]);
+				if (str[x_off + 3] == '=') {
+						promote_to = san_parse_piece_type(str[x_off + 4]);
+
 					if (promote_to == EMPTY_VAL) goto err;
 					index += 5;	
 				}
@@ -477,6 +479,7 @@ san_move_t parse_pawn_capture_san(char * str){
 					promote_to = san_parse_piece_type(str[x_off + 3]);
 					index = x_off + (promote_to == EMPTY_VAL ? 3 : 4);
 				}
+
 				u_int8_t status;
 				index += parse_san_status(str + index, &status);	
 				u_int8_t ann = parse_ann(str + index);
@@ -508,7 +511,6 @@ san_move_t parse_pawn_push_san(char * str) {
 		san.pawn_push.destination = maybe_dest.square;
 		u_int8_t end;
 		if (str[2] == '=') {
-			printf("here2\n");			
 			san.pawn_push.promote_to = san_parse_piece_type(str[3]);	
 			if (san.pawn_push.promote_to == EMPTY_VAL) goto err;
 			end = 4;

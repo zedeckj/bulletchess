@@ -94,4 +94,9 @@ piece_t piece_from_symbol(char symbol);
 // Parses a piece from a string, asserting that the string is only of length 1
 piece_t piece_from_string(char *piece_string);
 
+
+// Writes the given piece types name, (ex. Pawn, Bishop) to the string
+// buffer
+void write_name(piece_type_t type, char *buffer);
+
 #endif

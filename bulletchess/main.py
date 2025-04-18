@@ -977,16 +977,15 @@ class Game:
     def move_count(self) -> int:
         return int(self.__pointer.contents.count)
     
-    def board_moves(self) -> tuple[Board, list[Move]]:
+    def moves(self) -> list[Move]:
         """
-        Returns a Board representing the starting position of this game,
-        and a list of moves that were played.
+        Returns a list of moves that were played in this Game.
         """
         
-        bp, piece_arr, moves = _backend.pgn_to_board_movesPY(self.__pointer)
-        board = Board._Board__inst(bp, [], [], piece_arr)
-        moves = [Move._Move__inst(m) for m in moves]
-        return board, moves
+        moves = [Move._Move__inst(m) for m in 
+                 self.__pointer.contents.moves
+                 [:self.__pointer.contents.count]]
+        return moves
 
 
 
@@ -1000,30 +999,22 @@ class PGNReader:
             self.__fp = fp
 
         def close(self):
-            print("closing file")
             _backend.close_pgn(self.__fp)
 
         def __enter__(self):
             return self
 
         def __exit__(self, a, b, c):
-            print("exiting ctx python")
             self.close()
 
         def next_game(self) -> Game:
-            print("called next game")
             p = _backend.next_pgnPY(self.__fp)
-            print("back in next game frontend")
             if p == None:
                 return None
-            print("about to init game")
             game = Game()
             game._Game__pointer = p
-            print("returned game")
             return game
 
-        def __str__(self):
-            return "foo thingy!"
 
     __slots__ = ["__path"]
     
