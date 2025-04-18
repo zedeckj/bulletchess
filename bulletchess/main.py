@@ -993,10 +993,11 @@ class PGNReader:
 
     class PGNFile:
         
-        __slots__ = ["__fp"]
+        __slots__ = ["__fp", "__path"]
 
-        def __init__(self, fp):
+        def __init__(self, fp, path):
             self.__fp = fp
+            self.__path = path
 
         def close(self):
             _backend.close_pgn(self.__fp)
@@ -1018,15 +1019,13 @@ class PGNReader:
 
     __slots__ = ["__path"]
     
-    def __init__(path : str):
-        self.__path = path.encode("utf-8")
-        return pgnf
     
     @staticmethod
     def open(path : str):
-        fp = _backend.open_pgn(path.encode("utf-8"))
+        path = path.encode("utf-8")
+        fp = _backend.open_pgn(path)
         if not fp:
             raise FileNotFoundError(f"PGN File {path} not found")
-        pgn_file = PGNReader.PGNFile(fp)
+        pgn_file = PGNReader.PGNFile(fp, path)
         return pgn_file
 

@@ -3,7 +3,8 @@ import sys
 sys.path.append("./")
 from bulletchess import *
 
-FILEPATH = "/Users/jordan/Documents/C/ChessLibrary/tests/pgn/example.pgn"
+FILEPATH = "tests/pgn/example.pgn"
+WRONGPATH = "tests/pgn/wrong.pgn"
 
 class TestPGN(unittest.TestCase):
 
@@ -11,9 +12,8 @@ class TestPGN(unittest.TestCase):
         self.assertEqual(move, Move.from_uci(uci))
 
     def assertMovesAre(self, game : Game, move_sans : list[str]):
-        board, moves = game.board_moves()
-        print(board)
-        print(board.fen())
+        moves = game.moves()
+        board = Board()
         
         self.assertEqual(board, Board())
         for i in range(len(move_sans)):
@@ -36,7 +36,8 @@ class TestPGN(unittest.TestCase):
     def test_moves(self):
         with PGNReader.open(FILEPATH) as f:
             game = f.next_game()
-        board, moves = game.board_moves()
+        board = Board()
+        moves = game.moves()
         self.assertMoveEq(moves[0], "e2e4")
         self.assertMoveEq(moves[1], "e7e5")
         self.assertMoveEq(moves[2], "g1f3") # "g6f3" bad error
@@ -64,6 +65,10 @@ class TestPGN(unittest.TestCase):
             none = f.next_game()
         self.assertEqual(none, None)
 
+
+    def test_err(self):
+        with PGNReader.open(WRONGPATH) as f:
+            game = f.next_game()
 
 if __name__ == "__main__":
     unittest.main()

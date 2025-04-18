@@ -1104,68 +1104,6 @@ bitboard_t piece_attack_mask(piece_t piece, bitboard_t origins,
 	}
 }
 
-// Gets a legal move that matches the given criteria
-move_t get_matching_move(full_board_t * board, 
-								piece_type_t moving_piece, 
-								bitboard_t allowed_origins,
-								piece_type_t promote_to, 
-								bool is_capture,				
-								square_t destination) {
-	position_t * pos = board->position;
-	bitboard_t piece_bb;
-	bitboard_t hostile_oc;
-	if (board->turn == WHITE_VAL) {
-		piece_bb = pos->white_oc;
-		hostile_oc = pos->black_oc;
-	}
-	else {
-		piece_bb = pos->black_oc;
-		hostile_oc = pos->white_oc;
-	}
-	bool captures = (hostile_oc & SQUARE_TO_BB(destination));
-	if (!is_capture && captures) return error_move();
-	switch (moving_piece) {
-		case PAWN_VAL:
-		piece_bb &= pos->pawns;
-		break;
-		case KNIGHT_VAL:
-		piece_bb &= pos->knights;
-		break;
-		case BISHOP_VAL:
-		piece_bb &= pos->bishops;
-		break;
-		case ROOK_VAL:
-		piece_bb &= pos->rooks;
-		break;
-		case QUEEN_VAL:
-		piece_bb &= pos->queens;
-		break;
-		case KING_VAL:
-		piece_bb &= pos->kings;
-		break;
-	}
-	move_t move_buffer[256];
-	u_int8_t length = generate_legal_moves(board, move_buffer);
-	for (int i = 0; i < length; i++) {
-		move_t move = move_buffer[i];
-	
-		if (get_destination(move) == destination) {
-			bitboard_t origin_bb = SQUARE_TO_BB(get_origin(move));
-			if (allowed_origins & origin_bb & piece_bb){
-				if (move_buffer[i].type == PROMOTION_MOVE){
-					piece_type_t selected_promote = move_buffer[i].promotion.promote_to;
-					if (selected_promote == promote_to) return move_buffer[i];	
-				}
-				else if (promote_to == EMPTY_VAL) {
-					return move_buffer[i];
-				}
-			}
-		}
-	}
-	return error_move();
-}
-
-
 bitboard_t possible_pawn_origins(piece_color_t color, 
 											bitboard_t dest_bb, bitboard_t empty, bool is_capture) {
 	bitboard_t origins;
@@ -1228,7 +1166,7 @@ optional_square_t determine_origin(full_board_t *board,
 	bitboard_t piece_bb = get_piece_bb(pos, piece);
 	bitboard_t possible_origins;
 	allowed_origins &= piece_bb;
-	if (!allowed_origins) {
+	if (!allowed_origins) { // may result in bad err messaging
 		char piece_name[10];
 		write_name(piece_type, piece_name);
 		char dest[3];
@@ -1280,6 +1218,17 @@ optional_square_t determine_origin(full_board_t *board,
 			// dont ask me for an example
 			if (origin.exists) return origin; 
 		}
+	}
+	else {
+		char piece_name[10];
+		write_name(piece_type, piece_name);
+		char dest[3];
+		serialize_square(destination, dest);
+		sprintf(err, "%s moving to %s is not legal", 
+			piece_name, dest); 
+		optional_square_t no_sq;
+		no_sq.exists = false;
+		return no_sq;
 	}
 	char piece_name[10];
 	write_name(piece_type, piece_name);

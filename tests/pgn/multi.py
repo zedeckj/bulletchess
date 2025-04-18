@@ -3,7 +3,7 @@ import sys
 sys.path.append("./")
 from bulletchess import *
 
-FILEPATH = "/Users/jordan/Documents/C/ChessLibrary/tests/pgn/Modern.pgn"
+FILEPATH = "tests/pgn/Modern.pgn"
 
 class TestPGN(unittest.TestCase):
 
@@ -11,9 +11,8 @@ class TestPGN(unittest.TestCase):
         self.assertEqual(move, Move.from_uci(uci))
 
     def assertMovesAre(self, game : Game, move_sans : list[str]):
-        board, moves = game.board_moves()
-        print(board)
-        print(board.fen())
+        board = Board()
+        moves = game.moves()
         
         self.assertEqual(board, Board())
         for i in range(len(move_sans)):
