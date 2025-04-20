@@ -217,17 +217,17 @@ class _PGN_TAGS(Structure):
         ("round", c_char_p),
         ("white_player", c_char_p),
         ("black_player", c_char_p),
-        ("result", c_char_p),
-        ("FEN", c_char_p)
+        ("result", c_uint8),
     ]
 
 
 class PGN(Structure):
 
     _fields_ = [
-        ("tags", _PGN_TAGS),
+        ("tags", POINTER(_PGN_TAGS)),
         ("moves", POINTER(MOVE)),
-        ("count", c_uint16)
+        ("starting_board", POINTER(BOARD)),
+        ("count", c_uint16),
     ]
 
 
@@ -265,17 +265,17 @@ def charp_to_str(c : c_char_p) -> str:
 def init_pgn() -> POINTER(PGN):
     LINE_LEN = 256
     pgn = PGN()
-    pgn.moves = (MOVE* 500)()
-    pgn.count = 500
-    pgn.tags = _PGN_TAGS()
-    pgn.tags.event = cast(create_string_buffer(255), c_char_p)
-    pgn.tags.site = cast(create_string_buffer(255), c_char_p)
-    pgn.tags.date = cast(create_string_buffer(255), c_char_p)
-    pgn.tags.round = cast(create_string_buffer(255), c_char_p)
-    pgn.tags.white_player = cast(create_string_buffer(255), c_char_p)
-    pgn.tags.black_player = cast(create_string_buffer(255), c_char_p)
-    pgn.tags.FEN = cast(create_string_buffer(255), c_char_p)
-    pgn.tags.result = cast(create_string_buffer(255), c_char_p) 
+    pgn.moves = (MOVE* 600)()
+    pgn.count = 600
+    tags = _PGN_TAGS()
+    tags.event = cast(create_string_buffer(255), c_char_p)
+    tags.site = cast(create_string_buffer(255), c_char_p)
+    tags.date = cast(create_string_buffer(255), c_char_p)
+    tags.round = cast(create_string_buffer(255), c_char_p)
+    tags.white_player = cast(create_string_buffer(255), c_char_p)
+    tags.black_player = cast(create_string_buffer(255), c_char_p)
+    pgn.tags = pointer(tags)
+    pgn.starting_board = alloc_boardPY()
     return pointer(pgn)
 
 def alloc_boardPY() -> POINTER(BOARD):

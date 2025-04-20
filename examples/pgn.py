@@ -2,7 +2,7 @@ import sys
 sys.path.append("./")
 
 from bulletchess import *
-
+from collections import Counter
 
 FILEPATH = "/Users/jordan/Documents/C/ChessLibrary/tests/pgn/Modern.pgn"
 
@@ -32,9 +32,20 @@ def get_fens_bullet():
                 board.apply(m)
     return fens
 
-import chess.pgn
-
 @timer_func
+def get_results():
+    results = Counter()
+    with PGNReader.open(FILEPATH) as pgn:
+        while True:
+            game = pgn.next_game()
+            if game == None:
+                break
+            results[game.result] += 1
+    return results
+
+
+
+
 def get_fens_chess():
     fens = set()
     with open(FILEPATH, encoding="utf-8", errors = "ignore") as pgn:
@@ -49,12 +60,8 @@ def get_fens_chess():
                 board.push(m)
     return fens
 
+results = get_results()
+print(results)
 
-fens1 = get_fens_bullet()
-fens2 = get_fens_chess()
-
-for fen in fens1:
-    assert(fen in fens2)
-
-for fen in fens2:
-    assert(fen in fens1)
+#fens1 = get_fens_bullet()
+#fens2 = get_fens_chess()

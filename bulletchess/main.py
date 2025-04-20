@@ -98,91 +98,88 @@ class Square:
     def __hash__(self) -> int:
         return self.value
 
-A1 = Square(0)
-B1 = Square(1)
-C1 = Square(2)
-D1 = Square(3)
-E1 = Square(4)
-F1 = Square(5)
-G1 = Square(6)
-H1 = Square(7)
-A2 = Square(8)
-B2 = Square(9)
-C2 = Square(10)
-D2 = Square(11)
-E2 = Square(12)
-F2 = Square(13)
-G2 = Square(14)
-H2 = Square(15)
-A3 = Square(16)
-B3 = Square(17)
-C3 = Square(18)
-D3 = Square(19)
-E3 = Square(20)
-F3 = Square(21)
-G3 = Square(22)
-H3 = Square(23)
-A4 = Square(24)
-B4 = Square(25)
-C4 = Square(26)
-D4 = Square(27)
-E4 = Square(28)
-F4 = Square(29)
-G4 = Square(30)
-H4 = Square(31)
-A5 = Square(32)
-B5 = Square(33)
-C5 = Square(34)
-D5 = Square(35)
-E5 = Square(36)
-F5 = Square(37)
-G5 = Square(38)
-H5 = Square(39)
-A6 = Square(40)
-B6 = Square(41)
-C6 = Square(42)
-D6 = Square(43)
-E6 = Square(44)
-F6 = Square(45)
-G6 = Square(46)
-H6 = Square(47)
-A7 = Square(48)
-B7 = Square(49)
-C7 = Square(50)
-D7 = Square(51)
-E7 = Square(52)
-F7 = Square(53)
-G7 = Square(54)
-H7 = Square(55)
-A8 = Square(56)
-B8 = Square(57)
-C8 = Square(58)
-D8 = Square(59)
-E8 = Square(60)
-F8 = Square(61)
-G8 = Square(62)
-H8 = Square(63)
+A1 : Square = Square(0)
+B1 : Square = Square(1)
+C1 : Square = Square(2)
+D1 : Square = Square(3)
+E1 : Square = Square(4)
+F1 : Square = Square(5)
+G1 : Square = Square(6)
+H1 : Square = Square(7)
+A2 : Square = Square(8)
+B2 : Square = Square(9)
+C2 : Square = Square(10)
+D2 : Square = Square(11)
+E2 : Square = Square(12)
+F2 : Square = Square(13)
+G2 : Square = Square(14)
+H2 : Square = Square(15)
+A3 : Square = Square(16)
+B3 : Square = Square(17)
+C3 : Square = Square(18)
+D3 : Square = Square(19)
+E3 : Square = Square(20)
+F3 : Square = Square(21)
+G3 : Square = Square(22)
+H3 : Square = Square(23)
+A4 : Square = Square(24)
+B4 : Square = Square(25)
+C4 : Square = Square(26)
+D4 : Square = Square(27)
+E4 : Square = Square(28)
+F4 : Square = Square(29)
+G4 : Square = Square(30)
+H4 : Square = Square(31)
+A5 : Square = Square(32)
+B5 : Square = Square(33)
+C5 : Square = Square(34)
+D5 : Square = Square(35)
+E5 : Square = Square(36)
+F5 : Square = Square(37)
+G5 : Square = Square(38)
+H5 : Square = Square(39)
+A6 : Square = Square(40)
+B6 : Square = Square(41)
+C6 : Square = Square(42)
+D6 : Square = Square(43)
+E6 : Square = Square(44)
+F6 : Square = Square(45)
+G6 : Square = Square(46)
+H6 : Square = Square(47)
+A7 : Square = Square(48)
+B7 : Square = Square(49)
+C7 : Square = Square(50)
+D7 : Square = Square(51)
+E7 : Square = Square(52)
+F7 : Square = Square(53)
+G7 : Square = Square(54)
+H7 : Square = Square(55)
+A8 : Square = Square(56)
+B8 : Square = Square(57)
+C8 : Square = Square(58)
+D8 : Square = Square(59)
+E8 : Square = Square(60)
+F8 : Square = Square(61)
+G8 : Square = Square(62)
+H8 : Square = Square(63)
 
 
-SQUARES = [Square(i) for i in range(64)]
+SQUARES : list[Square] = [Square(i) for i in range(64)]
 
-WHITE = Color(True)
-BLACK = Color(False)
-COLORS = [WHITE, BLACK]
+WHITE : Color = Color(True)
+BLACK : Color = Color(False)
+COLORS : list[Color] = [WHITE, BLACK]
 
-PAWN = PieceType.PAWN
-KNIGHT = PieceType.KNIGHT
-BISHOP = PieceType.BISHOP
-ROOK = PieceType.ROOK
-QUEEN = PieceType.QUEEN
-KING = PieceType.KING
-
-
-
-PIECE_TYPES = [piece_type for piece_type in PieceType]
+PAWN : PieceType = PieceType.PAWN
+KNIGHT : PieceType = PieceType.KNIGHT
+BISHOP : PieceType = PieceType.BISHOP
+ROOK : PieceType = PieceType.ROOK
+QUEEN : PieceType = PieceType.QUEEN
+KING : PieceType = PieceType.KING
 
 
 
+PIECE_TYPES : list[PieceType] = [piece_type for piece_type in PieceType]
 
 
 class Piece:
@@ -813,7 +810,7 @@ class BoardStatus:
     THREEFOLD_REPETITION = 32
     FIVEFOLD_REPETITION = 64
     RESIGNATION = 128
-
+    
     __slots__ = ["value"]
 
     @property    
@@ -942,32 +939,57 @@ class Game:
 
     @property
     def event(self):
-        return self.__pointer.contents.tags.event.decode("utf-8")
+        """
+        A string representing the contents of the `Event` tag of a Game
+        """
+        return self.__pointer.contents.tags.contents.event.decode("utf-8")
 
     @property
     def site(self):
-        return self.__pointer.contents.tags.site.decode("utf-8")
+        """
+        A string representing the contents of the `Site` tag of a Game
+        """
+ 
+
+        return self.__pointer.contents.tags.contents.site.decode("utf-8")
 
     @property
     def round(self):
-        return self.__pointer.contents.tags.round.decode("utf-8")
+        """
+        A string representing the contents of the `Round` tag of a Game
+        """
+        return self.__pointer.contents.tags.contents.round.decode("utf-8")
 
     @property
     def date(self):
-        return self.__pointer.contents.tags.date.decode("utf-8")
+        """
+        A string representing the contents of the `Date` tag of a Game.
+        Should be in the format "YYY.MM.DD"
+        """
+        return self.__pointer.contents.tags.contents.date.decode("utf-8")
 
     @property
     def white(self):
-        return self.__pointer.contents.tags.white_player.decode("utf-8")
+        """
+        A string representing the contents of the `White` tag of a Game.
+        """
+        return self.__pointer.contents.tags.contents.white_player.decode("utf-8")
 
     @property
     def black(self):
-        return self.__pointer.contents.tags.black_player.decode("utf-8")
+        """
+        A string representing the contents of the `Black` tag of a Game.
+        """
+        return self.__pointer.contents.tags.contents.black_player.decode("utf-8")
 
     @property
     def result(self):
-        return self.__pointer.contents.tags.result.decode("utf-8")
+        """
+        The outcome of this Game represented as a `BoardStatus`.
+        """
+        return self.__pointer.contents.tags.contents.result 
     
+
     @property
     def _as_argument(self):
         return self.__pointer

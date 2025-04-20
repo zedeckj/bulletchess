@@ -21,19 +21,19 @@ typedef u_int8_t pgn_result_t;
 typedef struct {
 	char *event;
 	char *site;
-	char *date;
-	char *round;
+	char *date; // can be date date obj
+	char *round; 
 	char *white_player;
 	char *black_player;
-	char *result;
-	char *fen;
+	u_int8_t result;
 } pgn_tag_section_t;
 
 
 
 typedef struct {
-	pgn_tag_section_t tags;
+	pgn_tag_section_t *tags;
 	move_t *moves;
+	full_board_t *starting_board;
 	u_int16_t count;
 } pgn_game_t;
 

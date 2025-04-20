@@ -364,7 +364,8 @@ char * parse_fen(char * fen, full_board_t * board, piece_index_t * index_array) 
 		if (!fen) return "Empty FEN";
     char *rest = 0;
     char * error = parse_position(strtok_r(fen, " ", &rest), board->position, index_array);
-    if (error) return error;
+    
+		if (error) return error;
     error = parse_turn(strtok_r(0, " ", &rest), &(board->turn));
     if (error) return error;
     error = parse_castling(strtok_r(0, " ", &rest), &(board->castling_rights));

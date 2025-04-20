@@ -141,3 +141,15 @@ PGN TODO:
 Instead of allocating an arbitrarily large number of char* fields and moves in python, 
 dynamically allocate in C, then realloc in python, copy, then free? 
 That all seems very slow. 
+
+
+4/18/25
+Updated TODO:
+- Dynamic reallocation in python may be too slow, but at the least reduce allocation
+    - FEN should be replaced with a starting board pointer (much smaller)
+    - result should be replaced with a BoardStatus enum
+    - date replaced by date struct
+- Add support for extra tags for ELO, or anything else that is strictly numeric or formatted in a manner which is not an unbounded string
+- Write tests for each individual field being correct, empty, blank, and malformed.
+- Refactor main.py to remove (or at least reduce) type errors
+- Exapnd on utilities, focus on defining objective functions, not random heuristics you've come up with. 

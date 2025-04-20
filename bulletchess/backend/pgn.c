@@ -30,8 +30,12 @@ char *alloc_err(tok_context_t *ctx, const char *msg, token_t *tok) {
 }
 
 
+void strip_str(char *dst, char *src) {
+	strcpy(dst, src + 1);
+	dst[strlen(dst) - 1] = 0;
+}
 
-dict_t *make_dst_dict(pgn_tag_section_t *tags) {
+dict_t *make_dst_dict(pgn_tag_section_t *tags, char *fen, char *res) {
 	dict_t *dict = new_dict(20);
 	printf("tags event %p\n", tags->event);
 	dict_add(dict, "Event", tags->event);
@@ -41,8 +45,8 @@ dict_t *make_dst_dict(pgn_tag_section_t *tags) {
 	dict_add(dict, "Round", tags->round);
 	dict_add(dict, "White", tags->white_player);
 	dict_add(dict, "Black", tags->black_player);
-	dict_add(dict, "Result", tags->result);
-	dict_add(dict, "FEN", tags->fen);
+	dict_add(dict, "Result", res);
+	dict_add(dict, "FEN", fen);
 	return dict;
 }
 
@@ -61,16 +65,20 @@ void skip_comment(FILE *stream, token_t *tok, tok_context_t *ctx) {
 	}
 }
 
-char *add_tag_pair(token_t *name, token_t *val, dict_t *dict, tok_context_t *ctx){
+char *add_tag_pair(token_t *name, token_t *val, 
+		dict_t *dict, tok_context_t *ctx, dict_t *tok_dict){
+	if (val && strlen(val->string) > 254)
+		return alloc_err(ctx, 
+				"Tag value is too long, must be at most 255 characters", val);
 	printf("adding pair %s %s\n", name->string, val->string);
 	char *ptr = dict_remove(dict, name->string);
 	printf("added\n");
-	if (!ptr) return alloc_err(ctx,"Unexpected tag name", name);
+	if (!ptr) return 0; // Just ignore unknown tags
+	dict_add(tok_dict, name->string, val);
 	char scratch[255];
 	strncpy(scratch, val->string + 1, 255);
 	scratch[strlen(scratch) - 1] = 0;
 	strncpy(ptr, scratch, 255);
-	free_token(val);
 	free_token(name);
 	printf("copied %p\n", ptr);
 	return 0;
@@ -78,7 +86,8 @@ char *add_tag_pair(token_t *name, token_t *val, dict_t *dict, tok_context_t *ctx
 
 char *read_tag_pair(FILE *stream, 
 										tok_context_t *ctx, 
-										dict_t* dict, token_t *first) {
+										dict_t* dict, token_t *first,
+										dict_t* tok_dict) {
 		token_t *name = ftoken(stream, ctx);
 		if (name) {
 			printf("got name %s\n", name->string);
@@ -94,8 +103,7 @@ char *read_tag_pair(FILE *stream,
 				}
 				else if (token_is(last, "]")) {
 					printf("got last %s\n", last->string);
-					add_tag_pair(name, val, dict, ctx); 
-					return 0;
+					return add_tag_pair(name, val, dict, ctx, tok_dict); 
 				}
 				else {
 					free_token(name);
@@ -113,13 +121,78 @@ char *read_tag_pair(FILE *stream,
 		}
 }
 
+void dict_free_toks(dict_t *dict) {
+	void **values = dict_values(dict);
+	for (size_t i = 0; i < dict->length; i++) {
+		printf("%ld: %p\n", i, values[i]);
+		free_token(values[i]);
+	}
+	free(values);
+	printf("out of free\n");
+}
 
-char *read_tagss(FILE *stream, 
-								pgn_tag_section_t *tags, 
-								tok_context_t *ctx) {
+
+
+char *transform_tags(dict_t *tok_dict,
+										tok_context_t *ctx,
+										pgn_game_t *dst,
+										dict_t * res_dict) {
+	token_t *fen_tok = dict_remove(tok_dict, "FEN");
+	if (fen_tok) {
+		char buff[255];
+		strip_str(buff, fen_tok->string);
+		fprintf(stderr, "fen is %s\n", buff);
+		piece_index_t pieces[128];
+		char *fen_err = parse_fen(buff, 
+				dst->starting_board, pieces);
+		if (fen_err) {
+			dict_free_toks(tok_dict);
+			return alloc_err(ctx, fen_err, fen_tok);
+		}
+		printf("freeing fen tok\n");
+		free(fen_tok->string);
+		free(fen_tok);
+	}
+	else {
+		printf("no fen tok\n");
+		char fen[200];
+		strcpy(fen,
+			"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+		printf("fen is %s\n", fen);
+		piece_index_t pieces[128];
+		printf("pointer is %p\n", dst->starting_board->position);
+		parse_fen(fen, dst->starting_board, pieces);
+		printf("fuck you\n");
+	}
+	printf("done\n");
+	token_t *res_tok = dict_remove(tok_dict, "Result");
+	if (res_tok) {
+		fprintf(stdout, "checking tok %s\n in len %ld\n", 
+				res_tok->string, res_dict->length);
+		
+		u_int8_t *res = dict_lookup(res_dict, res_tok->string);
+		fprintf(stdout, "got res %p\n", res);
+		if (res) dst->tags->result = *res;
+		else dst->tags->result = UNK_RES;
+	} 
+	else {
+		// not strict about inclusion
+		dst->tags->result = UNK_RES;
+	}	
+
+
+	dict_free_toks(tok_dict);
+	return 0;
+}
+
+char *read_tagss(FILE *stream,
+	 							dict_t *dest_dict, 	
+								tok_context_t *ctx,
+								pgn_game_t *dst,
+								dict_t *res_dict) {
 	printf("called tags\n");
-	dict_t *dict = make_dst_dict(tags);
 	printf("made dict\n");
+	dict_t *tok_dict = new_dict(20);
 	do {
 		printf("before ftok\n");
 		token_t *first = ftoken(stream, ctx);
@@ -130,9 +203,10 @@ char *read_tagss(FILE *stream,
 		}
 		printf("got first %s\n", first->string);
 		if (token_is(first, "[")) {
-			char *err = read_tag_pair(stream, ctx, dict, first);
+			char *err = read_tag_pair(stream, ctx, dest_dict, first, tok_dict);
 			if (err) {
-				dict_free(dict);
+				dict_free(dest_dict);
+				dict_free_toks(tok_dict);
 				return err;
 			}
 		}
@@ -142,13 +216,14 @@ char *read_tagss(FILE *stream,
 			break;
 		}
 		else {
-			dict_free(dict);
+			dict_free(dest_dict);
+			dict_free_toks(tok_dict);
 			return alloc_err(ctx,"Expected a tag pair or the beginning of a Movetext block", first);
 		}
 	} while (true);
 	
-	dict_free(dict);
-	return 0;	
+	dict_free(dest_dict);
+	return transform_tags(tok_dict, ctx, dst, res_dict);	
 }
 
 struct read_num_res {
@@ -247,7 +322,10 @@ struct read_move_res read_move_tok(token_t *token,
 			return (struct read_move_res)
 			{.err = alloc_err(ctx, msg, token), .done = false};
 	}
-	
+	if (*moves_i == 600) {
+		return (struct read_move_res)
+		{.err = alloc_err(ctx, "Too many moves in game, can only store 600", token), .done = false};
+	}
 	moves[(*moves_i)++] = move;
 	printf("continuing...\n");
 	return (struct read_move_res){.err = 0, .done = false};
@@ -255,27 +333,21 @@ struct read_move_res read_move_tok(token_t *token,
 
 
 
-char *read_moves(FILE *stream, char *fen, move_t *moves, u_int16_t *count,
-	 					tok_context_t *ctx) {
+char *read_moves(FILE *stream, full_board_t *starting_board, 
+		move_t *moves, u_int16_t *count, tok_context_t *ctx,
+		dict_t *res_dict) {
 	
 	printf("reading moves\n");
 	u_int16_t move_i = 0;
-	dict_t *res_dict = new_dict(4);
-	dict_add(res_dict, "1/2-1/2", ""); 
-	dict_add(res_dict, "1-0", ""); 
-	dict_add(res_dict, "0-1", ""); 
-	dict_add(res_dict, "*", ""); 
+
 	bool is_white = true;
 	int turn_num = 1;
 	bool done;
 	
 	position_t pos;
-	full_board_t board;
+	full_board_t board;	
 	board.position = &pos;
-	piece_index_t index[120];
-	char *fen_err = parse_fen(fen, &board, index);
-	// TODO ^^
-	printf("fen err: %s\n", fen_err);
+	copy_into(&board, starting_board);
 	do {
 		token_t *tok = ftoken(stream, ctx);
 		struct read_move_res res 
@@ -293,11 +365,25 @@ char *read_moves(FILE *stream, char *fen, move_t *moves, u_int16_t *count,
 }	
 
 char *read_pgn_inner(FILE *stream, tok_context_t *ctx, pgn_game_t *dst) {
-	strcpy(dst->tags.fen, 
-			"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-	char *out = read_tagss(stream, &dst->tags, ctx);
+	char fen[255];	
+	char res[255];	
+	dict_t *dict = make_dst_dict(dst->tags, fen, res);
+	u_int8_t res_vals[] = {DRAW_RES, WHITE_RES, BLACK_RES, UNK_RES};
+	dict_t *res_dict = new_dict(20);
+	dict_add(res_dict, "1/2-1/2", res_vals); 
+	dict_add(res_dict, "1-0", res_vals + 1); 
+	dict_add(res_dict, "0-1", res_vals + 2); 
+	dict_add(res_dict, "*", res_vals + 3); 
+	dict_add(res_dict, "\"1/2-1/2\"", res_vals); 
+	dict_add(res_dict, "\"1-0\"", res_vals + 1); 
+	dict_add(res_dict, "\"0-1\"", res_vals + 2); 
+	dict_add(res_dict, "\"*\"", res_vals + 3); 
+	
+
+	char *out = read_tagss(stream, dict, ctx, dst, res_dict);
 	if (out) return out; 
-	out = read_moves(stream, dst->tags.fen, dst->moves, &(dst->count), ctx);
+	out = read_moves(stream, dst->starting_board, 
+			dst->moves, &(dst->count), ctx, res_dict);
 	printf("err here in inner %s\n", out);
 	printf("count %d\n", dst->count);
 	return out;	

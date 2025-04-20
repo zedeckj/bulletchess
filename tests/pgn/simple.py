@@ -31,7 +31,7 @@ class TestPGN(unittest.TestCase):
         self.assertEqual(game.round, "29")
         self.assertEqual(game.white, "Fischer, Robert J.")
         self.assertEqual(game.black, "Spassky, Boris V.")
-        self.assertEqual(game.result, "1/2-1/2")
+        self.assertEqual(game.result, 0)
 
     def test_moves(self):
         with PGNReader.open(FILEPATH) as f:
