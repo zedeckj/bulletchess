@@ -5,6 +5,9 @@
 The examples provided compare the performance of `bulletchess` against the popular library `python-chess`. The origin of `bulletchess` stemmed from a realization that the speed of `python-chess` was restrictive in my personal machine learning projects for chess. As a long-time user of `python-chess` I've happened to model much of the API of `bulletchess`
 off of `python-chess`, mostly out of comfort for what is familiar. I've used `python-chess` singificantly in testing `bulletchess`, but have not taken any actual code from the library, or referenced its inner workings to any real extent. It was much easier for me to expiriment by trial and error, rather than attempt to simply port `python-chess` to C and write a wrapper around it. That wouldn't have been as much fun anyway. 
 
+> [!WARNING]  
+> This project is in active development, and not production ready. The current Python API may be subject to arbitrary change.
+
 ### Overview
 At a high level, `bulletchess` includes:
 - A complete game model with intuitive representations for pieces, moves, and positions.
