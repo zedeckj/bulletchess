@@ -23,6 +23,13 @@ bool serialize_square(square_t square, char * buffer){
 	return true;
 }
 
+/*
+ * forbit (bitboard_t check, bb) {
+ *
+ * } 
+ *
+ */
+
 u_int8_t count_bits(bitboard_t bb) {
 	u_int8_t count = 0;
 	while (bb & -bb) {
@@ -151,6 +158,8 @@ bitboard_t bitboard_not(bitboard_t b1) {
 bitboard_t bitboard_xor(bitboard_t b1, bitboard_t b2) {
 	return b1 ^ b2;
 }
+
+
 
 
 

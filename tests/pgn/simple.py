@@ -1,37 +1,23 @@
-import unittest
 import sys
 sys.path.append("./")
 from bulletchess import *
+import unittest
+from pgn_test import PGNTestCase 
 
 FILEPATH = "tests/pgn/example.pgn"
-WRONGPATH = "tests/pgn/wrong.pgn"
 
-class TestPGN(unittest.TestCase):
-
-    def assertMoveEq(self, move, uci):
-        self.assertEqual(move, Move.from_uci(uci))
-
-    def assertMovesAre(self, game : Game, move_sans : list[str]):
-        moves = game.moves()
-        board = Board()
-        
-        self.assertEqual(board, Board())
-        for i in range(len(move_sans)):
-            san = moves[i].to_san(board)
-            self.assertEqual(san, move_sans[i])
-            board.apply(moves[i])
-        
+class TestPGN(PGNTestCase):
 
     def test_tags(self):
         with PGNReader.open(FILEPATH) as f:
             game = f.next_game()
         self.assertEqual(game.event, "F/S Return Match")
         self.assertEqual(game.site, "Belgrade, Serbia JUG")
-        self.assertEqual(game.date, "1992.11.04")
+        self.assertEqual(game.date, (1992, 11, 4))
         self.assertEqual(game.round, "29")
         self.assertEqual(game.white, "Fischer, Robert J.")
         self.assertEqual(game.black, "Spassky, Boris V.")
-        self.assertEqual(game.result, 0)
+        self.assertEqual(game.result.draw, True)
 
     def test_moves(self):
         with PGNReader.open(FILEPATH) as f:
@@ -65,10 +51,6 @@ class TestPGN(unittest.TestCase):
             none = f.next_game()
         self.assertEqual(none, None)
 
-
-    def test_err(self):
-        with PGNReader.open(WRONGPATH) as f:
-            game = f.next_game()
 
 if __name__ == "__main__":
     unittest.main()

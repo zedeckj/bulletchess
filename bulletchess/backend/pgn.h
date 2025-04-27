@@ -21,11 +21,12 @@ typedef u_int8_t pgn_result_t;
 typedef struct {
 	char *event;
 	char *site;
-	char *date; // can be date date obj
+	date_t date; 
 	char *round; 
 	char *white_player;
 	char *black_player;
 	u_int8_t result;
+	
 } pgn_tag_section_t;
 
 

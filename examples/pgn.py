@@ -40,6 +40,7 @@ def get_results():
             game = pgn.next_game()
             if game == None:
                 break
+            print("python got", game.result)
             results[game.result] += 1
     return results
 

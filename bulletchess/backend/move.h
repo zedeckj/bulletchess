@@ -73,6 +73,7 @@ typedef struct {
 	u_int8_t check_status;
 } san_move_t;
 
+
 typedef struct {
     square_t origin;
     square_t destination;
@@ -84,10 +85,17 @@ typedef struct {
 } promotion_move_t; 
 
 typedef struct {
+	generic_move_t body;
+	piece_type_t moving_type;
+} full_move_t;
+
+
+typedef struct {
     union {
         generic_move_t generic;
         promotion_move_t promotion;
-    };
+				full_move_t full;
+		};
     move_type_t type;
 } move_t;
 
@@ -100,22 +108,20 @@ typedef struct {
 // A move with no information besides that it is not a promotion (UCI limitation)
 #define PROMOTION_MOVE 3
 
-// the following are unused, but may be later
-
-// A promotion, resets halfmoves, resets EP (NOTICE PAWN MOVE)
-// Following are only from internally generated
-#define CASTLING_MOVE 4
-// Has all known information that will be generated from finding legal moves
-#define FULL_MOVE 5
+// generated only internally, provided extra information that makes
+// applying moves faster
+#define FULL_MOVE 4
 
 typedef struct {
   move_t move;
-  piece_t captured_piece;
-  castling_rights_t old_castling_rights;
+	piece_t captured_piece;
+  piece_type_t moved_piece; 
+	castling_rights_t old_castling_rights;
 	castling_rights_t was_castling;
   optional_square_t old_en_passant;
 	turn_clock_t old_halfmove;
 } undoable_move_t;
+
 
 
 // constructors
@@ -162,6 +168,9 @@ bool write_uci(move_t move, char * buffer);
 // but well formed in general
 bool is_san_correct(char *buffer);
 
+
+// Instantiates all legal moves, returns how many were created
+u_int16_t create_all_legal(move_t *moves, u_int64_t *hashes);
 
 
 castling_rights_t get_castling_type(move_t move, full_board_t *board);

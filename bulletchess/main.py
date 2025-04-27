@@ -1,10 +1,11 @@
-from typing import Optional, Any, Collection, NewType, Callable, Union, Literal, TypeAlias
+from typing import Optional, Any, Collection, NewType, Callable, Union, Literal, TypeAlias, Iterator
 from warnings import deprecated
 import typing
 from enum import Enum, unique
 import os
 import sys
 from array import array
+
 
 path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(path)
@@ -246,7 +247,7 @@ class Piece:
         return f"Piece({str(self)})"
 
     def __hash__(self) -> int:
-        return int(self.__color) + (2 * self.__piece_type.value)
+        return int(self.__color) + (2 * int(self.__piece_type.value))
 
 PIECES = [
     None,
@@ -319,7 +320,8 @@ class Move:
     a player may enact during their turn.
     """
 
-    __slots__ = ("__struct")
+    __slots__ = ("__struct",)
+    
 
     def __init__(self, origin : Square, 
                        destination : Square, 
@@ -389,17 +391,11 @@ class Move:
         """
         return PIECES[_backend.promotes_to(self.__struct)]
 
-    def is_promption(self) -> bool:
+    def is_promotion(self) -> bool:
         """
         Returns `True` if this Move is a promotion.
         """
         return bool(_backend.is_promotion(self.__struct))
-
-    def status_from(self, board : "Board") -> "BoardStatus":
-        """
-        Returns the BoardStatus of the Board produced from applying this Move
-        to the given Board.
-        """
 
 
     def __str__(self) -> str:
@@ -705,7 +701,7 @@ class Board:
         Produces a list of legal Moves that could be performed at the current position.
         """
         moves_buffer = (_backend.MOVE * 256)()
-        length = _backend.generate_legal_moves(self.__pointer, moves_buffer)
+        length = _backend.generate_legal_moves(self.__pointer, moves_buffer) 
         return [Move._Move__inst(m) for m in moves_buffer[:length]]
 
     def apply(self, move : Move) -> None:
@@ -715,9 +711,14 @@ class Board:
         self.__clear_status()
         self.__clear_piece_array()
         self.__move_stack.append(move)
-        undoable = _backend.UNDOABLE_MOVE()
-        undoable = _backend.apply_move(self.__pointer, move._Move__struct)
+        undoable = _backend.apply_move(self.__pointer, 
+                                      move._Move__struct)
         self.__undoable_stack.append(undoable)
+
+    def void_apply(self, move : Move) -> None:
+        self.__clear_status()
+        self.__clear_piece_array()
+        _backend.void_apply(self.__pointer, move._Move__struct)
 
     def undo(self) -> Move:
         """
@@ -795,11 +796,6 @@ class Board:
    
 class BoardStatus:
 
-    """
-    A BoardStatus is used to hold whether a Board on is from an
-    on-going game, or is a game over. If the Board is in a game over state,
-    a BoardStatus can be used to determine the reason.
-    """
 
     NO_STATUS = 0
     CHECK = 1
@@ -826,6 +822,10 @@ class BoardStatus:
         True if the Board is the last position of a Game.
         """
         return self.claim_draw or self.checkmate or self.resignation
+
+    @property
+    def winner(self) -> Optional[Color]:
+        raise Error("Not implemented yet")
 
     @property
     def checkmate(self) -> bool:
@@ -932,20 +932,74 @@ class BoardStatus:
 
 
 
+class Result:
+    """
+    I think having an independent enum for PGN Games is acceptable,
+    dont muddy up BoardStatus.
+    """
+    DRAW = 0
+    WHITE = 1
+    BLACK = 2
+    UNK = 3
+
+    def __init__(self, val):
+        self.__val = val
+
+    def __str__(self):
+        match self.__val:
+            case Result.DRAW:
+                return "1/2-1/2"
+            case Result.WHITE:
+                return "1-0"
+            case Result.BLACK:
+                return "0-1"
+            case _:
+                return "*"
+
+    def __repr__(self):
+        return f"Result(\"{str(self)}\")"
+
+    @property
+    def winner(self) -> Optional[Color]:
+        match self.__val:
+            case Result.WHITE:
+                return WHITE
+            case Result.BLACK:
+                return BLACK
+            case _:
+                return None
+
+    @property
+    def draw(self) -> bool:
+        return self.__val == Result.DRAW
+
+    @property
+    def unknown(self) -> bool:
+        return self.__val == Result.UNK
+        
+    def __eq__(self, other) -> bool:
+        try:
+            return self.__val == other.__val
+        except:
+            return False
+
+    def __hash__(self) -> int:
+        return self.__val
+
 class Game:
     
     __slots__ = ["__pointer"]
 
 
     @property
-    def event(self):
+    def event(self) -> str:
         """
         A string representing the contents of the `Event` tag of a Game
         """
         return self.__pointer.contents.tags.contents.event.decode("utf-8")
 
     @property
-    def site(self):
+    def site(self) -> str:
         """
         A string representing the contents of the `Site` tag of a Game
         """
@@ -954,41 +1008,50 @@ class Game:
         return self.__pointer.contents.tags.contents.site.decode("utf-8")
 
     @property
-    def round(self):
+    def round(self) -> str:
         """
         A string representing the contents of the `Round` tag of a Game
         """
         return self.__pointer.contents.tags.contents.round.decode("utf-8")
 
     @property
-    def date(self):
+    def date(self) -> tuple[Optional[int],
+                            Optional[int],
+                            Optional[int]]:
         """
         A string representing the contents of the `Date` tag of a Game.
         Should be in the format "YYY.MM.DD"
         """
-        return self.__pointer.contents.tags.contents.date.decode("utf-8")
+        date = self.__pointer.contents.tags.contents.date 
+        out = [None, None, None]
+        if date.known_year:
+            out[0] = date.year
+        if date.known_month:
+            out[1] = date.month
+        if date.known_day:
+            out[2] = date.day
+        return tuple(out)
 
     @property
-    def white(self):
+    def white(self) -> str:
         """
         A string representing the contents of the `White` tag of a Game.
         """
         return self.__pointer.contents.tags.contents.white_player.decode("utf-8")
 
     @property
-    def black(self):
+    def black(self) -> str:
         """
         A string representing the contents of the `Black` tag of a Game.
         """
         return self.__pointer.contents.tags.contents.black_player.decode("utf-8")
 
     @property
-    def result(self):
+    def result(self) -> Result:
         """
         The outcome of this Game represented as a `BoardStatus`.
         """
-        return self.__pointer.contents.tags.contents.result 
-    
+        return Result(self.__pointer.contents.tags.contents.result)
 
     @property
     def _as_argument(self):
@@ -998,7 +1061,8 @@ class Game:
     @property
     def move_count(self) -> int:
         return int(self.__pointer.contents.count)
-    
+
+
     def moves(self) -> list[Move]:
         """
         Returns a list of moves that were played in this Game.

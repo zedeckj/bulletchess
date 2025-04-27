@@ -75,6 +75,8 @@ u_int64_t hash_move(move_t move) {
 }
 
 
+u_int16_t create_all_legal(move_t *moves, u_int64_t *hashes);
+
 move_t unhash_move(u_int64_t move_hash) {
 	square_t origin = move_hash >> 16;
 	square_t destination = (move_hash & 0xFF00) >> 8;
@@ -276,7 +278,7 @@ char * err_promotion_move(promotion_move_t move) {
 }	
 }
 
-char * error_from_move(move_t move) {
+char *error_from_move(move_t move) {
 	switch(move.type) {
 		case GENERIC_MOVE: 
 		return err_generic_move(move.generic);
@@ -723,7 +725,7 @@ san_move_t parse_castling_san(char * str) {
 	return err;
 }
 
-san_move_t parse_san_inner(char * str){
+san_move_t parse_san_inner(char *str){
 	if (str && str[0]) {
 		if (str[0] == 'O') return parse_castling_san(str);
 		piece_type_t type = san_parse_piece_type(str[0]);

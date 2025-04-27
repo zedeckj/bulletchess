@@ -26,7 +26,6 @@ typedef struct {
 #define FILE(s) (((s) / 8) + 1) // 1 indexed
 #define SQUARE_TO_BB(s) (1llu << (s))
 
-
 #define A1 0
 #define B1 1
 #define C1 2
@@ -96,6 +95,23 @@ typedef struct {
 
 // Macros for bitboard_t
 #define LSB(s) ((s) & -(s))
+#define forbitboard(VAR_NAME, VAL)\
+for (bitboard_t VAR_NAME, _bad_macro_system = VAL;\
+		(VAR_NAME = LSB(_bad_macro_system));\
+		_bad_macro_system &= ~VAR_NAME)\
+
+/* forbitboard(knight, knights) {
+ *	... do something for all knights
+ * }
+ * ->
+ * for (bitboard_t knight, temp = knights;
+ * 			knight = LSB(temp);
+ * 			temp &= ~knight) {
+ *		...
+ * 	}  
+ */
+
+
 
 #define A1_BB (1llu << A1)
 #define B1_BB (1llu << B1)
@@ -114,6 +130,8 @@ typedef struct {
 #define A8_BB (1llu << A8)
 #define H8_BB (1llu << H8)
 #define D8_BB (1llu << D8)
+
+#define CORNERS_BB (A1_BB | A8_BB | H1_BB | H8_BB)
 
 #define RANK_1 0xffllu
 #define RANK_2 (RANK_1 << 8)
@@ -223,6 +241,5 @@ bitboard_t left_bb(bitboard_t bb);
 
 // Wrapper around the SAFE_RIGHT_BB macro
 bitboard_t right_bb(bitboard_t bb);
-
 
 #endif

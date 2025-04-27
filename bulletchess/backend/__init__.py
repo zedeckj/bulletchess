@@ -1,5 +1,8 @@
 import os
 from ctypes import *
+import ctypes
+
+from typing import TypeAlias
 
 path = os.path.dirname(os.path.abspath(__file__))
 clib = CDLL(path + "/chess_c.so")
@@ -13,6 +16,15 @@ TURN_CLOCK = c_uint16
 
 PIECE_INDEX = c_uint8
 OUTCOME = c_uint8
+
+
+class _PIECE(Structure):
+    _fields_ = [
+        ("color", COLOR),
+        ("type", PIECE_TYPE)
+    ]
+
+
 
 class OPTIONAL_SQUARE(Structure):
 
@@ -50,17 +62,6 @@ class _ZOBRIST_TABLE(Structure):
         ("fullmove_rand_coeff", c_uint64),
     ]
 
-class _SPLIT_FEN(Structure):
-
-    _fields_ = [
-        ("position_str", c_char_p),
-        ("turn_str", c_char_p),
-        ("castling_str", c_char_p),
-        ("ep_str", c_char_p),
-        ("halfmove_str", c_char_p),
-        ("fullmove_str", c_char_p),
-    ]
-
 class _GENERIC_MOVE(Structure):
     _fields_ = [
         ("origin", SQUARE),
@@ -76,10 +77,7 @@ class _PROMOTION_MOVE(Structure):
 class _FULL_MOVE(Structure):
     _fields_ = [
         ("body", _GENERIC_MOVE),
-        ("place_type", PIECE_TYPE),
-        ("new_ep_square", OPTIONAL_SQUARE),
-        ("removes_castling", c_bool),
-        ("resets_halfmove", c_bool),
+        ("moving_type", PIECE_TYPE),
     ]
 
 class MOVE_UNION(Union):
@@ -87,18 +85,6 @@ class MOVE_UNION(Union):
         ("generic", _GENERIC_MOVE),
         ("promotion", _PROMOTION_MOVE),
     ]
-
-class _PIECE(Structure):
-    _fields_ = [
-        ("color", COLOR),
-        ("type", PIECE_TYPE)
-    ]
-
-    def __hash__(self):
-        return int(_hash_piece(self)) 
-
-    def __eq__(self, other : "_PIECE"):
-        return bool(_pieces_equal(self, other))
 
 class MOVE(Structure):
     _anonymous_ = ("u",)
@@ -111,6 +97,7 @@ class UNDOABLE_MOVE(Structure):
     _fields_ = [
         ("move", MOVE),
         ("captured_piece", _PIECE),
+        ("moved_piece", PIECE_TYPE),
         ("old_castling_rights", CASTLING_RIGHTS),
         ("was_castling", CASTLING_RIGHTS),
         ("old_en_passant", OPTIONAL_SQUARE),
@@ -127,6 +114,8 @@ class BOARD(Structure):
         ("fullmove_number", TURN_CLOCK),
     ]
 
+BOARD_P = POINTER(BOARD)
+
 class _PIECE_PATTERN_UNION(Union):
 
     _fields_ = [
@@ -142,19 +131,6 @@ class _PIECE_PATTERN(Structure):
         ("piece", _PIECE),
         ("type", c_uint8),
         ("u", _PIECE_PATTERN_UNION)
-    ]
-
-
-class _DATE(Structure):
-    _fields_ = [
-        ("known_year", c_int, 1),
-        ("year", c_uint16),
-
-        ("known_month", c_int,1),
-        ("month", c_uint8),
-
-        ("known_day", c_int, 1),
-        ("month", c_uint8)
     ]
 
 class _OPT_U8(Structure):
@@ -208,27 +184,41 @@ class _SAN_MOVE(Structure):
        ("ann_type", c_uint8),
        ("check_status", c_uint8)
     ]
+
+class _DATE(Structure):
+    _fields_ = [
+        ("known_year", c_bool), 
+        ("year", c_uint16),
+
+        ("known_month", c_bool),
+        ("month", c_uint8),
+
+        ("known_day", c_bool),
+        ("day", c_uint8)
+    ]
+
 class _PGN_TAGS(Structure):
     
     _fields_ = [
         ("event", c_char_p),
         ("site", c_char_p),
-        ("date", c_char_p),
+        ("date", _DATE),
         ("round", c_char_p),
         ("white_player", c_char_p),
         ("black_player", c_char_p),
         ("result", c_uint8),
     ]
 
-
 class PGN(Structure):
 
     _fields_ = [
         ("tags", POINTER(_PGN_TAGS)),
         ("moves", POINTER(MOVE)),
-        ("starting_board", POINTER(BOARD)),
+        ("starting_board", BOARD_P),
         ("count", c_uint16),
     ]
+
+PGN_P = POINTER(PGN)
 
 
 class _TOKLOC(Structure):
@@ -262,23 +252,23 @@ def charp_to_str(c : c_char_p) -> str:
     print(b)
     return b.decode("utf-8")
 
-def init_pgn() -> POINTER(PGN):
-    LINE_LEN = 256
+def init_pgn() -> PGN_P:
+    LINE_LEN = 255
     pgn = PGN()
     pgn.moves = (MOVE* 600)()
     pgn.count = 600
     tags = _PGN_TAGS()
-    tags.event = cast(create_string_buffer(255), c_char_p)
-    tags.site = cast(create_string_buffer(255), c_char_p)
-    tags.date = cast(create_string_buffer(255), c_char_p)
-    tags.round = cast(create_string_buffer(255), c_char_p)
-    tags.white_player = cast(create_string_buffer(255), c_char_p)
-    tags.black_player = cast(create_string_buffer(255), c_char_p)
+    tags.event = cast(create_string_buffer(LINE_LEN), c_char_p)
+    tags.site = cast(create_string_buffer(LINE_LEN), c_char_p)
+    tags.date = _DATE()
+    tags.round = cast(create_string_buffer(LINE_LEN), c_char_p)
+    tags.white_player = cast(create_string_buffer(LINE_LEN), c_char_p)
+    tags.black_player = cast(create_string_buffer(LINE_LEN), c_char_p)
     pgn.tags = pointer(tags)
     pgn.starting_board = alloc_boardPY()
     return pointer(pgn)
 
-def alloc_boardPY() -> POINTER(BOARD):
+def alloc_boardPY() -> BOARD_P :
     pos = pointer(_POSITION())
     board = pointer(BOARD(pos))
     return board
@@ -295,7 +285,7 @@ def next_pgnPY(fp : c_void_p) -> POINTER(PGN):
             raise Exception(err.value.decode("utf-8"))
     return pgn
 
-def init_empty_boardPY() -> POINTER(BOARD):
+def init_empty_boardPY() -> BOARD_P:
     pos_pointer = pointer(_POSITION(
         0,0,0,0,0,0,0,0
     ))
@@ -314,7 +304,7 @@ def init_empty_boardPY() -> POINTER(BOARD):
     )
     return pointer(full_board)
 
-def init_starting_boardPY() -> POINTER(BOARD):
+def init_starting_boardPY() -> BOARD_P:
     pos_pointer = pointer(_POSITION(
         PAWNS_STARTING, 
         KNIGHTS_STARTING, 
@@ -344,7 +334,7 @@ def init_starting_boardPY() -> POINTER(BOARD):
 def encode(fen) -> bytes:
     return fen.encode("utf-8")
 
-def init_board_from_fenPY(fen : str) -> tuple[POINTER(BOARD), bytes]:
+def init_board_from_fenPY(fen : str) -> tuple[BOARD_P, bytes]:
     pos_pointer = pointer(_POSITION())
     board = pointer(BOARD(pos_pointer))
     piece_array = bytes(64)
@@ -355,7 +345,7 @@ def init_board_from_fenPY(fen : str) -> tuple[POINTER(BOARD), bytes]:
         error = bytes(error).decode()
         raise ValueError(f"Invalid FEN '{fen}': {error}")
 
-def san_to_movePY(board : POINTER(BOARD), san : str) -> MOVE:
+def san_to_movePY(board : BOARD_P, san : str) -> MOVE:
     err = c_bool(False)
     msg = bytes(300)
     struct = san_to_move(board, san.encode("utf-8"), byref(err), msg)
@@ -373,12 +363,12 @@ def init_move_from_uciPY(uci : str) -> MOVE:
         raise ValueError(err.rstrip(b'\x00 ').decode().format(uci = uci))
     return struct
 
-def make_fenPY(board : POINTER(BOARD)) -> str:
-    fen = create_string_buffer(200)
+def make_fenPY(board : BOARD_P) -> str:
+    fen : Array[c_char] = create_string_buffer(200)
     l = make_fen(board, fen)
     return fen[:l-1].decode("utf-8")
 
-def make_board_stringPY(board : POINTER(BOARD)) -> str:
+def make_board_stringPY(board : BOARD_P) -> str:
     str_buffer = create_string_buffer(300)
     fill_board_string(board, str_buffer)
     return str_buffer.raw.rstrip(b'\x00 ').decode()
@@ -388,27 +378,20 @@ def write_uciPY(struct : MOVE) -> str:
     write_uci(struct, uci)
     return uci.raw.rstrip(b'\x00').decode()
 
-def pointer_write_uciPY(pointer : POINTER(MOVE), index : c_uint64) -> str:
-    uci = create_string_buffer(6)
-    pointer_write_uci(pointer, index, uci)
-    return uci.raw.rstrip(b'\x00').decode()
 
 def write_bitboardPY(bitboard : BITBOARD) -> str:
     s = create_string_buffer(137)
     write_bitboard(bitboard, s)
     return s.raw.rstrip(b'\x00 ').decode()
 
-def make_piece_arrayPY(board : POINTER(BOARD)) -> _PIECE * 64:
-    array = (_PIECE * 64)()
-    fill_piece_list(board, array)
-    return array
 
 def construct_movePY(origin : SQUARE, destination : SQUARE, promote_to : PIECE_TYPE):
-    struct = MOVE();
+    struct = MOVE()
     err = ext_construct_move(origin, destination, promote_to, byref(struct))
     if err:
         return bytes(err).rstrip(b'\x00').decode("utf-8")
     return struct
+
 
 piece_from_string = clib.piece_from_string
 piece_from_string.argtypes = [c_char_p]
@@ -420,18 +403,18 @@ piece_from_string.restype = _PIECE
 
 get_piece_at = clib.get_piece_at_board
 get_piece_at.restype = c_uint8
-get_piece_at.argtypes = [POINTER(BOARD), SQUARE]
+get_piece_at.argtypes = [BOARD_P, SQUARE]
 
 
 is_quiescent = clib.is_quiescent
-is_quiescent.argtypes = [POINTER(BOARD)]
+is_quiescent.argtypes = [BOARD_P]
 is_quiescent.restype = c_bool
 
 set_piece_index = clib.set_piece_index
-set_piece_index.argtypes = [POINTER(BOARD), c_char_p, SQUARE, PIECE_INDEX]
+set_piece_index.argtypes = [BOARD_P, c_char_p, SQUARE, PIECE_INDEX]
 
 delete_piece_at = clib.delete_piece_at_board
-delete_piece_at.argtypes = [POINTER(BOARD), c_char_p, SQUARE]
+delete_piece_at.argtypes = [BOARD_P, c_char_p, SQUARE]
 
 get_pawn_value = clib.get_pawn_val
 get_pawn_value.restype = PIECE_TYPE
@@ -498,31 +481,31 @@ hash_piece.argtypes = [_PIECE]
 
 has_kingside_castling_rights  = clib.has_kingside_castling_rights
 has_kingside_castling_rights.restype = c_bool
-has_kingside_castling_rights.argtypes = [POINTER(BOARD), COLOR]
+has_kingside_castling_rights.argtypes = [BOARD_P, COLOR]
 
 has_queenside_castling_rights = clib.has_queenside_castling_rights
 has_queenside_castling_rights.restype = c_bool
-has_queenside_castling_rights.argtypes = [POINTER(BOARD), COLOR]
+has_queenside_castling_rights.argtypes = [BOARD_P, COLOR]
 
 has_castling_rights = clib.has_castling_rights
 has_castling_rights.restype = c_bool 
-has_castling_rights.argtypes = [POINTER(BOARD), COLOR]
+has_castling_rights.argtypes = [BOARD_P, COLOR]
 
 
 clear_castling_rights = clib.clear_castling_rights
-clear_castling_rights.argtypes = [POINTER(BOARD), COLOR]
+clear_castling_rights.argtypes = [BOARD_P, COLOR]
 
 set_full_castling_rights = clib.set_full_castling_rights
-set_full_castling_rights.argtypes = [POINTER(BOARD)]
+set_full_castling_rights.argtypes = [BOARD_P]
 
 update_castling_rights = clib.update_castling_rights
-update_castling_rights.argtypes = [POINTER(BOARD), COLOR]
+update_castling_rights.argtypes = [BOARD_P, COLOR]
 
 update_all_castling_rights = clib.update_all_castling_rights
-update_all_castling_rights.argtypes = [POINTER(BOARD)]
+update_all_castling_rights.argtypes = [BOARD_P]
 
 contains_piece = clib.contains_piece_index
-contains_piece.argtypes = [POINTER(BOARD), PIECE_INDEX]
+contains_piece.argtypes = [BOARD_P, PIECE_INDEX]
 contains_piece.restype = c_bool
 
 is_subset = clib.is_subset
@@ -530,7 +513,7 @@ is_subset.argtypes = [POINTER(_POSITION), POINTER(_POSITION)]
 is_subset.restype = c_bool
 
 boards_equal = clib.boards_equal
-boards_equal.argtypes = [POINTER(BOARD), POINTER(BOARD)]
+boards_equal.argtypes = [BOARD_P, BOARD_P]
 boards_equal.restype = c_bool
 
 
@@ -538,28 +521,28 @@ create_zobrist_table = clib.create_zobrist_table
 create_zobrist_table.restype = POINTER(_ZOBRIST_TABLE)
 
 hash_board = clib.hash_board
-hash_board.argtypes = [POINTER(BOARD), POINTER(_ZOBRIST_TABLE)]
+hash_board.argtypes = [BOARD_P, POINTER(_ZOBRIST_TABLE)]
 hash_board.restype = c_uint64
 
-def hash_board_wrapper(board : POINTER(BOARD)): 
+def hash_board_wrapper(board : BOARD_P): 
     return hash_board(board, ZOBRIST_TABLE)
 
 add_castling_rights = clib.add_castling_rights
-add_castling_rights.argtypes = [POINTER(BOARD), c_bool, COLOR]
+add_castling_rights.argtypes = [BOARD_P, c_bool, COLOR]
 
 clear_ep_square = clib.clear_ep_square
-clear_ep_square.argtypes = [POINTER(BOARD)]
+clear_ep_square.argtypes = [BOARD_P]
 
 set_ep_square_checked = clib.set_ep_square_checked
-set_ep_square_checked.argtypes = [POINTER(BOARD), SQUARE]
+set_ep_square_checked.argtypes = [BOARD_P, SQUARE]
 set_ep_square_checked.restype = c_char_p
 
 make_fen = clib.make_fen
-make_fen.argtypes = [POINTER(BOARD), c_char_p]
+make_fen.argtypes = [BOARD_P, c_char_p]
 make_fen.restype = c_uint8
 
 parse_fen = clib.parse_fen
-parse_fen.argtypes = [c_char_p, POINTER(BOARD), c_char_p]
+parse_fen.argtypes = [c_char_p, BOARD_P, c_char_p]
 parse_fen.restype = c_char_p
 
 parse_uci = clib.parse_uci
@@ -580,47 +563,51 @@ is_null_move.argtypes = [MOVE]
 is_null_move.restype = c_bool
 
 apply_move = clib.apply_move
-apply_move.argtypes = [POINTER(BOARD), MOVE]
+apply_move.argtypes = [BOARD_P, MOVE]
 apply_move.restype = UNDOABLE_MOVE
 
+void_apply = clib.void_apply
+void_apply.argtypes = [BOARD_P, MOVE]
+void_apply.restype = None
+
 undo_move = clib.undo_move
-undo_move.argtypes = [POINTER(BOARD), UNDOABLE_MOVE]
+undo_move.argtypes = [BOARD_P, UNDOABLE_MOVE]
 
 # _generate_pseudo_legal_moves = clib.generate_pseudo_legal_moves
-# _generate_pseudo_legal_moves.argtypes = [POINTER(BOARD), COLOR, POINTER(MOVE)]
+# _generate_pseudo_legal_moves.argtypes = [BOARD_P, COLOR, POINTER(MOVE)]
 # _generate_pseudo_legal_moves.restype = c_uint8
 
 generate_legal_moves = clib.generate_legal_moves
-generate_legal_moves.argtypes = [POINTER(BOARD), POINTER(MOVE)]
+generate_legal_moves.argtypes = [BOARD_P, POINTER(MOVE)]
 generate_legal_moves.restype = c_uint8
 
 fill_board_string = clib.fill_board_string
-fill_board_string.argtypes = [POINTER(BOARD), c_char_p]
+fill_board_string.argtypes = [BOARD_P, c_char_p]
 
 make_attack_mask = clib.make_attack_mask
-make_attack_mask.argtypes = [POINTER(BOARD), COLOR]
+make_attack_mask.argtypes = [BOARD_P, COLOR]
 make_attack_mask.restype = BITBOARD
 
 in_check = clib.in_check
-in_check.argtypes = [POINTER(BOARD)]
+in_check.argtypes = [BOARD_P]
 in_check.restype = c_bool
 
 copy_into = clib.copy_into
-copy_into.argtypes = [POINTER(BOARD), POINTER(BOARD)]
+copy_into.argtypes = [BOARD_P, BOARD_P]
 
 debug_print_board = clib.debug_print_board
-debug_print_board.argtypes = [POINTER(BOARD)]
+debug_print_board.argtypes = [BOARD_P]
 
 print_bitboard = clib.print_bitboard
 print_bitboard.argtypes = [BITBOARD]
 
 perft = clib.perft
-perft.argtypes = [POINTER(BOARD), c_uint8]
+perft.argtypes = [BOARD_P, c_uint8]
 perft.restype = c_uint64
 
 
 pseudo_perft = clib.pseudo_perft
-pseudo_perft.argtypes = [POINTER(BOARD), c_uint8]
+pseudo_perft.argtypes = [BOARD_P, c_uint8]
 pseudo_perft.restype = c_uint64
 
 
@@ -653,10 +640,10 @@ moves_equal.argtypes = [MOVE, MOVE]
 moves_equal.restype = c_bool
 
 move_to_san = clib.move_to_san_str
-move_to_san.argtypes = [POINTER(BOARD), MOVE, c_char_p]
+move_to_san.argtypes = [BOARD_P, MOVE, c_char_p]
 move_to_san.restype = c_bool
 
-def move_to_sanPY(board : POINTER(BOARD), move : MOVE) -> str:
+def move_to_sanPY(board : BOARD_P, move : MOVE) -> str:
     out = create_string_buffer(10)
     res = move_to_san(board, move, out)
     #if not res:
@@ -666,41 +653,41 @@ def move_to_sanPY(board : POINTER(BOARD), move : MOVE) -> str:
 
 
 validate_board = clib.validate_board
-validate_board.argtypes = [POINTER(BOARD)]
+validate_board.argtypes = [BOARD_P]
 validate_board.restype = c_char_p
 
 write_bitboard = clib.write_bitboard
 write_bitboard.argtypes = [BITBOARD, c_char_p]
 
 count_moves = clib.count_legal_moves
-count_moves.argtypes = [POINTER(BOARD)]
+count_moves.argtypes = [BOARD_P]
 count_moves.restype = c_uint8
 
 is_stalemate = clib.is_stalemate
-is_stalemate.argtypes = [POINTER(BOARD)]
+is_stalemate.argtypes = [BOARD_P]
 is_stalemate.restype = c_bool
 
 is_checkmate = clib.is_checkmate
-is_checkmate.argtypes = [POINTER(BOARD)]
+is_checkmate.argtypes = [BOARD_P]
 is_checkmate.restype = c_bool
 
 randomize_board = clib.randomize_board
-randomize_board.argtypes = [POINTER(BOARD)]
+randomize_board.argtypes = [BOARD_P]
 
 get_piece_bb = clib.get_piece_bb_from_board
-get_piece_bb.argtypes = [POINTER(BOARD), _PIECE]
+get_piece_bb.argtypes = [BOARD_P, _PIECE]
 get_piece_bb.restype = BITBOARD
 
 squares_with_piece = clib.squares_with_piece
-squares_with_piece.argtypes = [POINTER(BOARD), _PIECE, POINTER(SQUARE)]
+squares_with_piece.argtypes = [BOARD_P, _PIECE, POINTER(SQUARE)]
 squares_with_piece.restype = c_uint8
 
 board_has_patterns = clib.board_has_patterns
-board_has_patterns.argtypes = [POINTER(BOARD), POINTER(_PIECE_PATTERN), c_uint64]
+board_has_patterns.argtypes = [BOARD_P, POINTER(_PIECE_PATTERN), c_uint64]
 board_has_patterns.restype = c_bool
 
 get_outcome = clib.get_status
-get_outcome.argtypes = [POINTER(BOARD), POINTER(UNDOABLE_MOVE), c_uint16]
+get_outcome.argtypes = [BOARD_P, POINTER(UNDOABLE_MOVE), c_uint16]
 get_outcome.restype = OUTCOME
 
 ext_construct_move = clib.ext_construct_move
@@ -728,7 +715,7 @@ bitboard_not.argtypes = [BITBOARD]
 bitboard_not.restype = BITBOARD
 
 fill_piece_index_array = clib.fill_piece_index_array
-fill_piece_index_array.argtypes = [POINTER(BOARD), c_char_p]
+fill_piece_index_array.argtypes = [BOARD_P, c_char_p]
 
 index_into = clib.index_into
 index_into.argtypes = [c_char_p, SQUARE]
@@ -739,62 +726,62 @@ from_squares.argtypes = [POINTER(SQUARE), c_uint8]
 from_squares.restype = BITBOARD
 
 count_piece_type = clib.count_piece_type
-count_piece_type.argtypes = [POINTER(BOARD), PIECE_TYPE]
+count_piece_type.argtypes = [BOARD_P, PIECE_TYPE]
 count_piece_type.restype = c_uint8
 
 count_color = clib.count_color
-count_color.argtypes = [POINTER(BOARD), PIECE_TYPE]
+count_color.argtypes = [BOARD_P, PIECE_TYPE]
 count_color.restype = c_uint8
 
 
 count_color = clib.count_color
-count_color.argtypes = [POINTER(BOARD), PIECE_INDEX]
+count_color.argtypes = [BOARD_P, PIECE_INDEX]
 count_color.restype = c_uint8
 
 generate_legal_move_hashes = clib.generate_legal_move_hashes
-generate_legal_move_hashes.argtypes = [POINTER(BOARD), POINTER(c_uint64)]
+generate_legal_move_hashes.argtypes = [BOARD_P, POINTER(c_uint64)]
 generate_legal_move_hashes.restype = c_uint8
 
 
 count_backwards_pawns = clib.count_backwards_pawns
-count_backwards_pawns.argtypes = [POINTER(BOARD), COLOR]
+count_backwards_pawns.argtypes = [BOARD_P, COLOR]
 count_backwards_pawns.restype = c_uint8
 
 count_doubled_pawns = clib.count_doubled_pawns
-count_doubled_pawns.argtypes = [POINTER(BOARD), COLOR]
+count_doubled_pawns.argtypes = [BOARD_P, COLOR]
 count_doubled_pawns.restype = c_uint8
 
 count_isolated_pawns = clib.count_isolated_pawns
-count_isolated_pawns.argtypes = [POINTER(BOARD), COLOR]
+count_isolated_pawns.argtypes = [BOARD_P, COLOR]
 count_isolated_pawns.restype = c_uint8
 
 net_backwards_pawns = clib.net_backwards_pawns
-net_backwards_pawns.argtypes = [POINTER(BOARD)]
+net_backwards_pawns.argtypes = [BOARD_P]
 net_backwards_pawns.restype = c_int8
 
 net_doubled_pawns = clib.net_doubled_pawns
-net_doubled_pawns.argtypes = [POINTER(BOARD)]
+net_doubled_pawns.argtypes = [BOARD_P]
 net_doubled_pawns.restype = c_int8
 
 net_isolated_pawns = clib.net_isolated_pawns
-net_isolated_pawns.argtypes = [POINTER(BOARD)]
+net_isolated_pawns.argtypes = [BOARD_P]
 net_isolated_pawns.restype = c_int8
 
 net_mobility = clib.net_mobility
-net_mobility.argtypes = [POINTER(BOARD)]
+net_mobility.argtypes = [BOARD_P]
 net_mobility.restype = c_int16
 
 
 net_piece_type = clib.net_piece_type
-net_piece_type.argtypes = [POINTER(BOARD), PIECE_TYPE]
+net_piece_type.argtypes = [BOARD_P, PIECE_TYPE]
 net_piece_type.restype = c_int8
 
 ext_get_pinned_mask = clib.ext_get_pinned_mask
-ext_get_pinned_mask.argtypes = [POINTER(BOARD), SQUARE]
+ext_get_pinned_mask.argtypes = [BOARD_P, SQUARE]
 ext_get_pinned_mask.restype = BITBOARD
 
 ext_get_attack_mask = clib.ext_get_attack_mask 
-ext_get_attack_mask.argtypes = [POINTER(BOARD)]
+ext_get_attack_mask.argtypes = [BOARD_P]
 ext_get_attack_mask.restype = BITBOARD
 
 above_bb = clib.above_bb
@@ -818,7 +805,7 @@ piece_attacks.argtypes = [PIECE_INDEX, SQUARE]
 piece_attacks.restype = BITBOARD
 
 shannon_evaluation = clib.shannon_evaluation
-shannon_evaluation.argtypes = [POINTER(BOARD), POINTER(UNDOABLE_MOVE), c_uint8]
+shannon_evaluation.argtypes = [BOARD_P, POINTER(UNDOABLE_MOVE), c_uint8]
 shannon_evaluation.restype = c_int32
 
 roundtrip_san = clib.roundtrip_san
@@ -826,12 +813,12 @@ roundtrip_san.argtypes = [c_char_p, c_char_p]
 roundtrip_san.restype = c_bool
 
 san_to_move = clib.san_str_to_move
-san_to_move.argtypes = [POINTER(BOARD), c_char_p, POINTER(c_bool), c_char_p]
+san_to_move.argtypes = [BOARD_P, c_char_p, POINTER(c_bool), c_char_p]
 san_to_move.restype = MOVE
 
 """
 pgn_to_board_and_moves = clib.pgn_to_board_and_moves
-pgn_to_board_and_moves.argtypes = [POINTER(PGN), POINTER(BOARD), 
+pgn_to_board_and_moves.argtypes = [POINTER(PGN), BOARD_P, 
                                    c_char_p, POINTER(MOVE), c_char_p]
 pgn_to_board_and_moves.restype = c_uint16
 """
@@ -845,7 +832,7 @@ def is_san_correctPY(san_str : str) -> bool:
     return bool(is_san_correct(san))
 
 """
-def pgn_to_board_movesPY(pgn : POINTER(PGN)) -> tuple[POINTER(BOARD),
+def pgn_to_board_movesPY(pgn : POINTER(PGN)) -> tuple[BOARD_P,
                                                       bytes,list[MOVE]]:
     board = alloc_boardPY() 
     piece_array = bytes(64)

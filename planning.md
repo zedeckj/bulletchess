@@ -146,10 +146,42 @@ That all seems very slow.
 4/18/25
 Updated TODO:
 - Dynamic reallocation in python may be too slow, but at the least reduce allocation
-    - FEN should be replaced with a starting board pointer (much smaller)
-    - result should be replaced with a BoardStatus enum
-    - date replaced by date struct
+    - FEN should be replaced with a starting board pointer (much smaller) X
+    - result should be replaced with a BoardStatus enum X ish
+    - date replaced by date struct 
 - Add support for extra tags for ELO, or anything else that is strictly numeric or formatted in a manner which is not an unbounded string
 - Write tests for each individual field being correct, empty, blank, and malformed.
 - Refactor main.py to remove (or at least reduce) type errors
-- Exapnd on utilities, focus on defining objective functions, not random heuristics you've come up with. 
+- Exapnd on utilities, focus on defining objective functions, not random heuristics you've come up with.
+
+
+4/23/25 
+Back from break, new todo list:
+- Implement DATE struct instead of string 
+X
+- Skip over alternate lines while parsing (Nd3 ... ) 
+X
+- Fix representation of BoardStatus and the return from PGN, right now its just a plain integer. 
+These types need to cooperate in a way that makes more sense. 
+X
+- Investigate current handling of move annotations like "!!", this should be simple as a user. Would like to avoid making Moves mutable by adding
+annotations directly to them for future optimizations. 
+TODO SKIPPED
+- NAG? Need to look into this. 
+X
+- Write unit tests for all unique errors 
+X ish 
+- Once tests are in place, only THEN do refactor to allow arbitrary tags. Reconsider how strict the parser should be. 
+TODO SKIPPED
+- Clean up linter errors with private field access
+- Look at current usage of Bitboard, make sure its existence is justified
+- Exapnd on utilities, focus on defining objective functions, not random heuristics you've come up with.
+- Write unit tests trying to break everything
+- Implement an engine with Null Move Pruning to show off usefulness of library
+- RELEASE
+
+
+SIDE NOTE:
+things to try for perft speedup:
+- `full_move_t` implementation, no more ifs in apply and undo
+- use `piece_array` in move gen, no more ifs in gen

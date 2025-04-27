@@ -2,38 +2,41 @@ import unittest
 import sys
 sys.path.append("./")
 from bulletchess import *
+from pgn_test import PGNTestCase
 
 FILEPATH = "tests/pgn/Modern.pgn"
 
-class TestPGN(unittest.TestCase):
-
-    def assertMoveEq(self, move, uci):
-        self.assertEqual(move, Move.from_uci(uci))
-
-    def assertMovesAre(self, game : Game, move_sans : list[str]):
-        board = Board()
-        moves = game.moves()
-        
-        self.assertEqual(board, Board())
-        for i in range(len(move_sans)):
-            san = moves[i].to_san(board)
-            self.assertEqual(san, move_sans[i])
-            board.apply(moves[i])
-       
+class TestPGN(PGNTestCase):
 
     def test_no_logs(self):
-        games = 1
-        max_count = 0
         with PGNReader.open(FILEPATH) as f:
             game = f.next_game()
             while game != None: 
-                print("\033[93m" +"on game" + '\033[95m'
-, games)
                 game = f.next_game()
-                if game != None and game.move_count > max_count:
-                    max_count = game.move_count
-                games += 1
-        print(f"max count {max_count}")
+     
+    def test_moves(self):
+        with PGNReader.open(FILEPATH) as f:
+            game = f.next_game()
+            self.assertMovesAre(game, [
+                "e4", "d6", "d4", "g6", "c4", "Bg7", "Nc3", "Nc6",
+                "Be3", "e5", "d5", "Nce7", "c5", "Nh6", "f3", "f5",
+                "cxd6", "cxd6", "Bb5+", "Kf8", "Qa4", "f4", "Bf2", "Bf6",
+                "Nge2", "Kg7", "Rc1", "a6", "O-O", "g5", "Rc2", "Rb8", 
+                "Bd3", 
+                "Nf7", "Rfc1", "Qd7", "Bb6", "Qxa4", "Nxa4", "Bd7",
+                "Nec3", "Rbc8", "Ba5", "Bxa4", "Nxa4", "Rxc2", "Rxc2", 
+                "Rc8", "Nb6", "Rxc2", "Bxc2", "h5", "Ba4", "g4", "Bd7", 
+                "gxf3", "gxf3", "Ng5", "Kf2",
+                "Kf8", "Nc4", "Ng6", "Bc8", "Be7", "Bxb7", "Nh4", "Nd2",
+                "Nh3+", "Kf1"
+            ])
+            game = f.next_game()
+            self.assertMovesAre(game, [
+                "c4", "g6", "d4", "Bg7", "e4", "d6", "Nc3", "c5", "dxc5",
+                "Bxc3+", "bxc3", "dxc5", "Bd3", "Nc6", "f4", "Qa5", 
+                "Ne2", "Be6", "f5", "O-O-O", "fxe6", "Ne5", "exf7",
+                "Nf6", "O-O", "Nxd3", "Bh6", "Ne5", "Qb3", "Nxf7"
+            ])
     
 if __name__ == "__main__":
     unittest.main()

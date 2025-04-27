@@ -1,34 +1,42 @@
 #include "apply.h"
 
+static void update_castling_from(bitboard_t bb, full_board_t *board) {
+	switch (bb) {
+		case A1_BB:
+			board->castling_rights &= ~WHITE_QUEENSIDE;
+			break;
+		case A8_BB: 
+			board->castling_rights &= ~BLACK_QUEENSIDE;
+			break;
+		case H1_BB:
+			board->castling_rights &= ~WHITE_KINGSIDE;
+			break;
+		case H8_BB:
+			board->castling_rights &= ~BLACK_KINGSIDE;
+			break; 
+	}
+}
+
 
 piece_t apply_pawn_promotion(full_board_t * board, bitboard_t origin, 
                     bitboard_t destination, piece_type_t promote_to) {
     position_t * position = board->position;
     bitboard_t * hostile_oc;
     bitboard_t * friendly_oc;
-    castling_rights_t remove_if_kingside;
-    castling_rights_t remove_if_queenside;
     piece_t captured;
     captured.type = EMPTY_VAL;
     if (origin & position->white_oc) {
         hostile_oc = &position->black_oc;
         friendly_oc = &position->white_oc; 
         board->turn = BLACK_VAL;
-        remove_if_kingside = ~BLACK_KINGSIDE;
-        remove_if_queenside = ~BLACK_QUEENSIDE;
         captured.color = BLACK_VAL;
     }
-    else if (origin & position->black_oc) {
-        hostile_oc = &position->white_oc;
+    else {
+				hostile_oc = &position->white_oc;
         friendly_oc = &position->black_oc; 
         board->fullmove_number += 1;
         board->turn = WHITE_VAL;
-        remove_if_kingside = ~WHITE_KINGSIDE;
-        remove_if_queenside = ~WHITE_QUEENSIDE;
         captured.color = WHITE_VAL;
-    }
-    else {
-        return captured;
     }
     if (*hostile_oc & destination) {
         bitboard_t keep = ~destination;
@@ -41,7 +49,8 @@ piece_t apply_pawn_promotion(full_board_t * board, bitboard_t origin,
         else if (position->rooks & destination){
           captured.type = ROOK_VAL;
           position->rooks &= keep;
-        }
+        	update_castling_from(destination, board);
+				}
         else if (position->knights & destination){
           captured.type = KNIGHT_VAL;
           position->knights &= keep;
@@ -50,8 +59,6 @@ piece_t apply_pawn_promotion(full_board_t * board, bitboard_t origin,
           captured.type = QUEEN_VAL;
           position->queens &= keep;
         }
-        if (destination & FILE_A) board->castling_rights &= remove_if_queenside;
-        else if (destination & FILE_H) board->castling_rights &= remove_if_kingside;
     }
     position->pawns &= ~origin;
     switch (promote_to) {
@@ -177,8 +184,6 @@ piece_t apply_pawn_other(full_board_t * board, square_t square_origin, bitboard_
 		return captured;
 }
 
-
-
 void apply_king_move(full_board_t * board, bitboard_t origin, 
 																bitboard_t destination, 
 																undoable_move_t *out_move){
@@ -209,8 +214,8 @@ void apply_king_move(full_board_t * board, bitboard_t origin,
         board->castling_rights &= ~WHITE_FULL_CASTLING;
         captured.color = BLACK_VAL;
     }
-    else if (origin & position->black_oc) {
-        hostile_oc = &position->white_oc;
+    else {
+				hostile_oc = &position->white_oc;
         friendly_oc = &position->black_oc; 
         board->fullmove_number += 1;
         kingside_rook = H8_BB;
@@ -224,12 +229,9 @@ void apply_king_move(full_board_t * board, bitboard_t origin,
         board->castling_rights &= ~BLACK_FULL_CASTLING;
         captured.color = WHITE_VAL;
     }
-    else {
-				out_move->captured_piece = captured;
-    		return;
-		}  
     bitboard_t at_home;
-    if ((at_home = (origin & king_home)) && (kingside_dest & destination)) {
+    if ((at_home = (origin & king_home)) && 
+				(kingside_dest & destination)) {
         bitboard_t not_origin = ~origin;
         bitboard_t not_kingside = ~kingside_rook;
         position->kings &= not_origin;
@@ -256,27 +258,24 @@ void apply_king_move(full_board_t * board, bitboard_t origin,
     else {
         if (*hostile_oc & destination) {
             bitboard_t keep = ~destination;
-            if (position->pawns & destination) {
+						if (position->pawns & destination) {
               captured.type = PAWN_VAL;
               position->pawns &= keep;
             }
-            else if (position->bishops & destination) {
+						else if (position->bishops & destination) {
               captured.type = BISHOP_VAL;
               position->bishops &= keep;
             }
-            else if (position->rooks & destination) {
+						else if (position->rooks & destination) {
               captured.type = ROOK_VAL;
               position->rooks &= keep;
-							if (destination & A1_BB) board->castling_rights &= ~WHITE_QUEENSIDE;
-							else if (destination & A8_BB) board->castling_rights &= ~BLACK_QUEENSIDE;
-							else if (destination & H1_BB) board->castling_rights &= ~WHITE_KINGSIDE;
-							else if (destination & H8_BB) board->castling_rights &= ~BLACK_KINGSIDE;
+							update_castling_from(destination, board);
 						}
-            else if (position->knights & destination) {
+						else if (position->knights & destination) {
               captured.type = KNIGHT_VAL;
               position->knights &= keep;
             }
-					  else if (position->queens & destination) {
+						else if (position->queens & destination) {
 							captured.type = QUEEN_VAL;
 							position->queens &= keep;
 						}
@@ -295,159 +294,163 @@ void apply_king_move(full_board_t * board, bitboard_t origin,
 		return;
 }
 
-piece_t other_apply_move(full_board_t * board, bitboard_t origin, bitboard_t destination) {
+void other_apply_move(full_board_t * board, bitboard_t origin, bitboard_t destination, undoable_move_t *out_move) {
     position_t * position = board->position;
 		bitboard_t * hostile_oc;
     bitboard_t * friendly_oc;
-    bitboard_t remove_if_kingside;
-    bitboard_t remove_if_queenside;
-    bitboard_t kingside_square;
-    bitboard_t queenside_square;
-    piece_t captured;
-		captured.type = EMPTY_VAL;
 		if (origin & position->white_oc) {
         hostile_oc = &position->black_oc;
         friendly_oc = &position->white_oc; 
         board->turn = BLACK_VAL;
-        remove_if_kingside = ~BLACK_KINGSIDE;
-        remove_if_queenside = ~BLACK_QUEENSIDE;
-        kingside_square = H8_BB;
-        queenside_square = A8_BB;
-				captured.color = BLACK_VAL; 
+				out_move->captured_piece.color = BLACK_VAL; 
     }
-    else if (origin & position->black_oc) {
-        hostile_oc = &position->white_oc;
+		else {
+				hostile_oc = &position->white_oc;
         friendly_oc = &position->black_oc; 
         board->fullmove_number += 1;
         board->turn = WHITE_VAL;
-        remove_if_kingside = ~WHITE_KINGSIDE;
-        remove_if_queenside = ~WHITE_QUEENSIDE;
-        kingside_square = H1_BB;
-        queenside_square = A1_BB;
-				captured.color = WHITE_VAL;
+				out_move->captured_piece.color = WHITE_VAL;
     }
-    else {
-        return captured;
-    }  
     bitboard_t is_capture;
-    if ((is_capture = (*hostile_oc & destination))) {
+		if ((is_capture = (*hostile_oc & destination))) {
 		 	bitboard_t keep = ~destination;
 			board->halfmove_clock = 0;	
 			if (position->pawns & destination) {
-				captured.type = PAWN_VAL;
+				out_move->captured_piece.type = PAWN_VAL;
 				position->pawns &= keep;
 			}
 			else if (position->bishops & destination) {
-				captured.type = BISHOP_VAL;
+			out_move->captured_piece.type = BISHOP_VAL;
 				position->bishops &= keep;
 			}
 			else if (position->rooks & destination){
-				captured.type = ROOK_VAL;
+			out_move->captured_piece.type = ROOK_VAL;
 				position->rooks &= keep;
-				if (destination & A1_BB) board->castling_rights &= ~WHITE_QUEENSIDE;
-				else if (destination & A8_BB) board->castling_rights &= ~BLACK_QUEENSIDE;
-				else if (destination & H1_BB) board->castling_rights &= ~WHITE_KINGSIDE;
-				else if (destination & H8_BB) board->castling_rights &= ~BLACK_KINGSIDE;
+				update_castling_from(destination, board);
 			}
 			else if (position->knights & destination){
-				captured.type = KNIGHT_VAL;
+			out_move->captured_piece.type = KNIGHT_VAL;
 				position->knights &= keep;
 			}
 			else if (position->queens & destination) {
-				captured.type = QUEEN_VAL;
+			out_move->captured_piece.type = QUEEN_VAL;
 				position->queens &= keep;
 			}
 			*hostile_oc &= keep;
 		}
 		else {
 				board->halfmove_clock += 1;
-				if (destination & kingside_square) board->castling_rights &= remove_if_kingside;
-        else if (destination & queenside_square) board->castling_rights &= remove_if_queenside;
+				update_castling_from(destination, board);
     }
+
     if (origin & position->bishops) {
         position->bishops |= destination;
         position->bishops &= ~origin;
         *friendly_oc |= destination;
         *friendly_oc &= ~origin;
-
+				out_move->moved_piece = BISHOP_VAL;
     }
     else if (origin & position->knights) {
         position->knights |= destination;
         position->knights &= ~origin;
         *friendly_oc |= destination;
         *friendly_oc &= ~origin;
+				out_move->moved_piece = KNIGHT_VAL;
     }
     else if (origin & position->rooks) {
-				if (origin & A1_BB) board->castling_rights &= ~WHITE_QUEENSIDE;
-       	else if (origin & A8_BB) board->castling_rights &= ~BLACK_QUEENSIDE;
-      	else if (origin & H1_BB) board->castling_rights &= ~WHITE_KINGSIDE;
-        else if (origin & H8_BB) board->castling_rights &= ~BLACK_KINGSIDE;
-        position->rooks |= destination;
-        position->rooks &= ~origin;
-        *friendly_oc |= destination;
-        *friendly_oc &= ~origin;
-    }
+			update_castling_from(origin, board);	
+			position->rooks |= destination;
+      position->rooks &= ~origin;
+      *friendly_oc |= destination;
+      *friendly_oc &= ~origin;
+			out_move->moved_piece = ROOK_VAL;
+		}
     else if (origin & position->queens) {
-        position->queens |= destination;
-        position->queens &= ~origin;
-        *friendly_oc |= destination;
-        *friendly_oc &= ~origin;
-    }
+      position->queens |= destination;
+      position->queens &= ~origin;
+      *friendly_oc |= destination;
+      *friendly_oc &= ~origin;
+			out_move->moved_piece = QUEEN_VAL;
+	 	}
     board->en_passant_square.exists = false;
     board->en_passant_square.square = EMPTY_EP;
-		return captured;
+}
+
+static void handle_null_move(full_board_t * board) {
+		if (board->turn == WHITE_VAL){
+			board->turn = BLACK_VAL;
+		}
+		else {
+			board->turn = WHITE_VAL;
+			board->fullmove_number += 1;
+		}
+		board->halfmove_clock += 1;
+		board->en_passant_square.exists = false;
+		board->en_passant_square.square = EMPTY_EP;
+}
+
+static void handle_promotion_move(full_board_t *board, 
+		promotion_move_t promotion, undoable_move_t *out_move) {
+   
+	 bitboard_t origin = SQUARE_TO_BB(promotion.body.origin);
+   bitboard_t destination = SQUARE_TO_BB(promotion.body.destination);
+   out_move->captured_piece = 
+		 apply_pawn_promotion(board, origin, destination, 
+				 promotion.promote_to);
+	 out_move->moved_piece = PAWN_VAL;
 }
 
 
 
-// function responsible for making the changes to the position and state 
-// of a move
+
+
+
+
+static void handle_generic_move(full_board_t *board,
+		generic_move_t generic, undoable_move_t *out_move) {
+
+   	bitboard_t origin = SQUARE_TO_BB(generic.origin);
+    	bitboard_t destination = SQUARE_TO_BB(generic.destination);
+    	position_t *position = board->position;
+			if (origin & position->pawns) {
+        out_move->captured_piece = apply_pawn_other(board, generic.origin, origin, destination);
+	 			out_move->moved_piece = PAWN_VAL;
+			}
+			else if (origin & position->kings) {
+	 			out_move->moved_piece = KING_VAL;
+        apply_king_move(board, origin, destination, out_move);
+    	}
+			else {
+				other_apply_move(board, origin, destination, out_move);
+			}
+			
+}
+
 void apply_move_ext(full_board_t * board, move_t move, undoable_move_t *out_move){
 		out_move->old_halfmove = board->halfmove_clock;
 		out_move->old_castling_rights = board->castling_rights;
 		out_move->old_en_passant = board->en_passant_square;
 		out_move->move = move;
 		out_move->was_castling = 0;
-		if (move.type == NULL_MOVE) {
-			if (board->turn == WHITE_VAL){
-				board->turn = BLACK_VAL;
-			}
-			else {
-				board->turn = WHITE_VAL;
-				board->fullmove_number += 1;
-			}
-			board->halfmove_clock += 1;
-			board->en_passant_square.exists = false;
-			board->en_passant_square.square = EMPTY_EP;
-			return;
-		}
-		else if (move.type == PROMOTION_MOVE) {
-        bitboard_t origin = SQUARE_TO_BB(move.promotion.body.origin);
-        bitboard_t destination = SQUARE_TO_BB(move.promotion.body.destination);
-        out_move->captured_piece = apply_pawn_promotion(board, origin, destination, 
-																												move.promotion.promote_to);
-    }
-		else {
-    	bitboard_t origin = SQUARE_TO_BB(move.generic.origin);
-    	bitboard_t destination = SQUARE_TO_BB(move.generic.destination);
-    	position_t *position = board->position;
-    	if (origin & position->pawns) {
-        out_move->captured_piece = apply_pawn_other(board, move.generic.origin, origin, destination);
-    	}
-    	else if (origin & position->kings) {
-        return apply_king_move(board, origin, destination, out_move);
-    	}
-			else {
-				out_move->captured_piece = other_apply_move(board, origin, destination);
-			}
-		}
-		return;
+		switch (move.type) {
+			case NULL_MOVE:
+				return handle_null_move(board);
+			case PROMOTION_MOVE:
+				return handle_promotion_move(board, move.promotion, out_move);
+			default: 
+				return handle_generic_move(board, move.generic, out_move);
+	}
 }
+
 
 undoable_move_t apply_move(full_board_t *board, move_t move) {
 	undoable_move_t undo;
 	apply_move_ext(board, move, &undo);
 	return undo;
+}
+
+void void_apply(full_board_t *board, move_t move) {
+	apply_move(board, move);
 }
 
 /*
@@ -504,51 +507,53 @@ void undo_move(full_board_t *board, undoable_move_t move) {
 	else if (move.move.type == GENERIC_MOVE) {
 		origin = SQUARE_TO_BB(move.move.generic.origin);
 		destination = SQUARE_TO_BB(move.move.generic.destination);
-		if (position->knights & destination) {
-			position->knights &= ~destination;
-			position->knights |= origin;
-		}
-		else if (position->pawns & destination) {
-			if (move.old_en_passant.exists) {
-				bitboard_t ep_bb = SQUARE_TO_BB(move.old_en_passant.square);
-				if (ep_bb & destination) {
-					bitboard_t ep_pawn;
-					if (ep_bb & RANK_3) ep_pawn = SAFE_ABOVE_BB(ep_bb);
-					else ep_pawn = SAFE_BELOW_BB(ep_bb);	
-					position->pawns |= ep_pawn;
-					*hostile_oc |= ep_pawn;
+		switch (move.moved_piece) {	
+			case KNIGHT_VAL:
+				position->knights &= ~destination;
+				position->knights |= origin;
+				break;
+			case PAWN_VAL:
+				if (move.old_en_passant.exists) {
+					bitboard_t ep_bb = SQUARE_TO_BB(move.old_en_passant.square);
+					if (ep_bb & destination) {
+						bitboard_t ep_pawn;
+						if (ep_bb & RANK_3) ep_pawn = SAFE_ABOVE_BB(ep_bb);
+						else ep_pawn = SAFE_BELOW_BB(ep_bb);	
+						position->pawns |= ep_pawn;
+						*hostile_oc |= ep_pawn;
+					}
 				}
-			}
-			position->pawns &= ~destination;
-			position->pawns |= origin;
-		}
-		else if (position->bishops & destination) {
-			position->bishops &= ~destination;
-			position->bishops |= origin;
-		}
-		else if (position->rooks & destination) {
-			position->rooks &= ~destination;
-			position->rooks |= origin;
-		}
-		else if (position->queens & destination) {
-			position->queens &= ~destination;
-			position->queens |= origin;
-		}
-		else if (position->kings & destination) {
-			position->kings &= ~destination;
-			position->kings |= origin;
-			if (move.was_castling & ANY_KINGSIDE) {
-				position->rooks &= ~SAFE_LEFT_BB(destination);
-				*friendly_oc &= ~SAFE_LEFT_BB(destination);
-				position->rooks |= SAFE_RIGHT_BB(destination);
-				*friendly_oc |= SAFE_RIGHT_BB(destination);
-			}
-			if (move.was_castling & ANY_QUEENSIDE) {
-				position->rooks &= ~SAFE_RIGHT_BB(destination);
-				*friendly_oc &= ~SAFE_RIGHT_BB(destination);
-				position->rooks |= SAFE_TWO_LEFT_BB(destination);
-				*friendly_oc |= SAFE_TWO_LEFT_BB(destination);
-			}
+				position->pawns &= ~destination;
+				position->pawns |= origin;
+				break;	
+			case BISHOP_VAL:
+				position->bishops &= ~destination;
+				position->bishops |= origin;
+				break;
+			case ROOK_VAL:
+				position->rooks &= ~destination;
+				position->rooks |= origin;
+				break;
+			case QUEEN_VAL:
+				position->queens &= ~destination;
+				position->queens |= origin;
+				break;
+			case KING_VAL:
+				position->kings &= ~destination;
+				position->kings |= origin;
+				if (move.was_castling & ANY_KINGSIDE) {
+					position->rooks &= ~SAFE_LEFT_BB(destination);
+					*friendly_oc &= ~SAFE_LEFT_BB(destination);
+					position->rooks |= SAFE_RIGHT_BB(destination);
+					*friendly_oc |= SAFE_RIGHT_BB(destination);
+				}
+				if (move.was_castling & ANY_QUEENSIDE) {
+					position->rooks &= ~SAFE_RIGHT_BB(destination);
+					*friendly_oc &= ~SAFE_RIGHT_BB(destination);
+					position->rooks |= SAFE_TWO_LEFT_BB(destination);
+					*friendly_oc |= SAFE_TWO_LEFT_BB(destination);
+				}
+			break;
 		}
 		*friendly_oc &= ~destination;
 		*friendly_oc |= origin;

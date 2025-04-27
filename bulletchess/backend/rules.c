@@ -1,8 +1,83 @@
 #include "rules.h"
 
 
-void add_from_bitboard(square_t origin, bitboard_t destinations, move_t * moves, u_int8_t *move_index) {
-    if (destinations) {
+static inline square_t unchecked_bb_to_square(bitboard_t bb){
+	switch (bb){
+    case SQUARE_TO_BB(A1): return A1;
+		case SQUARE_TO_BB(A2): return A2;
+		case SQUARE_TO_BB(A3): return A3;
+		case SQUARE_TO_BB(A4): return A4;
+		case SQUARE_TO_BB(A5): return A5;
+		case SQUARE_TO_BB(A6): return A6;
+		case SQUARE_TO_BB(A7): return A7;
+		case SQUARE_TO_BB(A8): return A8;
+		case SQUARE_TO_BB(B1): return B1;
+		case SQUARE_TO_BB(B2): return B2;
+		case SQUARE_TO_BB(B3): return B3;
+		case SQUARE_TO_BB(B4): return B4;
+		case SQUARE_TO_BB(B5): return B5;
+		case SQUARE_TO_BB(B6): return B6;
+		case SQUARE_TO_BB(B7): return B7;
+		case SQUARE_TO_BB(B8): return B8;
+		case SQUARE_TO_BB(C1): return C1;
+		case SQUARE_TO_BB(C2): return C2;
+		case SQUARE_TO_BB(C3): return C3;
+		case SQUARE_TO_BB(C4): return C4;
+		case SQUARE_TO_BB(C5): return C5;
+		case SQUARE_TO_BB(C6): return C6;
+		case SQUARE_TO_BB(C7): return C7;
+		case SQUARE_TO_BB(C8): return C8;
+		case SQUARE_TO_BB(D1): return D1;
+		case SQUARE_TO_BB(D2): return D2;
+		case SQUARE_TO_BB(D3): return D3;
+		case SQUARE_TO_BB(D4): return D4;
+		case SQUARE_TO_BB(D5): return D5;
+		case SQUARE_TO_BB(D6): return D6;
+		case SQUARE_TO_BB(D7): return D7;
+		case SQUARE_TO_BB(D8): return D8;
+		case SQUARE_TO_BB(E1): return E1;
+		case SQUARE_TO_BB(E2): return E2;
+		case SQUARE_TO_BB(E3): return E3;
+		case SQUARE_TO_BB(E4): return E4;
+		case SQUARE_TO_BB(E5): return E5;
+		case SQUARE_TO_BB(E6): return E6;
+		case SQUARE_TO_BB(E7): return E7;
+		case SQUARE_TO_BB(E8): return E8;
+		case SQUARE_TO_BB(F1): return F1;
+		case SQUARE_TO_BB(F2): return F2;
+		case SQUARE_TO_BB(F3): return F3;
+		case SQUARE_TO_BB(F4): return F4;
+		case SQUARE_TO_BB(F5): return F5;
+		case SQUARE_TO_BB(F6): return F6;
+		case SQUARE_TO_BB(F7): return F7;
+		case SQUARE_TO_BB(F8): return F8;
+		case SQUARE_TO_BB(G1): return G1;
+		case SQUARE_TO_BB(G2): return G2;
+		case SQUARE_TO_BB(G3): return G3;
+		case SQUARE_TO_BB(G4): return G4;
+		case SQUARE_TO_BB(G5): return G5;
+		case SQUARE_TO_BB(G6): return G6;
+		case SQUARE_TO_BB(G7): return G7;
+		case SQUARE_TO_BB(G8): return G8;
+		case SQUARE_TO_BB(H1): return H1;
+		case SQUARE_TO_BB(H2): return H2;
+		case SQUARE_TO_BB(H3): return H3;
+		case SQUARE_TO_BB(H4): return H4;
+		case SQUARE_TO_BB(H5): return H5;
+		case SQUARE_TO_BB(H6): return H6;
+		case SQUARE_TO_BB(H7): return H7;
+		case SQUARE_TO_BB(H8): return H8;
+	}
+	return -1;
+}
+
+
+
+void add_from_bitboard_old(square_t origin, 
+		bitboard_t destinations, 
+		move_t * moves, 
+		u_int8_t *move_index) {
+		if (destinations) {
         for (square_t square = A1; square <= H8; square++) {
             bitboard_t bb = SQUARE_TO_BB(square);
             if (bb & destinations) {
@@ -13,6 +88,27 @@ void add_from_bitboard(square_t origin, bitboard_t destinations, move_t * moves,
 }
 
 
+void add_from_bitboard(square_t origin, 
+		bitboard_t destinations, 
+		move_t * moves, 
+		piece_type_t moving_type,
+		u_int8_t *move_index) {
+		forbitboard(current, destinations) {
+			square_t square = unchecked_bb_to_square(current);
+			generic_move_t gen;
+			gen.origin = origin;
+			gen.destination = square;
+			move_t move;
+			/*
+			move.type = FULL_MOVE;
+			move.full.body = gen;
+			move.full.moving_type = moving_type;
+			*/
+			move.type = GENERIC_MOVE;
+			move.generic = gen;
+			moves[(*move_index)++] = move; 
+		}
+}
 
 void add_from_bitboard_white_promotes(square_t origin, bitboard_t destinations, move_t * moves, u_int8_t *move_index) {
     if (destinations) {
@@ -1019,7 +1115,7 @@ u_int8_t generate_moves(
         if (square_bb & our_kings) {
             bitboard_t destination_bb = inner_king_dest_bb(square_bb, can_kingside, 
 														can_queenside, non_friendly, empty, attacked_mask);
-            add_from_bitboard(origin, destination_bb, move_buffer, &move_index);
+            add_from_bitboard(origin, destination_bb, move_buffer, KING_VAL, &move_index);
             continue;
         }
 				bitboard_t pinned_mask = make_pinned_mask(board, square_bb, for_color, 
@@ -1034,7 +1130,7 @@ u_int8_t generate_moves(
 									add_from_bitboard_white_promotes(origin, destination_bb, 
 																	move_buffer, &move_index);
                 else add_from_bitboard(origin, destination_bb, 
-																move_buffer, &move_index);
+																move_buffer, PAWN_VAL, &move_index);
             }
             else {
 								destination_bb = inner_black_pawn_dest_bb(square_bb, pawn_hostile, 
@@ -1043,28 +1139,28 @@ u_int8_t generate_moves(
                 if (square_bb & RANK_2) 
 									add_from_bitboard_black_promotes(origin, destination_bb, 
 																	move_buffer, &move_index);
-                else add_from_bitboard(origin, destination_bb, move_buffer, 
+                else add_from_bitboard(origin, destination_bb, move_buffer, PAWN_VAL,
 																&move_index);
             }
         }
         else if (square_bb & our_knights) {
             bitboard_t destination_bb = inner_knight_dest_bb(square_bb, 
 														non_friendly, allowed_mask);
-            add_from_bitboard(origin, destination_bb, move_buffer, &move_index);
+            add_from_bitboard(origin, destination_bb, move_buffer, KNIGHT_VAL, &move_index);
         }
         else if (square_bb & our_rooks) {
             bitboard_t destination_bb = inner_rook_dest_bb(square_bb, 
 														non_friendly, empty, allowed_mask);
-            add_from_bitboard(origin, destination_bb, move_buffer, &move_index);
+            add_from_bitboard(origin, destination_bb, move_buffer, ROOK_VAL, &move_index);
             
         }
         else if (square_bb & our_bishops) {
             bitboard_t destination_bb = inner_bishop_dest_bb(square_bb, non_friendly, empty, allowed_mask);
-            add_from_bitboard(origin, destination_bb, move_buffer, &move_index);
+            add_from_bitboard(origin, destination_bb, move_buffer, BISHOP_VAL, &move_index);
         }
         else if (square_bb & our_queens) {
             bitboard_t destination_bb = inner_queen_dest_bb(square_bb, non_friendly, empty, allowed_mask);
-            add_from_bitboard(origin, destination_bb, move_buffer, &move_index);
+            add_from_bitboard(origin, destination_bb, move_buffer, QUEEN_VAL, &move_index);
         }
     }
     return move_index;
