@@ -8,7 +8,7 @@ run_py() {
 }
 cd "$(dirname "$0")"
 source venv/bin/activate
-path=tests
+path=new_tests
 for entry in "$path"/*
     do
       if [[ -d "$entry" ]]; then

@@ -1,14 +1,14 @@
 import sys
 import json
 import time
-sys.path.append("../")
+sys.path.append("./")
 
 
 import bulletchess
 import chess
 
 # JSON file with a list of 100k FENs
-with open("fens.json", "r") as f:
+with open("data/fens.json", "r") as f:
     fens = json.load(f)
 
 # "roundtrip" functions parse a list of FENs into
