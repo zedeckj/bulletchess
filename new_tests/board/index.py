@@ -60,6 +60,19 @@ class TestBoardIndex(unittest.TestCase):
         board[H8] = None
         self.assertEqual(board[H8], None)
 
+    def test_set2(self):
+        for piece_type in PIECE_TYPES:
+            for color in [WHITE, BLACK]:
+                board = Board()
+                unchanged = STARTING_SQUARE_TABLE.copy()
+                for square in SQUARES:
+                    board[square] = Piece(color, piece_type)
+                    if square in unchanged:
+                        del unchanged[square]
+                        for square2 in unchanged:
+                            self.assertEqual(board[square2], unchanged[square2])
+                    self.assertEqual(board[square], Piece(color, piece_type))
+
 
     def test_typerr(self):
         board = Board()

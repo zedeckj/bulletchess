@@ -32,6 +32,77 @@ bool serialize_sqr_caps(square_t square, char *buffer) {
 	return false;
 }
 
+square_t unchecked_bb_to_square(bitboard_t bb){
+	switch (bb){
+    case SQUARE_TO_BB(A1): return A1;
+		case SQUARE_TO_BB(A2): return A2;
+		case SQUARE_TO_BB(A3): return A3;
+		case SQUARE_TO_BB(A4): return A4;
+		case SQUARE_TO_BB(A5): return A5;
+		case SQUARE_TO_BB(A6): return A6;
+		case SQUARE_TO_BB(A7): return A7;
+		case SQUARE_TO_BB(A8): return A8;
+		case SQUARE_TO_BB(B1): return B1;
+		case SQUARE_TO_BB(B2): return B2;
+		case SQUARE_TO_BB(B3): return B3;
+		case SQUARE_TO_BB(B4): return B4;
+		case SQUARE_TO_BB(B5): return B5;
+		case SQUARE_TO_BB(B6): return B6;
+		case SQUARE_TO_BB(B7): return B7;
+		case SQUARE_TO_BB(B8): return B8;
+		case SQUARE_TO_BB(C1): return C1;
+		case SQUARE_TO_BB(C2): return C2;
+		case SQUARE_TO_BB(C3): return C3;
+		case SQUARE_TO_BB(C4): return C4;
+		case SQUARE_TO_BB(C5): return C5;
+		case SQUARE_TO_BB(C6): return C6;
+		case SQUARE_TO_BB(C7): return C7;
+		case SQUARE_TO_BB(C8): return C8;
+		case SQUARE_TO_BB(D1): return D1;
+		case SQUARE_TO_BB(D2): return D2;
+		case SQUARE_TO_BB(D3): return D3;
+		case SQUARE_TO_BB(D4): return D4;
+		case SQUARE_TO_BB(D5): return D5;
+		case SQUARE_TO_BB(D6): return D6;
+		case SQUARE_TO_BB(D7): return D7;
+		case SQUARE_TO_BB(D8): return D8;
+		case SQUARE_TO_BB(E1): return E1;
+		case SQUARE_TO_BB(E2): return E2;
+		case SQUARE_TO_BB(E3): return E3;
+		case SQUARE_TO_BB(E4): return E4;
+		case SQUARE_TO_BB(E5): return E5;
+		case SQUARE_TO_BB(E6): return E6;
+		case SQUARE_TO_BB(E7): return E7;
+		case SQUARE_TO_BB(E8): return E8;
+		case SQUARE_TO_BB(F1): return F1;
+		case SQUARE_TO_BB(F2): return F2;
+		case SQUARE_TO_BB(F3): return F3;
+		case SQUARE_TO_BB(F4): return F4;
+		case SQUARE_TO_BB(F5): return F5;
+		case SQUARE_TO_BB(F6): return F6;
+		case SQUARE_TO_BB(F7): return F7;
+		case SQUARE_TO_BB(F8): return F8;
+		case SQUARE_TO_BB(G1): return G1;
+		case SQUARE_TO_BB(G2): return G2;
+		case SQUARE_TO_BB(G3): return G3;
+		case SQUARE_TO_BB(G4): return G4;
+		case SQUARE_TO_BB(G5): return G5;
+		case SQUARE_TO_BB(G6): return G6;
+		case SQUARE_TO_BB(G7): return G7;
+		case SQUARE_TO_BB(G8): return G8;
+		case SQUARE_TO_BB(H1): return H1;
+		case SQUARE_TO_BB(H2): return H2;
+		case SQUARE_TO_BB(H3): return H3;
+		case SQUARE_TO_BB(H4): return H4;
+		case SQUARE_TO_BB(H5): return H5;
+		case SQUARE_TO_BB(H6): return H6;
+		case SQUARE_TO_BB(H7): return H7;
+		case SQUARE_TO_BB(H8): return H8;
+	}
+	return -1;
+}
+
+
 
 
 /*

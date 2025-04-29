@@ -3,22 +3,26 @@
 #include "fen.h"
 #include "rules.h"
 
+static void PyTypeErr(char * expected, PyObject *obj){
+	char *article;
+	switch (expected[0]) {
+		case 'a': case 'e': case 'i': case 'o': case 'u': case 'y':
+		case 'A': case 'E': case 'I': case 'O': case 'U': case 'Y':
+		article = "an";
+		break;
+		default:
+		article = "a";
+	}
+	PyErr_Format(PyExc_TypeError, "Expected %s %s, got %S (%N)", 
+		article, expected, obj, Py_TYPE(obj));
+}
+
 
 static bool PyTypeCheck(char *expected, PyObject *obj, PyTypeObject *type){
-		if (!Py_IS_TYPE(obj, type)) {
-			char *article;
-			switch (expected[0]) {
-				case 'a': case 'e': case 'i': case 'o': case 'u': case 'y':
-				case 'A': case 'E': case 'I': case 'O': case 'U': case 'Y':
-				article = "an";
-				break;
-				default:
-				article = "a";
-			}
-			PyErr_Format(PyExc_TypeError, "Expected %s %s, got %S (%N)", 
-					article, expected, obj, Py_TYPE(obj));
-			return false;	
-		}
+	if (!Py_IS_TYPE(obj, type)) {
+		PyTypeErr(expected, obj);		
+		return false;	
+	}
 	return true;
 }
 
@@ -245,12 +249,14 @@ PyPiece_init(PyObject *self, PyObject *args, PyObject *kwds){
 		PyObject *color;
 		PyObject *piece_type;
 		if (!PyArg_ParseTuple(args, "OO", &color, &piece_type)) {
-			printf("NO ERR HERE\n");
 			return -1;
 		}
 		if (!PyTypeCheck("Color", color, &PyColorType)) return -1;
 		if (!PyTypeCheck("PieceType", piece_type, &PyPieceTypeType)) return -1;
-  	piece_t piece = {.type = PyPieceType_get(piece_type), .color = PyColor_get(color)};
+  	piece_t piece = {
+			.type = PyPieceType_get(piece_type), 
+			.color = PyColor_get(color)
+		};
 		((PyPieceObject *)self)->piece = piece;	
 		return 0;
 }
@@ -498,6 +504,238 @@ static PyTypeObject PyMoveType = {
 };
 
 
+/* Bitboard Clas */
+
+typedef struct {
+	PyObject_HEAD
+	bitboard_t bitboard;
+	bitboard_t iter;
+	bool itering;
+} PyBitboardObject;
+
+static PyTypeObject PyBitboardType;
+
+static PyBitboardObject *PyBitboard_make(bitboard_t bitboard){
+	PyBitboardObject *self = PyObject_New(PyBitboardObject, &PyBitboardType);
+	if (!self) return NULL;
+	self->bitboard = bitboard;
+	self->iter = 0;
+	self->itering = false;
+	return self;
+}	
+
+static inline bitboard_t PyBitboard_get(PyObject *self) {
+	return ((PyBitboardObject *)self)->bitboard;
+}
+
+static PyObject *PyBitboard_and(PyObject *self, PyObject *other) {
+	if (!PyTypeCheck("Bitboard", other, &PyBitboardType)) return NULL;
+	bitboard_t b1 = PyBitboard_get(self);
+	bitboard_t b2 = PyBitboard_get(other);
+	return (PyObject *)PyBitboard_make(b1 & b2);
+}
+
+
+static PyObject *PyBitboard_xor(PyObject *self, PyObject *other) {
+	if (!PyTypeCheck("Bitboard", other, &PyBitboardType)) return NULL;
+	bitboard_t b1 = PyBitboard_get(self);
+	bitboard_t b2 = PyBitboard_get(other);
+	return (PyObject *)PyBitboard_make(b1 ^ b2);
+}
+
+
+static PyObject *PyBitboard_or(PyObject *self, PyObject *other) {
+	if (!PyTypeCheck("Bitboard", other, &PyBitboardType)) return NULL;
+	bitboard_t b1 = PyBitboard_get(self);
+	bitboard_t b2 = PyBitboard_get(other);
+	return (PyObject *)PyBitboard_make(b1 | b2);
+}
+
+
+static PyObject *PyBitboard_not(PyObject *self) {
+	bitboard_t b1 = PyBitboard_get(self);
+	return (PyObject *)PyBitboard_make(~b1);
+}
+
+
+
+static PyObject *PyBitboard_compare(PyObject *self, PyObject *other, int op){
+	bool eq = Py_IS_TYPE(other, &PyBitboardType) 
+		&& PyBitboard_get(self) == PyBitboard_get(other); 	
+	switch (op) {
+		case Py_EQ:
+			return eq ? Py_True : Py_False;
+		case Py_NE:
+			return eq ? Py_False : Py_True;
+		default:
+			return Py_NotImplemented;
+	}
+}
+
+static int PyBitboard_contains(PyObject *self, PyObject *value) {
+	if (!PyTypeCheck("Square", value, &PySquareType)) return -1;
+	bitboard_t bb = PyBitboard_get(self);
+	square_t sq = PySquare_get(value);
+	return bb & SQUARE_TO_BB(sq) ? 1 : 0;
+}
+
+
+static PyObject *PyBitboard_to_int(PyObject *self) {
+	bitboard_t bb = PyBitboard_get(self);
+	return PyLong_FromUnsignedLong(bb);
+}
+
+static Py_ssize_t PyBitboard_len(PyObject *self) {
+	return (Py_ssize_t)count_bits(PyBitboard_get(self));
+}
+
+static PyObject *PyBitboard_getitem(PyObject *self, PyObject *key){
+	int cont = PyBitboard_contains(self, key);
+	switch (cont) {
+		case 0: return Py_False;
+		case 1: return Py_True;
+		default: return NULL;
+	}
+}
+
+
+static int PyBitboard_setitem(PyObject *self, PyObject *key, PyObject *value){
+	if (!PyTypeCheck("Square", key, &PySquareType)) return -1;
+	square_t sq = PySquare_get(key);
+	if (!value || Py_IsFalse(value)) {
+		((PyBitboardObject *)self)->bitboard &= ~SQUARE_TO_BB(sq); 
+		return 0;
+	}
+	else if (Py_IsTrue(value)) {
+		((PyBitboardObject *)self)->bitboard |= SQUARE_TO_BB(sq); 
+		return 0;
+	}
+	else {
+		PyTypeErr("bool", value);	
+		return -1;
+	}
+}
+
+
+static int
+PyBitboard_init(PyObject *self, PyObject *args, PyObject *kwds){
+		PyObject *square_set;
+		if (!PyArg_ParseTuple(args, "O", &square_set)) return -1;
+		//if (!PyTypeCheck("set", square_set, &PySet_Type)) return -1;
+		PyObject *iter;
+		if (!(iter = PyObject_GetIter(square_set))) {
+			PyTypeErr("Iterable", square_set);
+			return -1;
+		}
+		PyObject *next;
+		bitboard_t bb = 0;
+		while ((next = PyIter_Next(iter))){
+			if (!PyTypeCheck("Square", next, &PySquareType)){		
+				Py_DECREF(next);	
+				return -1;
+			}
+			bb |= SQUARE_TO_BB(PySquare_get(next));
+			Py_DECREF(next);	
+		}
+		Py_DECREF(iter);
+		((PyBitboardObject *)self)->bitboard = bb;
+		return 0;
+}
+
+static PyObject *PyBitboard_squares_iter(PyObject *self) {
+	bitboard_t bit;
+	bitboard_t src = PyBitboard_get(self);
+	u_int8_t len = count_bits(src);
+	PyObject *list = PyList_New(len);
+	u_int8_t i = 0;	
+	forbitboard(bit, src){
+		square_t sq = unchecked_bb_to_square(bit);
+		PyList_SET_ITEM(list, i++, PySquare_make(sq));
+	}
+	return PyObject_GetIter(list);
+}
+
+
+static PyObject *PyBitboard_getiter(PyObject *self) {
+	printf("get iter\n");
+	PyBitboardObject *b = (PyBitboardObject *)self;
+	b->iter = b->bitboard;	
+	return self;
+}
+
+static PyObject *PyBitboard_next(PyObject *self) {
+	printf("1.\n");
+	PyBitboardObject *b = (PyBitboardObject *)self;
+	if (!b->itering){
+		b->iter = b->bitboard;
+		b->itering = true;
+	}
+	bitboard_t sq_bb = LSB(b->iter);
+	printf("next iter\n");
+	if (sq_bb) {
+		b->iter &= ~sq_bb;
+		square_t sq = unchecked_bb_to_square(sq_bb);
+		printf("got square %d\n", sq); 
+		return PySquare_make(sq);	
+	}
+	b->iter = -1;
+	b->itering = false;
+	return NULL;
+}
+
+static PyObject *PyBitboard_from_int(PyObject *cls, PyObject *arg){ 
+	if (!PyTypeCheck("int", arg, &PyLong_Type)) return NULL;
+	bitboard_t bb = PyLong_AsUnsignedLongLong(arg);
+	if (bb == -1 && PyErr_Occurred()) return NULL;
+	return (PyObject *)PyBitboard_make(bb);	
+}
+
+
+static PyMappingMethods PyBitboardAsMap = {
+	.mp_subscript = PyBitboard_getitem,
+	.mp_ass_subscript = PyBitboard_setitem,
+	.mp_length = PyBitboard_len,
+};
+
+
+
+static PySequenceMethods PyBitboardAsSeq= {
+	.sq_contains = PyBitboard_contains,
+};
+
+
+
+static PyNumberMethods PyBitboardAsNum = {
+	.nb_int = PyBitboard_to_int,
+	.nb_xor = PyBitboard_xor,
+	.nb_or = PyBitboard_or,
+	.nb_and = PyBitboard_and,
+	.nb_invert = PyBitboard_not,
+};
+
+
+static PyMethodDef PyBitboardMethods[] = {
+	{"from_int", PyBitboard_from_int, METH_O | METH_STATIC, NULL},
+	{NULL, NULL, 0, NULL},
+};
+
+static PyTypeObject PyBitboardType = {
+	.ob_base = PyVarObject_HEAD_INIT(NULL, 0)
+	.tp_name = "bulletchess.Bitboard",
+	.tp_basicsize = sizeof(PyBitboardObject),
+  .tp_itemsize = 0,
+  .tp_flags = Py_TPFLAGS_DEFAULT, 
+	.tp_new = PyType_GenericNew,
+	.tp_init = PyBitboard_init,
+	.tp_richcompare = PyBitboard_compare,
+	.tp_as_mapping = &PyBitboardAsMap,
+	.tp_as_number = &PyBitboardAsNum,
+	.tp_as_sequence = &PyBitboardAsSeq,
+	.tp_iter = PyBitboard_squares_iter,
+	.tp_methods = PyBitboardMethods,
+};
+
+
 
 /* Board CLASS */
 
@@ -640,28 +878,13 @@ PyBoard_count_moves(PyObject *self, PyObject *Py_UNUSED(args)){
 	return PyLong_FromUnsignedLong(count);
 }
 
-/*
-
-typedef struct {
-	PyObject_HEAD
-	full_board_t *board;
-	undoable_move_t *move_stack;
-	size_t stack_size;
-	size_t stack_capacity;
-} PyBoardObject;
-*/
 
 static PyObject *PyBoard_copy(PyObject *self, PyObject *Py_UNUSED(args)){
 	PyBoardObject *copy_obj = PyBoard_alloc();
 	if (!copy_obj) return NULL;
 	full_board_t *copy = copy_obj->board; 
 	full_board_t *src = PyBoard_board(self);
-	memcpy(copy->position, src->position, sizeof(position_t));  
-	copy->fullmove_number = src->fullmove_number;
-	copy->halfmove_clock = src->halfmove_clock;
-	copy->castling_rights = src->castling_rights;
-	copy->en_passant_square = src->en_passant_square;
-	copy->turn = src->turn;
+	copy_into(copy, src);
 	size_t stack_size = ((PyBoardObject *)self)->stack_size;
 	size_t stack_capacity= ((PyBoardObject *)self)->stack_capacity;
 	undoable_move_t * src_stack = ((PyBoardObject *)self)->move_stack;
@@ -758,9 +981,8 @@ PyObject *PyBoard_get_piece_at(PyObject *self, PyObject *key) {
 }
 
 
-int PyBoard_set_piece_at(PyObject *self, PyObject *key, PyObject *val) {
-	
-	if (!PyTypeCheck("Square", key, &PySquareType)) return NULL;
+int PyBoard_set_piece_at(PyObject *self, PyObject *key, PyObject *val) {	
+	if (!PyTypeCheck("Square", key, &PySquareType)) return -1;
 	square_t square = PySquare_get(key);	
 	full_board_t *board = PyBoard_board(self);
 	if (!val || Py_IsNone(val)) {
@@ -811,12 +1033,47 @@ static PyObject *PyBoard_halfmove_get(PyObject *self, void *closure) {
 }
 
 
+static PyObject *PyBoard_pawns(PyObject *self, void *closure) {
+	full_board_t *board = PyBoard_board(self);
+	return (PyObject *)PyBitboard_make(board->position->pawns);
+}
+
+static PyObject *PyBoard_knights(PyObject *self, void *closure) {
+	full_board_t *board = PyBoard_board(self);
+	return (PyObject *)PyBitboard_make(board->position->knights);
+}
+
+static PyObject *PyBoard_bishops(PyObject *self, void *closure) {
+	full_board_t *board = PyBoard_board(self);
+	return (PyObject *)PyBitboard_make(board->position->bishops);
+}
+
+static PyObject *PyBoard_rooks(PyObject *self, void *closure) {
+	full_board_t *board = PyBoard_board(self);
+	return (PyObject *)PyBitboard_make(board->position->rooks);
+}
+
+static PyObject *PyBoard_queens(PyObject *self, void *closure) {
+	full_board_t *board = PyBoard_board(self);
+	return (PyObject *)PyBitboard_make(board->position->queens);
+}
+
+static PyObject *PyBoard_kings(PyObject *self, void *closure) {
+	full_board_t *board = PyBoard_board(self);
+	return (PyObject *)PyBitboard_make(board->position->kings);
+}
 
 static PyGetSetDef Board_getset[] = {
     {"turn", (getter)PyBoard_turn_get, NULL, NULL, NULL},
     {"fullmove_number", (getter)PyBoard_fullmove_get, NULL, NULL, NULL},
     {"halfmove_clock", (getter)PyBoard_halfmove_get, NULL, NULL, NULL},
     {"en_passant_square", (getter)PyBoard_ep_square, NULL, NULL, NULL},
+    {"pawns", (getter)PyBoard_pawns, NULL, NULL, NULL},
+    {"knights", (getter)PyBoard_knights, NULL, NULL, NULL},
+    {"bishops", (getter)PyBoard_bishops, NULL, NULL, NULL},
+    {"rooks", (getter)PyBoard_rooks, NULL, NULL, NULL},
+    {"queens", (getter)PyBoard_queens, NULL, NULL, NULL},
+    {"kings", (getter)PyBoard_kings, NULL, NULL, NULL},
 		{NULL}
 };
 
@@ -864,8 +1121,10 @@ PyMODINIT_FUNC PyInit_bulletchess(void) {
 		if (PyType_Ready(&PyPieceTypeType) < 0) return NULL;
 		if (PyType_Ready(&PyPieceType) < 0) return NULL;
 		if (PyType_Ready(&PyMoveType) < 0) return NULL;
+		if (PyType_Ready(&PyBitboardType) < 0) return NULL;
 		PyObject *m = PyModule_Create(&bulletchess_definition);
 		ADD_OBJ("Board", &PyBoardType);
+		ADD_OBJ("Bitboard", &PyBitboardType);
 		ADD_OBJ("Color", &PyColorType);
 		ADD_OBJ("Square", &PySquareType);
 		ADD_OBJ("PieceType", &PyPieceTypeType);

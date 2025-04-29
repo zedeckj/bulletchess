@@ -1,0 +1,20 @@
+import unittest
+import sys
+sys.path.append("./")
+from bulletchess import *
+import re
+
+class TestPieceBitboards(unittest.TestCase):
+
+    def test_starting(self):
+        board = Board()
+        self.assertEqual(board.pawns, Bitboard([A2, B2, C2, D2, E2, F2, G2, H2, A7, B7, C7, D7, E7, F7, G7, H7]))
+        self.assertEqual(board.knights, Bitboard([B1, G1, B8, G8]))
+        self.assertEqual(board.rooks, Bitboard([A1, H1, A8, H8]))
+        self.assertEqual(board.bishops, Bitboard([C1, F1, C8, F8]))
+        self.assertEqual(board.queens, Bitboard([D1, D8]))
+        self.assertEqual(board.kings, Bitboard([E1, E8]))
+
+
+if __name__ == "__main__":
+    unittest.main()

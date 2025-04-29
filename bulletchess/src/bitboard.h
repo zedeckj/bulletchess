@@ -244,4 +244,7 @@ bitboard_t left_bb(bitboard_t bb);
 // Wrapper around the SAFE_RIGHT_BB macro
 bitboard_t right_bb(bitboard_t bb);
 
+// Does not check for validity, assumes there is one valid square
+square_t unchecked_bb_to_square(bitboard_t bb);
+
 #endif
