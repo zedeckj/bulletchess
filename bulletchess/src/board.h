@@ -155,6 +155,11 @@ bool positions_equal(position_t *pos1, position_t *pos2);
 // the halfmove and fullmove clocks, which are ignored
 bool boards_legally_equal(full_board_t *board1, full_board_t * board2);
 
+// Returns true if the given boards are equal in all aspects
+bool boards_equal(full_board_t *board1, full_board_t * board2);
+
+
+
 
 // TODO, dont belong here
 bool in_check(full_board_t *board);

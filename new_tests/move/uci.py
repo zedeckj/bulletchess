@@ -46,9 +46,6 @@ class TestUCI(unittest.TestCase):
             self.assertEqual(move.destination, A4)
             self.assertEqual(move.promotion, None)
 
-        
-
-
     def test_illegal(self):
         with self.assertRaisesRegex(ValueError, re.escape("Illegal Move, a promotion's destination must be on a back rank, got C4")):
             Move.from_uci("c3c4q")

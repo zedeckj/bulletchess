@@ -137,7 +137,7 @@ F8 : Square
 G8 : Square
 H8 : Square
 
-SQUARES : list[Square] = [A1, B1, C1, D1, E1, F1, G1, H1, A2, ..., H8]
+SQUARES : list[Square] = [A1, B1, C1, D1, E1, F1, G1, H1, A2, B2, ..., H8]
 
 
 class Move:
@@ -167,6 +167,9 @@ class Move:
     def __eq__(self, other : Any) -> bool:
         ...
 
+    def __hash__(self) -> int: 
+        ...
+
     """
     @staticmethod
     def from_san(san : str, board : "Board") -> "Move":
@@ -176,9 +179,6 @@ class Move:
         ...
 
     def san(self, board : "Board") -> str:
-        ...
-
-    def __hash__(self) -> int: 
         ...
 
     def __str__(self) -> str:
@@ -192,6 +192,14 @@ class Board:
 
     @staticmethod
     def from_fen(fen : str) -> "Board":
+        ...
+
+    @staticmethod
+    def random() -> "Board":
+        ...
+
+    @staticmethod
+    def empty() -> "Board":
         ...
 
     @property
@@ -210,7 +218,31 @@ class Board:
     def en_passant_square(self) -> Optional[Square]:
         ...
 
+    def legal_moves(self) -> list[Move]:
+        ...
+
+    def count_moves(self) -> int:
+        ...
+
+    def apply(self, move : Optional[Move]) -> None:
+        ...
+
+    def undo(self) -> Move:
+        ...
+
     def fen(self) -> str:
+        ...
+
+    def copy(self) -> Board:
+        ...
+
+    def __getitem__(self, square : Square) -> Optional[Piece]:
+        ...
+
+    def __setitem__(self, square : Square, piece : Optional[Piece]):
+        ...
+
+    def __delitem__(self, square : Square):
         ...
 
     def __eq__(self, other : Any) -> bool:

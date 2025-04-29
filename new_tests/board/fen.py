@@ -89,5 +89,9 @@ class TestBoardFEN(unittest.TestCase):
             board = Board.from_fen(fen)
             self.assertEqual(board.fen(), fen)
 
+    def test_misuse(self):
+        with self.assertRaises(TypeError):
+            Board().fen(3) #type: ignore
+
 if __name__ == "__main__":
     unittest.main()

@@ -25,13 +25,12 @@ import sys
 sys.path.append("./")
 sys.path.append("../")
 import bulletchess
-from bulletchess import utils
 
 def bullet_perft(board : bulletchess.Board, depth : int) -> int:
     if depth == 0:
         return 1
     elif depth == 1:
-        return utils.count_moves(board)
+        return board.count_moves()
     else:
         nodes = 0
         for move in board.legal_moves():
@@ -53,9 +52,10 @@ bullet_time = time.time() - start
 print(f"bullet_perft returned {result} in {bullet_time:.6}s") 
 
 print(f"ratio is {chess_time/bullet_time:.6}")
-
+"""
 start = time.time()
 result = utils.perft(board, 5)
 print(f"built-in perft returned {result} in {time.time() - start:.4}s")
 
 print("This is pre refactor results")
+"""

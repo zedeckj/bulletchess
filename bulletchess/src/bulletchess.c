@@ -1,7 +1,26 @@
 #include "include/Python.h"
 #include "apply.h" 
 #include "fen.h"
+#include "rules.h"
 
+
+static bool PyTypeCheck(char *expected, PyObject *obj, PyTypeObject *type){
+		if (!Py_IS_TYPE(obj, type)) {
+			char *article;
+			switch (expected[0]) {
+				case 'a': case 'e': case 'i': case 'o': case 'u': case 'y':
+				case 'A': case 'E': case 'I': case 'O': case 'U': case 'Y':
+				article = "an";
+				break;
+				default:
+				article = "a";
+			}
+			PyErr_Format(PyExc_TypeError, "Expected %s %s, got %S (%N)", 
+					article, expected, obj, Py_TYPE(obj));
+			return false;	
+		}
+	return true;
+}
 
 /* Square CLASS */
 
@@ -211,7 +230,10 @@ typedef struct {
 
 static PyTypeObject PyPieceType;
 
+
+// Returns None if given an EMPTY_VAL piece
 static PyObject *PyPiece_make(piece_t piece) {
+	if (piece.type == EMPTY_VAL) Py_RETURN_NONE;
 	PyPieceObject *py_piece = PyObject_New(PyPieceObject, &PyPieceType);
 	if (!py_piece) return NULL;
 	py_piece->piece = piece;
@@ -226,14 +248,8 @@ PyPiece_init(PyObject *self, PyObject *args, PyObject *kwds){
 			printf("NO ERR HERE\n");
 			return -1;
 		}
-		if (!Py_IS_TYPE(color, &PyColorType)) {
-			PyErr_Format(PyExc_TypeError, "Expected a Color, got %S (%N)", color, Py_TYPE(color));
-			return -1;			
-		}
-		if (!Py_IS_TYPE(piece_type, &PyPieceTypeType)) {
-			PyErr_Format(PyExc_TypeError, "Expected a PieceType, got %S (%T)", piece_type, piece_type);
-			return -1;
-		}
+		if (!PyTypeCheck("Color", color, &PyColorType)) return -1;
+		if (!PyTypeCheck("PieceType", piece_type, &PyPieceTypeType)) return -1;
   	piece_t piece = {.type = PyPieceType_get(piece_type), .color = PyColor_get(color)};
 		((PyPieceObject *)self)->piece = piece;	
 		return 0;
@@ -381,6 +397,7 @@ static bool PyMove_validate_val(move_t m) {
 	return !PyRaiseIfErr(err);
 }
 
+
 static int
 PyMove_init(PyObject *self, PyObject *args, PyObject *kwargs){
 		PyObject *origin;
@@ -390,14 +407,8 @@ PyMove_init(PyObject *self, PyObject *args, PyObject *kwargs){
 		if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|O", kwlist, &origin, &destination, &promote_to)) {
 			return -1;
 		}
-		if (!Py_IS_TYPE(origin, &PySquareType)) {
-			PyErr_Format(PyExc_TypeError, "Expected an origin Square, got %S (%N)", origin, Py_TYPE(origin));
-			return -1;			
-		}
-		if (!Py_IS_TYPE(destination, &PySquareType)) {
-			PyErr_Format(PyExc_TypeError, "Expected a destination Square, got %S (%N)", destination, Py_TYPE(destination));
-			return -1;
-		}
+		if (!PyTypeCheck("origin Square", origin, &PySquareType)) return -1;
+		if (!PyTypeCheck("destination Square", destination, &PySquareType)) return -1;
 		if (promote_to && !Py_IS_TYPE(promote_to, &PyPieceTypeType) && !Py_IsNone(promote_to)) {
 			PyErr_Format(PyExc_TypeError, "Expected a PieceType or None for promote_to, got %S (%N)", promote_to, Py_TYPE(promote_to));
 			return -1;
@@ -447,6 +458,11 @@ PyObject *PyMove_compare(PyObject *self, PyObject *other, int op){
 }
 
 
+Py_hash_t PyMove_hash(PyObject *self){
+	return hash_move(PyMove_get(self));
+}
+
+
 
 static PyMethodDef PyMove_methods[] = { 
     {   
@@ -478,6 +494,7 @@ static PyTypeObject PyMoveType = {
 	.tp_methods = PyMove_methods,
 	.tp_getset = PyMove_getset,
 	.tp_richcompare = PyMove_compare,
+	.tp_hash = PyMove_hash
 };
 
 
@@ -487,6 +504,9 @@ static PyTypeObject PyMoveType = {
 typedef struct {
 	PyObject_HEAD
 	full_board_t *board;
+	undoable_move_t *move_stack;
+	size_t stack_size;
+	size_t stack_capacity;
 } PyBoardObject;
 
 
@@ -499,12 +519,17 @@ static PyBoardObject* PyBoard_alloc() {
 	if (!self->board) return NULL;
 	self->board->position = PyMem_Malloc(sizeof(position_t));
 	if (!self->board->position) return NULL;
+	self->stack_capacity = 5;
+	self->move_stack = PyMem_Malloc(self->stack_capacity * sizeof(undoable_move_t));	
+	if (!self->move_stack) return NULL;
+	self->stack_size = 0;
 	return self;
 }
 
 static void PyBoard_dealloc(PyBoardObject *self) {
 		PyMem_Free(self->board->position);
 		PyMem_Free(self->board);
+		PyMem_Free(self->move_stack);
 		Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
@@ -522,15 +547,54 @@ static PyObject *PyBoard_from_fen_str(const char *fen) {
 	char *err = parse_fen(fen, board->board); 
 	if (err) {
 		PyErr_Format(PyExc_ValueError,"Invalid FEN \'%s\': %s", fen, err);	
+		// TODO is this pattern a memory leak?
 		return NULL;
 	}
 	return (PyObject *)board;
 }
 
-static PyObject *PyBoard_from_fen(PyObject *self, PyObject *args) {
+static PyObject *PyBoard_from_fen(PyObject *cls, PyObject *args) {
 	const char *fen = PyUnicode_AsUTF8AndSize(args, NULL);
 	if (!fen) return NULL;
 	return PyBoard_from_fen_str(fen);
+}
+
+static void PyBoard_setup_starting(PyObject *self) {
+	const char *fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+	parse_fen(fen, PyBoard_board(self)); 
+}
+
+static bool PyBoard_apply_struct(PyBoardObject *board_obj, move_t move);
+
+static PyObject *PyBoard_random(PyObject *cls, PyObject *Py_UNUSED(args)){
+	PyBoardObject *board = PyBoard_alloc();
+	if (!board) return NULL;
+	PyBoard_setup_starting((PyObject *)board);
+	u_int8_t depth = 1 + (random() % 200);
+	move_t moves[256];	
+	for (u_int8_t i = 0; i < depth; i++) {
+		u_int8_t count = generate_legal_moves(board->board, moves);
+		if (!count) {
+			return (PyObject *)board;
+		}
+		u_int8_t index = random() % count;
+		if (!PyBoard_apply_struct(board, moves[index])) return NULL;
+	}
+	return (PyObject *)board;
+}
+
+static PyObject *PyBoard_empty(PyObject *cls, PyObject *Py_UNUSED(args)) {
+	PyBoardObject *board_obj = PyBoard_alloc();
+	if (!board_obj) return NULL;
+	full_board_t *board = board_obj->board;
+	position_t *pos = board->position;
+	memset(pos, 0, sizeof(position_t));
+	board->fullmove_number = 1;
+	board->halfmove_clock = 0;
+	board->castling_rights = 0;
+	board->en_passant_square.exists = false;
+	board->turn = WHITE_VAL;
+	return (PyObject *)board_obj;
 }
 
 
@@ -545,12 +609,7 @@ Board_init(PyObject *self, PyObject *args, PyObject *kwds)
 			"for a different position.");
         return -1;
     }
-	  const char *fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-		char *err = parse_fen(fen, PyBoard_board(self)); 
-		if (err) {
-			PyErr_SetString(PyExc_ValueError,err);	
-			return -1;
-		}			
+		PyBoard_setup_starting(self);
     return 0;
 }
 
@@ -562,17 +621,176 @@ PyBoard_to_fen(PyObject *self, PyObject *Py_UNUSED(args)){
 	return PyUnicode_FromString(fen_buffer);
 }
 
-static PyMethodDef board_methods[] = { 
-    {   
-        "from_fen", PyBoard_from_fen, METH_O | METH_STATIC,
-    		"Creates a Board from a FEN string"
-		},  
-    {   
-        "fen", PyBoard_to_fen, METH_NOARGS,
-    		"Makes a FEN of this Board"
-		}, 
+static PyObject *
+PyBoard_legal_moves(PyObject *self, PyObject *Py_UNUSED(args)){
+	move_t move_buffer[300];
+	u_int8_t count = generate_legal_moves(PyBoard_board(self), move_buffer);		
+	PyObject *list = PyList_New(count);
+	for (int i = 0; i < count; i++) {
+		PyMoveObject *move_obj = PyMove_make(move_buffer[i]);
+		PyList_SET_ITEM(list, i, move_obj);
+	}
+	return list;
+}
+
+
+static PyObject *
+PyBoard_count_moves(PyObject *self, PyObject *Py_UNUSED(args)){
+	u_int8_t count = count_legal_moves(PyBoard_board(self));		
+	return PyLong_FromUnsignedLong(count);
+}
+
+/*
+
+typedef struct {
+	PyObject_HEAD
+	full_board_t *board;
+	undoable_move_t *move_stack;
+	size_t stack_size;
+	size_t stack_capacity;
+} PyBoardObject;
+*/
+
+static PyObject *PyBoard_copy(PyObject *self, PyObject *Py_UNUSED(args)){
+	PyBoardObject *copy_obj = PyBoard_alloc();
+	if (!copy_obj) return NULL;
+	full_board_t *copy = copy_obj->board; 
+	full_board_t *src = PyBoard_board(self);
+	memcpy(copy->position, src->position, sizeof(position_t));  
+	copy->fullmove_number = src->fullmove_number;
+	copy->halfmove_clock = src->halfmove_clock;
+	copy->castling_rights = src->castling_rights;
+	copy->en_passant_square = src->en_passant_square;
+	copy->turn = src->turn;
+	size_t stack_size = ((PyBoardObject *)self)->stack_size;
+	size_t stack_capacity= ((PyBoardObject *)self)->stack_capacity;
+	undoable_move_t * src_stack = ((PyBoardObject *)self)->move_stack;
+	void *new_stack = PyMem_Realloc(copy_obj->move_stack, 
+			stack_capacity * sizeof(undoable_move_t));
+	if (!new_stack) {
+		PyErr_SetString(PyExc_MemoryError, "Could not copy Board, out of memory");
+		return NULL;
+	}
+	else copy_obj->move_stack = new_stack;	
+	memcpy(copy_obj->move_stack, src_stack, sizeof(undoable_move_t) * stack_size);
+	copy_obj->stack_size = stack_size;
+	copy_obj->stack_capacity = stack_capacity;
+	return (PyObject *)copy_obj;
+}
+
+
+
+static bool PyBoard_apply_struct(PyBoardObject *board_obj, move_t move){
+	undoable_move_t undo = apply_move(board_obj->board, move);
+	if (board_obj->stack_size == board_obj->stack_capacity) {
+		size_t new_capacity = board_obj->stack_capacity * 2;
+		void *new_ptr = PyMem_Realloc(board_obj->move_stack, sizeof(undoable_move_t) * new_capacity);
+		if (new_ptr) board_obj->move_stack = new_ptr;
+		else {
+			PyErr_SetString(PyExc_MemoryError, "Could not apply move, out of memory");
+			return false;
+		}
+		board_obj->stack_capacity = new_capacity;
+	}
+	board_obj->move_stack[board_obj->stack_size++] = undo;	
+	return true;
+}
+
+
+
+
+static PyObject *
+PyBoard_apply(PyObject *self, PyObject *move){
+	move_t move_s;
+	if (Py_IsNone(move)){
+		move_s = null_move();
+	}
+	else {
+		if (!PyTypeCheck("Move", move, &PyMoveType)) return NULL;
+		move_s = PyMove_get(move);
+	}
+	PyBoardObject *board_obj = (PyBoardObject *) self;
+	if (!PyBoard_apply_struct(board_obj, move_s)) return NULL;
+	Py_RETURN_NONE;	
+}
+
+
+static PyObject *
+PyBoard_undo(PyObject *self, PyObject *Py_UNUSED(args)){
+	PyBoardObject *board_obj = (PyBoardObject *) self;
+	if (board_obj->stack_size == 0) {
+		PyErr_SetString(PyExc_AttributeError, "No moves to undo");
+		return NULL;
+	}
+	undoable_move_t undo = board_obj->move_stack[--(board_obj->stack_size)];
+	undo_move(board_obj->board, undo);
+	move_t move = undo.move;
+	if (move.type == NULL_MOVE) {
+		Py_RETURN_NONE;
+	}
+	return (PyObject *)PyMove_make(move);	
+}
+
+PyObject *PyBoard_compare(PyObject *self, PyObject *other, int op){
+	bool eq = Py_IS_TYPE(other, &PyBoardType);
+ 	if (eq) {
+		full_board_t *b1= PyBoard_board(self);
+		full_board_t *b2 = PyBoard_board(other);
+		eq = boards_equal(b1, b2);
+	}
+	switch (op) {
+		case Py_EQ:
+			return eq ? Py_True : Py_False;
+		case Py_NE:
+			return eq ? Py_False : Py_True;
+		default:
+			return Py_NotImplemented;
+	}
+}
+
+
+PyObject *PyBoard_get_piece_at(PyObject *self, PyObject *key) {
+	if (!PyTypeCheck("Square", key, &PySquareType)) return NULL;
+	square_t square = PySquare_get(key);	
+	full_board_t *board = PyBoard_board(self);
+	piece_t piece = get_piece_at(board->position, square);
+	return PyPiece_make(piece);	
+}
+
+
+int PyBoard_set_piece_at(PyObject *self, PyObject *key, PyObject *val) {
 	
-    {NULL, NULL, 0, NULL}
+	if (!PyTypeCheck("Square", key, &PySquareType)) return NULL;
+	square_t square = PySquare_get(key);	
+	full_board_t *board = PyBoard_board(self);
+	if (!val || Py_IsNone(val)) {
+		delete_piece_at(board->position, square);
+		return 0;
+	}
+	else if (!PyTypeCheck("Piece or None", val, &PyPieceType)) 
+		return -1;
+	else {
+		piece_t piece = PyPiece_get(val);
+		set_piece_at(board->position, square, piece); 
+		return 0;
+	}
+}
+
+
+
+
+static PyMethodDef board_methods[] = { 
+    {"from_fen", PyBoard_from_fen, METH_O | METH_STATIC, NULL},  
+    {"random", PyBoard_random, METH_NOARGS | METH_STATIC, NULL},  
+    {"empty", PyBoard_empty, METH_NOARGS | METH_STATIC, NULL},  
+		{"fen", PyBoard_to_fen, METH_NOARGS, NULL},
+	 	{"legal_moves", PyBoard_legal_moves, METH_NOARGS, NULL},
+	 	{"count_moves", PyBoard_count_moves, METH_NOARGS, NULL},	
+	 	{"apply", PyBoard_apply, METH_O, NULL},	
+	 	{"undo", PyBoard_undo, METH_NOARGS, NULL},	
+		{"copy", PyBoard_copy, METH_NOARGS, NULL},
+		//{"status", NULL, 0, NULL},
+		{NULL, NULL, 0, NULL}
 };
 
 
@@ -602,6 +820,11 @@ static PyGetSetDef Board_getset[] = {
 		{NULL}
 };
 
+static PyMappingMethods PyBoardAsMap = {
+	.mp_subscript = PyBoard_get_piece_at,
+	.mp_ass_subscript = PyBoard_set_piece_at,
+	.mp_length = NULL,
+};
 
 static PyTypeObject PyBoardType = {
 	.ob_base = PyVarObject_HEAD_INIT(NULL, 0)
@@ -614,7 +837,9 @@ static PyTypeObject PyBoardType = {
 	.tp_new = PyType_GenericNew,
 	.tp_methods = board_methods,
 	.tp_init = Board_init,
-	.tp_getset = Board_getset
+	.tp_getset = Board_getset,
+	.tp_richcompare = PyBoard_compare,
+	.tp_as_mapping = &PyBoardAsMap
 };
 
 
