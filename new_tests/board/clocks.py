@@ -16,11 +16,19 @@ class TestBoardClocks(unittest.TestCase):
         self.assertEqual(board.halfmove_clock, 15)
         self.assertEqual(board.fullmove_number, 30)
 
+    def test_set(self):
+        board = Board()
+        board.halfmove_clock = 10
+        board.fullmove_number = 11
+        self.assertEqual(board.halfmove_clock, 10)
+        self.assertEqual(board.fullmove_number, 11)
+    
+
     def test_set_clocks(self):
         board = Board()
-        with self.assertRaisesRegex(AttributeError, re.escape("attribute 'halfmove_clock' of 'bulletchess.Board' objects is not writable")):
+        with self.assertRaisesRegex(TypeError, re.escape("Expected an int, got White (bulletchess.Color)")):
             board.halfmove_clock = WHITE #type: ignore
-        with self.assertRaisesRegex(AttributeError, re.escape("attribute 'fullmove_number' of 'bulletchess.Board' objects is not writable")):
+        with self.assertRaisesRegex(TypeError, re.escape("Expected an int, got White (bulletchess.Color)")):
             board.fullmove_number = WHITE #type: ignore
 
 

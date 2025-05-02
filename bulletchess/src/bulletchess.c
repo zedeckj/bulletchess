@@ -1,7 +1,15 @@
-#include "include/Python.h"
-#include "apply.h" 
+#include "bulletchess.h"
 #include "fen.h"
 #include "rules.h"
+#include "hash.h"
+#include "utils.h"
+#include <limits.h>
+#include "pgn.h"
+
+static char rand_state[256];
+static zobrist_table_t *zobrist_table;
+
+static PyTypeObject PyBoardType;
 
 static void PyTypeErr(char * expected, PyObject *obj){
 	char *article;
@@ -18,6 +26,10 @@ static void PyTypeErr(char * expected, PyObject *obj){
 }
 
 
+static void PyGeneric_Dealloc(PyObject *self){
+	Py_TYPE(self)->tp_free(self);
+}
+
 static bool PyTypeCheck(char *expected, PyObject *obj, PyTypeObject *type){
 	if (!Py_IS_TYPE(obj, type)) {
 		PyTypeErr(expected, obj);		
@@ -33,21 +45,35 @@ typedef struct {
 	square_t square;
 } PySquareObject;
 
-static PyTypeObject PySquareType;
+static PySquareObject *PySquares[64];
+
+
+static bool PySquares_init() {
+	for (square_t sq = A1; sq <= H8; sq++) {
+		PySquareObject *py_square = 
+			PyObject_New(PySquareObject, &PySquareType);
+		if (!py_square){
+			for (square_t s2 = A1; s2 < sq; s2++)
+				Py_TYPE(PySquares[s2])->tp_free((PyObject *)PySquares[s2]);
+			return false;
+		}
+		else {
+			py_square->square = sq;
+			PySquares[sq] = py_square;
+		}
+	}
+	return true;
+}
 
 static PyObject *PySquare_make(square_t square) {
-	PySquareObject *py_square = 
-		PyObject_New(PySquareObject, &PySquareType);
-	if (!py_square) return NULL;
-	py_square->square = square;
-	return (PyObject *)py_square;
+	return (PyObject *)PySquares[square];
 }
 
 static inline square_t PySquare_get(PyObject *self) {
 	return ((PySquareObject *)self)->square;
 }
 
-PyObject *PySquare_compare(PyObject *self, PyObject *other, int op){
+static PyObject *PySquare_compare(PyObject *self, PyObject *other, int op){
 	bool eq = Py_IS_TYPE(other, &PySquareType) && 
 		PySquare_get(self) == PySquare_get(other); 	
 	switch (op) {
@@ -60,22 +86,30 @@ PyObject *PySquare_compare(PyObject *self, PyObject *other, int op){
 	}
 }
 
-Py_hash_t PySquare_hash(PyObject *self){
+static Py_hash_t PySquare_hash(PyObject *self){
 	return PySquare_get(self);
 }
 
-PyObject *PySquare_from_optional(optional_square_t opt) {
+static PyObject *PySquare_from_optional(optional_square_t opt) {
 	if (opt.exists) {
 		return PySquare_make(opt.square);
 	}
 	else Py_RETURN_NONE;
 }
 
-PyObject *PySquare_str(PyObject *self) {
+static PyObject *PySquare_str(PyObject *self) {
 	char buffer[3];
 	serialize_sqr_caps(PySquare_get(self), buffer);
 	return PyUnicode_FromString(buffer);
 }
+
+// too verbose for nested structures
+static PyObject *PySquare_repr(PyObject *self) {
+	char buffer[3];
+	serialize_sqr_caps(PySquare_get(self), buffer);
+	return PyUnicode_FromFormat("<Square: %s>", buffer);
+}
+
 
 static PyTypeObject PySquareType = {
 	.ob_base = PyVarObject_HEAD_INIT(NULL, 0)
@@ -85,7 +119,7 @@ static PyTypeObject PySquareType = {
   .tp_flags = Py_TPFLAGS_DEFAULT, 
 	.tp_str = PySquare_str,
 	.tp_richcompare = PySquare_compare,
-	//.tp_repr = PySquare_str,
+	.tp_repr = PySquare_str,
 	.tp_hash = PySquare_hash
 };
 
@@ -97,19 +131,32 @@ typedef struct {
 	piece_type_t piece_type;
 } PyPieceTypeObject;
 
-static PyTypeObject PyPieceTypeType;
+
+static PyPieceTypeObject *PieceTypeObjects[6];
 
 static inline piece_type_t PyPieceType_get(PyObject *self){
 	return ((PyPieceTypeObject *)self)->piece_type;
 }
 
+static bool PyPieceTypes_init(){
+	for (piece_type_t pt = PAWN_VAL; pt <= KING_VAL; pt++){
+		PyPieceTypeObject *py_piece_type = 
+			PyObject_New(PyPieceTypeObject, &PyPieceTypeType);	
+		if (!py_piece_type) {
+			for (piece_type_t pt2 = PAWN_VAL; pt2 < pt; pt2++) 
+				Py_TYPE(PySquares[pt2])->tp_free((PyObject *)PySquares[pt2]);
+			return false;
+		}
+		else {
+			py_piece_type->piece_type = pt;
+			PieceTypeObjects[pt - PAWN_VAL] = py_piece_type;	
+		}
+	}
+	return true;
+}
 
 static PyObject *PyPieceType_make(piece_type_t piece_type) {
-	PyPieceTypeObject *py_piece_type = 
-		PyObject_New(PyPieceTypeObject, &PyPieceTypeType);
-	if (!py_piece_type) return NULL;
-	py_piece_type->piece_type = piece_type;	
-	return (PyObject *)py_piece_type;
+	return (PyObject *)PieceTypeObjects[piece_type - PAWN_VAL];
 }
 
 
@@ -151,7 +198,7 @@ static PyTypeObject PyPieceTypeType = {
   .tp_flags = Py_TPFLAGS_DEFAULT, 
 	.tp_str = PyPieceType_str,
 	.tp_richcompare = PyPieceType_compare,
-	//.tp_repr = PyPieceType_str,
+	.tp_repr = PyPieceType_str,
 	.tp_hash = PyPieceType_hash
 };
 
@@ -164,13 +211,29 @@ typedef struct {
 	piece_color_t color;
 } PyColorObject; 
 
-static PyTypeObject PyColorType;
+static PyColorObject *WhiteObject;
+static PyColorObject *BlackObject;
 
+static bool PyColors_init() {
+	WhiteObject = PyObject_New(PyColorObject, &PyColorType);
+	if (!WhiteObject) return false;
+	BlackObject = PyObject_New(PyColorObject, &PyColorType);
+	if (!BlackObject){
+    Py_TYPE(WhiteObject)->tp_free((PyObject *) WhiteObject);
+		return false;
+	}	
+	WhiteObject->color = WHITE_VAL;
+	BlackObject->color = BLACK_VAL;
+	return true;
+}
 static PyObject *PyColor_make(piece_color_t color) {
-	PyColorObject *py_color = PyObject_New(PyColorObject, &PyColorType);
-	if (!py_color) return NULL;
-	py_color->color = color;
-	return (PyObject *)py_color;
+	switch (color) {
+		case WHITE_VAL: return (PyObject *)WhiteObject;
+		case BLACK_VAL: return (PyObject *)BlackObject;
+		default:
+			PyErr_SetString(PyExc_ValueError, "Invalid color generated");
+			return NULL;
+	}
 }
 
 static inline piece_color_t PyColor_get(PyObject *self) {
@@ -217,7 +280,7 @@ static PyTypeObject PyColorType = {
   .tp_flags = Py_TPFLAGS_DEFAULT, 
 	.tp_str = (reprfunc)PyColor_str,
 	.tp_richcompare = PyColor_compare,
-	//.tp_repr = PyColor_str,
+	.tp_repr = PyColor_str,
 	.tp_hash = PyColor_hash
 };
 
@@ -232,7 +295,6 @@ typedef struct {
 } PyPieceObject; 
 
 
-static PyTypeObject PyPieceType;
 
 
 // Returns None if given an EMPTY_VAL piece
@@ -287,7 +349,7 @@ static Py_hash_t PyPiece_hash(PyObject *self) {
 	return hash_piece(PyPiece_get(self));
 }
 
-static PyObject *PyPiece_str(PyObject *self) {
+static PyObject *PyPiece_repr(PyObject *self) {
 	piece_t p = PyPiece_get(self);
 	const char *color;
 	const char *type;
@@ -303,7 +365,7 @@ static PyObject *PyPiece_str(PyObject *self) {
 	if (!type) {
 		PyErr_Format(PyExc_AttributeError, "Illegal PieceType with value %d", p.type);
 	}
-	return PyUnicode_FromFormat("Piece<%s, %s>", color, type);
+	return PyUnicode_FromFormat("<Piece: (%s, %s)>", color, type);
 }
 
 
@@ -333,10 +395,11 @@ static PyTypeObject PyPieceType = {
   .tp_flags = Py_TPFLAGS_DEFAULT, 
 	.tp_init = PyPiece_init,
 	.tp_new = PyType_GenericNew,
-	.tp_str = (reprfunc)PyPiece_str,
+	.tp_repr = (reprfunc)PyPiece_repr,
 	.tp_richcompare = PyPiece_compare,
 	.tp_hash = PyPiece_hash,
-	.tp_getset = PyPiece_getset
+	.tp_getset = PyPiece_getset,
+	//.tp_dealloc = PyGeneric_Dealloc
 };
 
 
@@ -347,7 +410,6 @@ typedef struct {
 	move_t move;	
 } PyMoveObject;
 
-static PyTypeObject PyMoveType;
 
 static PyMoveObject* PyMove_make(move_t move) {
 	PyMoveObject *self = PyObject_New(PyMoveObject, &PyMoveType);
@@ -359,8 +421,6 @@ static PyMoveObject* PyMove_make(move_t move) {
 static inline move_t PyMove_get(PyObject *self) {
 	return ((PyMoveObject *)self)->move;
 }
-
-
 
 // returns true if an err was raised
 static bool PyRaiseIfErr(char *err) {
@@ -398,10 +458,67 @@ static PyObject *PyMove_from_uci(PyObject *self, PyObject *args) {
 	return PyMove_from_opt(move);
 }
 
+
+static PyObject *PyMove_repr(PyObject *self) {
+	char uci[10];
+	if (write_uci(PyMove_get(self), uci)) {
+		return PyUnicode_FromFormat("<Move: %s>", uci);
+	}
+	else {
+		return PyUnicode_FromString("<Move: \?\?\?\?>");
+	}	
+}
+
+
 static bool PyMove_validate_val(move_t m) {
 	char *err = error_from_move(m);
 	return !PyRaiseIfErr(err);
 }
+
+
+static inline full_board_t *PyBoard_board(PyObject *obj);
+
+static PyObject *PyMove_from_san(PyObject *self, PyObject *args) {
+	PyObject *san_obj;
+	PyObject *board;
+	if (!PyArg_ParseTuple(args, "OO", &san_obj, &board)) return NULL;
+	if (!PyTypeCheck("Board", board, &PyBoardType)) return NULL;
+	if (!PyTypeCheck("str", san_obj, &PyUnicode_Type)) return NULL;
+	char *san = PyUnicode_AsUTF8(san_obj);
+	bool err = false;
+	char err_msg[300];
+	move_t move = san_str_to_move(PyBoard_board(board), san, &err, err_msg);
+	if (err) {
+		PyErr_SetString(PyExc_ValueError, err_msg);
+		return NULL;
+	}
+	return (PyObject *)PyMove_make(move);
+}
+
+static PyObject *PyMove_to_san(PyObject *self, PyObject *arg) {
+	if (!PyTypeCheck("Board", arg, &PyBoardType)) return NULL;
+	char san[30];
+	if (move_to_san_str(PyBoard_board(arg), PyMove_get(self), san)) {
+		return PyUnicode_FromString(san);
+	}
+	else {
+		PyErr_Format(PyExc_ValueError, "Cannot convert Move to san, "
+				"%R is illegal for %R ", self, arg);
+		return NULL;
+	}
+}
+
+static PyObject *PyMove_to_uci(PyObject *self, PyObject *Py_UNUSED(args)) {
+	char uci[10];
+	if (write_uci(PyMove_get(self), uci)) {
+		return PyUnicode_FromString(uci);
+	}
+	else {
+		PyErr_SetString(PyExc_ValueError, "Cannot convert Move to uci");
+		return NULL;
+	}	
+}
+
 
 
 static int
@@ -434,17 +551,15 @@ static PyObject* PyMove_get_origin(PyObject *self, void *closure) {
 	return PySquare_make(get_origin(PyMove_get(self)));
 }
 
-static PyObject* PyMove_get_destination(PyObject *self, void *closure) {
+static PyObject* PyMove_get_destination(PyObject *self, void *closure){
 	return PySquare_make(get_destination(PyMove_get(self)));
 }
-
 
 static PyObject* PyMove_get_promote_to(PyObject *self, void *closure) {
 	piece_type_t pt = get_promotes_to(PyMove_get(self));
 	if (pt == EMPTY_VAL) Py_RETURN_NONE;
 	else return PyPieceType_make(pt);
 }
-
 
 PyObject *PyMove_compare(PyObject *self, PyObject *other, int op){
 	bool eq = Py_IS_TYPE(other, &PyMoveType);
@@ -471,10 +586,11 @@ Py_hash_t PyMove_hash(PyObject *self){
 
 
 static PyMethodDef PyMove_methods[] = { 
-    {   
-        "from_uci", PyMove_from_uci, METH_O | METH_STATIC, NULL
-		}, 
-    {NULL, NULL, 0, NULL}
+    {"from_uci", PyMove_from_uci, METH_O | METH_STATIC, NULL}, 
+    {"from_san", PyMove_from_san, METH_VARARGS | METH_STATIC, NULL}, 
+		{"san", PyMove_to_san, METH_O, NULL}, 
+		{"uci", PyMove_to_uci, METH_NOARGS, NULL}, 
+		{NULL, NULL, 0, NULL}
 };
 
 
@@ -500,7 +616,10 @@ static PyTypeObject PyMoveType = {
 	.tp_methods = PyMove_methods,
 	.tp_getset = PyMove_getset,
 	.tp_richcompare = PyMove_compare,
-	.tp_hash = PyMove_hash
+	.tp_hash = PyMove_hash,
+	//.tp_dealloc = PyGeneric_Dealloc,
+	//.tp_repr = PyMove_repr,
+	//.tp_str = PyMove_to_uci,
 };
 
 
@@ -509,8 +628,6 @@ static PyTypeObject PyMoveType = {
 typedef struct {
 	PyObject_HEAD
 	bitboard_t bitboard;
-	bitboard_t iter;
-	bool itering;
 } PyBitboardObject;
 
 static PyTypeObject PyBitboardType;
@@ -519,8 +636,6 @@ static PyBitboardObject *PyBitboard_make(bitboard_t bitboard){
 	PyBitboardObject *self = PyObject_New(PyBitboardObject, &PyBitboardType);
 	if (!self) return NULL;
 	self->bitboard = bitboard;
-	self->iter = 0;
-	self->itering = false;
 	return self;
 }	
 
@@ -643,7 +758,6 @@ PyBitboard_init(PyObject *self, PyObject *args, PyObject *kwds){
 }
 
 static PyObject *PyBitboard_squares_iter(PyObject *self) {
-	bitboard_t bit;
 	bitboard_t src = PyBitboard_get(self);
 	u_int8_t len = count_bits(src);
 	PyObject *list = PyList_New(len);
@@ -656,32 +770,11 @@ static PyObject *PyBitboard_squares_iter(PyObject *self) {
 }
 
 
-static PyObject *PyBitboard_getiter(PyObject *self) {
-	printf("get iter\n");
-	PyBitboardObject *b = (PyBitboardObject *)self;
-	b->iter = b->bitboard;	
-	return self;
+static PyObject *PyBitboard_repr(PyObject *self){
+	bitboard_t bb = PyBitboard_get(self);
+	return PyUnicode_FromFormat("<Bitboard: 0x%lX>", bb);
 }
 
-static PyObject *PyBitboard_next(PyObject *self) {
-	printf("1.\n");
-	PyBitboardObject *b = (PyBitboardObject *)self;
-	if (!b->itering){
-		b->iter = b->bitboard;
-		b->itering = true;
-	}
-	bitboard_t sq_bb = LSB(b->iter);
-	printf("next iter\n");
-	if (sq_bb) {
-		b->iter &= ~sq_bb;
-		square_t sq = unchecked_bb_to_square(sq_bb);
-		printf("got square %d\n", sq); 
-		return PySquare_make(sq);	
-	}
-	b->iter = -1;
-	b->itering = false;
-	return NULL;
-}
 
 static PyObject *PyBitboard_from_int(PyObject *cls, PyObject *arg){ 
 	if (!PyTypeCheck("int", arg, &PyLong_Type)) return NULL;
@@ -696,7 +789,6 @@ static PyMappingMethods PyBitboardAsMap = {
 	.mp_ass_subscript = PyBitboard_setitem,
 	.mp_length = PyBitboard_len,
 };
-
 
 
 static PySequenceMethods PyBitboardAsSeq= {
@@ -733,6 +825,8 @@ static PyTypeObject PyBitboardType = {
 	.tp_as_sequence = &PyBitboardAsSeq,
 	.tp_iter = PyBitboard_squares_iter,
 	.tp_methods = PyBitboardMethods,
+	.tp_repr = PyBitboard_repr,
+	//.tp_dealloc = PyGeneric_Dealloc
 };
 
 
@@ -748,26 +842,25 @@ typedef struct {
 } PyBoardObject;
 
 
-static PyTypeObject PyBoardType;
 
 static PyBoardObject* PyBoard_alloc() {
 	PyBoardObject *self = PyObject_New(PyBoardObject, &PyBoardType);
 	if (!self) return NULL;
-  self->board = PyMem_Malloc(sizeof(full_board_t));
+  self->board = PyMem_RawMalloc(sizeof(full_board_t));
 	if (!self->board) return NULL;
-	self->board->position = PyMem_Malloc(sizeof(position_t));
+	self->board->position = PyMem_RawMalloc(sizeof(position_t));
 	if (!self->board->position) return NULL;
 	self->stack_capacity = 5;
-	self->move_stack = PyMem_Malloc(self->stack_capacity * sizeof(undoable_move_t));	
+	self->move_stack = PyMem_RawMalloc(self->stack_capacity * sizeof(undoable_move_t));	
 	if (!self->move_stack) return NULL;
 	self->stack_size = 0;
 	return self;
 }
 
 static void PyBoard_dealloc(PyBoardObject *self) {
-		PyMem_Free(self->board->position);
-		PyMem_Free(self->board);
-		PyMem_Free(self->move_stack);
+		PyMem_RawFree(self->board->position);
+		PyMem_RawFree(self->board);
+		PyMem_RawFree(self->move_stack);
 		Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
@@ -785,7 +878,7 @@ static PyObject *PyBoard_from_fen_str(const char *fen) {
 	char *err = parse_fen(fen, board->board); 
 	if (err) {
 		PyErr_Format(PyExc_ValueError,"Invalid FEN \'%s\': %s", fen, err);	
-		// TODO is this pattern a memory leak?
+		Py_DECREF(board);
 		return NULL;
 	}
 	return (PyObject *)board;
@@ -804,22 +897,6 @@ static void PyBoard_setup_starting(PyObject *self) {
 
 static bool PyBoard_apply_struct(PyBoardObject *board_obj, move_t move);
 
-static PyObject *PyBoard_random(PyObject *cls, PyObject *Py_UNUSED(args)){
-	PyBoardObject *board = PyBoard_alloc();
-	if (!board) return NULL;
-	PyBoard_setup_starting((PyObject *)board);
-	u_int8_t depth = 1 + (random() % 200);
-	move_t moves[256];	
-	for (u_int8_t i = 0; i < depth; i++) {
-		u_int8_t count = generate_legal_moves(board->board, moves);
-		if (!count) {
-			return (PyObject *)board;
-		}
-		u_int8_t index = random() % count;
-		if (!PyBoard_apply_struct(board, moves[index])) return NULL;
-	}
-	return (PyObject *)board;
-}
 
 static PyObject *PyBoard_empty(PyObject *cls, PyObject *Py_UNUSED(args)) {
 	PyBoardObject *board_obj = PyBoard_alloc();
@@ -859,6 +936,14 @@ PyBoard_to_fen(PyObject *self, PyObject *Py_UNUSED(args)){
 	return PyUnicode_FromString(fen_buffer);
 }
 
+
+static PyObject *
+PyBoard_repr(PyObject *self, PyObject *Py_UNUSED(args)){
+	char fen_buffer[128];
+	make_fen(PyBoard_board(self), fen_buffer);
+	return PyUnicode_FromFormat("<Board: %s>", fen_buffer);
+}
+
 static PyObject *
 PyBoard_legal_moves(PyObject *self, PyObject *Py_UNUSED(args)){
 	move_t move_buffer[300];
@@ -872,12 +957,14 @@ PyBoard_legal_moves(PyObject *self, PyObject *Py_UNUSED(args)){
 }
 
 
-static PyObject *
-PyBoard_count_moves(PyObject *self, PyObject *Py_UNUSED(args)){
-	u_int8_t count = count_legal_moves(PyBoard_board(self));		
-	return PyLong_FromUnsignedLong(count);
+static bool PyBoard_set_capacity(PyBoardObject *board, size_t new_capacity) {
+	void *new_stack = PyMem_RawRealloc(board->move_stack, 
+											new_capacity * sizeof(undoable_move_t));
+	if (!new_stack) return false;
+	board->move_stack = new_stack;
+	board->stack_capacity = new_capacity;
+	return true;	
 }
-
 
 static PyObject *PyBoard_copy(PyObject *self, PyObject *Py_UNUSED(args)){
 	PyBoardObject *copy_obj = PyBoard_alloc();
@@ -888,26 +975,26 @@ static PyObject *PyBoard_copy(PyObject *self, PyObject *Py_UNUSED(args)){
 	size_t stack_size = ((PyBoardObject *)self)->stack_size;
 	size_t stack_capacity= ((PyBoardObject *)self)->stack_capacity;
 	undoable_move_t * src_stack = ((PyBoardObject *)self)->move_stack;
-	void *new_stack = PyMem_Realloc(copy_obj->move_stack, 
-			stack_capacity * sizeof(undoable_move_t));
-	if (!new_stack) {
+	if (!PyBoard_set_capacity(copy_obj, stack_capacity)) {
 		PyErr_SetString(PyExc_MemoryError, "Could not copy Board, out of memory");
+		Py_DECREF(copy_obj);
 		return NULL;
 	}
-	else copy_obj->move_stack = new_stack;	
 	memcpy(copy_obj->move_stack, src_stack, sizeof(undoable_move_t) * stack_size);
 	copy_obj->stack_size = stack_size;
-	copy_obj->stack_capacity = stack_capacity;
 	return (PyObject *)copy_obj;
 }
 
 
 
 static bool PyBoard_apply_struct(PyBoardObject *board_obj, move_t move){
+	printf("in here\n");
 	undoable_move_t undo = apply_move(board_obj->board, move);
 	if (board_obj->stack_size == board_obj->stack_capacity) {
 		size_t new_capacity = board_obj->stack_capacity * 2;
-		void *new_ptr = PyMem_Realloc(board_obj->move_stack, sizeof(undoable_move_t) * new_capacity);
+		printf("about to realloc\n");
+		void *new_ptr = PyMem_RawRealloc(board_obj->move_stack, sizeof(undoable_move_t) * new_capacity);
+		printf("realloc\n");
 		if (new_ptr) board_obj->move_stack = new_ptr;
 		else {
 			PyErr_SetString(PyExc_MemoryError, "Could not apply move, out of memory");
@@ -998,6 +1085,36 @@ int PyBoard_set_piece_at(PyObject *self, PyObject *key, PyObject *val) {
 	}
 }
 
+static PyObject *PyBoard_random(PyObject *cls, PyObject *args){
+	PyBoardObject *board = PyBoard_alloc();
+	if (!board) return NULL;
+	setstate(rand_state);
+	PyBoard_setup_starting((PyObject *)board);
+	u_int8_t depth = 4 + (random() % 100);
+	move_t moves[256];
+	PyBoard_set_capacity(board, depth * 1.5);	
+	for (u_int8_t i = 0; i < depth; i++) {
+		u_int8_t count = generate_legal_moves(board->board, moves);
+		if (!count) return (PyObject *)board;
+		u_int8_t attempts = 0;
+		u_int8_t index;
+		retry:
+		index = random() % count;
+		if (attempts++ < 3 && !is_capture(board->board, moves[index])) {
+			goto retry;	
+		}
+		if (!PyBoard_apply_struct(board, moves[index])) {
+			Py_DECREF(board);
+			return NULL;
+		}
+	}
+	return (PyObject *)board;
+}
+
+Py_hash_t PyBoard_hash(PyObject *self){
+	return hash_board(PyBoard_board(self), zobrist_table);
+}
+
 
 
 
@@ -1007,7 +1124,6 @@ static PyMethodDef board_methods[] = {
     {"empty", PyBoard_empty, METH_NOARGS | METH_STATIC, NULL},  
 		{"fen", PyBoard_to_fen, METH_NOARGS, NULL},
 	 	{"legal_moves", PyBoard_legal_moves, METH_NOARGS, NULL},
-	 	{"count_moves", PyBoard_count_moves, METH_NOARGS, NULL},	
 	 	{"apply", PyBoard_apply, METH_O, NULL},	
 	 	{"undo", PyBoard_undo, METH_NOARGS, NULL},	
 		{"copy", PyBoard_copy, METH_NOARGS, NULL},
@@ -1020,16 +1136,66 @@ static PyObject *PyBoard_ep_square(PyObject *self, void *closure) {
 	return PySquare_from_optional(PyBoard_board(self)->en_passant_square);
 }
 
+
+static int PyBoard_ep_set(PyObject *self, PyObject *val){
+	if (Py_IsNone(val)) {
+		PyBoard_board(self)->en_passant_square.exists = false;
+		return 0;
+	}
+	if (!PyTypeCheck("Square or None", val, &PySquareType)) return -1;
+	PyBoard_board(self)->en_passant_square.exists = true;
+  PyBoard_board(self)->en_passant_square.square	= PySquare_get(val);	
+	return 0;
+}
+
+
+
 static PyObject *PyBoard_turn_get(PyObject *self, void *closure) {
 	return PyColor_make(PyBoard_board(self)->turn);
+}
+
+static int PyBoard_turn_set(PyObject *self, PyObject *val){
+	if (!PyTypeCheck("Color", val, &PyColorType)) return -1;
+	PyBoard_board(self)->turn = PyColor_get(val);	
+	return 0;
 }
 
 static PyObject *PyBoard_fullmove_get(PyObject *self, void *closure) {
 	return PyLong_FromUnsignedLong(PyBoard_board(self)->fullmove_number);
 }
 
+
+static int PyBoard_fullmove_set(PyObject *self, PyObject *val){
+	if (!PyTypeCheck("int", val, &PyLong_Type)) return -1;
+	long long raw = PyLong_AsUnsignedLongLong(val);
+	if (SHRT_MAX < raw) {
+		char exp[30];
+		sprintf(exp, "a value < %d", SHRT_MAX);
+		PyTypeErr(exp, val);
+		return -1;
+	}	
+	PyBoard_board(self)->fullmove_number = raw;	
+	return 0;
+}
+
+
+
 static PyObject *PyBoard_halfmove_get(PyObject *self, void *closure) {
 	return PyLong_FromUnsignedLong(PyBoard_board(self)->halfmove_clock);
+}
+
+
+static int PyBoard_halfmove_set(PyObject *self, PyObject *val){
+	if (!PyTypeCheck("int", val, &PyLong_Type)) return -1;
+	long long raw = PyLong_AsUnsignedLongLong(val);
+	if (SHRT_MAX < raw) {
+		char exp[30];
+		sprintf(exp, "a value < %d", SHRT_MAX);
+		PyTypeErr(exp, val);
+		return -1;
+	}	
+	PyBoard_board(self)->halfmove_clock = raw;	
+	return 0;
 }
 
 
@@ -1063,17 +1229,53 @@ static PyObject *PyBoard_kings(PyObject *self, void *closure) {
 	return (PyObject *)PyBitboard_make(board->position->kings);
 }
 
+
+static PyObject *PyBoard_white(PyObject *self, void *closure) {
+	full_board_t *board = PyBoard_board(self);
+	return (PyObject *)PyBitboard_make(board->position->white_oc);
+}
+
+
+static PyObject *PyBoard_black(PyObject *self, void *closure) {
+	full_board_t *board = PyBoard_board(self);
+	return (PyObject *)PyBitboard_make(board->position->black_oc);
+}
+
+static PyObject *PyBoard_empty_bb(PyObject *self, void *closure) {
+	position_t *pos= PyBoard_board(self)->position;
+	return (PyObject *)PyBitboard_make(
+		~(pos->white_oc | pos->black_oc)	
+	);
+}
+
 static PyGetSetDef Board_getset[] = {
-    {"turn", (getter)PyBoard_turn_get, NULL, NULL, NULL},
-    {"fullmove_number", (getter)PyBoard_fullmove_get, NULL, NULL, NULL},
-    {"halfmove_clock", (getter)PyBoard_halfmove_get, NULL, NULL, NULL},
-    {"en_passant_square", (getter)PyBoard_ep_square, NULL, NULL, NULL},
-    {"pawns", (getter)PyBoard_pawns, NULL, NULL, NULL},
-    {"knights", (getter)PyBoard_knights, NULL, NULL, NULL},
-    {"bishops", (getter)PyBoard_bishops, NULL, NULL, NULL},
-    {"rooks", (getter)PyBoard_rooks, NULL, NULL, NULL},
-    {"queens", (getter)PyBoard_queens, NULL, NULL, NULL},
-    {"kings", (getter)PyBoard_kings, NULL, NULL, NULL},
+    {"turn", 
+			(getter)PyBoard_turn_get, (setter)PyBoard_turn_set, NULL, NULL},
+    {"fullmove_number", 
+			(getter)PyBoard_fullmove_get, (setter)PyBoard_fullmove_set, NULL, NULL},
+    {"halfmove_clock", 
+			(getter)PyBoard_halfmove_get, (setter)PyBoard_halfmove_set, NULL, NULL},
+    {"en_passant_square", 
+			(getter)PyBoard_ep_square, (setter)PyBoard_ep_set, NULL, NULL},
+    {"pawns", 
+			(getter)PyBoard_pawns, NULL, NULL, NULL},
+    {"knights", 
+			(getter)PyBoard_knights, NULL, NULL, NULL},
+    {"bishops", 
+			(getter)PyBoard_bishops, NULL, NULL, NULL},
+    {"rooks", 
+			(getter)PyBoard_rooks, NULL, NULL, NULL},
+    {"queens", 
+			(getter)PyBoard_queens, NULL, NULL, NULL},
+    {"kings", 
+			(getter)PyBoard_kings, NULL, NULL, NULL},
+		{"white", 
+			(getter)PyBoard_white, NULL, NULL, NULL},
+		{"black", 
+			(getter)PyBoard_black, NULL, NULL, NULL},
+		{"unoccupied",
+			PyBoard_empty_bb, NULL, NULL, NULL},	
+		
 		{NULL}
 };
 
@@ -1089,32 +1291,408 @@ static PyTypeObject PyBoardType = {
 	.tp_basicsize = sizeof(PyBoardObject),
   .tp_itemsize = 0,
   .tp_flags = Py_TPFLAGS_DEFAULT, 
-	.tp_dealloc = (destructor)PyBoard_dealloc,
+	//.tp_dealloc = (destructor)PyBoard_dealloc,
 	.tp_alloc = (allocfunc)PyBoard_alloc,
 	.tp_new = PyType_GenericNew,
 	.tp_methods = board_methods,
 	.tp_init = Board_init,
 	.tp_getset = Board_getset,
 	.tp_richcompare = PyBoard_compare,
-	.tp_as_mapping = &PyBoardAsMap
+	.tp_as_mapping = &PyBoardAsMap,
+	.tp_repr = (reprfunc)PyBoard_repr,
+	.tp_hash = PyBoard_hash
+};
+
+/* UTILS */
+
+
+static PyObject *
+PyUtils_count_moves(PyObject *self, PyObject *args){
+	if (!PyTypeCheck("Board", args, &PyBoardType)) return NULL;
+	u_int8_t count = count_legal_moves(PyBoard_board(args));		
+	return PyLong_FromUnsignedLong(count);
+}
+
+
+static PyObject *PyUtils_is_quiescent(PyObject *self, PyObject *args){
+	if (!PyTypeCheck("Board", args, &PyBoardType)) return NULL;
+	return is_quiescent(PyBoard_board(args)) ? Py_True : Py_False;
+}
+
+static PyObject *PyUtils_perft(PyObject *self, PyObject *args){
+	PyObject *board;
+	u_int8_t depth;	
+	if (!PyArg_ParseTuple(args, "Ob", &board, &depth)) {
+		return NULL; 
+	}
+	if (!PyTypeCheck("Board", board, &PyBoardType)) return NULL;
+	return PyLong_FromLongLong(perft(PyBoard_board(board), depth));
+}
+
+static PyObject *PyUtils_srandom(PyObject *self, PyObject *arg){
+	if (Py_IsNone(arg)) {
+		initstate(time(NULL), rand_state, 256);
+		Py_RETURN_NONE;
+	}
+	
+	if (!PyTypeCheck("int", arg, &PyLong_Type)) return NULL;
+	unsigned long seed = PyLong_AsUnsignedLong(arg);	
+	initstate(seed, rand_state, 256);
+	Py_RETURN_NONE;
+}
+
+#define UTIL_FROM_BOARD_TO_BB(func) static PyObject *PyUtils_ ## func \
+	(PyObject *self, PyObject *args){ \
+		if (!PyTypeCheck("Board", args, &PyBoardType)) return NULL; \
+		return (PyObject *)PyBitboard_make(func(PyBoard_board(args))); \
+	}
+
+
+UTIL_FROM_BOARD_TO_BB(isolated_pawns)
+UTIL_FROM_BOARD_TO_BB(backwards_pawns)
+UTIL_FROM_BOARD_TO_BB(doubled_pawns)
+
+
+static PyMethodDef PyUtilsMethods[] = {
+	{"backwards_pawns", PyUtils_backwards_pawns, METH_O, NULL},	
+	{"isolated_pawns", PyUtils_isolated_pawns, METH_O, NULL},	
+	{"doubled_pawns", PyUtils_doubled_pawns, METH_O, NULL},	
+	{"count_moves", PyUtils_count_moves, METH_O, NULL},	
+	{"is_quiescent", PyUtils_is_quiescent, METH_O, NULL},	
+	{"perft", PyUtils_perft,  METH_VARARGS, NULL},	
+	{"set_random_seed", PyUtils_srandom, METH_O, NULL},
+	{NULL, NULL, 0, NULL}
+};
+
+
+
+/* PGN */
+
+typedef struct {
+	PyObject_HEAD
+	u_int8_t result;	
+} PyPGNResultObject;
+
+static PyTypeObject PyPGNResultType;
+
+static PyPGNResultObject *PyResults[4] = {0};
+
+static bool PyPGNResults_init(){
+	for (u_int8_t res = DRAW_RES; res <= UNK_RES; res++) {
+		if (PyResults[res]) return true;
+		PyPGNResultObject *obj = PyObject_NEW(PyPGNResultObject, &PyPGNResultType); 
+		if (!obj){
+		 	for (u_int8_t res2 = DRAW_RES; res2 < res; res2++) {
+				PyGeneric_Dealloc((PyObject*)PyResults[res2]);
+			}
+			return false;
+		}
+		PyResults[res] = obj;
+		obj->result = res;
+	}
+	return true;
+}
+
+static PyObject* PyPGNResult_make(u_int8_t res) {
+	return (PyObject *)PyResults[res];
+}
+
+#define RESULT_TO_OBJ(field, draw, white, black, unk, wrapper)\
+static PyObject* PyPGNResult_ ## field (PyObject *self) {\
+	PyPGNResultObject *obj = (PyPGNResultObject *)self; \
+	switch (obj->result) { \
+		case DRAW_RES: return (PyObject *)wrapper(draw);\
+		case WHITE_RES: return (PyObject *)wrapper(white);\
+		case BLACK_RES: return (PyObject *)wrapper(black);\
+		default: return (PyObject *)unk;\
+	}\
+}\
+
+
+RESULT_TO_OBJ(winner, Py_None, WhiteObject, BlackObject, Py_None,)
+RESULT_TO_OBJ(unknown, Py_False, Py_False, Py_False, Py_True, )
+RESULT_TO_OBJ(draw, Py_True, Py_False, Py_False, Py_False, )
+RESULT_TO_OBJ(to_str, "1/2-1/2", "1-0", "0-1", "*", PyUnicode_FromString)
+
+#define MAKE_RES_GETTER_ENTRY(field) {#field , (getter)PyPGNResult_ ## field, NULL, NULL}
+
+static PyGetSetDef PyPGNResult_getset[] = {
+	MAKE_RES_GETTER_ENTRY(winner),	
+	MAKE_RES_GETTER_ENTRY(unknown),	
+	MAKE_RES_GETTER_ENTRY(draw),
+	{NULL}
+};
+
+
+static PyTypeObject PyPGNResultType = {
+	.ob_base = PyVarObject_HEAD_INIT(NULL, 0)
+	.tp_name = "bulletchess.pgn.PGNResult",
+	.tp_basicsize = sizeof(PyPGNResultObject),
+  .tp_itemsize = 0,
+  .tp_flags = Py_TPFLAGS_DEFAULT, 
+	.tp_str = PyPGNResult_to_str,	
+	.tp_getset = PyPGNResult_getset,
+};
+
+
+
+
+typedef struct {
+	PyObject_HEAD
+		pgn_game_t *game;
+} PyPGNGameObject;
+
+static PyTypeObject PyPGNGameType;
+
+#define pgn_validate(ptr) if (!ptr) {\
+	PyErr_SetString(PyExc_MemoryError, \
+			"Could not allocate new PGNGame");\
+	return NULL;}\
+
+static PyObject *PyPGNGame_Alloc() {
+	PyPGNGameObject *obj = PyObject_New(PyPGNGameObject, &PyPGNGameType);
+	pgn_validate(obj);
+	obj->game = PyMem_RawMalloc(sizeof(pgn_game_t));
+	pgn_validate(obj->game);
+	obj->game->moves = PyMem_RawMalloc(600 * sizeof(move_t));
+	pgn_validate(obj->game->moves);
+	pgn_tag_section_t *tags = PyMem_RawMalloc(sizeof(pgn_tag_section_t));
+	pgn_validate(tags);
+	tags->event = PyMem_RawMalloc(255);
+	tags->site= PyMem_RawMalloc(255);
+	tags->round = PyMem_RawMalloc(255);
+	tags->white_player = PyMem_RawMalloc(255);
+	tags->black_player = PyMem_RawMalloc(255);
+	obj->game->tags = tags;
+	obj->game->starting_board = PyMem_RawMalloc(sizeof(full_board_t));
+	obj->game->starting_board->position = PyMem_RawMalloc(sizeof(position_t));
+	return (PyObject *)obj;
+}
+
+
+static void PyPGNGame_Dealloc(PyObject *self){
+	PyPGNGameObject *game = (PyPGNGameObject *)self;
+	
+	pgn_tag_section_t *tags = game->game->tags;
+	PyMem_RawFree(tags->event);
+	PyMem_RawFree(tags->site);
+
+	PyMem_RawFree(tags->round);
+	PyMem_RawFree(tags->white_player);
+	PyMem_RawFree(tags->black_player);
+
+	PyMem_RawFree(tags);
+	PyMem_RawFree(game->game->moves);
+	PyMem_RawFree(game->game);
+	PyGeneric_Dealloc(self);
+}	
+
+#define PGN_MAKE_GETTER(field,to_py_obj) static PyObject *PyPGN_ ## field (PyObject *self, void *closure){\
+	PyPGNGameObject *game = (PyPGNGameObject *)self;\
+	PyObject *obj = to_py_obj(game->game->tags->field);\
+	if (!obj){ return NULL; } return obj;}
+
+
+#define DATE_TUPLE_SET(index, known, val) if (known)\
+	PyTuple_SET_ITEM(tuple, index, PyLong_FromUnsignedLong(val));\
+	else {\
+		PyTuple_SET_ITEM(tuple, index, Py_None);\
+	}\
+
+static PyObject *PyObject_from_date(date_t date) {
+	PyObject *tuple = PyTuple_New(3);
+	if (!tuple) return NULL;
+	DATE_TUPLE_SET(0, date.known_year, date.year);	
+	DATE_TUPLE_SET(1, date.known_month, date.month);	
+	DATE_TUPLE_SET(2, date.known_day, date.day);	
+	return tuple;
+}
+
+PGN_MAKE_GETTER(date,PyObject_from_date)
+PGN_MAKE_GETTER(event,PyUnicode_FromString)
+PGN_MAKE_GETTER(site,PyUnicode_FromString)
+PGN_MAKE_GETTER(white_player,PyUnicode_FromString)
+PGN_MAKE_GETTER(black_player,PyUnicode_FromString)
+PGN_MAKE_GETTER(round,PyUnicode_FromString)
+PGN_MAKE_GETTER(result,PyPGNResult_make)
+
+static PyObject *PyPGN_moves(PyObject *self, void *clousre){
+	printf("called moves\n");
+	PyPGNGameObject *game = (PyPGNGameObject *)self;
+	move_t *moves = game->game->moves;
+	size_t count = game->game->count;
+	PyObject* list = PyList_New(count);
+	if (!list){
+		PyErr_SetString(PyExc_MemoryError, "Could not allocate moves list");
+		return NULL;
+	}
+	for (int i = 0; i < count; i++) {
+		PyMoveObject *move_obj = PyMove_make(moves[i]);
+		if (!move_obj){
+			for (int j = 0; j < i; j++) {
+				Py_DECREF(PyList_GET_ITEM(list, j));
+			}
+			Py_DECREF(list);
+			PyErr_SetString(PyExc_ValueError, "Illegal Move");
+			return NULL;
+		}
+		PyList_SET_ITEM(list, i, move_obj);
+	}
+	printf("ret list\n");
+	return list;
+}
+
+
+#define MAKE_GETTER_ENTRY(field) {#field , (getter)PyPGN_ ## field, NULL, NULL}
+
+static PyGetSetDef PyPGNGame_getset[] = {
+		MAKE_GETTER_ENTRY(event),
+		MAKE_GETTER_ENTRY(site),
+		MAKE_GETTER_ENTRY(date),
+		MAKE_GETTER_ENTRY(white_player),
+		MAKE_GETTER_ENTRY(black_player),
+		MAKE_GETTER_ENTRY(round),
+		MAKE_GETTER_ENTRY(result),
+		MAKE_GETTER_ENTRY(moves),
+		{NULL}
+};
+
+
+
+static PyTypeObject PyPGNGameType = {
+	.ob_base = PyVarObject_HEAD_INIT(NULL, 0)
+	.tp_name = "bulletchess.pgn.PGNGame",
+	.tp_basicsize = sizeof(PyPGNGameObject),
+  .tp_itemsize = 0,
+  .tp_flags = Py_TPFLAGS_DEFAULT, 
+	.tp_dealloc = (destructor)PyPGNGame_Dealloc,	
+	//.tp_methods = board_methods,
+	//.tp_init = Board_init,
+	.tp_getset = PyPGNGame_getset,
+	//.tp_richcompare = PyBoard_compare,
+	//.tp_as_mapping = &PyBoardAsMap,
+	//.tp_repr = (reprfunc)PyBoard_repr,
+	//.tp_hash = PyBoard_hash
+};
+
+
+
+
+
+typedef struct {
+	PyObject_HEAD
+	pgn_file_t pgnf;
+} PyPGNFileObject;
+
+
+
+static PyTypeObject PyPGNFileType;
+
+static PyObject *PyPGNFile_open(PyObject *unused, PyObject *args) {
+	if (!PyTypeCheck("str", args, &PyUnicode_Type)) return NULL;
+	const char *path = PyUnicode_AsUTF8(args);
+	if (!path) return NULL;
+	FILE *file = fopen(path, "r");
+	if (!file) {
+		PyErr_Format(PyExc_FileNotFoundError, 
+				"Could not find PGN file with path %s", path);
+		return NULL;
+	}
+	PyPGNFileObject *self = PyObject_New(PyPGNFileObject, &PyPGNFileType);
+	if (!self) return NULL;
+	self->pgnf.ctx = start_context(path, ";[].*()<>", "\"\"{}", '\\');
+	self->pgnf.file = file;	
+	return (PyObject *)self;
+}
+
+static PyObject *PyPGNFile_close(PyObject *self, PyObject *Py_UNUSED(args)){
+	PyPGNFileObject *obj = (PyPGNFileObject *)self; 
+	fclose(obj->pgnf.file);	
+	end_context(obj->pgnf.ctx);		
+	Py_RETURN_NONE;
+}
+
+static PyObject *PyPGNFile_read_next_game(PyObject *self, PyObject *Py_UNUSED(args)){
+	PyPGNFileObject *obj = (PyPGNFileObject *)self; 
+	PyPGNGameObject *game = (PyPGNGameObject *)PyPGNGame_Alloc();
+	printf("alloc game done\n");
+	if (!game) return NULL;
+	char err[500];
+	int res = next_pgn(&obj->pgnf, game->game, err);
+	printf("got next game\n");
+	switch (res) {
+		case 0: {
+			printf("now\n");
+			return (PyObject *)game;
+		}
+		case 1: {
+			printf("ERR!\n");
+			Py_DECREF(game);
+			PyErr_SetString(PyExc_ValueError, err);
+			return NULL;
+		}
+		case 2: Py_RETURN_NONE;
+	}
+}
+
+
+
+static PyMethodDef PyPGNFile_methods[] = { 
+    {"next_game", PyPGNFile_read_next_game, METH_NOARGS, NULL}, 
+		{"open", PyPGNFile_open, METH_O | METH_STATIC, NULL},
+		{"close", PyPGNFile_close, METH_NOARGS, NULL},
+    {NULL, NULL, 0, NULL}
+};
+
+static PyTypeObject PyPGNFileType = {
+	.ob_base = PyVarObject_HEAD_INIT(NULL, 0)
+	.tp_name = "bulletchess.pgn.PGNFile",
+	.tp_basicsize = sizeof(PyPGNFileObject),
+  .tp_itemsize = 0,
+  .tp_flags = Py_TPFLAGS_DEFAULT, 
+	.tp_dealloc = (destructor)PyGeneric_Dealloc,	
+	.tp_methods = PyPGNFile_methods,
+	//.tp_init = Board_init,
+	//.tp_getset = Board_getset,
+	//.tp_richcompare = PyBoard_compare,
+	//.tp_as_mapping = &PyBoardAsMap,
+	//.tp_repr = (reprfunc)PyBoard_repr,
+	//.tp_hash = PyBoard_hash
 };
 
 
 
 static struct PyModuleDef bulletchess_definition = { 
     PyModuleDef_HEAD_INIT,
-    "bulletchess",
-		NULL,
-		-1, 
+    .m_name = "bulletchess._core",
+		.m_doc = NULL, 
+		.m_size = -1,  
+		.m_methods = NULL
 };
 
 
-#define VALIDATE(pt) if (!pt) {Py_DECREF(m); return NULL;} 
+#define VALIDATE(pt) if (!pt) {Py_DECREF(m); Py_DECREF(utils); Py_DECREF(pgn); return NULL;} 
 #define ADD_OBJ(name, obj) if (PyModule_AddObjectRef(m, name, \
-			(PyObject *)obj) < 0) { Py_DECREF(m); return NULL; }
+			(PyObject *)obj) < 0) { Py_DECREF(m); Py_DECREF(utils); Py_DECREF(pgn); return NULL; }
+
+#define ADD_UTIL(name, obj) if (PyModule_AddObjectRef(utils, name, \
+			(PyObject *)obj) < 0) { Py_DECREF(m); Py_DECREF(utils); Py_DECREF(pgn); return NULL; }
 
 
-PyMODINIT_FUNC PyInit_bulletchess(void) {
+
+#define ADD_TYPE(name, type) if (PyType_Ready(&type) < 0) return NULL; \
+	ADD_OBJ(name, &type);
+
+
+
+#define ADD_PGN(name, obj) if (PyModule_AddObjectRef(pgn, name, \
+			(PyObject *)obj) < 0) { Py_DECREF(m); Py_DECREF(utils); Py_DECREF(pgn); return NULL; }
+
+
+
+
+PyMODINIT_FUNC PyInit__core(void) {
+		printf("init\n");
     if (PyType_Ready(&PyBoardType) < 0) return NULL;
 		if (PyType_Ready(&PyColorType) < 0) return NULL;
 		if (PyType_Ready(&PySquareType) < 0) return NULL;
@@ -1122,7 +1700,32 @@ PyMODINIT_FUNC PyInit_bulletchess(void) {
 		if (PyType_Ready(&PyPieceType) < 0) return NULL;
 		if (PyType_Ready(&PyMoveType) < 0) return NULL;
 		if (PyType_Ready(&PyBitboardType) < 0) return NULL;
+		if (PyType_Ready(&PyPGNFileType) < 0) return NULL;
+		if (PyType_Ready(&PyPGNGameType) < 0) return NULL;
+		if (PyType_Ready(&PyPGNResultType) < 0) return NULL;
+		initstate(time(NULL), rand_state, 256);
 		PyObject *m = PyModule_Create(&bulletchess_definition);
+		if (!m) return NULL;
+		PyObject *utils = PyImport_AddModuleRef("bulletchess.utils");
+		if (!utils){ 
+			Py_DECREF(utils); 
+			return NULL;
+		}
+		PyObject *pgn = PyImport_AddModuleRef("bulletchess.pgn");
+		if (!pgn){
+			Py_DECREF(utils);
+			Py_DECREF(m);
+			return NULL;
+		}	
+		VALIDATE(PySquares_init());
+		VALIDATE(PyPieceTypes_init());
+		VALIDATE(PyColors_init());
+		VALIDATE(PyPGNResults_init());
+		PyModule_AddFunctions(utils, PyUtilsMethods);
+		ADD_PGN("PGNGame", &PyPGNGameType);
+		ADD_PGN("PGNFile", &PyPGNFileType);
+		ADD_PGN("PGNResult", &PyPGNResultType);
+		ADD_OBJ("utils", utils);
 		ADD_OBJ("Board", &PyBoardType);
 		ADD_OBJ("Bitboard", &PyBitboardType);
 		ADD_OBJ("Color", &PyColorType);
@@ -1158,6 +1761,27 @@ PyMODINIT_FUNC PyInit_bulletchess(void) {
 		VALIDATE(QUEEN);
 		PyObject *KING = PyPieceType_make(KING_VAL);
 		VALIDATE(KING);
+		bitboard_t cur_rank = RANK_1;
+		for (int rank_num = 1; rank_num < 9; rank_num++) {
+			char buffer[7];
+			sprintf(buffer, "RANK_%d", rank_num);
+			PyObject *RANK = (PyObject *)PyBitboard_make(cur_rank);
+			VALIDATE(RANK);
+			ADD_OBJ(buffer, RANK);
+			cur_rank = SAFE_ABOVE_BB(cur_rank);
+		}
+
+		bitboard_t cur_file = FILE_A;
+		for (int file_num = 0; file_num < 8; file_num++) {
+			char buffer[7];
+			sprintf(buffer, "%c_FILE", 'A' + file_num);
+			PyObject *FILEV= (PyObject *)PyBitboard_make(cur_file);
+			VALIDATE(FILEV);
+			ADD_OBJ(buffer, FILEV);
+			cur_file= SAFE_RIGHT_BB(cur_file);
+		}
+
+
 		ADD_OBJ("PAWN", PAWN);
 		ADD_OBJ("KNIGHT", KNIGHT);
 		ADD_OBJ("BISHOP", BISHOP);
@@ -1173,6 +1797,8 @@ PyMODINIT_FUNC PyInit_bulletchess(void) {
 		PyList_Append(PieceTypes_List, QUEEN);
 		PyList_Append(PieceTypes_List, KING);
 		ADD_OBJ("PIECE_TYPES", PieceTypes_List);
+		zobrist_table = create_zobrist_table();
+		printf("end\n");	
 		return m;
 }
 

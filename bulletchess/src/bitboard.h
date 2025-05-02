@@ -95,6 +95,13 @@ typedef struct {
 
 // Macros for bitboard_t
 #define LSB(s) ((s) & -(s))
+#define forbitboard2(VAR_NAME, REMAINING, VAL)\
+for (bitboard_t VAR_NAME, REMAINING = VAL;\
+		(VAR_NAME = LSB(REMAINING));\
+		REMAINING &= ~VAR_NAME)\
+
+
+
 #define forbitboard(VAR_NAME, VAL)\
 for (bitboard_t VAR_NAME, _bad_macro_system = VAL;\
 		(VAR_NAME = LSB(_bad_macro_system));\

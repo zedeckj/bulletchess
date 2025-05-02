@@ -27,11 +27,11 @@ class TestPiece(unittest.TestCase):
                 hashes.add(hash(Piece(color, pt)))
         self.assertEqual(len(hashes), 12)
 
-    def test_str(self):
+    def test_repr(self):
         piece = Piece(WHITE, KNIGHT)
-        self.assertEqual(str(piece), "Piece<White, Knight>")
+        self.assertEqual(repr(piece), "<Piece: (White, Knight)>")
         piece = Piece(BLACK, QUEEN)
-        self.assertEqual(str(piece), "Piece<Black, Queen>")
+        self.assertEqual(repr(piece), "<Piece: (Black, Queen)>")
 
     def test_type_err(self):
         with self.assertRaisesRegex(TypeError, re.escape("Expected a Color, got Pawn (bulletchess.PieceType)")):

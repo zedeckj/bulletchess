@@ -174,6 +174,7 @@ void write_bitboard(bitboard_t board, char * buffer) {
 		buffer[n++] = '\0';
 }
 
+
 void mask_board_with(position_t * board, bitboard_t keep_bb) {
     board->pawns &= keep_bb;
     board->knights &= keep_bb;

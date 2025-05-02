@@ -12,15 +12,15 @@ def evaluate(board : Board) -> int:
     elif board.status.claim_draw:
         return 0
     return (
-        900 * utils.net_piece_type(board, QUEEN) +
-        500 * utils.net_piece_type(board, ROOK) +
-        300 * utils.net_piece_type(board, BISHOP) +
-        300 * utils.net_piece_type(board, KNIGHT) +
-        100 * utils.net_piece_type(board, PAWN) +
-        50 * (utils.net_backwards_pawns(board) + 
-              utils.net_doubled_pawns(board) +
-              utils.net_isolated_pawns(board)) +
-        10 * utils.net_mobility(board)
+        900 * utilsf.net_piece_type(board, QUEEN) +
+        500 * utilsf.net_piece_type(board, ROOK) +
+        300 * utilsf.net_piece_type(board, BISHOP) +
+        300 * utilsf.net_piece_type(board, KNIGHT) +
+        100 * utilsf.net_piece_type(board, PAWN) +
+        50 * (utilsf.net_backwards_pawns(board) + 
+              utilsf.net_doubled_pawns(board) +
+              utilsf.net_isolated_pawns(board)) +
+        10 * utilsf.net_mobility(board)
     )
 
 def maxi(board : Board, depth : int, 

@@ -16,8 +16,8 @@ class TestBoardTurn(unittest.TestCase):
 
     def test_set_turn(self):
         board = Board()
-        with self.assertRaisesRegex(AttributeError, re.escape("attribute 'turn' of 'bulletchess.Board' objects is not writable")):
-            board.turn = BLACK #type: ignore
-
+        board.turn = BLACK 
+        self.assertEqual(board.turn, BLACK)
+        
 if __name__ == "__main__":
     unittest.main()

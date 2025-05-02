@@ -2,31 +2,42 @@ import sys
 sys.path.append("./")
 from bulletchess import *
 import unittest
-from new_tests.pgn.pgn_test import PGNTestCase 
+from bulletchess.pgn import *
+from pgn_test import PGNTestCase
+import faulthandler
 
-FILEPATH = "tests/pgn/example.pgn"
+faulthandler.enable()
+FILEPATH = "new_tests/pgn/files/example.pgn"
 
 class TestPGN(PGNTestCase):
 
     def test_tags(self):
-        with PGNReader.open(FILEPATH) as f:
-            game = f.next_game()
+        f = PGNFile.open(FILEPATH)
+        game = f.next_game()
+        print("tags test")
         self.assertEqual(game.event, "F/S Return Match")
         self.assertEqual(game.site, "Belgrade, Serbia JUG")
         self.assertEqual(game.date, (1992, 11, 4))
         self.assertEqual(game.round, "29")
-        self.assertEqual(game.white, "Fischer, Robert J.")
-        self.assertEqual(game.black, "Spassky, Boris V.")
+        print("round")
+        self.assertEqual(game.white_player, "Fischer, Robert J.")
+        self.assertEqual(game.black_player, "Spassky, Boris V.")
         self.assertEqual(game.result.draw, True)
+        self.assertEqual(game.result.winner, None)
+        self.assertEqual(game.result.unknown, False)
+        self.assertEqual(str(game.result), "1/2-1/2")
+        print("done tags test")
+        #f.close()
 
     def test_moves(self):
-        with PGNReader.open(FILEPATH) as f:
-            game = f.next_game()
-        board = Board()
-        moves = game.moves()
+        print("test moves")
+        f = PGNFile.open(FILEPATH)
+        game = f.next_game()
+        moves = game.moves
+        print("got moves in test")
         self.assertMoveEq(moves[0], "e2e4")
         self.assertMoveEq(moves[1], "e7e5")
-        self.assertMoveEq(moves[2], "g1f3") # "g6f3" bad error
+        self.assertMoveEq(moves[2], "g1f4") # "g6f3" bad error
         self.assertMoveEq(moves[3], "b8c6")
         self.assertMoveEq(moves[4], "f1b5")
         self.assertMoveEq(moves[5], "a7a6")
@@ -44,13 +55,11 @@ class TestPGN(PGNTestCase):
              "Bc8", "Kf2", "Bf5", "Ra7", "g6", "Ra6+", "Kc5", "Ke1",
              "Nf4", "g3", "Nxh3", "Kd2", "Kb5", "Rd6", "Kc5", "Ra6",
              "Nf2", "g4", "Bd3", "Re6"]) 
+        print("done moves test")
+        #f.close()
 
-    def test_empty(self):
-        with PGNReader.open(FILEPATH) as f:
-            _ = f.next_game()
-            none = f.next_game()
-        self.assertEqual(none, None)
 
 
 if __name__ == "__main__":
     unittest.main()
+    

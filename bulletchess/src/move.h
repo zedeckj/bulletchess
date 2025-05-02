@@ -177,7 +177,7 @@ castling_rights_t get_castling_type(move_t move, full_board_t *board);
 
 san_move_t error_san();
 
-san_move_t parse_san(char * str, bool * err);
+san_move_t parse_san(char * str, bool *err);
 
 square_t get_origin(move_t move);
 

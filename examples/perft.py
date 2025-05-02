@@ -25,12 +25,13 @@ import sys
 sys.path.append("./")
 sys.path.append("../")
 import bulletchess
+from bulletchess.utils import count_moves
 
 def bullet_perft(board : bulletchess.Board, depth : int) -> int:
     if depth == 0:
         return 1
     elif depth == 1:
-        return board.count_moves()
+        return count_moves(board)
     else:
         nodes = 0
         for move in board.legal_moves():

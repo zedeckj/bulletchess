@@ -177,16 +177,16 @@ class Bitboard:
     def __eq__(self, other : Any) -> bool:
         ...
 
-    def __invert__(self) -> Bitboard:
+    def __invert__(self) -> "Bitboard":
         ...
 
-    def __and__(self, other : Bitboard) -> Bitboard:
+    def __and__(self, other : "Bitboard") -> "Bitboard":
         ...
 
-    def __or__(self, other : Bitboard) -> Bitboard:
+    def __or__(self, other : "Bitboard") -> "Bitboard":
         ...
 
-    def __xor__(self, other : Bitboard) -> Bitboard:
+    def __xor__(self, other : "Bitboard") -> "Bitboard":
         ...
 
     def __int__(self) -> int:
@@ -195,7 +195,23 @@ class Bitboard:
     def __bool__(self) -> bool:
         ...
 
+RANK_1 : Bitboard
+RANK_2 : Bitboard
+RANK_3 : Bitboard
+RANK_4 : Bitboard
+RANK_5 : Bitboard
+RANK_6 : Bitboard
+RANK_7 : Bitboard
+RANK_8 : Bitboard
 
+A_FILE : Bitboard
+B_FILE : Bitboard
+C_FILE : Bitboard
+D_FILE : Bitboard
+E_FILE : Bitboard
+F_FILE : Bitboard
+G_FILE : Bitboard
+H_FILE : Bitboard
 
 class Move:
 
@@ -227,19 +243,24 @@ class Move:
     def __hash__(self) -> int: 
         ...
 
-    """
-    def is_promotion(self) -> bool:
-        ...
-
     @staticmethod
     def from_san(san : str, board : "Board") -> "Move":
+        ...
+
+    def san(self, board : "Board") -> str:
         ...
 
     def uci(self) -> str:
         ...
 
-    def san(self, board : "Board") -> str:
+
+    """
+    def is_promotion(self) -> bool:
         ...
+
+
+
+
 
     def __str__(self) -> str:
         ...
@@ -278,6 +299,22 @@ class Board:
     def en_passant_square(self) -> Optional[Square]:
         ...
 
+    @turn.setter
+    def turn(self, new_turn : Color) -> None:
+        ...
+
+    @halfmove_clock.setter
+    def halfmove_clock(self, new_halfmove_clock : int) -> None:
+        ...
+
+    @fullmove_number.setter
+    def fullmove_number(self, new_fullmove_number : int) -> None:
+        ...
+
+    @en_passant_square.setter
+    def en_passant_square(self, new_ep_square : Optional[Square]) -> None:
+        ...
+
     def legal_moves(self) -> list[Move]:
         ...
 
@@ -293,7 +330,7 @@ class Board:
     def fen(self) -> str:
         ...
 
-    def copy(self) -> Board:
+    def copy(self) -> "Board":
         ...
 
     def __getitem__(self, square : Square) -> Optional[Piece]:
@@ -341,6 +378,18 @@ class Board:
 
     @property
     def kings(self) -> Bitboard:
+        ...
+
+    @property
+    def white(self) -> Bitboard:
+        ...
+
+    @property
+    def black(self) -> Bitboard:
+        ...
+
+    @property
+    def unoccupied(self) -> Bitboard:
         ...
 
 """

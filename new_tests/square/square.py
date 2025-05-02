@@ -28,6 +28,17 @@ class TestSquare(unittest.TestCase):
             hashes.add(hash(square))
         self.assertEqual(len(hashes), 64)
 
+    def test_repr(self):
+        self.assertEqual(repr(A3), "A3")
+        self.assertEqual(repr(B1), "B1")
+        self.assertEqual(repr(H8), "H8")
+
+    def test_str(self):
+        self.assertEqual(str(A3), "A3")
+        self.assertEqual(str(B1), "B1")
+        self.assertEqual(str(H8), "H8")
+
+
     def test_misuse(self):
         with self.assertRaisesRegex(TypeError, re.escape("cannot create 'bulletchess.Square' instances")):
             square = Square()

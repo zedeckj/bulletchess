@@ -14,7 +14,9 @@ class TestPieceBitboards(unittest.TestCase):
         self.assertEqual(board.bishops, Bitboard([C1, F1, C8, F8]))
         self.assertEqual(board.queens, Bitboard([D1, D8]))
         self.assertEqual(board.kings, Bitboard([E1, E8]))
-
+        self.assertEqual(board.white, RANK_1 | RANK_2)
+        self.assertEqual(board.black, RANK_7 | RANK_8)
+        self.assertEqual(board.unoccupied, RANK_3 | RANK_4 | RANK_5 | RANK_6)
 
 if __name__ == "__main__":
     unittest.main()

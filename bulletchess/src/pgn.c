@@ -186,7 +186,7 @@ char *transform_tags(dict_t *tok_dict,
 		// not strict about inclusion
 		dst->tags->result = UNK_RES;
 	}	
-
+	printf("done res\n");
 	token_t *date_tok = dict_remove(tok_dict, "Date");
 	if (date_tok) {
 		char buf[255];
@@ -292,6 +292,7 @@ struct read_move_res read_move_tok(token_t *token,
 																	 move_t *moves,
 																	 u_int16_t *moves_i,
 																	 full_board_t *board) {
+	
 	if (!token) {
 	 	char *err = alloc_err(ctx,"Unexpected end of file after last token", token);
 		return (struct read_move_res){.err = err, .done = false};
@@ -340,6 +341,7 @@ struct read_move_res read_move_tok(token_t *token,
 		{.err = alloc_err(ctx, "Too many moves in game, can only store 600", token), .done = false};
 	}
 	moves[(*moves_i)++] = move;
+	
 	return (struct read_move_res){.err = 0, .done = false};
 }
 

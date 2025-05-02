@@ -2,7 +2,7 @@ import unittest
 import sys
 sys.path.append("./")
 from bulletchess import *
-from pgn_test import PGNTestCase
+from new_tests.pgn.pgn_test import PGNTestCase
 
 FILEPATH = "tests/pgn/invalid/errors.pgn"
 

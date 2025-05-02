@@ -425,30 +425,6 @@ bitboard_t make_attack_mask(full_board_t *board, piece_color_t attacker) {
     return attacking;
 }
 
-// Naively, a position is considered quiescent if the side to move is not 
-// being attacked by any of the opponents pieces. Note that this function
-// utilizes make_attack_mask, which "zeroes" out the friendly king. However,
-// this doesn't matter here since the result is binary. If more pieces are stated
-// to be under attack then there actually are due to zeroing the king, the king
-// is still under attack.
-bool is_quiescent(full_board_t *board) {
-		bitboard_t friendly_oc;
-		piece_color_t attacker;
-		if (board->turn == WHITE_VAL) {
-			attacker = BLACK_VAL;
-			friendly_oc = board->position->white_oc;
-		}
-		else {
-			attacker = WHITE_VAL;
-			friendly_oc = board->position->black_oc;
-		}
-		bitboard_t attack_mask = make_attack_mask(board, attacker);
-		return attack_mask & friendly_oc;
-}
-
-// A backwards pawn is considered to be a pawn which is not defended by friendly pawns,
-// and has any piece (including empty) besides a non enemy pawn in front of it which it cannot advance to or can be captured by an
-// enemy pawn
 u_int8_t count_backwards_pawns(full_board_t *board, piece_color_t color) {
 	position_t *position = board->position;
 	bitboard_t white_pawns = position->pawns & position->white_oc;
@@ -575,7 +551,7 @@ check_info_t update_info(check_info_t current_info, bitboard_t move_mask, bitboa
     bitboard_t attackers = move_mask & enemy_mask;
     if (attackers) {
         current_info.king_attacker_count += 1;
-        if (current_info.king_attacker_count > 1){
+				if (current_info.king_attacker_count > 1){
     			current_info.allowed_move_mask = 0;
     			current_info.extra_pawn_capture_mask = 0;
  					return current_info;
@@ -588,6 +564,7 @@ check_info_t update_info(check_info_t current_info, bitboard_t move_mask, bitboa
     }
     return current_info;
 }
+
 
 
 check_info_t make_check_info(full_board_t *board, piece_color_t for_color, bitboard_t attack_mask) {
@@ -625,7 +602,6 @@ check_info_t make_check_info(full_board_t *board, piece_color_t for_color, bitbo
     bitboard_t enemy_knights = hostile & position->knights;
     bitboard_t enemy_rooks = hostile & position->rooks;
     bitboard_t enemy_queens = hostile & position->queens;
-    bitboard_t enemy_kings = hostile & position->kings;
     
     bitboard_t enemy_slide = enemy_rooks | enemy_queens;
     bitboard_t enemy_diagonal = enemy_bishops | enemy_queens;
@@ -1758,6 +1734,18 @@ bool is_draw(board_status_t status) {
 }
 
 
+bool is_capture(full_board_t *board, move_t move) {
+	position_t *pos = board->position;
+	bitboard_t origin = SQUARE_TO_BB(get_origin(move));
+	bitboard_t destination = SQUARE_TO_BB(get_destination(move));
+	if (origin & pos->white_oc) {
+		return destination & pos->black_oc;
+	}
+	else if (origin & pos->black_oc) {
+		return destination & pos->white_oc;
+	}
+	else return false;
+}
 
 // Gets the status of the board after applying the given move
 board_status_t get_apply_status(move_t move,

@@ -7,31 +7,39 @@ import re
 class TestUCI(unittest.TestCase):
 
 
-    def assert_symmetric(self, origin : Square, destination : Square):
-        move = Move.from_uci(f"{origin}{destination}")
+    def assert_symmetric_squares(self, origin : Square, destination : Square):
+        uci = f"{origin}{destination}".lower()
+        move = Move.from_uci(uci)
         self.assertEqual(type(move), Move)
         if type(move) is Move:
             self.assertEqual(move.origin, origin)
             self.assertEqual(move.destination, destination)
             self.assertEqual(move.promotion, None)
             self.assertEqual(move, Move(origin, destination))
+            self.assertEqual(move.uci(), uci)
+
+    def assert_symmetric_str(self, uci : str):
+        move = Move.from_uci(uci)
+        self.assertEqual(type(move), Move)
+        if type(move) is Move:
+            self.assertEqual(move.uci(), uci.lower())
+
 
     def test_construct(self):
-        with self.assertNoLogs():
-            Move.from_uci("e2e4")
-            Move.from_uci("a1a5")
-            Move.from_uci("h7h8q")
-            Move.from_uci("H7H8q")
+        self.assert_symmetric_str("e2e4")
+        self.assert_symmetric_str("a1a5")
+        self.assert_symmetric_str("h7h8q")
+        self.assert_symmetric_str("H7H8q")
             
     def test_batch(self):
-        self.assert_symmetric(A1, A2)
-        self.assert_symmetric(E1, E2)
-        self.assert_symmetric(H3, H7)
-        self.assert_symmetric(F5, F3)
-        self.assert_symmetric(B2, H2)
-        self.assert_symmetric(H1, H2)
-        self.assert_symmetric(G1, G3)
-        self.assert_symmetric(A1, H8)
+        self.assert_symmetric_squares(A1, A2)
+        self.assert_symmetric_squares(E1, E2)
+        self.assert_symmetric_squares(H3, H7)
+        self.assert_symmetric_squares(F5, F3)
+        self.assert_symmetric_squares(B2, H2)
+        self.assert_symmetric_squares(H1, H2)
+        self.assert_symmetric_squares(G1, G3)
+        self.assert_symmetric_squares(A1, H8)
             
 
     def test_null(self):

@@ -13,6 +13,12 @@ class TestBoardEmpty(unittest.TestCase):
         self.assertEqual(board.fullmove_number, 1)
         self.assertEqual(board.en_passant_square, None)
         self.assertEqual(board.turn, WHITE)
-
+        self.assertEqual(board.pawns, Bitboard([]))
+        self.assertEqual(board.knights, Bitboard([]))
+        self.assertEqual(board.bishops, Bitboard([]))
+        self.assertEqual(board.rooks, Bitboard([]))
+        self.assertEqual(board.queens, Bitboard([]))
+        self.assertEqual(board.kings, Bitboard([]))
+        
 if __name__ == "__main__":
     unittest.main()

@@ -26,7 +26,7 @@ typedef struct {
 	char *white_player;
 	char *black_player;
 	u_int8_t result;
-	
+		
 } pgn_tag_section_t;
 
 
@@ -99,6 +99,7 @@ bool read_pgn_file(char *filename, pgn_game_t *dst, char *err);
 
 /* The following return an error string or 0 if ok*/
 
+int next_pgn(pgn_file_t *pf, pgn_game_t *dst, char *err);
 
 
 // Attempts to parse a <tag-pair>, Writes <tag-value> into value_dest

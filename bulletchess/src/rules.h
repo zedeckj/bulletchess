@@ -14,6 +14,10 @@ char * is_legal(full_board_t * board);
 // given buffer. Returns the number of moves generated
 u_int8_t generate_legal_moves(full_board_t * board, move_t * buffer); 
 
+bool is_capture(full_board_t *board, move_t move);
+
+u_int8_t generate_pseudolegal_moves(full_board_t *board, move_t * move_buffer);
+
 // Returns a count of how many moves the given player can make.
 // If the opponent is in check, a king capture is considered a move
 // and is included in the count
@@ -65,6 +69,21 @@ board_status_t get_status(full_board_t * board,
 
 // Returns true if the given status is a draw
 bool is_draw(board_status_t status);
+
+
+move_t san_str_to_move(full_board_t *board, char *str, 
+		bool *is_err, char *error);
+
+
+
+bool move_to_san_str(full_board_t * board, move_t move, char * buffer);
+
+bitboard_t vertical_attack_mask(bitboard_t bb, bitboard_t non_friendly, bitboard_t empty);
+
+bitboard_t make_attack_mask(full_board_t *board, piece_color_t attacker);
+
+bitboard_t white_pawn_attack_mask(bitboard_t white_pawns, bitboard_t enemies_and_ep);
+bitboard_t black_pawn_attack_mask(bitboard_t black_pawns, bitboard_t enemies_and_ep);
 
 #endif
 

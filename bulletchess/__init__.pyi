@@ -1,5 +1,5 @@
-from utils import *
 from main import *
+import utils as utils
 
 __all__ = [
     "Color",
@@ -83,4 +83,21 @@ __all__ = [
     "SQUARES",
     "Piece",
     "Move",
+    "RANK_1",
+    "RANK_2",
+    "RANK_3",
+    "RANK_4",
+    "RANK_5",
+    "RANK_6",
+    "RANK_7",
+    "RANK_8",
+    "A_FILE",
+    "B_FILE",
+    "C_FILE",
+    "D_FILE",
+    "E_FILE",
+    "F_FILE",
+    "G_FILE",
+    "H_FILE",
+    "utils",
 ]
