@@ -618,8 +618,8 @@ static PyTypeObject PyMoveType = {
 	.tp_richcompare = PyMove_compare,
 	.tp_hash = PyMove_hash,
 	//.tp_dealloc = PyGeneric_Dealloc,
-	//.tp_repr = PyMove_repr,
-	//.tp_str = PyMove_to_uci,
+	.tp_repr = PyMove_repr,
+	.tp_str = PyMove_to_uci,
 };
 
 
@@ -988,13 +988,10 @@ static PyObject *PyBoard_copy(PyObject *self, PyObject *Py_UNUSED(args)){
 
 
 static bool PyBoard_apply_struct(PyBoardObject *board_obj, move_t move){
-	printf("in here\n");
 	undoable_move_t undo = apply_move(board_obj->board, move);
 	if (board_obj->stack_size == board_obj->stack_capacity) {
 		size_t new_capacity = board_obj->stack_capacity * 2;
-		printf("about to realloc\n");
 		void *new_ptr = PyMem_RawRealloc(board_obj->move_stack, sizeof(undoable_move_t) * new_capacity);
-		printf("realloc\n");
 		if (new_ptr) board_obj->move_stack = new_ptr;
 		else {
 			PyErr_SetString(PyExc_MemoryError, "Could not apply move, out of memory");
@@ -1566,13 +1563,7 @@ static PyTypeObject PyPGNGameType = {
   .tp_itemsize = 0,
   .tp_flags = Py_TPFLAGS_DEFAULT, 
 	.tp_dealloc = (destructor)PyPGNGame_Dealloc,	
-	//.tp_methods = board_methods,
-	//.tp_init = Board_init,
 	.tp_getset = PyPGNGame_getset,
-	//.tp_richcompare = PyBoard_compare,
-	//.tp_as_mapping = &PyBoardAsMap,
-	//.tp_repr = (reprfunc)PyBoard_repr,
-	//.tp_hash = PyBoard_hash
 };
 
 
