@@ -770,7 +770,6 @@ char * set_ep_square_checked(full_board_t *board, square_t square) {
 }
 
 
-
 void update_castling_rights(full_board_t *board, piece_color_t color) {
     if (color == WHITE_VAL) {
         bitboard_t color_bb = board->position->white_oc;
@@ -840,6 +839,33 @@ void print_board(full_board_t *board) {
 }
 
 
+#define PIECE_MOVED(COLOR, PIECE, ORIGIN)(\
+	~(pos->COLOR ## _oc & pos->PIECE ## s	& SQUARE_TO_BB(ORIGIN))\
+)
+
+#define CASTLING_VALID(COLOR, RANK)(\
+((!(COLOR##_kingside || COLOR##_queenside) || !PIECE_MOVED(COLOR, king, E##RANK)))\
+&& (!COLOR##_kingside || !PIECE_MOVED(COLOR, rook, H##RANK))\
+&& (!COLOR##_queenside || !PIECE_MOVED(COLOR, rook, A##RANK))\
+)\
+
+bool valid_castling(full_board_t *board, castling_rights_t castling){
+	// INVALID IF:
+	// - Color has castling rights and king has moved
+	// - Color has kingside and no rook on H1/H8
+	// - Color has queenside and no rook on A1/A8 
+	castling_rights_t white_kingside = castling & WHITE_KINGSIDE;
+	castling_rights_t black_kingside = castling & BLACK_KINGSIDE;
+	castling_rights_t white_queenside = castling & WHITE_QUEENSIDE;
+	castling_rights_t black_queenside = castling & BLACK_QUEENSIDE;	
+	position_t *pos = board->position;
+	return CASTLING_VALID(white, 1) && CASTLING_VALID(black, 8);
+	return true;
+}	
+	
+
+
+// ridiculous function, dont know what i was thinking with this mess
 char* validate_board(full_board_t * board) {
     /*
     pawns in the back ranks

@@ -1,5 +1,6 @@
 from typing import Optional, Any, Collection, Iterator
 
+
 class Color:
 
     def __eq__(self, other : Any) -> bool:
@@ -213,12 +214,31 @@ F_FILE : Bitboard
 G_FILE : Bitboard
 H_FILE : Bitboard
 
+
+class CastlingType:
+    def __str__(self) -> str: ...
+
+    def __repr__(self) -> str: ...
+
+    def __eq__(self, other : Any) -> bool: ...
+
+    def __hash__(self) -> int: ...
+
+WHITE_KINGSIDE : CastlingType
+WHITE_QUEENSIDE : CastlingType
+BLACK_KINGSIDE : CastlingType
+BLACK_QUEENSIDE : CastlingType
+
 class Move:
 
     def __init__(self, 
                     origin : Square, 
                     destination : Square, 
                     promote_to : Optional[PieceType] = None):
+        ...
+
+    @staticmethod
+    def castle(castling_type : CastlingType) -> Move: 
         ...
 
     @staticmethod
@@ -253,17 +273,58 @@ class Move:
     def uci(self) -> str:
         ...
 
-
-    """
     def is_promotion(self) -> bool:
         ...
 
+    def __str__(self) -> str:
+        ...
 
 
+class CastlingRights:
 
+    def __init__(self, castling_types : Collection[CastlingType]) -> None:
+        ...
+
+    """
+    @staticmethod
+    def full() -> "CastlingRights":
+        ...
+    """
+
+    def __contains__(self, castling_type : CastlingType) -> bool:
+        ...
+
+    def __add__(self, other : CastlingRights) -> CastlingRights:
+        ...
+
+    def __eq__(self, other : Any) -> bool:
+        ...
+
+    def __le__(self, other : Any) -> bool:
+        ...
 
     def __str__(self) -> str:
         ...
+
+    def __repr__(self) -> str:
+        ...
+
+    def full(self) -> bool: ...
+
+    def any(self) -> bool: ...
+
+    def kingside(self, color : Optional[Color] = None) -> bool: ...
+
+    def queenside(self, color : Optional[Color] = None) -> bool: ...
+
+    """
+    def has_all(self) -> bool: ...
+
+    def has_any(self) -> bool: ...
+
+    def has_kingside(self, color : Optional[Color] = None) -> bool: ...
+
+    def has_queenside(self, color : Optional[Color] = None) -> bool: ...
     """
 
 class Board:
@@ -299,6 +360,14 @@ class Board:
     def en_passant_square(self) -> Optional[Square]:
         ...
 
+    @property
+    def castling_rights(self) -> CastlingRights:
+        ...
+
+    @castling_rights.setter
+    def castling_rights(self, castling_rights : CastlingRights) -> None:
+        ...
+
     @turn.setter
     def turn(self, new_turn : Color) -> None:
         ...
@@ -315,10 +384,11 @@ class Board:
     def en_passant_square(self, new_ep_square : Optional[Square]) -> None:
         ...
 
-    def legal_moves(self) -> list[Move]:
+    @castling_rights.setter
+    def castling_rights(self) -> CastlingRights:
         ...
 
-    def count_moves(self) -> int:
+    def legal_moves(self) -> list[Move]:
         ...
 
     def apply(self, move : Optional[Move]) -> None:
@@ -345,13 +415,13 @@ class Board:
     def __eq__(self, other : Any) -> bool:
         ...
 
-    """
     def __hash__(self) -> int:
         ...
     
-    def __contains__(self, piece : Piece) -> bool:
+    def __contains__(self, piece : Optional[Piece]) -> bool:
         ...
 
+    """
     def status(self) -> "BoardStatus":
         ...
 

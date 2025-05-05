@@ -217,6 +217,9 @@ char * validate_board(full_board_t * board);
 bitboard_t get_piece_type_bb(position_t* position, piece_type_t piece_type);
 
 
+// checks if the given new castling rights are legal
+bool valid_castling(full_board_t *board, castling_rights_t new_castling);
+
 bitboard_t get_piece_bb(position_t* position, piece_t piece);
 #endif
 

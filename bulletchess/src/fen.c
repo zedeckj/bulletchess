@@ -385,6 +385,34 @@ char * parse_fen_array(char ** fens, full_board_t *boards, u_int64_t count) {
 */
 
 
+
+// massive switch case to minimize branching
+char *castling_fen(castling_rights_t castling) {
+	switch (castling) {
+		case NO_CASTLING: return "-";
+		case FULL_CASTLING: return "KQkq";
+		case WHITE_FULL_CASTLING: return "KQ";
+		case BLACK_FULL_CASTLING: return "kq";
+		case WHITE_FULL_CASTLING | BLACK_QUEENSIDE: return "KQq";
+		case WHITE_FULL_CASTLING | BLACK_KINGSIDE: return "KQk";
+		case BLACK_FULL_CASTLING | WHITE_QUEENSIDE: return "Qkq";
+		case BLACK_FULL_CASTLING | WHITE_KINGSIDE: return "Kkq";
+		case WHITE_KINGSIDE | BLACK_KINGSIDE: return "Kk";
+		case WHITE_QUEENSIDE | BLACK_QUEENSIDE: return "Qq";
+		case WHITE_KINGSIDE | BLACK_QUEENSIDE: return "Kq";
+		case WHITE_QUEENSIDE | BLACK_KINGSIDE: return "Qk";
+		case WHITE_KINGSIDE: return "K";
+		case WHITE_QUEENSIDE: return "Q";
+		case BLACK_KINGSIDE: return "k";
+		case BLACK_QUEENSIDE: return "q";
+	}
+	return 0;
+}
+
+
+
+
+
 // massive switch case to minimize branching
 u_int8_t write_castling(castling_rights_t castling, char *fen_buffer, 
 								u_int8_t s_i) {

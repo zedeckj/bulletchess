@@ -26,13 +26,13 @@ typedef struct {
 	char *white_player;
 	char *black_player;
 	u_int8_t result;
-		
 } pgn_tag_section_t;
 
 
 
 typedef struct {
 	pgn_tag_section_t *tags;
+	//dict_t *raw_tags;
 	move_t *moves;
 	full_board_t *starting_board;
 	u_int16_t count;

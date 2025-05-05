@@ -66,7 +66,9 @@ static bool PySquares_init() {
 }
 
 static PyObject *PySquare_make(square_t square) {
-	return (PyObject *)PySquares[square];
+	PyObject *obj = (PyObject *)PySquares[square];
+	Py_INCREF(obj);
+	return obj;
 }
 
 static inline square_t PySquare_get(PyObject *self) {
@@ -119,7 +121,7 @@ static PyTypeObject PySquareType = {
   .tp_flags = Py_TPFLAGS_DEFAULT, 
 	.tp_str = PySquare_str,
 	.tp_richcompare = PySquare_compare,
-	.tp_repr = PySquare_str,
+	.tp_repr = PySquare_repr,
 	.tp_hash = PySquare_hash
 };
 
@@ -144,7 +146,7 @@ static bool PyPieceTypes_init(){
 			PyObject_New(PyPieceTypeObject, &PyPieceTypeType);	
 		if (!py_piece_type) {
 			for (piece_type_t pt2 = PAWN_VAL; pt2 < pt; pt2++) 
-				Py_TYPE(PySquares[pt2])->tp_free((PyObject *)PySquares[pt2]);
+				Py_TYPE(PieceTypeObjects[pt2])->tp_free((PyObject *)PySquares[pt2]);
 			return false;
 		}
 		else {
@@ -156,8 +158,24 @@ static bool PyPieceTypes_init(){
 }
 
 static PyObject *PyPieceType_make(piece_type_t piece_type) {
-	return (PyObject *)PieceTypeObjects[piece_type - PAWN_VAL];
+	PyObject *obj = (PyObject *)PieceTypeObjects[piece_type - PAWN_VAL];
+	Py_INCREF(obj);
+	return obj;
 }
+
+
+static PyObject *PyPieceType_repr(PyObject *self){
+	piece_type_t pt = PyPieceType_get(self);
+	const char *str = get_piece_name(pt);
+	if (str){
+		return PyUnicode_FromFormat("<PieceType: %s>", str);
+	}
+	PyErr_Format(PyExc_AttributeError, 
+			"Illegal PieceType with value %d", pt);
+	return NULL;
+}
+
+
 
 
 static PyObject *PyPieceType_str(PyObject *self){
@@ -198,7 +216,7 @@ static PyTypeObject PyPieceTypeType = {
   .tp_flags = Py_TPFLAGS_DEFAULT, 
 	.tp_str = PyPieceType_str,
 	.tp_richcompare = PyPieceType_compare,
-	.tp_repr = PyPieceType_str,
+	.tp_repr = PyPieceType_repr,
 	.tp_hash = PyPieceType_hash
 };
 
@@ -227,13 +245,18 @@ static bool PyColors_init() {
 	return true;
 }
 static PyObject *PyColor_make(piece_color_t color) {
+	PyObject *out;
 	switch (color) {
-		case WHITE_VAL: return (PyObject *)WhiteObject;
-		case BLACK_VAL: return (PyObject *)BlackObject;
+		case WHITE_VAL: out = (PyObject *)WhiteObject;
+		break;
+		case BLACK_VAL: out = (PyObject *)BlackObject;
+		break;
 		default:
 			PyErr_SetString(PyExc_ValueError, "Invalid color generated");
 			return NULL;
 	}
+	Py_INCREF(out);
+	return out;
 }
 
 static inline piece_color_t PyColor_get(PyObject *self) {
@@ -327,6 +350,19 @@ static inline piece_t PyPiece_get(PyObject *self) {
 	return ((PyPieceObject *)self)->piece;
 }
 
+#define BASIC_COMPARE(TYPE)\
+	static PyObject * TYPE ##_compare(PyObject *self,\
+			PyObject *other, int op){\
+		bool eq = Py_IS_TYPE(other, &(TYPE ## Type)) && TYPE ## _get(self) == TYPE ## _get(other);\
+		switch (op){\
+			case Py_EQ:\
+				return eq ? Py_True : Py_False;\
+			case Py_NE:\
+				return eq ? Py_False : Py_True;\
+			default:\
+				return Py_NotImplemented;\
+		}\
+	}\
 
 static PyObject *PyPiece_compare(PyObject *self, PyObject *other, int op){
 	bool eq = Py_IS_TYPE(other, &PyPieceType); 	
@@ -368,6 +404,12 @@ static PyObject *PyPiece_repr(PyObject *self) {
 	return PyUnicode_FromFormat("<Piece: (%s, %s)>", color, type);
 }
 
+static PyObject *PyPiece_str(PyObject *self) {
+	piece_t p = PyPiece_get(self);
+	return PyUnicode_FromFormat("%c", piece_symbol(p));
+}
+
+
 
 static PyObject *PyPiece_color_get(PyObject *self, void *closure) {
 	return PyColor_make(PyPiece_get(self).color);
@@ -396,6 +438,7 @@ static PyTypeObject PyPieceType = {
 	.tp_init = PyPiece_init,
 	.tp_new = PyType_GenericNew,
 	.tp_repr = (reprfunc)PyPiece_repr,
+	.tp_str= (reprfunc)PyPiece_str,
 	.tp_richcompare = PyPiece_compare,
 	.tp_hash = PyPiece_hash,
 	.tp_getset = PyPiece_getset,
@@ -584,12 +627,18 @@ Py_hash_t PyMove_hash(PyObject *self){
 }
 
 
+static PyObject *PyMove_is_promotion(PyObject *self, PyObject * args) {
+	return get_promotes_to(PyMove_get(self)) == EMPTY_VAL ?
+		Py_False : Py_True;
+}
+
 
 static PyMethodDef PyMove_methods[] = { 
     {"from_uci", PyMove_from_uci, METH_O | METH_STATIC, NULL}, 
     {"from_san", PyMove_from_san, METH_VARARGS | METH_STATIC, NULL}, 
 		{"san", PyMove_to_san, METH_O, NULL}, 
 		{"uci", PyMove_to_uci, METH_NOARGS, NULL}, 
+		{"is_promotion", PyMove_is_promotion, METH_NOARGS, NULL}, 
 		{NULL, NULL, 0, NULL}
 };
 
@@ -617,9 +666,9 @@ static PyTypeObject PyMoveType = {
 	.tp_getset = PyMove_getset,
 	.tp_richcompare = PyMove_compare,
 	.tp_hash = PyMove_hash,
-	//.tp_dealloc = PyGeneric_Dealloc,
-	//.tp_repr = PyMove_repr,
-	//.tp_str = PyMove_to_uci,
+	.tp_dealloc = PyGeneric_Dealloc,
+	.tp_repr = PyMove_repr,
+	.tp_str = (reprfunc)PyMove_to_uci,
 };
 
 
@@ -829,6 +878,277 @@ static PyTypeObject PyBitboardType = {
 	//.tp_dealloc = PyGeneric_Dealloc
 };
 
+/* Castling */
+
+typedef struct {
+	PyObject_HEAD
+	castling_rights_t castling_type;
+} PyCastlingTypeObject;
+
+PyCastlingTypeObject *WhiteKingside;
+PyCastlingTypeObject *WhiteQueenside;
+PyCastlingTypeObject *BlackKingside;
+PyCastlingTypeObject *BlackQueenside;
+
+static PyTypeObject PyCastlingTypeType;
+
+static PyCastlingTypeObject *PyCastlingType_make(castling_rights_t ct){
+	PyCastlingTypeObject *self = PyObject_New(PyCastlingTypeObject, &PyCastlingTypeType);
+	if (!self) return NULL;
+	self->castling_type = ct;
+	return self;
+}
+
+static castling_rights_t PyCastlingType_get(PyObject *self){
+	return ((PyCastlingTypeObject *)self)->castling_type;
+}
+
+BASIC_COMPARE(PyCastlingType)
+
+static Py_hash_t PyCastlingType_hash(PyObject *self) {
+	Py_hash_t h = PyCastlingType_get(self);
+	// Dont need for this case, since values are 1 - 16
+	//if (h == -1) return -2;
+	return h;
+}
+
+
+
+static char *PyCastlingType_name(PyObject *self){
+	char *name; 
+	switch (PyCastlingType_get(self)) {
+		case WHITE_KINGSIDE:
+			name = "(WHITE, KINGSIDE)";
+			break;
+		case BLACK_KINGSIDE:
+			name = "(BLACK, KINGSIDE)";
+			break;
+		case WHITE_QUEENSIDE:
+			name = "(WHITE, QUEENSIDE)";
+			break;
+		case BLACK_QUEENSIDE:
+			name = "(BLACK, QUEENSIDE)";
+			break;
+	}
+	return name;
+}
+
+static PyObject *PyCastlingType_repr(PyObject *self){
+	char *name = PyCastlingType_name(self);
+	return PyUnicode_FromFormat("<CastlingType: %s>", name);
+}
+
+static PyObject *PyCastlingType_str(PyObject *self){
+	char *str = castling_fen(PyCastlingType_get(self));
+	return PyUnicode_FromString(str);
+}
+
+static PyTypeObject PyCastlingTypeType = {
+	.ob_base = PyVarObject_HEAD_INIT(NULL, 0)
+	.tp_name = "bulletchess.CastlingType",
+	.tp_basicsize = sizeof(PyCastlingTypeObject),
+  .tp_itemsize = 0,
+  .tp_flags = Py_TPFLAGS_DEFAULT, 
+	.tp_richcompare = PyCastlingType_compare,
+	//.tp_dealloc = (destructor)PyBoard_dealloc,
+	.tp_hash = PyCastlingType_hash,
+	.tp_repr = PyCastlingType_repr,
+	.tp_str = PyCastlingType_str
+};
+
+
+
+
+typedef struct {
+	PyObject_HEAD
+	castling_rights_t castling_rights;
+} PyCastlingRightsObject;
+
+
+static PyTypeObject PyCastlingRightsType;
+
+static PyCastlingRightsObject *castling_rights[16];
+
+static PyCastlingRightsObject *PyCastlingRights_New(castling_rights_t ct){
+	PyCastlingRightsObject *self = PyObject_New(PyCastlingRightsObject, &PyCastlingRightsType);
+	if (!self) return NULL;
+	self->castling_rights = ct;
+	return self;
+}
+
+
+static PyCastlingRightsObject *PyCastlingRights_make(castling_rights_t ct){
+	PyCastlingRightsObject *obj = castling_rights[ct];
+	Py_INCREF(obj);
+	return obj;
+}
+
+static bool PyCastlingRights_init(){
+	for (castling_rights_t ct = NO_CASTLING; ct <= FULL_CASTLING; ct++) {
+		PyCastlingRightsObject *obj = PyCastlingRights_New(ct);
+		if (!obj){
+			for (castling_rights_t ct2 = NO_CASTLING; ct2 < ct; ct2++) {
+				PyGeneric_Dealloc((PyObject *)castling_rights[ct2]);	
+			}
+			return false;
+		}
+		castling_rights[ct] = obj;
+	}
+	return true;
+}
+
+static castling_rights_t PyCastlingRights_get(PyObject *self){
+	return ((PyCastlingRightsObject *)self)->castling_rights;
+}
+
+BASIC_COMPARE(PyCastlingRights)
+
+static Py_hash_t PyCastlingRights_hash(PyObject *self) {
+	Py_hash_t h = PyCastlingRights_get(self);
+	// Dont need for this case, since values are 1 - 16
+	//if (h == -1) return -2;
+	return h;
+}
+
+
+/*
+static char *PyCastlingRights_name(PyObject *self){
+	char *name; 
+	switch (PyCastlingType_get(self)) {
+		case WHITE_KINGSIDE:
+			name = "(WHITE, KINGSIDE)";
+			break;
+		case BLACK_KINGSIDE:
+			name = "(BLACK, KINGSIDE)";
+			break;
+		case WHITE_QUEENSIDE:
+			name = "(WHITE, QUEENSIDE)";
+			break;
+		case BLACK_QUEENSIDE:
+			name = "(BLACK, QUEENSIDE)";
+			break;
+	}
+	return name;
+}
+*/
+
+static PyObject *PyCastlingRights_repr(PyObject *self){
+	char *str = castling_fen(PyCastlingRights_get(self));
+	return PyUnicode_FromFormat("<CastlingRights: \"%s\">", str);
+}
+
+static PyObject *PyCastlingRights_str(PyObject *self){
+	char *str = castling_fen(PyCastlingRights_get(self));
+	return PyUnicode_FromString(str);
+}
+
+
+static PyObject*
+PyCastlingRights_newfunc(PyObject *self, PyObject *args, PyObject *kwds){
+		PyObject *castling_types;
+		if (!PyArg_ParseTuple(args, "O", &castling_types)) return NULL;
+		//if (!PyTypeCheck("set", square_set, &PySet_Type)) return -1;
+		PyObject *iter;
+		if (!(iter = PyObject_GetIter(castling_types))) {
+			PyTypeErr("Iterable", castling_types);
+			return NULL;
+		}
+		PyObject *next;
+		castling_rights_t cr = NO_CASTLING;
+		while ((next = PyIter_Next(iter))){
+			if (!PyTypeCheck("CastlingType", next, &PyCastlingTypeType)){		
+				Py_DECREF(next);	
+				return NULL;
+			}
+			cr |= PyCastlingType_get(next);
+			Py_DECREF(next);	
+		}
+		Py_DECREF(iter);
+		return (PyObject *)PyCastlingRights_make(cr);
+}
+
+
+#define PY_BOOL(C_EXPR) C_EXPR ? Py_True : Py_False
+
+static int PyCastlingRights_contains(PyObject *self, PyObject *arg){
+	if (!PyTypeCheck("CastlingType", arg, &PyCastlingTypeType)) return -1;
+	castling_rights_t check = PyCastlingType_get(arg);
+	return check & PyCastlingRights_get(self) ? 1 : 0;
+}
+
+static PyObject* PyCastlingRights_any(PyObject* self, PyObject *Py_UNUSED(args)){
+	return PY_BOOL(PyCastlingRights_get(self));
+}
+
+
+static PyObject* PyCastlingRights_full(PyObject* self, PyObject *Py_UNUSED(args)){
+	return PY_BOOL(PyCastlingRights_get(self) == FULL_CASTLING);
+}
+
+
+static PyObject* PyCastlingRights_kingside(PyObject* self, PyObject *args) {	
+	if (!args || Py_IsNone(args)) return PY_BOOL(PyCastlingRights_get(self) & ANY_KINGSIDE);	
+	if (PyTypeCheck("Color or None", args, &PyColorType)) {
+		piece_color_t color = PyColor_get(args);
+		if (color == WHITE_VAL) {
+			return PY_BOOL(WHITE_KINGSIDE & PyCastlingRights_get(self));
+		}
+		else return PY_BOOL(BLACK_KINGSIDE & PyCastlingRights_get(self));
+	}
+	return NULL;
+}
+
+
+
+static PyObject* PyCastlingRights_queenside(PyObject* self, PyObject *args) {	
+	if (!args || Py_IsNone(args)) return PY_BOOL(PyCastlingRights_get(self) & ANY_KINGSIDE);	
+	if (PyTypeCheck("Color or None", args, &PyColorType)) {
+		piece_color_t color = PyColor_get(args);
+		if (color == WHITE_VAL) {
+			return PY_BOOL(WHITE_KINGSIDE & PyCastlingRights_get(self));
+		}
+		else return PY_BOOL(BLACK_KINGSIDE & PyCastlingRights_get(self));
+	}
+	return NULL;
+}
+
+
+
+static PyMethodDef PyCastlingRights_methods[] = { 
+		{"any", PyCastlingRights_any, METH_NOARGS, NULL}, 
+		{"full", PyCastlingRights_full, METH_NOARGS, NULL}, 
+		{"queenside", PyCastlingRights_queenside, METH_O, NULL}, 
+		{"kingside", PyCastlingRights_kingside, METH_O, NULL}, 
+	
+		{NULL, NULL, 0, NULL}
+};
+
+
+
+
+
+static PySequenceMethods PyCastlingRightsAsSeq = {
+	.sq_contains = PyCastlingRights_contains
+};
+
+
+
+static PyTypeObject PyCastlingRightsType = {
+	.ob_base = PyVarObject_HEAD_INIT(NULL, 0)
+	.tp_name = "bulletchess.CastlingRights",
+	.tp_basicsize = sizeof(PyCastlingTypeObject),
+  .tp_itemsize = 0,
+  .tp_flags = Py_TPFLAGS_DEFAULT, 
+	.tp_richcompare = PyCastlingType_compare,
+	//.tp_dealloc = (destructor)PyBoard_dealloc,
+	.tp_hash = PyCastlingRights_hash,
+	.tp_repr = PyCastlingRights_repr,
+	.tp_str = PyCastlingRights_str,
+	.tp_new = (newfunc)PyCastlingRights_newfunc,
+	.tp_as_sequence = &PyCastlingRightsAsSeq,
+	.tp_methods = &PyCastlingRights_methods
+};
+
 
 
 /* Board CLASS */
@@ -941,7 +1261,7 @@ static PyObject *
 PyBoard_repr(PyObject *self, PyObject *Py_UNUSED(args)){
 	char fen_buffer[128];
 	make_fen(PyBoard_board(self), fen_buffer);
-	return PyUnicode_FromFormat("<Board: %s>", fen_buffer);
+	return PyUnicode_FromFormat("<Board: \"%s\">", fen_buffer);
 }
 
 static PyObject *
@@ -988,13 +1308,10 @@ static PyObject *PyBoard_copy(PyObject *self, PyObject *Py_UNUSED(args)){
 
 
 static bool PyBoard_apply_struct(PyBoardObject *board_obj, move_t move){
-	printf("in here\n");
 	undoable_move_t undo = apply_move(board_obj->board, move);
 	if (board_obj->stack_size == board_obj->stack_capacity) {
 		size_t new_capacity = board_obj->stack_capacity * 2;
-		printf("about to realloc\n");
 		void *new_ptr = PyMem_RawRealloc(board_obj->move_stack, sizeof(undoable_move_t) * new_capacity);
-		printf("realloc\n");
 		if (new_ptr) board_obj->move_stack = new_ptr;
 		else {
 			PyErr_SetString(PyExc_MemoryError, "Could not apply move, out of memory");
@@ -1112,7 +1429,9 @@ static PyObject *PyBoard_random(PyObject *cls, PyObject *args){
 }
 
 Py_hash_t PyBoard_hash(PyObject *self){
-	return hash_board(PyBoard_board(self), zobrist_table);
+	Py_hash_t h = hash_board(PyBoard_board(self), zobrist_table);
+	if (h == -1) return -2;
+	return h;
 }
 
 
@@ -1248,6 +1567,67 @@ static PyObject *PyBoard_empty_bb(PyObject *self, void *closure) {
 	);
 }
 
+static int PyBoard_contains(PyObject *self, PyObject *arg){
+	position_t *pos = PyBoard_board(self)->position;
+	if (Py_IsNone(arg)) {
+		return ~(pos->white_oc | pos->black_oc) ? 1 : 0;
+	}
+	if (!PyTypeCheck("Piece or None", arg, &PyPieceType)) return -1;
+	piece_t piece = PyPiece_get(arg);
+	bitboard_t piece_bb;
+	switch (piece.type) {
+		case PAWN_VAL:
+		piece_bb = pos->pawns; 
+		break;
+		case KNIGHT_VAL:
+		piece_bb = pos->knights;
+		break;
+		case BISHOP_VAL:
+		piece_bb = pos->bishops;
+		break;
+		case ROOK_VAL:
+		piece_bb = pos->rooks;
+		break;
+		case QUEEN_VAL:
+		piece_bb = pos->queens;
+		break;
+		default:
+		piece_bb = pos->kings;
+	}
+	bitboard_t color_bb;
+	if (piece.color == WHITE_VAL) color_bb = pos->white_oc;
+	else color_bb = pos->black_oc;
+	return piece_bb & color_bb ? 1 : 0;
+}
+
+
+static PyObject *PyBoard_castling_rights(PyObject *self, void * closure){ 
+	return (PyObject *)PyCastlingRights_make(PyBoard_board(self)->castling_rights);
+}
+
+
+static int PyBoard_set_castling_rights(PyObject *self, PyObject *arg,
+		void * closure){ 
+	if (!PyTypeCheck("CastlingRights", arg, &PyCastlingRightsType)){
+		return -1;
+	}
+	castling_rights_t new_cr = PyCastlingRights_get(arg);
+	full_board_t *board = PyBoard_board(self);
+	if (valid_castling(board, new_cr)) {
+		board->castling_rights = new_cr;
+		return 0;
+	}
+	else {
+		//char fen[100];
+		//make_fen(board, fen);
+		PyErr_Format(PyExc_ValueError, "%R is illegal for %R", arg, self);
+		return -1;
+	}
+}
+
+
+
+
 static PyGetSetDef Board_getset[] = {
     {"turn", 
 			(getter)PyBoard_turn_get, (setter)PyBoard_turn_set, NULL, NULL},
@@ -1275,7 +1655,8 @@ static PyGetSetDef Board_getset[] = {
 			(getter)PyBoard_black, NULL, NULL, NULL},
 		{"unoccupied",
 			PyBoard_empty_bb, NULL, NULL, NULL},	
-		
+		{"castling_rights",
+			PyBoard_castling_rights, PyBoard_set_castling_rights, NULL, NULL},	
 		{NULL}
 };
 
@@ -1283,6 +1664,10 @@ static PyMappingMethods PyBoardAsMap = {
 	.mp_subscript = PyBoard_get_piece_at,
 	.mp_ass_subscript = PyBoard_set_piece_at,
 	.mp_length = NULL,
+};
+
+static PySequenceMethods PyBoardAsSeq = {
+	.sq_contains = PyBoard_contains
 };
 
 static PyTypeObject PyBoardType = {
@@ -1300,7 +1685,8 @@ static PyTypeObject PyBoardType = {
 	.tp_richcompare = PyBoard_compare,
 	.tp_as_mapping = &PyBoardAsMap,
 	.tp_repr = (reprfunc)PyBoard_repr,
-	.tp_hash = PyBoard_hash
+	.tp_hash = PyBoard_hash,
+	.tp_as_sequence = &PyBoardAsSeq
 };
 
 /* UTILS */
@@ -1370,6 +1756,187 @@ static PyMethodDef PyUtilsMethods[] = {
 
 typedef struct {
 	PyObject_HEAD
+	date_t date;
+} PyPGNDateObject;
+
+static PyTypeObject PyPGNDateType;
+
+#define PGNDATE_MAKE_GETTER(field) static PyObject *PyPGNDate_ ## field(PyObject *self, void *closure) {\
+	date_t date = ((PyPGNDateObject *)self)->date;\
+	if (date.known_##field) return PyLong_FromUnsignedLongLong(date.field);\
+	else Py_RETURN_NONE;\
+}\
+
+
+PGNDATE_MAKE_GETTER(year)
+PGNDATE_MAKE_GETTER(month)
+PGNDATE_MAKE_GETTER(day)
+
+static PyGetSetDef PyPGNDate_getset[] = {
+    {"year", (getter)PyPGNDate_year, NULL, NULL, NULL},
+    {"month", (getter)PyPGNDate_month, NULL, NULL, NULL},
+    {"day", (getter)PyPGNDate_day, NULL, NULL, NULL},
+		{NULL}
+};
+
+static PyObject *PyPGNDate_make(date_t date){
+	PyPGNDateObject *obj = PyObject_NEW(PyPGNDateObject, &PyPGNDateType);
+	obj->date = date;
+	return (PyObject *)obj;
+}
+
+
+static int PyObject_ToPositiveIntInRange(PyObject *obj, const char *field_name, int min, int max) {
+	if (!PyTypeCheck("int", obj, &PyLong_Type)) return -1;
+	int i = PyLong_AsInt(obj);
+	if (i < min || i > max) {
+		PyErr_Format(PyExc_ValueError, "The given %s value %S is out of range, must be between or equal to %d and %d", field_name, obj, min, max);
+		return -1;
+	}
+	return i;
+}
+
+#define INIT_DATE_FIELD(FIELD)\
+	if (Py_IsNone(FIELD)) {\
+		date.known_##FIELD = false;\
+	}\
+	else {\
+		date.known_##FIELD = true;\
+		int FIELD ## _int = PyObject_ToPositiveIntInRange(FIELD, #FIELD, 0, 9999);\
+		if (FIELD ## _int != -1) {\
+			date.FIELD = FIELD ##_int;\
+		}\
+		else return -1;\
+	}\
+	
+static int PyPGNDate_init(PyObject *self, PyObject *args, PyObject *kwds){
+	PyObject *year;
+	PyObject *month;
+	PyObject *day;
+  static char *kwlist[] = {"year", "month", "day", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOO", kwlist, &year, &month, &day)) 
+		return -1;
+	date_t date;
+	//date_t *date = &(((PyPGNDateObject *)self)->date);
+	INIT_DATE_FIELD(year)
+	INIT_DATE_FIELD(month)
+	INIT_DATE_FIELD(day)
+	((PyPGNDateObject *)self)->date = date;	
+	return 0;
+}
+
+
+#define FILL_DATE(self)\
+	char year[5];\
+	date_t date = ((PyPGNDateObject *)self)->date;\
+	if (!date.known_year) strcpy(year, "????");\
+	else sprintf(year, "%04d", date.year);\
+	char month[3];\
+	if (!date.known_month) strcpy(month, "??");\
+	else sprintf(month, "%02d", date.month);\
+	char day[3];\
+	if (!date.known_day) strcpy(day, "??");\
+	else sprintf(day, "%02d", date.day);\
+	
+static PyObject *PyPGNDate_to_str(PyObject *self) {
+	FILL_DATE(self);
+	return PyUnicode_FromFormat("%s.%s.%s", year, month, day);	
+}
+	
+static PyObject *PyPGNDate_repr(PyObject *self) {
+	FILL_DATE(self);
+	return PyUnicode_FromFormat("<PGNDate: %s.%s.%s>", year, month, day);	
+}
+
+
+
+#define DEBUG(v) (printf(#v " is %d\n"), v) 
+
+#define FIELD_EQ(FIELD) ((date1.known_##FIELD) ? ((date2.known_##FIELD) && ((date1.FIELD == date2.FIELD))) : (!date2.known_##FIELD))
+#define FIELD_OP(OP, FIELD) (date1.FIELD OP date2.FIELD)
+#define DATE_EQ  (same_type && FIELD_EQ(year) && FIELD_EQ(month) && FIELD_EQ(day)) 
+
+#define FIELD_KNOWN(FIELD)\
+	(date1.known_ ##FIELD && date2.known_ ##FIELD)
+
+#define FIELD_ALL_UNK(FIELD)\
+	(!date1.known_ ##FIELD && !date2.known_ ##FIELD)
+
+
+
+#define DATE_OP(OP){\
+	if (same_type) {\
+		if ((FIELD_KNOWN(year))){\
+			if (FIELD_OP(OP, year)) Py_RETURN_TRUE;\
+			else if (FIELD_OP(==, year)) {\
+				if (FIELD_KNOWN(month)){\
+					if (FIELD_OP(OP, month)) Py_RETURN_TRUE;\
+					else if (FIELD_OP(==, month)){\
+						if (FIELD_KNOWN(day) && (FIELD_OP(OP, day))) Py_RETURN_TRUE;\
+						Py_RETURN_FALSE;\
+				}\
+				else Py_RETURN_FALSE;\
+			}\
+			else Py_RETURN_FALSE;\
+		}\
+	}\
+	else Py_RETURN_FALSE;\
+}else Py_RETURN_FALSE;}
+
+static PyObject *PyPGNDate_compare(PyObject *self, PyObject *other, int op){
+	bool same_type = Py_IS_TYPE(other, &PyPGNDateType); 	
+	date_t date1;
+	date_t date2;
+	if (same_type) {
+		date1 = ((PyPGNDateObject *)self)->date;
+		date2 = ((PyPGNDateObject *)other)->date;
+	}	
+	switch (op) {
+		case Py_EQ:
+			return DATE_EQ ? Py_True : Py_False;
+		case Py_NE:
+			return DATE_EQ ? Py_False : Py_True;
+		case Py_LT:
+			DATE_OP(<)
+		case Py_GT:
+			DATE_OP(>)
+		case Py_GE:
+			DATE_OP(>=)
+		case Py_LE:
+			DATE_OP(<=)
+		default:
+			Py_RETURN_NOTIMPLEMENTED;
+	}
+}
+
+
+
+static PyBoardObject* PyPGNDate_alloc() {
+	PyBoardObject *self = PyObject_New(PyPGNDateObject, &PyPGNDateType);
+	return self;
+}
+
+
+
+static PyTypeObject PyPGNDateType = {
+	.ob_base = PyVarObject_HEAD_INIT(NULL, 0)
+	.tp_name = "bulletchess.pgn.PGNDate",
+	.tp_basicsize = sizeof(PyPGNDateObject),
+  .tp_itemsize = 0,
+  .tp_flags = Py_TPFLAGS_DEFAULT, 
+	.tp_str = PyPGNDate_to_str,	
+	.tp_repr = PyPGNDate_repr,	
+	.tp_getset = PyPGNDate_getset,
+	.tp_new = PyType_GenericNew,
+	.tp_init = PyPGNDate_init,
+	.tp_alloc = (allocfunc)PyPGNDate_alloc,
+	.tp_richcompare = PyPGNDate_compare
+};
+
+
+
+typedef struct {
+	PyObject_HEAD
 	u_int8_t result;	
 } PyPGNResultObject;
 
@@ -1394,18 +1961,22 @@ static bool PyPGNResults_init(){
 }
 
 static PyObject* PyPGNResult_make(u_int8_t res) {
-	return (PyObject *)PyResults[res];
+	PyObject *out = (PyObject *)PyResults[res];
+	Py_INCREF(out);
+	return out;
 }
 
 #define RESULT_TO_OBJ(field, draw, white, black, unk, wrapper)\
 static PyObject* PyPGNResult_ ## field (PyObject *self) {\
 	PyPGNResultObject *obj = (PyPGNResultObject *)self; \
-	switch (obj->result) { \
-		case DRAW_RES: return (PyObject *)wrapper(draw);\
-		case WHITE_RES: return (PyObject *)wrapper(white);\
-		case BLACK_RES: return (PyObject *)wrapper(black);\
-		default: return (PyObject *)unk;\
+	PyObject *out;\
+	switch (obj->result) {\
+		case DRAW_RES: out = (PyObject *)wrapper(draw);break;\
+		case WHITE_RES: out = (PyObject *)wrapper(white);break;\
+		case BLACK_RES: out = (PyObject *)wrapper(black);break;\
+		default: out = (PyObject *)wrapper(unk);break;\
 	}\
+	return out;\
 }\
 
 
@@ -1433,6 +2004,7 @@ static PyTypeObject PyPGNResultType = {
 	.tp_str = PyPGNResult_to_str,	
 	.tp_getset = PyPGNResult_getset,
 };
+
 
 
 
@@ -1476,7 +2048,8 @@ static void PyPGNGame_Dealloc(PyObject *self){
 	pgn_tag_section_t *tags = game->game->tags;
 	PyMem_RawFree(tags->event);
 	PyMem_RawFree(tags->site);
-
+	PyMem_RawFree(game->game->starting_board->position);
+	PyMem_RawFree(game->game->starting_board);
 	PyMem_RawFree(tags->round);
 	PyMem_RawFree(tags->white_player);
 	PyMem_RawFree(tags->black_player);
@@ -1493,12 +2066,24 @@ static void PyPGNGame_Dealloc(PyObject *self){
 	if (!obj){ return NULL; } return obj;}
 
 
+#define PGN_MAKE_GETTER_NS(field,to_py_obj)\
+	static PyObject *PyPGN_ ## field (PyObject *self, void *closure){\
+		PyPGNGameObject *game = (PyPGNGameObject *)self;\
+		PyObject *obj = to_py_obj(game->game->tags->field);\
+		if (!obj){\
+			return NULL;\
+		} return obj;\
+	}\
+
 #define DATE_TUPLE_SET(index, known, val) if (known)\
 	PyTuple_SET_ITEM(tuple, index, PyLong_FromUnsignedLong(val));\
 	else {\
-		PyTuple_SET_ITEM(tuple, index, Py_None);\
+		PyObject *tmp = Py_None;\
+		Py_INCREF(tmp);\
+		PyTuple_SET_ITEM(tuple, index, tmp);\
 	}\
 
+/*
 static PyObject *PyObject_from_date(date_t date) {
 	PyObject *tuple = PyTuple_New(3);
 	if (!tuple) return NULL;
@@ -1507,17 +2092,17 @@ static PyObject *PyObject_from_date(date_t date) {
 	DATE_TUPLE_SET(2, date.known_day, date.day);	
 	return tuple;
 }
+*/
 
-PGN_MAKE_GETTER(date,PyObject_from_date)
+PGN_MAKE_GETTER_NS(date,PyPGNDate_make)
 PGN_MAKE_GETTER(event,PyUnicode_FromString)
 PGN_MAKE_GETTER(site,PyUnicode_FromString)
 PGN_MAKE_GETTER(white_player,PyUnicode_FromString)
 PGN_MAKE_GETTER(black_player,PyUnicode_FromString)
 PGN_MAKE_GETTER(round,PyUnicode_FromString)
-PGN_MAKE_GETTER(result,PyPGNResult_make)
+PGN_MAKE_GETTER_NS(result,PyPGNResult_make)
 
 static PyObject *PyPGN_moves(PyObject *self, void *clousre){
-	printf("called moves\n");
 	PyPGNGameObject *game = (PyPGNGameObject *)self;
 	move_t *moves = game->game->moves;
 	size_t count = game->game->count;
@@ -1538,7 +2123,6 @@ static PyObject *PyPGN_moves(PyObject *self, void *clousre){
 		}
 		PyList_SET_ITEM(list, i, move_obj);
 	}
-	printf("ret list\n");
 	return list;
 }
 
@@ -1566,13 +2150,7 @@ static PyTypeObject PyPGNGameType = {
   .tp_itemsize = 0,
   .tp_flags = Py_TPFLAGS_DEFAULT, 
 	.tp_dealloc = (destructor)PyPGNGame_Dealloc,	
-	//.tp_methods = board_methods,
-	//.tp_init = Board_init,
 	.tp_getset = PyPGNGame_getset,
-	//.tp_richcompare = PyBoard_compare,
-	//.tp_as_mapping = &PyBoardAsMap,
-	//.tp_repr = (reprfunc)PyBoard_repr,
-	//.tp_hash = PyBoard_hash
 };
 
 
@@ -1607,26 +2185,41 @@ static PyObject *PyPGNFile_open(PyObject *unused, PyObject *args) {
 
 static PyObject *PyPGNFile_close(PyObject *self, PyObject *Py_UNUSED(args)){
 	PyPGNFileObject *obj = (PyPGNFileObject *)self; 
-	fclose(obj->pgnf.file);	
-	end_context(obj->pgnf.ctx);		
+	if (obj->pgnf.file) {
+		fclose(obj->pgnf.file);	
+		end_context(obj->pgnf.ctx);		
+		obj->pgnf.file = NULL;
+	}
 	Py_RETURN_NONE;
+}
+
+static PyObject *PyPGNFile_enter(PyObject *self, PyObject *Py_UNUSED(args)){
+	Py_INCREF(self);
+	return self;
+}
+
+static PyObject *PyPGNFile_exit(PyObject *self, PyObject *args) {
+	PyPGNFile_close(self, Py_None);
+	Py_DECREF(self);
+	Py_RETURN_NONE;
+}
+
+static PyObject *PyPGNFile_is_open(PyObject *self, PyObject *Py_UNUSED(args)) {
+	PyPGNFileObject *obj = (PyPGNFileObject *)self; 
+	return obj->pgnf.file ? Py_True : Py_False;
 }
 
 static PyObject *PyPGNFile_read_next_game(PyObject *self, PyObject *Py_UNUSED(args)){
 	PyPGNFileObject *obj = (PyPGNFileObject *)self; 
 	PyPGNGameObject *game = (PyPGNGameObject *)PyPGNGame_Alloc();
-	printf("alloc game done\n");
 	if (!game) return NULL;
 	char err[500];
 	int res = next_pgn(&obj->pgnf, game->game, err);
-	printf("got next game\n");
 	switch (res) {
 		case 0: {
-			printf("now\n");
 			return (PyObject *)game;
 		}
 		case 1: {
-			printf("ERR!\n");
 			Py_DECREF(game);
 			PyErr_SetString(PyExc_ValueError, err);
 			return NULL;
@@ -1640,8 +2233,11 @@ static PyObject *PyPGNFile_read_next_game(PyObject *self, PyObject *Py_UNUSED(ar
 static PyMethodDef PyPGNFile_methods[] = { 
     {"next_game", PyPGNFile_read_next_game, METH_NOARGS, NULL}, 
 		{"open", PyPGNFile_open, METH_O | METH_STATIC, NULL},
+		{"is_open", PyPGNFile_is_open, METH_NOARGS, NULL},
 		{"close", PyPGNFile_close, METH_NOARGS, NULL},
-    {NULL, NULL, 0, NULL}
+		{"__enter__", PyPGNFile_enter, METH_NOARGS, NULL},
+		{"__exit__", PyPGNFile_exit, METH_VARARGS, NULL},
+		{NULL, NULL, 0, NULL}
 };
 
 static PyTypeObject PyPGNFileType = {
@@ -1691,8 +2287,8 @@ static struct PyModuleDef bulletchess_definition = {
 
 
 
+
 PyMODINIT_FUNC PyInit__core(void) {
-		printf("init\n");
     if (PyType_Ready(&PyBoardType) < 0) return NULL;
 		if (PyType_Ready(&PyColorType) < 0) return NULL;
 		if (PyType_Ready(&PySquareType) < 0) return NULL;
@@ -1703,6 +2299,9 @@ PyMODINIT_FUNC PyInit__core(void) {
 		if (PyType_Ready(&PyPGNFileType) < 0) return NULL;
 		if (PyType_Ready(&PyPGNGameType) < 0) return NULL;
 		if (PyType_Ready(&PyPGNResultType) < 0) return NULL;
+		if (PyType_Ready(&PyPGNDateType) < 0) return NULL;
+		if (PyType_Ready(&PyCastlingTypeType) < 0) return NULL;
+		if (PyType_Ready(&PyCastlingRightsType) < 0) return NULL;
 		initstate(time(NULL), rand_state, 256);
 		PyObject *m = PyModule_Create(&bulletchess_definition);
 		if (!m) return NULL;
@@ -1721,8 +2320,11 @@ PyMODINIT_FUNC PyInit__core(void) {
 		VALIDATE(PyPieceTypes_init());
 		VALIDATE(PyColors_init());
 		VALIDATE(PyPGNResults_init());
+		VALIDATE(PyCastlingRights_init());
+		VALIDATE(PyPieceTypes_init());
 		PyModule_AddFunctions(utils, PyUtilsMethods);
 		ADD_PGN("PGNGame", &PyPGNGameType);
+		ADD_PGN("PGNDate", &PyPGNDateType);
 		ADD_PGN("PGNFile", &PyPGNFileType);
 		ADD_PGN("PGNResult", &PyPGNResultType);
 		ADD_OBJ("utils", utils);
@@ -1732,7 +2334,23 @@ PyMODINIT_FUNC PyInit__core(void) {
 		ADD_OBJ("Square", &PySquareType);
 		ADD_OBJ("PieceType", &PyPieceTypeType);
 		ADD_OBJ("Piece", &PyPieceType);
+		ADD_OBJ("CastlingType", &PyCastlingTypeType);
+		ADD_OBJ("CastlingRights", &PyCastlingRightsType);
 		ADD_OBJ("Move", &PyMoveType);
+		WhiteKingside = PyCastlingType_make(WHITE_KINGSIDE);
+		VALIDATE(WhiteKingside);	
+		BlackKingside = PyCastlingType_make(BLACK_KINGSIDE);
+		VALIDATE(BlackKingside);	
+		WhiteQueenside= PyCastlingType_make(WHITE_QUEENSIDE);
+		VALIDATE(WhiteQueenside);	
+		BlackQueenside = PyCastlingType_make(BLACK_QUEENSIDE);
+		VALIDATE(BlackQueenside);
+		ADD_OBJ("WHITE_KINGSIDE", WhiteKingside);		
+		ADD_OBJ("WHITE_QUEENSIDE", WhiteQueenside);		
+		ADD_OBJ("BLACK_KINGSIDE", BlackKingside);		
+		ADD_OBJ("BLACK_QUEENSIDE", BlackQueenside);		
+		
+		
 		PyObject *WHITE = PyColor_make(WHITE_VAL);
 		VALIDATE(WHITE);
 		PyObject *BLACK = PyColor_make(BLACK_VAL);
@@ -1749,6 +2367,7 @@ PyMODINIT_FUNC PyInit__core(void) {
 			PyList_Append(Squares_List, PySquare);
 		}
 		ADD_OBJ("SQUARES", Squares_List);
+
 		PyObject *PAWN = PyPieceType_make(PAWN_VAL);
 		VALIDATE(PAWN);	
 		PyObject *KNIGHT = PyPieceType_make(KNIGHT_VAL);
@@ -1798,7 +2417,6 @@ PyMODINIT_FUNC PyInit__core(void) {
 		PyList_Append(PieceTypes_List, KING);
 		ADD_OBJ("PIECE_TYPES", PieceTypes_List);
 		zobrist_table = create_zobrist_table();
-		printf("end\n");	
 		return m;
 }
 

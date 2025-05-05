@@ -29,13 +29,11 @@ tok_context_t *start_context(char *source_name, char *operators, char * delims, 
 	return context;
 }
 void free_token_list(token_list_t *list){
-	printf("freeing tok list\n");
 	if (list) {
 		free_token(list->first);
 		free_token_list(list->rest);
 		free(list);
 	}
-	printf("done\n");
 }
 
 void end_context(tok_context_t *context){

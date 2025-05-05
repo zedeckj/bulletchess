@@ -21,6 +21,8 @@ u_int8_t make_fen(full_board_t *board, char *fen_buffer);
 
 void print_board(full_board_t *board);
 
+char *castling_fen(castling_rights_t castling_rights);
+
 typedef struct {
     char * position_str;
     char * turn_str;

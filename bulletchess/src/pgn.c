@@ -186,7 +186,6 @@ char *transform_tags(dict_t *tok_dict,
 		// not strict about inclusion
 		dst->tags->result = UNK_RES;
 	}	
-	printf("done res\n");
 	token_t *date_tok = dict_remove(tok_dict, "Date");
 	if (date_tok) {
 		char buf[255];
