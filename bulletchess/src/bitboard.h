@@ -6,8 +6,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef uint8_t square_t;
-typedef uint64_t bitboard_t;
+typedef u_int8_t square_t;
+typedef u_int64_t bitboard_t;
 
 
 typedef struct {
