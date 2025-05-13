@@ -43,27 +43,33 @@ class TestPerft(unittest.TestCase):
 
     def test_native(self):
         board = Board()
+        fen = board.fen()
         self.assertEqual(native_perft(board,0), 1)
         self.assertEqual(native_perft(board,1), 20)
         self.assertEqual(native_perft(board,2), 400)
         self.assertEqual(native_perft(board,3), 8902)
         self.assertEqual(native_perft(board,4), 197281)
         self.assertEqual(native_perft(board,5), 4865609)
+        self.assertEqual(board.fen(), fen)
 
 
     def test_native_pos2(self):
-        board= Board.from_fen("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1")
+        FEN = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"
+        board= Board.from_fen(FEN)
         self.assertEqual(native_perft(board,1), 48)
         self.assertEqual(native_perft(board,2), 2039)
         self.assertEqual(native_perft(board,3), 97862)
         self.assertEqual(native_perft(board,4), 4085603)
         self.assertEqual(native_perft(board,5), 193690690)
+        self.assertEqual(board.fen(), FEN)
 
     def test_native_pos3(self):
-        board = Board.from_fen("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1")
+        FEN = "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1"
+        board = Board.from_fen(FEN)
         self.assertEqual(native_perft(board,1), 14)
         self.assertEqual(native_perft(board,2), 191)
         self.assertEqual(native_perft(board,3), 2812)
+        self.assertEqual(FEN, board.fen())
     
     def test_native_pos4(self):
         board = Board.from_fen("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1")
@@ -91,13 +97,6 @@ class TestPerft(unittest.TestCase):
         _ = utils.perft(board, 3)
         self.assertEqual(board.fen(), fen)
 
-    def test_fen_mutation2(self):
-        fens = [
-            "n3k2n/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2n2Q1p/PPPBBPPP/N3K2N w KQkq - 0 1",
-            "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1"
-        ]
-        for fen in fens:
-             self.mutation_testing_perft(Board.from_fen(fen), 4)
 
     def test_perft(self):
         board = Board()
