@@ -411,7 +411,8 @@ void apply_move_ext(full_board_t * board, move_t move, undoable_move_t *out_move
 		out_move->old_en_passant = board->en_passant_square;
 		out_move->move = move;
 		out_move->was_castling = 0;
-		switch (move.type) {
+		out_move->captured_piece.type = EMPTY_VAL;
+    switch (move.type) {
 			case NULL_MOVE:
 				return handle_null_move(board);
 			case PROMOTION_MOVE:
@@ -481,7 +482,7 @@ void undo_promotion(full_board_t *board, undoable_move_t move){
 	bitboard_t destination = SQUARE_TO_BB(promotion.body.destination);
 	piece_type_t promote_to = promotion.promote_to;
 	position_t *position = board->position;
-	switch (promote_to) {
+  switch (promote_to) {
 			case QUEEN_VAL:
 			position->queens &= ~destination;
 			break;
