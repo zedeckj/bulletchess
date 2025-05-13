@@ -224,7 +224,7 @@ class TestSAN(unittest.TestCase):
             san = Move.from_san("e2", None) #type: ignore
         with self.assertRaisesRegex(TypeError, re.escape("Expected a Board, got None (NoneType)")):
             san = Move(E2,E4).san(None) #type: ignore
-        with self.assertRaisesRegex(ValueError, re.escape("Cannot convert Move to san, <Move: e2e4> is illegal for <Board: 8/8/8/8/8/8/8/8 w - - 0 1>")):
+        with self.assertRaisesRegex(ValueError, re.escape("Cannot convert Move to san, <Move: e2e4> is illegal for <Board: \"8/8/8/8/8/8/8/8 w - - 0 1\">")):
             san = Move(E2,E4).san(Board.empty()) #type: ignore
 
 

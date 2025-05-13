@@ -3,7 +3,7 @@ sys.path.append("./")
 from bulletchess import *
 import unittest
 from bulletchess.pgn import *
-from pgn_test import PGNTestCase
+from new_tests.pgn.pgn_test import PGNTestCase
 
 FILEPATH = "new_tests/pgn/files/example.pgn"
 

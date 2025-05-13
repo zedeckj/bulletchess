@@ -34,13 +34,12 @@ def bullet_perft(board : bulletchess.Board, depth : int) -> int:
         return count_moves(board)
     else:
         nodes = 0
-        for move in board.legal_moves():
+        moves = board.legal_moves()
+        for move in moves:
             board.apply(move)
-            nodes += bullet_perft(board, depth -1)
+            nodes += bullet_perft(board, depth - 1)
             board.undo()
         return nodes 
-
-board = bulletchess.Board()
 
 start = time.time()
 result = chess_perft(chess.Board(), 5)
@@ -48,7 +47,7 @@ chess_time = time.time() - start
 print(f"chess_perft returned {result} in {chess_time:.6}s")
 
 start = time.time()
-result = bullet_perft(board, 5)
+result = bullet_perft(bulletchess.Board(), 5)
 bullet_time = time.time() - start
 print(f"bullet_perft returned {result} in {bullet_time:.6}s") 
 

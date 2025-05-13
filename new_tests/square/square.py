@@ -29,14 +29,27 @@ class TestSquare(unittest.TestCase):
         self.assertEqual(len(hashes), 64)
 
     def test_repr(self):
-        self.assertEqual(repr(A3), "A3")
-        self.assertEqual(repr(B1), "B1")
-        self.assertEqual(repr(H8), "H8")
+        self.assertEqual(repr(A3), "<Square: A3>")
+        self.assertEqual(repr(B1), "<Square: B1>")
+        self.assertEqual(repr(H8), "<Square: H8>")
 
     def test_str(self):
         self.assertEqual(str(A3), "A3")
         self.assertEqual(str(B1), "B1")
         self.assertEqual(str(H8), "H8")
+
+    def test_from_str(self):
+        self.assertEqual(A3, Square.from_str("A3"))
+        self.assertEqual(B1, Square.from_str("b1"))
+        self.assertEqual(H8, Square.from_str("H8"))
+
+    def test_from_str_err(self):
+        with self.assertRaisesRegex(ValueError, re.escape("Square string must be two characters (ex. \"B1\"), got 'aaa'")):
+            Square.from_str("aaa")
+        with self.assertRaisesRegex(ValueError, re.escape("Expected a valid rank indicator [1-8], got 9")):
+            Square.from_str("a9")
+        with self.assertRaisesRegex(ValueError, re.escape("Expected a valid file indicator [a-hA-H], got k")):
+            Square.from_str("k2")
 
 
     def test_misuse(self):

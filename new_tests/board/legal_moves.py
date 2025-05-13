@@ -2,19 +2,45 @@ import unittest
 import sys
 sys.path.append("./")
 from bulletchess import *
+import json
+import tqdm
 
 def testMoves(tester : unittest.TestCase, expected_ucis : set[str], board : Board):
-    real_moves = set(board.legal_moves())
+    real_moves = set(tester.checkedLegalMoves(board)) #type: ignore
     expected_moves = {Move.from_uci(uci) for uci in expected_ucis}
     # real_ucis = {str(move) for move in real_moves}
     tester.assertEqual(expected_moves, real_moves, msg = board.fen())
+    tester.assertEqual(len(expected_moves), utils.count_moves(board))
     # tester.assertEqual(expected_ucis, real_ucis, msg = board.fen())
      
+
 class TestMoveGeneration(unittest.TestCase):
 
     """
     Tests the generation of moves in specific positions. Move generation is tested more robustly with tests/integration/perft.py.
+    This file also tests utils.count_moves
     """
+
+    def assertBoardsEqual(self, board1: Board, board2: Board):
+        self.assertEqual(board1, board2)
+        self.assertEqual(board1.pawns, board2.pawns)
+        self.assertEqual(board1.knights, board2.knights)
+        self.assertEqual(board1.bishops, board2.bishops)
+        self.assertEqual(board1.rooks, board2.rooks)
+        self.assertEqual(board1.queens, board2.queens)
+        self.assertEqual(board1.kings, board2.kings)
+        self.assertEqual(board1.halfmove_clock, board2.halfmove_clock)
+        self.assertEqual(board1.fullmove_number, board2.fullmove_number)
+        self.assertEqual(board1.turn, board2.turn)
+        self.assertEqual(board1.castling_rights, board2.castling_rights)
+
+    def checkedLegalMoves(self, board : Board):
+        pieces = [board[square] for square in SQUARES]
+        copy = board.copy()
+        moves = board.legal_moves()
+        self.assertBoardsEqual(board, copy)
+        self.assertEqual(pieces, [board[square] for square in SQUARES])
+        return moves
 
     def testStarting(self):
         board = Board()
@@ -69,21 +95,101 @@ class TestMoveGeneration(unittest.TestCase):
 
     def testOther(self):
         board = Board.from_fen("rnb3r1/R3Q3/2p5/1p1k1p1r/1n1P4/8/4P3/2K2B1r b - - 3 69")
-        moves = set(board.legal_moves())
+        moves = set(self.checkedLegalMoves(board))
         self.assertIn(Move.from_uci("g8h8"), moves)
+
+    def test_check1(self):
+        board = Board.from_fen("rnb1kbnr/pppp1ppp/8/4p3/4PP1q/8/PPPP2PP/RNBQKBNR w KQkq - 1 3")
+        ucis = {"g2g3", "e1e2"}
+        testMoves(self, ucis, board)
+
+    def test_no_reveal(self):
+        board = Board.from_fen("rnbqkbnr/pp3ppp/2pp4/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 1 4")
+        self.assertNotIn(Move.from_uci("c6c5"),self.checkedLegalMoves(board))
+
+        board2 = Board.from_fen("rnbqkbnr/pp3ppp/2pp4/4p3/4P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 1 4")
+        self.assertIn(Move.from_uci("c6c5"), self.checkedLegalMoves(board2))
+
+    def test_white_kingside_castle(self):
+        board = Board.from_fen("rnbqk2r/ppppp1bp/5np1/5p2/5P2/6PN/PPPPP1BP/RNBQK2R w KQkq - 2 5")
+        self.assertIn(Move.from_uci("e1g1"), self.checkedLegalMoves(board))
+
+    def test_white_queenside_castle(self):
+        board = Board.from_fen("r1b1k1nr/pppq1ppp/2np4/2b1p1BQ/4P3/2NP4/PPP2PPP/R3KBNR w KQkq - 2 6")
+        self.assertIn(Move.from_uci("e1c1"), self.checkedLegalMoves(board))   
+
+    def test_black_kingside_castle(self):
+        board = Board.from_fen("r1b1k2r/pppq1ppp/2np1n2/2b1p1BQ/4P3/2NP4/PPP1BPPP/2KR2NR b kq - 5 7")
+        self.assertIn(Move.from_uci("e8g8"), self.checkedLegalMoves(board))
+
+    def test_black_queenside_castle(self):
+        board = Board.from_fen("r3k2r/pppb1ppp/2npqn2/1Nb1p1BQ/4P3/3P1N2/PPP1BPPP/2KR3R b kq - 9 9")
+        self.assertIn(Move.from_uci("e8c8"), self.checkedLegalMoves(board))
+
+    def test_scholars_mate(self):
+        board = Board.from_fen("r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4")
+        testMoves(self, set(), board)
+
+    def test_empty(self):
+        empty = Board.empty()
+        testMoves(self, set(), empty)
+
 
     def testRegression(self):
         board = Board.from_fen("rnbk3r/pp3pbp/2p2np1/4p1B1/2P1P3/2N2P2/PP2N1PP/4KB1R b K - 2 9")
-        moves = set(board.legal_moves())
+        moves = set(self.checkedLegalMoves(board))
         self.assertIn(Move.from_uci("b8d7"), moves)
 
+        board = Board.from_fen("r1bqk1n1/p1p3pr/8/p2pP2p/2P4P/Nn1p2PK/PB5R/R5N1 w - d6 0 19")
+        moves = set(self.checkedLegalMoves(board))
+        self.assertNotIn(Move.from_uci("e5d6"), moves)
+        testMoves(self, {"g3g4", "e5e6", "h3g2"}, board)
 
+
+    def testAgainstJson(self):
+        with open("new_tests/data/move_results.json", "r") as f:
+            data : dict[str, dict[str, str]]= json.load(f)
+        for fen in tqdm.tqdm(data):
+            board = Board.from_fen(fen)
+            ucis = set([move.uci() for move in self.checkedLegalMoves(board)])
+            self.assertEqual(set(data[fen].keys()), ucis)
+
+
+    def useTree(self, tree : dict, fens : list[str]):
+        if tree != {}:
+            expect = Board.from_fen(fens[0])
+            for fen in tree:
+                board = Board.from_fen(fen)
+                self.assertEqual(board, expect)
+                got_moves = set(self.checkedLegalMoves(board))
+                real_moves = []
+                ucis = [uci for uci in tree[fen]]
+                for uci in ucis:
+                    move = Move.from_uci(uci)
+                    self.assertIn(move, got_moves)
+                    board.apply(move)
+                    real_moves.append(move)
+                    fens = [fen for fen in tree[fen][uci]]
+                    self.useTree(tree[fen][uci], fens)
+                    board.undo()
+                self.assertEqual(set(real_moves), got_moves)
+        else:
+            self.assertEqual(len(fens), 0)
+
+    def testJsonTree(self):
+        with open("new_tests/data/move_tree_pos2.json", "r") as f:
+            self.useTree(json.load(f), ["r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"])
+
+
+    def test_fen_mutation(self):
+        board = Board()
+        fen = board.fen()
+        _ = self.checkedLegalMoves(board)
+        self.assertEqual(board.fen(), fen)
 
     """
     # Illegal board tests
-    def testEmpty(self):
-        empty = Board.empty()
-        self.assertEqual(len(empty.legal_moves()), 0)
+
 
     def testPawnOnBackRank(self):
         board = Board.empty()

@@ -2,7 +2,8 @@ import unittest
 import sys
 sys.path.append("./")
 from bulletchess import *
-
+import json
+import tqdm
 
 def undoing_test(tester : unittest.TestCase, board : Board, depth : int, seen : list[Move] = []):
     if depth == 0:
@@ -16,6 +17,7 @@ def undoing_test(tester : unittest.TestCase, board : Board, depth : int, seen : 
 
 def test_apply_undo(tester : unittest.TestCase, before_fen : str, move_uci : str, after_fen : str):
     board = Board.from_fen(before_fen)
+    pieces1 = [board[square] for square in SQUARES]
     board3 = board.copy()
     tester.assertEqual(board, board3)
     board.apply(Move.from_uci(move_uci))
@@ -24,14 +26,52 @@ def test_apply_undo(tester : unittest.TestCase, before_fen : str, move_uci : str
     tester.assertNotEqual(board, board3)
     board.undo()
     tester.assertEqual(board, board3)
+    pieces2 = [board3[square] for square in SQUARES]
+    tester.assertEqual(pieces1, pieces2)
     tester.assertNotEqual(board, board2)
    
+def test_apply_undo_same(tester : unittest.TestCase, board : Board, move : Move):
+    pieces1 = [board[square] for square in SQUARES]
+    board3 = board.copy()
+    tester.assertEqual(board, board3)
+    board.apply(move)
+    board.undo()
+    tester.assertEqual(board, board3)
+    pieces2 = [board3[square] for square in SQUARES]
+    tester.assertEqual(pieces1, pieces2)
 
 class TestMoveApply(unittest.TestCase):
 
     """
     Tests applying and undoing moves
     """
+
+    def assert_valid_double_undos(self, board : Board):
+        original = board.copy()
+        for move1 in board.legal_moves():
+            board.apply(move1)
+            for move2 in board.legal_moves():
+                test_apply_undo_same(self, board, move2)
+            board.undo()
+            self.assertEqual(board, original, msg = move1.uci())
+    
+    def assert_valid_triple_undos(self, board : Board):
+        original = board.copy()
+        for move1 in original.legal_moves():
+            board = original.copy()
+            move_list = [move1]
+            board.apply(move1)
+            one_deep = board.copy()
+            for move2 in board.legal_moves():
+                move_list.append(move2)
+                board.apply(move2)
+                for move3 in board.legal_moves():
+                    move_list.append(move3)
+                    test_apply_undo_same(self, board, move3)
+                board.undo()
+                self.assertEqual(board, one_deep)
+            board.undo()
+            self.assertEqual(board, original)
 
     def testItalianGame(self):
         board = Board()
@@ -127,7 +167,17 @@ class TestMoveApply(unittest.TestCase):
                 board.apply(move)
                 self.assertNotEqual(board, copy)
                 board.undo()
-                self.assertEqual(board, copy)
+                self.assertEqual(board, copy, msg = move)
+
+    def testRandomDoubleUndo(self):
+        boards = [Board.random() for _ in range(10000)]
+        for board in boards:
+            self.assert_valid_double_undos(board)
+
+    def testRandomTripleUndo(self):
+        boards = [Board.random() for _ in range(1000)]
+        for board in boards:
+            self.assert_valid_triple_undos(board)
 
     def testFailedCases(self):
         board = Board.from_fen("8/7k/3P4/2P5/p6p/p2n3R/3N4/3R4 w - - 7 97")
@@ -138,6 +188,16 @@ class TestMoveApply(unittest.TestCase):
             self.assertNotEqual(board, copy)
             board.undo()
             self.assertEqual(board, copy)
+
+        board = Board.from_fen("rr6/5b1p/p2pp1p1/P1p3k1/6P1/5P2/2R4R/3B2K1 b - - 1 34")
+        copy = board.copy()
+        board.apply(Move.from_uci("c5c4"))
+        board.apply(Move.from_uci("d1e2"))
+        board.apply(Move.from_uci("c4c3"))
+        board.undo()
+        board.undo()
+        board.undo()
+        self.assertEqual(board, copy)
 
     def testGetPiece(self):
         board = Board()
@@ -154,6 +214,47 @@ class TestMoveApply(unittest.TestCase):
         undone = board.undo()
         self.assertEqual(undone, None)
         self.assertEqual(board, Board())
-        
+
+    def testAgainstJson(self):
+        with open("new_tests/data/move_results.json", "r") as f:
+            data = json.load(f)
+        for fen in tqdm.tqdm(data):
+            board = Board.from_fen(fen)
+            copy = board.copy()
+            for uci in data[fen]:
+                move = Move.from_uci(uci)
+                board.apply(move)
+                self.assertEqual(board, Board.from_fen(data[fen][uci]), msg = {"uci": uci, "start":fen, "res": data[fen][uci]})
+                board.undo()
+                self.assertEqual(copy, board)
+
+    def test_rook_one_square(self):
+        FEN = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"
+        board = Board.from_fen(FEN)
+        move = Move.from_uci("a1b1")
+        board.apply(move)
+        board.undo()
+        self.assertEqual(board.fen(), FEN)
+        self.assertEqual(board[A1], Piece(WHITE, ROOK))
+
+    def test_found_err(self):
+        FEN = "2b1kq2/8/4p3/7r/3P4/2NQ3N/6P1/R3KB2 w KQkq - 2 36"
+        board = Board.from_fen(FEN)
+        board.apply(Move.from_uci("e1c1"))
+        board.undo()
+        self.assertEqual(board.fen(), FEN)
+
+    def test_error_apply1(self):
+        FEN = "rnb1kbnr/ppp1p1p1/5p2/5q1p/2pP1P2/N2QP3/PP1B2PP/R3KBNR w KQkq - 2 8"
+        board = Board.from_fen(FEN)
+        board.apply(Move.from_uci("a1d1"))
+        self.assertEqual(board.fen(), "rnb1kbnr/ppp1p1p1/5p2/5q1p/2pP1P2/N2QP3/PP1B2PP/3RKBNR b Kkq - 3 8")
+
+    def test_error_apply2(self):
+        FEN = "1nb2b1r/6k1/6p1/7p/7q/3PB3/5PP1/4KBNR b K - 3 29"
+        board = Board.from_fen(FEN)
+        board.apply(Move.from_uci("h4h1"))
+        self.assertEqual(board.fen(), "1nb2b1r/6k1/6p1/7p/8/3PB3/5PP1/4KBNq w - - 0 30")
+
 if __name__ == "__main__":
     unittest.main()

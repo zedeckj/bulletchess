@@ -18,5 +18,14 @@ class TestPieceBitboards(unittest.TestCase):
         self.assertEqual(board.black, RANK_7 | RANK_8)
         self.assertEqual(board.unoccupied, RANK_3 | RANK_4 | RANK_5 | RANK_6)
 
+    def test_specific(self):
+        board = Board.from_fen("6nr/7p/p1k5/4k3/2N5/PP1bPp1P/1R3P2/6KR w - - 0 31")
+        self.assertEqual(board.pawns, Bitboard([A3, A6, B3, E3, F3, F2, H3, H7]))
+        self.assertEqual(board.knights, Bitboard([G8, C4]))
+        self.assertEqual(board.rooks, Bitboard([H1, H8, B2]))
+        self.assertEqual(board.bishops, Bitboard([D3]))
+        self.assertEqual(board.queens, Bitboard([]))
+        self.assertEqual(board.kings, Bitboard([C6, E5, G1]))
+
 if __name__ == "__main__":
     unittest.main()

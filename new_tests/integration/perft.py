@@ -17,12 +17,27 @@ def native_perft(board : Board, depth : int) -> int:
         nodes = 0
         for move in moves:
             board.apply(move)
-            nodes += native_perft(board, depth -1)
+            nodes += native_perft(board, depth - 1)
             board.undo()
         return nodes 
 
 class TestPerft(unittest.TestCase):
 
+    def mutation_testing_perft(self, board : Board, depth : int):
+        if depth == 0:
+            return 1
+        elif depth == 1:
+            return count_moves(board)
+        else:
+            moves = board.legal_moves()
+            nodes = 0
+            fen = board.fen()
+            for move in moves:
+                board.apply(move)
+                nodes += native_perft(board, depth - 1)
+                board.undo()
+                self.assertEqual(fen, board.fen(), msg = (move, depth, moves, board[A1]))
+            return nodes 
 
     # Positions taken from https://www.chessprogramming.org/Perft_Results
 
@@ -70,11 +85,22 @@ class TestPerft(unittest.TestCase):
         self.assertEqual(native_perft(board,3), 89890)
         self.assertEqual(native_perft(board,4), 3894594)
 
+    def test_fen_mutation(self):
+        board = Board()
+        fen = board.fen()
+        _ = utils.perft(board, 3)
+        self.assertEqual(board.fen(), fen)
 
+    def test_fen_mutation2(self):
+        fens = [
+            "n3k2n/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2n2Q1p/PPPBBPPP/N3K2N w KQkq - 0 1",
+            "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1"
+        ]
+        for fen in fens:
+             self.mutation_testing_perft(Board.from_fen(fen), 4)
 
     def test_perft(self):
         board = Board()
-        
         self.assertEqual(utils.perft(board,0), 1)
         self.assertEqual(utils.perft(board,1), 20)
         self.assertEqual(utils.perft(board,2), 400)
@@ -120,6 +146,12 @@ class TestPerft(unittest.TestCase):
         self.assertEqual(utils.perft(board,3), 89890)
         self.assertEqual(utils.perft(board,4), 3894594)
 
+    def test_pos6_fen(self):
+        fen = "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10"
+        self.assertEqual(utils.perft_fen(fen,1), 46)
+        self.assertEqual(utils.perft_fen(fen,2), 2079)
+        self.assertEqual(utils.perft_fen(fen,3), 89890)
+        self.assertEqual(utils.perft_fen(fen,4), 3894594)
 
 
 if __name__ == "__main__":

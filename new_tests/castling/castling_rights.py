@@ -49,7 +49,7 @@ class TestCastlingType(unittest.TestCase):
         if len(string) == 0:
             string = "-"
         self.assertEqual(str(cr), string)
-        self.assertEqual(repr(cr), f"<CastlingRights: {string}>")
+        self.assertEqual(repr(cr), f"<CastlingRights: \"{string}\">")
 
     def assert_contains(self, cts : Sequence[CastlingType]):
         cr = CastlingRights(cts)

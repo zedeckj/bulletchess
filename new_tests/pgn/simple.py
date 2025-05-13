@@ -3,7 +3,7 @@ sys.path.append("./")
 from bulletchess import *
 import unittest
 from bulletchess.pgn import *
-from pgn_test import PGNTestCase
+from new_tests.pgn.pgn_test import PGNTestCase
 import faulthandler
 
 faulthandler.enable()
@@ -14,30 +14,25 @@ class TestPGN(PGNTestCase):
     def test_tags(self):
         f = PGNFile.open(FILEPATH)
         game = f.next_game()
-        print("tags test")
-        self.assertEqual(game.event, "F/S Return Match")
-        self.assertEqual(game.site, "Belgrade, Serbia JUG")
-        self.assertEqual(game.date, (1992, 11, 4))
-        self.assertEqual(game.round, "29")
-        print("round")
-        self.assertEqual(game.white_player, "Fischer, Robert J.")
-        self.assertEqual(game.black_player, "Spassky, Boris V.")
-        self.assertEqual(game.result.draw, True)
-        self.assertEqual(game.result.winner, None)
-        self.assertEqual(game.result.unknown, False)
-        self.assertEqual(str(game.result), "1/2-1/2")
-        print("done tags test")
-        #f.close()
+        self.assertEqual(game.starting_board, Board())
+        self.assertEventEq(game, "F/S Return Match")
+        self.assertSiteEq(game, "Belgrade, Serbia JUG")
+        self.assertDateEq(game, PGNDate(1992, 11, 4))
+        self.assertRoundEq(game, "29")
+        self.assertWhiteEq(game, "Fischer, Robert J.")
+        self.assertBlackEq(game, "Spassky, Boris V.")
+        self.assertResultEq(game, PGNResult.draw())
+        self.assertEqual(game["Random tag"], None)
+        f.close()
 
     def test_moves(self):
-        print("test moves")
         f = PGNFile.open(FILEPATH)
         game = f.next_game()
         moves = game.moves
         print("got moves in test")
         self.assertMoveEq(moves[0], "e2e4")
         self.assertMoveEq(moves[1], "e7e5")
-        self.assertMoveEq(moves[2], "g1f4") # "g6f3" bad error
+        self.assertMoveEq(moves[2], "g1f3") 
         self.assertMoveEq(moves[3], "b8c6")
         self.assertMoveEq(moves[4], "f1b5")
         self.assertMoveEq(moves[5], "a7a6")
@@ -56,7 +51,7 @@ class TestPGN(PGNTestCase):
              "Nf4", "g3", "Nxh3", "Kd2", "Kb5", "Rd6", "Kc5", "Ra6",
              "Nf2", "g4", "Bd3", "Re6"]) 
         print("done moves test")
-        #f.close()
+        f.close()
 
 
 

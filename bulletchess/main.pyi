@@ -3,6 +3,12 @@ from typing import Optional, Any, Collection, Iterator
 
 class Color:
 
+    """
+    @staticmethod
+    def from_str(color : str) -> Color:
+        ...
+    """
+
     def __eq__(self, other : Any) -> bool:
         ...
 
@@ -17,6 +23,11 @@ WHITE : Color
 BLACK : Color
 
 class PieceType:
+
+
+    @staticmethod
+    def from_str(piece_type : str) -> PieceType:
+        ...
 
     def __eq__(self, other : Any) -> bool:
         ...
@@ -43,6 +54,10 @@ class Piece:
     def __init__(self, color : Color, type : PieceType):
         ...
 
+    @staticmethod
+    def from_str(piece_str : str) -> Piece:
+        ...
+
     @property
     def piece_type(self) -> Piece:
         ...
@@ -62,6 +77,21 @@ class Piece:
 
 
 class Square:
+
+
+    @staticmethod
+    def from_str(square_str : str) -> Square:
+        ...
+
+    """
+    @staticmethod
+    def from_int(square_num : int) -> Square:
+        ...
+
+    def __int__(self) -> int:
+        ...
+    """
+
 
     def __eq__(self, other : Any) -> bool:
         ...
@@ -145,6 +175,7 @@ class Bitboard:
     def __init__(self, squares : Collection[Square]):
         ...
 
+
     """
     def __str__(self) -> str:
         ...
@@ -214,8 +245,14 @@ F_FILE : Bitboard
 G_FILE : Bitboard
 H_FILE : Bitboard
 
+FULL_BB : Bitboard
+EMPTY_BB : Bitboard
 
 class CastlingType:
+
+    @staticmethod
+    def from_str(castling_type : str) -> str: ...
+
     def __str__(self) -> str: ...
 
     def __repr__(self) -> str: ...
@@ -223,6 +260,7 @@ class CastlingType:
     def __eq__(self, other : Any) -> bool: ...
 
     def __hash__(self) -> int: ...
+
 
 WHITE_KINGSIDE : CastlingType
 WHITE_QUEENSIDE : CastlingType
@@ -274,6 +312,12 @@ class Move:
         ...
 
     def is_promotion(self) -> bool:
+        ...
+
+    def is_castling(self, board : Board) -> bool:
+        ...
+
+    def castling_type(self, board : Board) -> Optional[CastlingType]:
         ...
 
     def __str__(self) -> str:

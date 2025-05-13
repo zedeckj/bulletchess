@@ -93,5 +93,10 @@ class TestBoardFEN(unittest.TestCase):
         with self.assertRaises(TypeError):
             Board().fen(3) #type: ignore
 
+    def test_Roundtrip(self):
+        FEN = "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10"
+        board = Board.from_fen(Board.from_fen(FEN).fen())
+        self.assertEqual(board.fen(), FEN)
+
 if __name__ == "__main__":
     unittest.main()
