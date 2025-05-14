@@ -107,5 +107,7 @@ __all__ = [
     "H_FILE",
     "FULL_BB",
     "EMPTY_BB",
+    "LIGHT_SQUARE_BB",
+    "DARK_SQUARE_BB",
     "utils",
 ]

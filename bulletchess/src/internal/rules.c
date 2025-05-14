@@ -384,8 +384,7 @@ bitboard_t make_pinned_mask(full_board_t * board, bitboard_t piece_bb, piece_col
         pin_mask &= pin_mask_from(vertical, slide_danger, friendly_kings);
         bitboard_t horizontal = horizontal_attack_mask(piece_bb, FULL_BB, empty);
         pin_mask &= pin_mask_from( horizontal, slide_danger, friendly_kings);
-
-    }
+		}
     if (diagonal_danger) {
         bitboard_t ascending = ascending_attack_mask(piece_bb, FULL_BB, empty);
         pin_mask &= pin_mask_from( ascending, diagonal_danger, friendly_kings);

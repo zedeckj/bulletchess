@@ -60,5 +60,23 @@ class TestSquare(unittest.TestCase):
         with self.assertRaisesRegex(AttributeError, re.escape("'bulletchess.Square' object has no attribute 'foo' and no __dict__ for setting new attributes")):
             A1.foo = 2 #type: ignore
 
+    def test_direction(self):
+        self.assertEqual(A1.north(), A2)
+        self.assertEqual(B3.north(), B4)
+        self.assertEqual(E8.north(), None)
+
+        self.assertEqual(A8.south(), A7)
+        self.assertEqual(B3.south(), B2)
+        self.assertEqual(E1.south(), None)
+
+        self.assertEqual(A8.east(), None)
+        self.assertEqual(B3.east(), A3)
+        self.assertEqual(E1.east(), D1)
+
+        self.assertEqual(A8.west(), B8)
+        self.assertEqual(B3.west(), C3)
+        self.assertEqual(E1.west(), F1)
+        self.assertEqual(H3.west(), None)
+
 if __name__ == "__main__":
     unittest.main()

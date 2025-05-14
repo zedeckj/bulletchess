@@ -124,6 +124,21 @@ static inline square_t PySquare_get(PyObject *self) {
 	return ((PySquareObject *)self)->square;
 }
 
+
+#define PYSQUARE_DIRECTION(NAME, MACRO)\
+static PyObject* PySquare_##NAME(PyObject *self, PyObject *Py_UNUSED(arg)){\
+	square_t sq = PySquare_get(self);\
+	bitboard_t bb	= MACRO(SQUARE_TO_BB(sq));\
+	if (bb) return PySquare_make(unchecked_bb_to_square(bb));\
+	else Py_RETURN_NONE;\
+}
+
+PYSQUARE_DIRECTION(north, SAFE_ABOVE_BB)
+PYSQUARE_DIRECTION(south, SAFE_BELOW_BB)
+PYSQUARE_DIRECTION(west, SAFE_RIGHT_BB)
+PYSQUARE_DIRECTION(east, SAFE_LEFT_BB)
+
+
 static PyObject *PySquare_compare(PyObject *self, PyObject *other, int op){
 	bool eq = Py_IS_TYPE(other, &PySquareType) && 
 		PySquare_get(self) == PySquare_get(other); 	
@@ -164,6 +179,12 @@ static PyObject *PySquare_repr(PyObject *self) {
 
 static PyMethodDef PySquare_methods[] = {
 	{"from_str", PySquare_from_str, METH_STATIC | METH_O, NULL},
+	
+	{"north", PySquare_north, METH_NOARGS, NULL},
+	{"south", PySquare_south, METH_NOARGS, NULL},
+	{"east", PySquare_east, METH_NOARGS, NULL},
+	{"west", PySquare_west, METH_NOARGS, NULL},
+	
 	{NULL, NULL, 0, NULL},
 };
 
@@ -1086,6 +1107,11 @@ static PyObject *PyMove_str(PyObject *self) {
 }
 
 
+static PyObject *PyMove_is_capture(PyObject *self, PyObject *arg){
+	if (!PyTypeCheck("Board", arg, &PyBoardType)) return NULL;
+	PY_RETURN_BOOL(is_capture(PyBoard_board(arg), PyMove_get(self)));
+}
+
 
 static int
 PyMove_init(PyObject *self, PyObject *args, PyObject *kwargs){
@@ -1163,7 +1189,8 @@ static PyMethodDef PyMove_methods[] = {
 		{"san", PyMove_to_san, METH_O, NULL}, 
 		{"uci", PyMove_to_uci, METH_NOARGS, NULL}, 
 		{"is_promotion", PyMove_is_promotion, METH_NOARGS, NULL}, 
-		{"is_castling", PyMove_is_castling, METH_O, NULL}, 
+		{"is_castling", PyMove_is_castling, METH_O, NULL},
+		{"is_capture", PyMove_is_capture, METH_O, NULL}, 
 		{"castling_type", PyMove_get_castling, METH_O, NULL}, 
 		{NULL, NULL, 0, NULL}
 };
@@ -2137,6 +2164,8 @@ static PyObject *PyUtils_attack_mask(PyObject*self, PyObject*args) {
 }
 
 
+// too dependent on implementation details, not intuitive on its own
+/*
 static PyObject *PyUtils_pinned_mask(PyObject*self, PyObject*args) { 
 	PyObject *board;
 	PyObject *square;
@@ -2147,8 +2176,7 @@ static PyObject *PyUtils_pinned_mask(PyObject*self, PyObject*args) {
 			PySquare_get(square));
 	return (PyObject *)PyBitboard_make(pinned_mask);
 }
-
-
+*/
 
 
 
@@ -2161,7 +2189,7 @@ static PyObject *PyReset_Hash(PyObject *self, PyObject *Py_UNUSED(args)){
 
 
 static PyMethodDef PyUtilsMethods[] = {
-	{"pinned_mask", PyUtils_pinned_mask, METH_VARARGS, NULL},	
+	//{"pinned_mask", PyUtils_pinned_mask, METH_VARARGS, NULL},	
 	{"attack_mask", PyUtils_attack_mask, METH_VARARGS, NULL},	
 	{"backwards_pawns", PyUtils_backwards_pawns, METH_O, NULL},	
 	{"isolated_pawns", PyUtils_isolated_pawns, METH_O, NULL},	
@@ -2941,7 +2969,16 @@ PyMODINIT_FUNC PyInit__core(void) {
 		PyObject *EMPTY_BB_OBJ = (PyObject *)PyBitboard_make(0);
 		VALIDATE(EMPTY_BB_OBJ);
 		ADD_OBJ("EMPTY_BB", EMPTY_BB_OBJ);
-		
+
+		PyObject *LIGHT_BB_OBJ = (PyObject *)PyBitboard_make(LIGHT_SQ_BB);
+		VALIDATE(LIGHT_BB_OBJ);
+		ADD_OBJ("LIGHT_SQUARE_BB", LIGHT_BB_OBJ);
+	
+		PyObject *DARK_BB_OBJ = (PyObject *)PyBitboard_make(DARK_SQ_BB);
+		VALIDATE(DARK_BB_OBJ);
+		ADD_OBJ("DARK_SQUARE_BB", DARK_BB_OBJ);
+	
+
 		for (int file_num = 0; file_num < 8; file_num++) {
 			char buffer[7];
 			sprintf(buffer, "%c_FILE", 'A' + file_num);

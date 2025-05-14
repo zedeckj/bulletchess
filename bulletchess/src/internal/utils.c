@@ -1,5 +1,6 @@
 #include "utils.h"
 #include "fen.h"
+#include "rules.h"
 
 // Naively, a position is considered quiescent if the side to move is not 
 // being attacked by any of the opponents pieces. Note that this function
@@ -7,7 +8,7 @@
 // this doesn't matter here since the result is binary. If more pieces are stated
 // to be under attack then there actually are due to zeroing the king, the king
 // is still under attack.
-bool is_quiescent(full_board_t *board) {
+bool is_quiescent_old(full_board_t *board) {
 		bitboard_t friendly_oc;
 		piece_color_t attacker;
 		if (board->turn == WHITE_VAL) {
@@ -19,9 +20,21 @@ bool is_quiescent(full_board_t *board) {
 			friendly_oc = board->position->black_oc;
 		}
 		bitboard_t attack_mask = make_attack_mask(board, attacker);
-		return attack_mask & friendly_oc;
+		return !(attack_mask & friendly_oc);
 }
 
+// this version is flipped, a position is quiet if there are no captures able to be made
+bool is_quiescent(full_board_t *board) {
+	if (in_check(board)) return false; 
+	move_t moves[256];
+	int count = generate_legal_moves(board, moves);
+	bitboard_t hostile_oc = board->turn == BLACK_VAL ? 
+		board->position->white_oc : board->position->black_oc;
+	for (int i = 0; i < count; i++) {
+		if (SQUARE_TO_BB(get_destination(moves[i])) & hostile_oc) return false;
+	}
+	return true;
+}
 
 bitboard_t backwards_pawns(full_board_t *board) {
 	position_t *position = board->position;

@@ -32,5 +32,31 @@ class TestBitboardConstants(unittest.TestCase):
         self.assertEqual(FULL_BB, A_FILE | B_FILE | C_FILE | D_FILE | E_FILE | F_FILE | G_FILE | H_FILE)
         self.assertEqual(EMPTY_BB, Bitboard([]))
 
+    def test_dark_square(self):
+        bb = Bitboard([
+            A1, C1, E1, G1, 
+            B2, D2, F2, H2, 
+            A3, C3, E3, G3, 
+            B4, D4, F4, H4, 
+            A5, C5, E5, G5, 
+            B6, D6, F6, H6, 
+            A7, C7, E7, G7, 
+            B8, D8, F8, H8, 
+        ])
+        self.assertEqual(bb, DARK_SQUARE_BB)
+
+    def test_light_square(self):
+        bb = Bitboard([
+            B1, D1, F1, H1, 
+            A2, C2, E2, G2, 
+            B3, D3, F3, H3, 
+            A4, C4, E4, G4, 
+            B5, D5, F5, H5, 
+            A6, C6, E6, G6, 
+            B7, D7, F7, H7, 
+            A8, C8, E8, G8, 
+        ])
+        self.assertEqual(bb, LIGHT_SQUARE_BB)
+
 if __name__ == "__main__":
     unittest.main()

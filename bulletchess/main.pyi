@@ -93,6 +93,14 @@ class Square:
     """
 
 
+    def north(self) -> Optional[Square]: ...
+
+    def south(self) -> Optional[Square]: ...
+
+    def east(self) -> Optional[Square]: ...
+
+    def west(self) -> Optional[Square]: ...
+
     def __eq__(self, other : Any) -> bool:
         ...
 
@@ -247,7 +255,8 @@ H_FILE : Bitboard
 
 FULL_BB : Bitboard
 EMPTY_BB : Bitboard
-
+LIGHT_SQUARE_BB : Bitboard
+DARK_SQUARE_BB : Bitboard
 class CastlingType:
 
     @staticmethod
@@ -312,6 +321,9 @@ class Move:
         ...
 
     def is_promotion(self) -> bool:
+        ...
+
+    def is_capture(self, board : Board) -> bool:
         ...
 
     def is_castling(self, board : Board) -> bool:
