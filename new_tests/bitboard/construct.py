@@ -10,10 +10,6 @@ class TestMakeBitboard(unittest.TestCase):
         with self.assertNoLogs():
             Bitboard([A1])
 
-    def test_all(self):
-        self.assertEqual(Bitboard.all(), A_FILE | B_FILE | C_FILE | D_FILE | E_FILE | F_FILE | G_FILE | H_FILE)
-        self.assertEqual(Bitboard.empty(), Bitboard([]))
-
     def test_err(self):
         with self.assertRaisesRegex(TypeError, re.escape("Expected an Iterable, got A1 (bulletchess.Square)")):
             Bitboard(A1) #type: ignore

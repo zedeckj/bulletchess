@@ -943,6 +943,25 @@ static PyObject *PyMove_from_uci(PyObject *self, PyObject *args) {
 }
 
 
+static PyObject *PyMove_castle(PyObject *self, PyObject *arg){
+	if (!PyTypeCheck("CastlingType", arg, &PyCastlingTypeType)) return NULL;	
+	switch (PyCastlingType_get(arg)){
+		case WHITE_KINGSIDE:
+			return PyMove_make(generic_move(move_body(E1, G1)));		
+		case WHITE_QUEENSIDE:
+			return PyMove_make(generic_move(move_body(E1, C1)));		
+		case BLACK_KINGSIDE:
+			return PyMove_make(generic_move(move_body(E8, G8)));		
+		case BLACK_QUEENSIDE:
+			return PyMove_make(generic_move(move_body(E8, C8)));		
+		default:
+			PyErr_SetString(PyExc_ValueError, "Invalid CastlingType");
+			return NULL;
+	}
+}
+
+
+
 static PyObject *PyMove_repr(PyObject *self) {
 	char uci[10];
 	if (write_uci(PyMove_get(self), uci)) {
@@ -1009,6 +1028,7 @@ static PyObject *PyMove_to_uci(PyObject *self, PyObject *Py_UNUSED(args)) {
 #define KING_ROOK(COLOR_OC, ORIGIN, DEST)\
 	(SQUARE_TO_BB(ORIGIN) & pos->kings && SQUARE_TO_BB(ORIGIN) & pos->COLOR_OC\
 	 && SQUARE_TO_BB(DEST) & pos->rooks && SQUARE_TO_BB(DEST) & pos->COLOR_OC)
+
 
 
 static PyObject *PyMove_is_castling(PyObject *self, PyObject *arg) {
@@ -1137,7 +1157,8 @@ static PyObject *PyMove_is_promotion(PyObject *self, PyObject * args) {
 
 
 static PyMethodDef PyMove_methods[] = { 
-    {"from_uci", PyMove_from_uci, METH_O | METH_STATIC, NULL}, 
+    {"castle", PyMove_castle, METH_O | METH_STATIC, NULL}, 
+		{"from_uci", PyMove_from_uci, METH_O | METH_STATIC, NULL}, 
     {"from_san", PyMove_from_san, METH_VARARGS | METH_STATIC, NULL}, 
 		{"san", PyMove_to_san, METH_O, NULL}, 
 		{"uci", PyMove_to_uci, METH_NOARGS, NULL}, 
@@ -1754,14 +1775,47 @@ Py_hash_t PyBoard_hash(PyObject *self){
 }
 
 
+#define PYBOARD_PREDICATE(NAME)\
+static PyObject *PyBoard_##NAME(PyObject *self, PyObject *Py_UNUSED(arg)){\
+	PY_RETURN_BOOL(NAME(PyBoard_board(self)));\
+}\
 
 
+
+#define PYBOARD_STACK_PREDICATE(NAME)\
+static PyObject *PyBoard_##NAME(PyObject *self, PyObject *Py_UNUSED(arg)){\
+	PyBoardObject *board = (PyBoardObject *)self;\
+	PY_RETURN_BOOL(NAME(board->board, board->move_stack, board->stack_size));\
+}
+
+
+PYBOARD_STACK_PREDICATE(is_fivefold_repetition)
+PYBOARD_STACK_PREDICATE(is_threefold_repetition)
+PYBOARD_STACK_PREDICATE(board_is_draw)
+PYBOARD_STACK_PREDICATE(board_is_forced_draw)	
+PYBOARD_PREDICATE(is_checkmate)
+PYBOARD_PREDICATE(is_stalemate)
+PYBOARD_PREDICATE(in_check)
+PYBOARD_PREDICATE(is_insufficient_material)
+
+PYBOARD_PREDICATE(can_claim_fifty)
+PYBOARD_PREDICATE(is_seventy_five)
 static PyMethodDef board_methods[] = { 
     {"from_fen", PyBoard_from_fen, METH_O | METH_STATIC, NULL},  
     {"random", PyBoard_random, METH_NOARGS | METH_STATIC, NULL},  
     {"empty", PyBoard_empty, METH_NOARGS | METH_STATIC, NULL},  
 		{"fen", PyBoard_to_fen, METH_NOARGS, NULL},
-	 	{"legal_moves", PyBoard_legal_moves, METH_NOARGS, NULL},
+		{"is_insufficient_material", PyBoard_is_insufficient_material, METH_NOARGS, NULL},
+		{"is_draw", PyBoard_board_is_draw, METH_NOARGS, NULL},
+		{"is_fifty_move_timeout", PyBoard_can_claim_fifty, METH_NOARGS, NULL},
+		{"is_seventy_five_move_timeout", PyBoard_is_seventy_five, METH_NOARGS, NULL},
+		{"is_fivefold_repetition", PyBoard_is_fivefold_repetition, METH_NOARGS, NULL},
+		{"is_threefold_repetition", PyBoard_is_threefold_repetition, METH_NOARGS, NULL},
+		{"is_forced_draw", PyBoard_board_is_forced_draw, METH_NOARGS, NULL},
+		{"is_checkmate", PyBoard_is_checkmate, METH_NOARGS, NULL},
+		{"is_stalemate", PyBoard_is_stalemate, METH_NOARGS, NULL},
+		{"is_check", PyBoard_in_check, METH_NOARGS, NULL},
+		{"legal_moves", PyBoard_legal_moves, METH_NOARGS, NULL},
 	 	{"apply", PyBoard_apply, METH_O, NULL},	
 	 	{"undo", PyBoard_undo, METH_NOARGS, NULL},	
 		{"copy", PyBoard_copy, METH_NOARGS, NULL},
@@ -2886,7 +2940,7 @@ PyMODINIT_FUNC PyInit__core(void) {
 		bitboard_t cur_file = FILE_A;
 		PyObject *EMPTY_BB_OBJ = (PyObject *)PyBitboard_make(0);
 		VALIDATE(EMPTY_BB_OBJ);
-		ADD_OBJ("EMPTY_Bb", EMPTY_BB_OBJ);
+		ADD_OBJ("EMPTY_BB", EMPTY_BB_OBJ);
 		
 		for (int file_num = 0; file_num < 8; file_num++) {
 			char buffer[7];

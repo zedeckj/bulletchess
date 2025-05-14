@@ -185,3 +185,12 @@ SIDE NOTE:
 things to try for perft speedup:
 - `full_move_t` implementation, no more ifs in apply and undo
 - use `piece_array` in move gen, no more ifs in gen
+
+
+5/13/25
+Long time spend debugging broken perft again.
+Now:
+- Reimplement status methods like `is_checkmate`, `is_stalemate` X
+- expected behavior for `pinned_mask`
+- light square and dark square bitboards
+- square direction arithmetic and more methods  

@@ -28,5 +28,9 @@ class TestBitboardConstants(unittest.TestCase):
         self.assertEqual(G_FILE, Bitboard([G1, G2, G3, G4, G5, G6, G7, G8]))
         self.assertEqual(H_FILE, Bitboard([H1, H2, H3, H4, H5, H6, H7, H8]))
 
+    def test_full_empty(self):
+        self.assertEqual(FULL_BB, A_FILE | B_FILE | C_FILE | D_FILE | E_FILE | F_FILE | G_FILE | H_FILE)
+        self.assertEqual(EMPTY_BB, Bitboard([]))
+
 if __name__ == "__main__":
     unittest.main()

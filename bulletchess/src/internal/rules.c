@@ -1657,6 +1657,39 @@ board_status_t get_repetition_outcome(full_board_t *board,
 	return outcome;	
 }
 
+
+bool is_nfold_repetition(full_board_t *board, undoable_move_t *stack,
+		size_t stack_size, u_int8_t n){
+	turn_clock_t halfmove = board->halfmove_clock;
+	if (halfmove < n || stack_size < n) return false;	
+	u_int8_t matches = 1; //1 match with itself
+	full_board_t copy;
+	position_t pos;
+	copy.position = &pos;
+	copy_into(&copy, board); 
+	for (int16_t index = stack_size - 1; index >= 0; index--) {
+		undo_move(&copy, stack[index]);
+		halfmove = halfmove ? halfmove - 1 : 0;
+		if (halfmove != copy.halfmove_clock) break;
+		if (boards_legally_equal(&copy, board)) ++matches;
+		if (matches == n) return true;
+	}
+	return false;	
+}
+
+
+bool is_fivefold_repetition(full_board_t *board, 
+		undoable_move_t *stack, size_t stack_size){
+	return is_nfold_repetition(board, stack, stack_size, 5);
+}
+
+
+bool is_threefold_repetition(full_board_t *board, 
+		undoable_move_t *stack, size_t stack_size){
+	return is_nfold_repetition(board, stack, stack_size, 3);
+}
+
+
 bool is_insufficient_material(full_board_t * board) {
 	position_t * position = board->position;
 	if (position->pawns || position->rooks || position->queens) {
@@ -1702,10 +1735,11 @@ bool is_insufficient_material(full_board_t * board) {
 bool can_claim_fifty(full_board_t *board) {
 	if (board->halfmove_clock < 99) return false;
 	else if (board->halfmove_clock == 99) {
-		// not worried about efficient in this case, since this 
+		// not worried about efficiency in this case, since this 
 		// is very rare
 		move_t moves[100];
 		u_int8_t count = generate_legal_moves(board, moves);
+		if (!count) return false;
 		for (int i = 0; i < count; i++) {
 			undoable_move_t m = apply_move(board, moves[i]);
 			turn_clock_t halfs = board->halfmove_clock;
@@ -1714,7 +1748,11 @@ bool can_claim_fifty(full_board_t *board) {
 		}
 		return false;	
 	}
-	else return true;
+	else return !is_checkmate(board);
+}
+
+bool is_seventy_five(full_board_t *board) {
+	return (board->halfmove_clock >= 150) && !is_checkmate(board);
 }
 
 // Returns the outcome of the game this board is a part of 
@@ -1730,14 +1768,47 @@ board_status_t get_status(full_board_t * board,
 		if (has_m) {
 			if (stack && stack_size) 
 				outcome |= get_repetition_outcome(board, stack, stack_size);
-				if (can_claim_fifty(board)) outcome |= FIFTY_MOVE_TIMEOUT;
-				if (board->halfmove_clock >= 150) outcome |= SEVENTY_FIVE_MOVE_TIMEOUT;
+			if (can_claim_fifty(board)) outcome |= FIFTY_MOVE_TIMEOUT;
+			if (is_seventy_five(board)) outcome |= SEVENTY_FIVE_MOVE_TIMEOUT;
 			if (is_insufficient_material(board)) outcome |= INSUFFICIENT_MATERIAL;
-		}
+			}
 		else outcome |= MATE_STATUS;
 		return outcome;	
 }
 
+
+bool board_is_forced_draw(full_board_t *board, 
+		undoable_move_t *stack, size_t stack_size){
+		piece_color_t for_color = board->turn;
+    bitboard_t attack_mask = make_attack_mask(board, 
+															WHITE_VAL == for_color ? BLACK_VAL : WHITE_VAL);
+    check_info_t info = make_check_info(board, for_color, attack_mask);
+		bool has_m = has_moves(board, for_color, attack_mask, info);
+		if (has_m) {
+			return is_seventy_five(board) 
+				|| is_insufficient_material(board) 
+				|| is_nfold_repetition(board, stack, stack_size, 5);
+		}
+		else return info.king_attacker_count ? false : true;
+}
+
+
+
+bool board_is_draw(full_board_t *board, 
+		undoable_move_t *stack, size_t stack_size){
+		piece_color_t for_color = board->turn;
+    bitboard_t attack_mask = make_attack_mask(board, 
+															WHITE_VAL == for_color ? BLACK_VAL : WHITE_VAL);
+    check_info_t info = make_check_info(board, for_color, attack_mask);
+		bool has_m = has_moves(board, for_color, attack_mask, info);
+		if (has_m) {
+			return can_claim_fifty(board) 
+				|| is_seventy_five(board) 
+				|| is_insufficient_material(board) 
+				|| is_nfold_repetition(board, stack, stack_size, 3);
+		}
+		else return info.king_attacker_count ? false : true;
+}
 
 
 bool is_draw(board_status_t status) {

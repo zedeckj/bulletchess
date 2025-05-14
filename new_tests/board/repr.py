@@ -13,7 +13,7 @@ class TestBoardRepr(unittest.TestCase):
         "<Board: \"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\">")
         board = Board.empty()
         self.assertEqual(repr(board), 
-        "<Board:\"8/8/8/8/8/8/8/8 w - - 0 1\">")
+        "<Board: \"8/8/8/8/8/8/8/8 w - - 0 1\">")
 
     def test_from_fen(self):
         with open ("data/fens.json", "r") as f:

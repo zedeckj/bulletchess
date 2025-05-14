@@ -187,21 +187,6 @@ class TestMoveGeneration(unittest.TestCase):
         _ = self.checkedLegalMoves(board)
         self.assertEqual(board.fen(), fen)
 
-    """
-    # Illegal board tests
-
-
-    def testPawnOnBackRank(self):
-        board = Board.empty()
-        # flip the turn to black
-        board.apply(Move.from_uci("0000"))
-        board.set_piece_at(A1, Piece(BLACK, PAWN))
-        self.assertEqual(len(board.legal_moves()), 0)
-        board.set_piece_at(A8, Piece(BLACK, PAWN))
-        moves = board.legal_moves()
-        self.assertEqual(len(moves), 1)
-        self.assertTrue(Move.from_uci("a8a7"), board)
-    """
 
 
 if __name__ == "__main__":

@@ -26,5 +26,40 @@ class TestCastlingMoves(unittest.TestCase):
         self.assertEqual(Move(E8, C8).castling_type(B_QUEENSIDE_BOARD), BLACK_QUEENSIDE)
         self.assertIsNone(Move(E2, E4).castling_type(Board()))
 
+    def test_is_castles_no_king(self):
+        W_KINGSIDE_BOARD2 = W_KINGSIDE_BOARD.copy()
+        W_KINGSIDE_BOARD2[E1] = None
+        W_QUEENSIDE_BOARD2 = W_QUEENSIDE_BOARD.copy()
+        W_QUEENSIDE_BOARD2[E1] = None
+        B_KINGSIDE_BOARD2 = B_KINGSIDE_BOARD.copy()
+        B_KINGSIDE_BOARD2[E8] = None
+        B_QUEENSIDE_BOARD2 = B_QUEENSIDE_BOARD.copy()
+        B_QUEENSIDE_BOARD2[E8] = None
+        self.assertFalse(Move(E1, G1).is_castling(W_KINGSIDE_BOARD2))
+        self.assertFalse(Move(E1, C1).is_castling(W_QUEENSIDE_BOARD2))
+        self.assertFalse(Move(E8, G8).is_castling(B_KINGSIDE_BOARD2))
+        self.assertFalse(Move(E8, C8).is_castling(B_QUEENSIDE_BOARD2))
+
+    def test_is_castles_no_rook(self):
+        W_KINGSIDE_BOARD2 = W_KINGSIDE_BOARD.copy()
+        W_KINGSIDE_BOARD2[H1] = None
+        W_QUEENSIDE_BOARD2 = W_QUEENSIDE_BOARD.copy()
+        W_QUEENSIDE_BOARD2[A1] = None
+        B_KINGSIDE_BOARD2 = B_KINGSIDE_BOARD.copy()
+        B_KINGSIDE_BOARD2[H8] = None
+        B_QUEENSIDE_BOARD2 = B_QUEENSIDE_BOARD.copy()
+        B_QUEENSIDE_BOARD2[A8] = None
+        self.assertFalse(Move(E1, G1).is_castling(W_KINGSIDE_BOARD2))
+        self.assertFalse(Move(E1, C1).is_castling(W_QUEENSIDE_BOARD2))
+        self.assertFalse(Move(E8, G8).is_castling(B_KINGSIDE_BOARD2))
+        self.assertFalse(Move(E8, C8).is_castling(B_QUEENSIDE_BOARD2))
+
+
+    def test_make_castle(self):
+        self.assertEqual(Move.castle(WHITE_KINGSIDE), Move(E1, G1))
+        self.assertEqual(Move.castle(WHITE_QUEENSIDE), Move(E1, C1))
+        self.assertEqual(Move.castle(BLACK_KINGSIDE), Move(E8, G8))
+        self.assertEqual(Move.castle(BLACK_QUEENSIDE), Move(E8, C8))
+
 if __name__ == "__main__":
     unittest.main()

@@ -432,13 +432,51 @@ class Board:
     def castling_rights(self) -> CastlingRights:
         ...
 
+    def is_checkmate(self) -> bool:
+        ...
+
+    def is_stalemate(self) -> bool:
+        ...
+
+    def is_check(self) -> bool:
+        ...
+
+    def is_insufficient_material(self) -> bool:
+        ...
+
+    def is_forced_draw(self) -> bool:
+        ...
+
+    def is_draw(self) -> bool:
+        ...
+    
+    def is_fifty_move_timeout(self) -> bool:
+        ...
+
+    def is_seventy_five_move_timeout(self) -> bool:
+        ...
+
+    def is_threefold_repetition(self) -> bool:
+        ...
+
+    def is_fivefold_reptition(self) -> bool:
+        ...
+
+    """
+
+
+    def is_nfold_repetition(self, n : int) -> bool:
+        ...
+    """
+
+
     def legal_moves(self) -> list[Move]:
         ...
 
     def apply(self, move : Optional[Move]) -> None:
         ...
 
-    def undo(self) -> Move:
+    def undo(self) -> Move: 
         ...
 
     def fen(self) -> str:

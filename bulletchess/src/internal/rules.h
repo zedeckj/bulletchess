@@ -41,8 +41,24 @@ bool is_checkmate(full_board_t *board);
 // Returns true if the given position was repeated n - 1 before. This is 
 // checked by undoing the given move stack on a scratch board and comparing.
 bool is_nfold_repetition(full_board_t *board, undoable_move_t *move_stack, 
-								u_int16_t stack_size, u_int8_t n);
+								size_t stack_size, u_int8_t n);
 
+
+bool is_fivefold_repetition(full_board_t *board, undoable_move_t *stack, size_t stack_size);
+bool is_threefold_repetition(full_board_t *board, undoable_move_t *stack, size_t stack_size);
+
+
+
+
+bool is_seventy_five(full_board_t *board);
+
+
+bool can_claim_fifty(full_board_t *board);
+
+bool board_is_draw(full_board_t *board, undoable_move_t *stack, size_t stack_size);
+
+
+bool board_is_forced_draw(full_board_t *board, undoable_move_t *stack, size_t stack_size);
 // returns true if there is insufficient mating material, a condition for a draw
 bool is_insufficient_material(full_board_t * board);
 
