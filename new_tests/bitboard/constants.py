@@ -58,5 +58,15 @@ class TestBitboardConstants(unittest.TestCase):
         ])
         self.assertEqual(bb, LIGHT_SQUARE_BB)
 
+    def test_lists(self):
+        self.assertEqual(RANKS, [RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8])
+        self.assertEqual(FILES, [A_FILE, B_FILE, C_FILE, D_FILE, E_FILE, F_FILE, G_FILE, H_FILE])
+
+    def test_mutability(self):
+        bb = EMPTY_BB
+        bb |= RANK_1
+        self.assertEqual(EMPTY_BB, Bitboard([]))
+        self.assertEqual(bb, RANK_1)
+
 if __name__ == "__main__":
     unittest.main()

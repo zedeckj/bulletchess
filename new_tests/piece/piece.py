@@ -26,6 +26,7 @@ class TestPiece(unittest.TestCase):
             for pt in PIECE_TYPES:
                 hashes.add(hash(Piece(color, pt)))
         self.assertEqual(len(hashes), 12)
+        self.assertNotIn(-1, hashes)
 
     def test_repr(self):
         piece = Piece(WHITE, KNIGHT)
@@ -69,6 +70,30 @@ class TestPiece(unittest.TestCase):
         }
         for piece in expected:
             self.assertEqual(Piece.from_str(expected[piece]), piece)
+
+    def test_unicode(self):
+        expected = {
+            Piece(WHITE, PAWN) : "♙",
+            Piece(WHITE, KNIGHT) : "♘",
+            Piece(WHITE, BISHOP) : "♗",
+            Piece(WHITE, ROOK) : "♖",
+            Piece(WHITE, QUEEN) : "♕",
+            Piece(WHITE, KING) : "♔",
+            Piece(BLACK, PAWN) : "♟",
+            Piece(BLACK, KNIGHT) : "♞",
+            Piece(BLACK, ROOK) : "♜",
+            Piece(BLACK, BISHOP) : "♝",
+            Piece(BLACK, QUEEN) : "♛",
+            Piece(BLACK, KING) : "♚",
+        }
+        for piece in expected:
+            self.assertEqual(piece.unicode(), expected[piece])
+
+    def test_bool(self):
+        for color in [WHITE, BLACK]:
+            for pt in PIECE_TYPES:
+                piece = Piece(color, pt)
+                self.assertTrue(bool(piece))
 
     def test_from_str_err(self):
         with self.assertRaisesRegex(TypeError, re.escape("Expected a str, got 2 (int)")):

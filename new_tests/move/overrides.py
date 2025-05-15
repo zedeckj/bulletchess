@@ -10,6 +10,7 @@ class TestMoveOverrides(unittest.TestCase):
         self.assertEqual(move, move)
         self.assertEqual(move, Move(E1,E2))
         self.assertNotEqual(move, Move(E2, E1))
+        self.assertNotEqual(Move(A2, A1), Move(A2, A1, promote_to = QUEEN))
 
     def test_hash(self):
         moves = []
@@ -20,9 +21,10 @@ class TestMoveOverrides(unittest.TestCase):
                         moves.append(Move(origin, destination, promote_to = promote_to))
                     except:
                         continue
-        self.assertNotEqual(len(moves), 0)
+        self.assertGreater(len(moves), 64 * 24)
         hashes = [hash(m) for m in moves]
         self.assertEqual(len(hashes), len(moves))
+        self.assertNotIn(-1, hashes)
 
 if __name__ == "__main__":
     unittest.main()

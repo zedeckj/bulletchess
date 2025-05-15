@@ -50,7 +50,72 @@ move_t undo_move(full_board_t * board);
 
 
 
+piece_t get_piece_at_bb(position_t * board, bitboard_t square_bb);
 
+
+#define DOT "\u2022"
+#define TEXT_COLOR "\e[38;5;%dm"
+#define BKG_COLOR "\e[48;5;%dm"
+
+void unicode_write_board(full_board_t *board, char *buffer, 
+		u_int8_t text_color,
+		u_int8_t light_color,
+		u_int8_t dark_color,
+		u_int8_t select_color,
+		bitboard_t select_bb, 
+		bitboard_t target_bb) {
+		int str_i = sprintf(buffer, TEXT_COLOR, text_color);
+		int i = 0;
+		for (bitboard_t rank = RANK_8; i < 8; i++) {
+        int j = 0;
+        for (bitboard_t file = FILE_A; j < 8; j++) {
+					bitboard_t sq_bb = rank & file;
+					piece_t p = get_piece_at_bb(board->position, sq_bb);	
+					
+					int color;
+					if (sq_bb & select_bb) color = select_color;
+					else color = sq_bb & LIGHT_SQ_BB ? light_color : dark_color;
+					str_i += sprintf(buffer + str_i, BKG_COLOR, color); 
+					
+					if (sq_bb & select_bb) str_i += sprintf(buffer + str_i, "\e[5;23m");
+					else str_i += sprintf(buffer + str_i, "\e[25m"); 
+					
+					str_i += sprintf(buffer + str_i, "%s", piece_unicode(p));
+					
+					if (sq_bb & target_bb) 
+						str_i += sprintf(buffer + str_i, DOT);
+					else buffer[str_i++] = ' ';
+			
+
+					file = SAFE_RIGHT_BB(file);
+				}
+				str_i += sprintf(buffer + str_i, "\e[49m"); 
+				buffer[str_i++] = '\n';
+        rank = BELOW_BB(rank);
+    }
+		str_i += sprintf(buffer + str_i, "\e[0m");
+		buffer[str_i] = 0;
+}
+
+
+void str_write_board(full_board_t *board, char *buffer) {
+		int str_i = 0;
+		int i = 0;
+    for (bitboard_t rank = RANK_8; i < 8; i++) {
+        int j = 0;
+        for (bitboard_t file = FILE_A; j < 8; j++) {
+					bitboard_t sq_bb = rank & file;
+					piece_t p = get_piece_at_bb(board->position, sq_bb);	
+					char c = piece_symbol(p);					
+					buffer[str_i++] = c;
+					buffer[str_i++] = ' ';
+					file = SAFE_RIGHT_BB(file);
+				}
+				buffer[str_i++] = '\n';
+        rank = BELOW_BB(rank);
+    }
+		buffer[str_i] = 0;
+}
 
 bool square_empty(position_t * position, square_t square) {
     return !((position->black_oc & SQUARE_TO_BB(square)) || (position->white_oc & SQUARE_TO_BB(square)));

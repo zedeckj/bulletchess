@@ -101,4 +101,6 @@ const char *get_piece_name(piece_type_t type);
 // buffer
 void write_name(piece_type_t type, char *buffer);
 
+
+char *piece_unicode(piece_t piece);
 #endif

@@ -230,6 +230,54 @@ char piece_symbol(piece_t piece) {
     return symbol;
 }
 
+static inline char *black_piece_unicode(piece_type_t piece_type){
+	switch (piece_type) {
+		case EMPTY_VAL:
+			return " ";
+		case PAWN_VAL:
+			return "\u265F";
+		case KNIGHT_VAL:
+			return "\u265E";
+		case BISHOP_VAL:
+			return "\u265D";
+		case ROOK_VAL:
+			return "\u265C";
+		case QUEEN_VAL:
+			return "\u265B";
+		case KING_VAL:
+			return "\u265A";
+		default:
+			return "?";
+	}
+}
+
+static inline char *white_piece_unicode(piece_type_t piece_type){
+	switch (piece_type) {
+		case EMPTY_VAL:
+			return " ";
+		case PAWN_VAL:
+			return "\u2659";
+		case KNIGHT_VAL:
+			return "\u2658";
+		case BISHOP_VAL:
+			return "\u2657";
+		case ROOK_VAL:
+			return "\u2656";
+		case QUEEN_VAL:
+			return "\u2655";
+		case KING_VAL:
+			return "\u2654";
+		default:
+			return "?";
+	}
+}
+
+
+char *piece_unicode(piece_t piece){
+	if (piece.color == WHITE_VAL) return white_piece_unicode(piece.type);
+	else return black_piece_unicode(piece.type);	
+}
+
 const char* get_piece_name(piece_type_t type) {
 	switch (type) {
 		case PAWN_VAL: return "Pawn";

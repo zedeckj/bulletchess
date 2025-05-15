@@ -70,18 +70,21 @@ typedef u_int8_t board_status_t;
 #define NO_STATUS 0
 #define CHECK_STATUS 1
 #define MATE_STATUS 2
+#define CHECKMATE_STATUS 3
+#define STALEMATE_STATUS 5 // vals are artifact of old implementation
 #define INSUFFICIENT_MATERIAL 4
 #define FIFTY_MOVE_TIMEOUT 8
 #define SEVENTY_FIVE_MOVE_TIMEOUT 16
 #define THREE_FOLD_REPETITION 32
 #define FIVE_FOLD_REPETITION 64
 #define RESIGNATION 128
+#define DRAW_STATUS 129
+#define FORCED_DRAW_STATUS 130
 
 // Returns the outcome of the game this board is a part of 
 board_status_t get_status(full_board_t * board, 
 								undoable_move_t * stack,
 								u_int16_t stack_size);
-
 
 // Returns true if the given status is a draw
 bool is_draw(board_status_t status);
@@ -99,7 +102,7 @@ bitboard_t vertical_attack_mask(bitboard_t bb, bitboard_t non_friendly, bitboard
 bitboard_t make_attack_mask(full_board_t *board, piece_color_t attacker);
 
 
-
+bool has_legal_moves(full_board_t *board);
 bitboard_t ext_get_pinned_mask(full_board_t *board, square_t square);
 
 bitboard_t white_pawn_attack_mask(bitboard_t white_pawns, bitboard_t enemies_and_ep);

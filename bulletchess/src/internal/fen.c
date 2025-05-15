@@ -20,6 +20,12 @@ int use_empties(char * fen_buffer, int empties, int index) {
     return index;
 }
 
+
+int write_num(char * buffer, int offset, int num) {
+	return offset + sprintf(buffer + offset, "%d", num);
+}
+
+/*
 int write_num(char * buffer, int offset, int num) {
     switch (num) {
 			NUMCASES(0):
@@ -69,6 +75,8 @@ int write_num(char * buffer, int offset, int num) {
     }
     return offset + digits + 1;
 }
+*/
+
 
 /*
 char * parse_position_new(char * str, 

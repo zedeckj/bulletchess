@@ -186,7 +186,6 @@ things to try for perft speedup:
 - `full_move_t` implementation, no more ifs in apply and undo
 - use `piece_array` in move gen, no more ifs in gen
 
-
 5/13/25
 Long time spend debugging broken perft again.
 Now:
@@ -196,12 +195,31 @@ Now:
 - light square and dark square bitboards  X
 - square direction arithmetic and more methods X
 
-5/14/25 Plan
-- More square direction functionality, allow diagonals and variable distance with default arg of 1
-- Basic move caching for both generics and promotions. 
-- CastlingType should be immortal too, fix that
-- Board to_str methods for ascii and unicode reps
-- new integration test, manual to fen method
+5/14/25 Plan (Moved to night before)
+- More square direction functionality, allow diagonals and variable distance with default arg of 1. X
+- Distance func too, should it be minus? (doesnt make sense, what is distance of knight movement)
+- `Square.around() -> Bitboard` X
+- Basic move caching for both generics and promotions. X (not going to bother with promotions)
+- CastlingType should be immortal too, fix that X
+- Board to_str methods for ascii X
+
+CONTINUED next day
+-Finish testing ascii X
+- unicode rep, ColorScheme X
+- Better way to interface from a single square to a bitboard 
+- new integration test, manual to fen method and str
 - clean up perft.py, should only have to call assertPerftIs(board, depth, nodes) for both python version and builtin,
 renamed perft_native to perft_python
+- NOT PLANNED BEFORE BoardStatus class and in interface X
 - DOCS!
+
+
+5/15 plan
+- CastlingRights additions and overview, (`__sub__` ?)
+- Square to bitboard .bb()
+- Way more status tests for specific positions and edge cases, improve insufficient material judgement (if needed)
+- finish colorscheme stuff and tests
+    - design decision: should ColorScheme have a constructor? 
+- overview all tests, look for obvious holes
+- FEN integration test
+- clean up perft.py, should only have to call assertPerftIs(board, depth, nodes) for both python version and builtin, renamed perft_native to perft_python

@@ -191,6 +191,11 @@ for (bitboard_t VAR_NAME, _bad_macro_system = VAL;\
 #define SAFE_KNIGHT_MOVE_BB8(bb) SAFE_TWO_RIGHT_BB(SAFE_BELOW_BB(bb))
 
 
+#define SAFE_NW_BB(bb) SAFE_ABOVE_BB(SAFE_LEFT_BB(bb)) 
+#define SAFE_NE_BB(bb) SAFE_ABOVE_BB(SAFE_RIGHT_BB(bb))
+#define SAFE_SW_BB(bb) SAFE_BELOW_BB(SAFE_LEFT_BB(bb))
+#define SAFE_SE_BB(bb) SAFE_BELOW_BB(SAFE_RIGHT_BB(bb))
+
 bitboard_t file_bb_of_square(square_t sq);
 
 bitboard_t rank_bb_of_square(square_t sq);

@@ -78,5 +78,63 @@ class TestSquare(unittest.TestCase):
         self.assertEqual(E1.west(), F1)
         self.assertEqual(H3.west(), None)
 
+    def test_direction_dist(self):
+        self.assertEqual(A1.north(2), A3)
+        self.assertEqual(B3.north(distance=3), B6)
+        self.assertEqual(E5.north(distance=5), None)
+
+        self.assertEqual(A8.south(distance=2), A6)
+        self.assertEqual(B3.south(distance=2), B1)
+        self.assertEqual(E1.south(distance=4), None)
+
+        self.assertEqual(A8.east(distance=6), None)
+        self.assertEqual(B3.east(1), A3)
+        self.assertEqual(E1.east(2), C1)
+
+        self.assertEqual(A8.west(3), D8)
+        self.assertEqual(B3.west(1), C3)
+        self.assertEqual(E1.west(4), None)
+        self.assertEqual(H3.west(1), None)
+
+    def test_middle_directions(self):
+        self.assertEqual(A1.ne(), B2)
+        self.assertEqual(B3.ne(), C4)
+        self.assertEqual(E8.ne(), None)
+
+        self.assertEqual(A8.se(), B7)
+        self.assertEqual(B3.se(), C2)
+        self.assertEqual(E1.se(), None)
+
+        self.assertEqual(A8.nw(), None)
+        self.assertEqual(B3.nw(), A4)
+        self.assertEqual(E1.nw(), D2)
+
+        self.assertEqual(A8.sw(), None)
+        self.assertEqual(B3.sw(), A2)
+        self.assertEqual(E1.sw(), None)
+        self.assertEqual(H3.sw(), G2)
+
+    def test_middle_directions_dist(self):
+        self.assertEqual(A1.ne(2), C3)
+        self.assertEqual(B3.ne(4), F7)
+        self.assertEqual(E8.ne(), None)
+
+        self.assertEqual(A8.se(2), C6)
+        self.assertEqual(B3.se(distance= 2), D1)
+        self.assertEqual(E6.se(4), None) 
+
+        self.assertEqual(A8.nw(4), None)
+        self.assertEqual(H1.nw(7), A8)
+        self.assertEqual(E1.nw(distance= 3), B4)
+
+        self.assertEqual(A8.sw(distance= 7), None)
+        self.assertEqual(C3.sw(2), A1)
+        self.assertEqual(E1.sw(5), None)
+        self.assertEqual(H5.sw(distance= 3), E2)
+
+    def test_around(self):
+        self.assertEqual(E5.adjacent(), Bitboard([D4, D5, D6, E4, E6, F4, F5, F6]))
+        self.assertEqual(A1.adjacent(), Bitboard([A2, B1, B2]))
+
 if __name__ == "__main__":
     unittest.main()

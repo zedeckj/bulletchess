@@ -47,33 +47,37 @@ class TestStatusPredicates(unittest.TestCase):
 
     def test_is_checkmate(self):
         for fen in CHECKMATE_FENS:
-            self.assertTrue(Board.from_fen(fen).is_checkmate())
+            board = Board.from_fen(fen)
+            self.assertTrue(board in CHECKMATE)
 
     def test_is_not_checkmate(self):
         for fen in NOT_CHECKMATE:
-            self.assertFalse(Board.from_fen(fen).is_checkmate())
+            board = Board.from_fen(fen)
+            self.assertTrue(board not in CHECKMATE)
 
     def test_is_stalemate(self):
         for fen in STALEMATE_FENS:
-            self.assertTrue(Board.from_fen(fen).is_stalemate())
+            board = Board.from_fen(fen)
+            self.assertTrue(board in STALEMATE)
 
     def test_is_check(self):
         for fen in CHECK_FENS + CHECKMATE_FENS:
-            self.assertTrue(Board.from_fen(fen).is_check())
+            board = Board.from_fen(fen)
+            self.assertTrue(board in CHECK)
 
     def test_is_insf(self):
         for fen in INSF_MATERIAL:
             board = Board.from_fen(fen)
-            self.assertTrue(board.is_insufficient_material())
-            self.assertTrue(board.is_draw())
-            self.assertTrue(board.is_forced_draw())
+            self.assertTrue(board in INSUFFICIENT_MATERIAL)
+            self.assertTrue(board in DRAW)
+            self.assertTrue(board in FORCED_DRAW)
 
     def test_agreement_move_count(self):
         boards = [Board.random() for _ in range(10000)]
         for board in boards:
             if utils.count_moves(board) != 0:
-                self.assertFalse(board.is_checkmate())
-                self.assertFalse(board.is_stalemate())
+                self.assertFalse(board in CHECKMATE)
+                self.assertFalse(board in STALEMATE)
 
 
     def testThreefold(self):
@@ -89,7 +93,7 @@ class TestStatusPredicates(unittest.TestCase):
         board.apply(Move.from_uci("f3g1"))
         board.apply(Move.from_uci("c6b8"))
         # repetition 3
-        self.assertTrue(board.is_threefold_repetition())
+        self.assertTrue(board in THREE_FOLD_REPETITION)
 
 
     def testInsufficientMaterial(self):
@@ -97,35 +101,35 @@ class TestStatusPredicates(unittest.TestCase):
         board[E2] = Piece(WHITE, KING)
         board[F4] = Piece(BLACK, KING)
         base = board.copy()
-        self.assertTrue(base.is_insufficient_material())
+        self.assertTrue(base in INSUFFICIENT_MATERIAL)
         board[A1] =  Piece(WHITE, KNIGHT)
-        self.assertTrue(board.is_insufficient_material())
+        self.assertTrue(board in INSUFFICIENT_MATERIAL)
         board = base.copy()
-        self.assertTrue(board.is_insufficient_material())
+        self.assertTrue(board in INSUFFICIENT_MATERIAL)
         board[H4] = Piece(BLACK, BISHOP)
-        self.assertTrue(board.is_insufficient_material())
+        self.assertTrue(board in INSUFFICIENT_MATERIAL)
         board[H6] = Piece(BLACK, BISHOP)
-        self.assertTrue(board.is_insufficient_material())
+        self.assertTrue(board in INSUFFICIENT_MATERIAL)
         board[H8] = Piece(BLACK, ROOK)
-        self.assertFalse(board.is_insufficient_material())
+        self.assertFalse(board in INSUFFICIENT_MATERIAL)
 
     def testSeventyFive(self):
         board = Board()
         board.halfmove_clock = 149
-        self.assertTrue(board.is_fifty_move_timeout())
+        self.assertTrue(board in FIFTY_MOVE_TIMEOUT)
         board.apply(Move.from_uci("g1f3"))
-        self.assertTrue(board.is_seventy_five_move_timeout())
-        self.assertFalse(Board.from_fen("r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 150 4").is_seventy_five_move_timeout())
+        self.assertTrue(board in SEVENTY_FIVE_MOVE_TIMEOUT)
+        self.assertFalse(Board.from_fen("r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 150 4") in SEVENTY_FIVE_MOVE_TIMEOUT)
 
 
     def testFifty(self):
         board = Board()
         board.halfmove_clock = 98
-        self.assertFalse(board.is_fifty_move_timeout())
+        self.assertFalse(board in FIFTY_MOVE_TIMEOUT)
         board.apply(Move.from_uci("g1f3"))
-        self.assertTrue(board.is_fifty_move_timeout())
+        self.assertTrue(board in FIFTY_MOVE_TIMEOUT)
         board = Board.from_fen("r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 100 4")
-        self.assertFalse(board.is_fifty_move_timeout())
+        self.assertFalse(board in FIFTY_MOVE_TIMEOUT)
 
     def test_json(self):
         with open("new_tests/data/status.json", "r") as f:
@@ -134,23 +138,23 @@ class TestStatusPredicates(unittest.TestCase):
             board = Board.from_fen(fen)
             match data[fen]:
                 case "checkmate":
-                    self.assertTrue(board.is_checkmate())
-                    self.assertTrue(board.is_check())
-                    self.assertFalse(board.is_forced_draw())
-                    self.assertFalse(board.is_draw())
+                    self.assertTrue(board in CHECKMATE)
+                    self.assertTrue(board in CHECK)
+                    self.assertFalse(board in FORCED_DRAW)
+                    self.assertFalse(board in DRAW)
                 case "stalemate":
-                    self.assertTrue(board.is_stalemate())
-                    self.assertFalse(board.is_check())
-                    self.assertTrue(board.is_forced_draw())
-                    self.assertTrue(board.is_draw())
+                    self.assertTrue(board in STALEMATE)
+                    self.assertFalse(board in CHECK)
+                    self.assertTrue(board in FORCED_DRAW)
+                    self.assertTrue(board in DRAW)
                 case "insf":
-                    self.assertTrue(board.is_insufficient_material())
-                    self.assertFalse(board.is_check())
-                    self.assertTrue(board.is_forced_draw())
-                    self.assertTrue(board.is_draw())
+                    self.assertTrue(board in INSUFFICIENT_MATERIAL)
+                    self.assertFalse(board in CHECK)
+                    self.assertTrue(board in FORCED_DRAW)
+                    self.assertTrue(board in DRAW)
                 case "other":
-                    self.assertFalse(board.is_check())
-                    self.assertFalse(board.is_insufficient_material())
+                    self.assertFalse(board in CHECK)
+                    self.assertFalse(board in INSUFFICIENT_MATERIAL)
 
 if __name__ == "__main__":
     unittest.main()

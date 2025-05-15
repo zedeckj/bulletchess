@@ -160,6 +160,7 @@ bool boards_equal(full_board_t *board1, full_board_t * board2);
 
 
 
+void str_write_board(full_board_t *board, char *buffer);
 
 // TODO, dont belong here
 bool in_check(full_board_t *board);
@@ -224,5 +225,14 @@ bitboard_t get_piece_type_bb(position_t* position, piece_type_t piece_type);
 bool valid_castling(full_board_t *board, castling_rights_t new_castling);
 
 bitboard_t get_piece_bb(position_t* position, piece_t piece);
+
+
+void unicode_write_board(full_board_t *board, char *buffer, 
+		u_int8_t text_color,
+		u_int8_t light_color,
+		u_int8_t dark_color,
+		u_int8_t select_color,
+		bitboard_t select_bb, 
+		bitboard_t target_bb);
 #endif
 

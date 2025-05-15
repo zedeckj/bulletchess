@@ -9,7 +9,7 @@ bulletchess_module = Extension(
     "bulletchess._core",
     sources=c_sources,
     include_dirs=[str(SRC)],
-    extra_compile_args=["-O0", "-g"],
+    extra_compile_args=["-O3"],
 )
 
 setup(

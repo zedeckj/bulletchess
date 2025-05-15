@@ -13,4 +13,7 @@ static PyTypeObject PyPieceTypeType;
 static PyTypeObject PyColorType;
 static PyTypeObject PyPieceType;
 static PyTypeObject PyMoveType;
+
+
+static PyObject *PyBitboard_make(bitboard_t bitboard);
 #endif

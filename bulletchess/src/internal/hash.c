@@ -25,7 +25,6 @@ zobrist_table_t *create_zobrist_table() {
 }
 
 void fill_zobrist_table(zobrist_table_t *table) {
-		printf("creating\n");
 		table->white_to_move_rand = random64();
     table->black_to_move_rand = random64();
     table->halfmove_rand_coeff = random64();

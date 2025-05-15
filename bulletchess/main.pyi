@@ -66,6 +66,9 @@ class Piece:
     def color(self) -> Piece:
         ...
 
+    def unicode(self) -> str:
+        ...
+
     def __eq__(self, other : Any):
         ...
 
@@ -92,14 +95,23 @@ class Square:
         ...
     """
 
+    def adjacent(self) -> Bitboard: ...
 
-    def north(self) -> Optional[Square]: ...
+    def north(self, distance : int = 1) -> Optional[Square]: ...
 
-    def south(self) -> Optional[Square]: ...
+    def south(self, distance : int = 1) -> Optional[Square]: ...
 
-    def east(self) -> Optional[Square]: ...
+    def east(self, distance : int = 1) -> Optional[Square]: ...
 
-    def west(self) -> Optional[Square]: ...
+    def west(self, distance : int = 1) -> Optional[Square]: ...
+
+    def nw(self, distance : int = 1) -> Optional[Square]: ...
+
+    def ne(self, distance : int = 1) -> Optional[Square]: ...
+
+    def sw(self, distance : int = 1) -> Optional[Square]: ...
+
+    def se(self, distance : int = 1) -> Optional[Square]: ...
 
     def __eq__(self, other : Any) -> bool:
         ...
@@ -109,6 +121,7 @@ class Square:
 
     def __str__(self) -> str:
         ...
+
 
 
 A1 : Square
@@ -184,13 +197,11 @@ class Bitboard:
         ...
 
 
-    """
     def __str__(self) -> str:
         ...
 
     def __repr__(self) -> str:
         ...
-    """
     
     @staticmethod
     def from_int(value : int):
@@ -244,6 +255,8 @@ RANK_6 : Bitboard
 RANK_7 : Bitboard
 RANK_8 : Bitboard
 
+RANKS : list[Bitboard] = [RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8]
+
 A_FILE : Bitboard
 B_FILE : Bitboard
 C_FILE : Bitboard
@@ -252,6 +265,9 @@ E_FILE : Bitboard
 F_FILE : Bitboard
 G_FILE : Bitboard
 H_FILE : Bitboard
+
+FILES : list[Bitboard] = [A_FILE, B_FILE, C_FILE, D_FILE, E_FILE, F_FILE, G_FILE, H_FILE]
+
 
 FULL_BB : Bitboard
 EMPTY_BB : Bitboard
@@ -383,6 +399,36 @@ class CastlingRights:
     def has_queenside(self, color : Optional[Color] = None) -> bool: ...
     """
 
+class ColorScheme:
+
+    def __init__(self,
+                 light_square_color : int,
+                 dark_square_color : int,
+                 highlight_color : int,
+                 piece_color : int = 0,
+                 ):
+        ...
+
+    @property
+    def light_square_color(self) -> int:
+        ...
+
+    @property
+    def dark_square_color(self) -> int:
+        ...
+
+    @property
+    def highlight_color(self) -> int:
+        ...
+
+CYAN : ColorScheme
+SLATE : ColorScheme
+OAK : ColorScheme
+GREEN : ColorScheme
+WALNUT: ColorScheme
+#ROSE : ColorScheme
+
+
 class Board:
 
     def __init__(self) -> None:
@@ -399,6 +445,7 @@ class Board:
     @staticmethod
     def empty() -> "Board":
         ...
+
 
     @property
     def turn(self) -> Color:
@@ -444,43 +491,11 @@ class Board:
     def castling_rights(self) -> CastlingRights:
         ...
 
-    def is_checkmate(self) -> bool:
+    def pretty(self, 
+               color_scheme : ColorScheme = OAK,
+               highlighted_squares : Bitboard = EMPTY_BB,
+               targeted_squares : Bitboard = EMPTY_BB) -> str:
         ...
-
-    def is_stalemate(self) -> bool:
-        ...
-
-    def is_check(self) -> bool:
-        ...
-
-    def is_insufficient_material(self) -> bool:
-        ...
-
-    def is_forced_draw(self) -> bool:
-        ...
-
-    def is_draw(self) -> bool:
-        ...
-    
-    def is_fifty_move_timeout(self) -> bool:
-        ...
-
-    def is_seventy_five_move_timeout(self) -> bool:
-        ...
-
-    def is_threefold_repetition(self) -> bool:
-        ...
-
-    def is_fivefold_reptition(self) -> bool:
-        ...
-
-    """
-
-
-    def is_nfold_repetition(self, n : int) -> bool:
-        ...
-    """
-
 
     def legal_moves(self) -> list[Move]:
         ...
@@ -515,11 +530,7 @@ class Board:
     def __contains__(self, piece : Optional[Piece]) -> bool:
         ...
 
-    """
-    def status(self) -> "BoardStatus":
-        ...
 
-    """
     @property
     def pawns(self) -> Bitboard:
         ...
@@ -556,9 +567,25 @@ class Board:
     def unoccupied(self) -> Bitboard:
         ...
 
-"""
+
 class BoardStatus:
     ...
 
-"""
+    def __repr__(self) -> str:
+        ...
 
+    def __contains__(self, board : Board) -> bool:
+        ...
+
+
+CHECK : BoardStatus
+MATE : BoardStatus
+CHECKMATE : BoardStatus
+STALEMATE : BoardStatus
+INSUFFICIENT_MATERIAL : BoardStatus
+FIFTY_MOVE_TIMEOUT : BoardStatus
+SEVENTY_FIVE_MOVE_TIMEOUT : BoardStatus
+THREE_FOLD_REPETITION : BoardStatus
+FIVE_FOLD_REPETITION : BoardStatus
+DRAW : BoardStatus
+FORCED_DRAW : BoardStatus
