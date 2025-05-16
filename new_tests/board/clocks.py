@@ -31,6 +31,12 @@ class TestBoardClocks(unittest.TestCase):
         with self.assertRaisesRegex(TypeError, re.escape("Expected an int, got White (bulletchess.Color)")):
             board.fullmove_number = WHITE #type: ignore
 
+    def test_out_of_range(self):
+        board = Board()
+        with self.assertRaises(OverflowError):
+            board.halfmove_clock = 2 ** 64  
+        with self.assertRaises(OverflowError):
+            board.fullmove_number = 2 ** 64  
 
 if __name__ == "__main__":
     unittest.main()

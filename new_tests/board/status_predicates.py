@@ -93,7 +93,7 @@ class TestStatusPredicates(unittest.TestCase):
         board.apply(Move.from_uci("f3g1"))
         board.apply(Move.from_uci("c6b8"))
         # repetition 3
-        self.assertTrue(board in THREE_FOLD_REPETITION)
+        self.assertTrue(board in THREEFOLD_REPETITION)
 
 
     def testInsufficientMaterial(self):

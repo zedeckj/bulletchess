@@ -95,18 +95,44 @@ move_t san_str_to_move(full_board_t *board, char *str,
 
 
 
+int16_t net_mobility(full_board_t * board);
+
 bool move_to_san_str(full_board_t * board, move_t move, char * buffer);
 
 bitboard_t vertical_attack_mask(bitboard_t bb, bitboard_t non_friendly, bitboard_t empty);
 
 bitboard_t make_attack_mask(full_board_t *board, piece_color_t attacker);
 
+typedef struct {
+    // where non kings are allowed to move
+    bitboard_t allowed_move_mask;
+    // a necessary extra mask for where pawns are allowed to capture 
+    // this is to account for en passant weirdness.
+    bitboard_t extra_pawn_capture_mask;
+    // Number of pieces currently attacking the king
+		u_int8_t king_attacker_count;
+} check_info_t;
+
+
 
 bool has_legal_moves(full_board_t *board);
+bool has_moves(
+    full_board_t *board, 
+    piece_color_t for_color, 
+    bitboard_t attacked_mask,
+		bitboard_t allowed_origins,
+    check_info_t info);
+
+
+check_info_t make_check_info(full_board_t *board, piece_color_t for_color, bitboard_t attack_mask);
+
 bitboard_t ext_get_pinned_mask(full_board_t *board, square_t square);
 
 bitboard_t white_pawn_attack_mask(bitboard_t white_pawns, bitboard_t enemies_and_ep);
 bitboard_t black_pawn_attack_mask(bitboard_t black_pawns, bitboard_t enemies_and_ep);
+
+
+bitboard_t make_pinned_mask(full_board_t * board, bitboard_t piece_bb, piece_color_t for_color, bitboard_t attack_mask);
 
 #endif
 

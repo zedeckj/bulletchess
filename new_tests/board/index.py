@@ -86,6 +86,22 @@ class TestBoardIndex(unittest.TestCase):
         board[E2] = Piece(WHITE, PAWN)
         self.assertEqual(board[E2], Piece(WHITE, PAWN))
 
+    def test_del2(self):
+        board = Board()
+        unchanged = STARTING_SQUARE_TABLE.copy()
+        for square in SQUARES:
+            del board[square]
+            if square in unchanged:
+                del unchanged[square]
+                self.assertEqual(board[square], None)
+                for square2 in unchanged:
+                    self.assertEqual(board[square2], unchanged[square2])
+
+    def test_set_none(self):
+        board = Board()
+        for square in SQUARES:
+            board[square] = None
+            self.assertEqual(board[square], None)
 
 if __name__ == "__main__":
     unittest.main()

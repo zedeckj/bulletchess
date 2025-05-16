@@ -121,15 +121,8 @@ square_t unchecked_bb_to_square(bitboard_t bb){
 
 
 
-
-/*
- * forbit (bitboard_t check, bb) {
- *
- * } 
- *
- */
-
-u_int8_t count_bits(bitboard_t bb) {
+u_int8_t count_bits_func(bitboard_t bb) {
+	
 	u_int8_t count = 0;
 	while (bb & -bb) {
 		bb &= ~(bb & -bb);

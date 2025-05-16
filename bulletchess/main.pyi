@@ -3,11 +3,13 @@ from typing import Optional, Any, Collection, Iterator
 
 class Color:
 
-    """
     @staticmethod
     def from_str(color : str) -> Color:
         ...
-    """
+
+    @property
+    def opposite(self) -> Color: 
+        ...
 
     def __eq__(self, other : Any) -> bool:
         ...
@@ -17,6 +19,12 @@ class Color:
 
     def __str__(self) -> str:
         ...
+
+    def __invert__(self) -> Color:
+        ...
+
+    
+
 
 
 WHITE : Color
@@ -59,11 +67,11 @@ class Piece:
         ...
 
     @property
-    def piece_type(self) -> Piece:
+    def piece_type(self) -> PieceType:
         ...
 
     @property
-    def color(self) -> Piece:
+    def color(self) -> Color:
         ...
 
     def unicode(self) -> str:
@@ -86,14 +94,7 @@ class Square:
     def from_str(square_str : str) -> Square:
         ...
 
-    """
-    @staticmethod
-    def from_int(square_num : int) -> Square:
-        ...
-
-    def __int__(self) -> int:
-        ...
-    """
+    def bb(self) -> Bitboard: ...
 
     def adjacent(self) -> Bitboard: ...
 
@@ -357,11 +358,9 @@ class CastlingRights:
     def __init__(self, castling_types : Collection[CastlingType]) -> None:
         ...
 
-    """
     @staticmethod
-    def full() -> "CastlingRights":
+    def from_fen(castling_fen : str) -> CastlingRights:
         ...
-    """
 
     def __contains__(self, castling_type : CastlingType) -> bool:
         ...
@@ -389,15 +388,9 @@ class CastlingRights:
 
     def queenside(self, color : Optional[Color] = None) -> bool: ...
 
-    """
-    def has_all(self) -> bool: ...
 
-    def has_any(self) -> bool: ...
-
-    def has_kingside(self, color : Optional[Color] = None) -> bool: ...
-
-    def has_queenside(self, color : Optional[Color] = None) -> bool: ...
-    """
+ALL_CASTLING : CastlingRights
+NO_CASTLING : CastlingRights
 
 class ColorScheme:
 
@@ -467,6 +460,8 @@ class Board:
     def castling_rights(self) -> CastlingRights:
         ...
 
+
+
     @castling_rights.setter
     def castling_rights(self, castling_rights : CastlingRights) -> None:
         ...
@@ -487,9 +482,7 @@ class Board:
     def en_passant_square(self, new_ep_square : Optional[Square]) -> None:
         ...
 
-    @castling_rights.setter
-    def castling_rights(self) -> CastlingRights:
-        ...
+
 
     def pretty(self, 
                color_scheme : ColorScheme = OAK,
@@ -567,6 +560,10 @@ class Board:
     def unoccupied(self) -> Bitboard:
         ...
 
+    @property
+    def history(self) -> list[Move]:
+        ...
+
 
 class BoardStatus:
     ...
@@ -585,7 +582,7 @@ STALEMATE : BoardStatus
 INSUFFICIENT_MATERIAL : BoardStatus
 FIFTY_MOVE_TIMEOUT : BoardStatus
 SEVENTY_FIVE_MOVE_TIMEOUT : BoardStatus
-THREE_FOLD_REPETITION : BoardStatus
-FIVE_FOLD_REPETITION : BoardStatus
+THREEFOLD_REPETITION : BoardStatus
+FIVEFOLD_REPETITION : BoardStatus
 DRAW : BoardStatus
 FORCED_DRAW : BoardStatus

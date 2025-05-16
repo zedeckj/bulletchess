@@ -136,5 +136,9 @@ class TestSquare(unittest.TestCase):
         self.assertEqual(E5.adjacent(), Bitboard([D4, D5, D6, E4, E6, F4, F5, F6]))
         self.assertEqual(A1.adjacent(), Bitboard([A2, B1, B2]))
 
+    def test_bb(self):
+        for square in SQUARES:
+            self.assertEqual(square.bb(), Bitboard([square]))
+
 if __name__ == "__main__":
     unittest.main()

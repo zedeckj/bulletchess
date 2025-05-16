@@ -201,9 +201,9 @@ bitboard_t file_bb_of_square(square_t sq);
 bitboard_t rank_bb_of_square(square_t sq);
 
 // Counts the number of bits which are 1
-u_int8_t count_bits(bitboard_t bb);
+u_int8_t count_bits_func(bitboard_t bb);
 
-
+#define count_bits(bb) __builtin_popcountll(bb)
 
 void str_write_bitboard(bitboard_t board, char *buffer);
 

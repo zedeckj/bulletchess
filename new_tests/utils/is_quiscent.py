@@ -15,7 +15,7 @@ class TestIsQuiscent(unittest.TestCase):
         boards = [Board.random() for _ in range(10000)]
         for board in boards:
             moves = board.legal_moves()
-            quiet = not board.is_check()
+            quiet = not board in CHECK
             if quiet:
                 for move in moves:
                     if move.is_capture(board):

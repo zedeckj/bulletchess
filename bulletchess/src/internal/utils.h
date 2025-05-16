@@ -2,9 +2,10 @@
 #define CHESSUTILHEADER
 #include "rules.h"
 
-double material(full_board_t *board, double pawn_val, double knight_val, double bishop_val, double rook_val, double queen_val);
+int64_t material(full_board_t *board, int64_t pawn_val, int64_t knight_val, int64_t bishop_val, int64_t rook_val, int64_t queen_val);
 
 
+int32_t shannon_evaluation(full_board_t * board, undoable_move_t * stack, u_int8_t stack_size);
 
 u_int64_t perft(full_board_t * board, u_int8_t depth);
 
@@ -25,4 +26,12 @@ bitboard_t isolated_pawns(full_board_t *board);
 
 bitboard_t doubled_pawns(full_board_t *board);
 
+bitboard_t open_files(full_board_t *board);
+
+
+bitboard_t passed_pawns(full_board_t *board);
+
+move_t random_legal_move(full_board_t *board);
+
+bool is_pinned(full_board_t *board, square_t square);
 #endif 

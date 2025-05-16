@@ -421,10 +421,14 @@ bitboard_t make_attack_mask(full_board_t *board, piece_color_t attacker) {
     bitboard_t empty = ~(hostile | friendly);
     bitboard_t can_move_to = FULL_BB;
     bitboard_t attacking = 0; 
-    if (enemy_pawns) attacking |= pawn_attack_mask(enemy_pawns, attacker, can_move_to);
-    if (enemy_rooks) attacking |= sliding_attack_mask(enemy_rooks, can_move_to, empty);
-    if (enemy_knights) attacking |= knight_attack_mask(enemy_knights, can_move_to);
-    if (enemy_bishops) attacking |= diagonal_attack_mask(enemy_bishops, can_move_to, empty);
+    if (enemy_pawns) 
+			attacking |= pawn_attack_mask(enemy_pawns, attacker, can_move_to);
+    if (enemy_rooks) 
+			attacking |= sliding_attack_mask(enemy_rooks, can_move_to, empty);
+    if (enemy_knights) 
+			attacking |= knight_attack_mask(enemy_knights, can_move_to);
+    if (enemy_bishops) 
+			attacking |= diagonal_attack_mask(enemy_bishops, can_move_to, empty);
 		if (enemy_queens) {
         attacking |= sliding_attack_mask(enemy_queens, can_move_to, empty);
         attacking |= diagonal_attack_mask(enemy_queens, can_move_to, empty);
@@ -432,104 +436,6 @@ bitboard_t make_attack_mask(full_board_t *board, piece_color_t attacker) {
     attacking |= king_attack_mask(enemy_kings, can_move_to);
     return attacking;
 }
-
-u_int8_t count_backwards_pawns(full_board_t *board, piece_color_t color) {
-	position_t *position = board->position;
-	bitboard_t white_pawns = position->pawns & position->white_oc;
-	bitboard_t black_pawns = position->pawns & position->black_oc;
-	
-	bitboard_t white_non_paired = ~SAFE_BELOW_BB(black_pawns) & white_pawns;
-	bitboard_t black_non_paired = ~SAFE_ABOVE_BB(white_pawns) & black_pawns;
-		
-
-	bitboard_t white_pawn_attacks = white_pawn_attack_mask(white_pawns, FULL_BB);
-	bitboard_t black_pawn_attacks = black_pawn_attack_mask(black_pawns, FULL_BB);
-
-	if (color == WHITE_VAL) {
-
-		bitboard_t white_cant_advance = SAFE_BELOW_BB(black_pawn_attacks) & white_non_paired; 
-		bitboard_t white_backwards = ~white_pawn_attacks & white_cant_advance;
-		return count_bits(white_backwards);
-	}
-	else {
-		bitboard_t black_cant_advance = SAFE_ABOVE_BB(white_pawn_attacks) & black_non_paired;
-		bitboard_t black_backwards = ~black_pawn_attacks & black_cant_advance;
-		return count_bits(black_backwards);
-	}
-}
-
-
-u_int8_t count_doubled_pawns(full_board_t * board, piece_color_t color) {
-	position_t *position = board->position;
-	bitboard_t friendly_pawns;
-	if (color == WHITE_VAL) friendly_pawns = position->pawns & position->white_oc;
-	else friendly_pawns = position->pawns & position->black_oc;
-	bitboard_t iter = friendly_pawns;
-	bitboard_t one_pawn_bb;
-	u_int8_t count = 0;
-	while ((one_pawn_bb = LSB(iter))) {
-		iter &= ~one_pawn_bb;
-		bitboard_t file_bb = vertical_attack_mask(one_pawn_bb, FULL_BB, FULL_BB) | one_pawn_bb; 
-		if (file_bb & iter) count += 1;
-	}
-	return count;
-}
-
-u_int8_t count_isolated_pawns(full_board_t * board, piece_color_t color) {
-	position_t *position = board->position;
-	bitboard_t friendly_pawns;
-	if (color == WHITE_VAL) friendly_pawns = position->pawns & position->white_oc;
-	else friendly_pawns = position->pawns & position->black_oc;
-	bitboard_t iter = friendly_pawns;
-	bitboard_t one_pawn_bb;
-	u_int8_t count = 0;
-	while ((one_pawn_bb = LSB(iter))) {
-		bitboard_t file_bb = vertical_attack_mask(one_pawn_bb, FULL_BB, FULL_BB) | one_pawn_bb; 
-		if (!(SAFE_LEFT_BB(file_bb) & friendly_pawns 
-			  || SAFE_RIGHT_BB(file_bb) & friendly_pawns)) count += 1;
-		iter &= ~one_pawn_bb;
-	}
-	return count;
-}
-
-int8_t net_isolated_pawns(full_board_t * board) {
-	return count_isolated_pawns(board, WHITE_VAL) - count_isolated_pawns(board, BLACK_VAL);
-}
-
-int8_t net_doubled_pawns(full_board_t * board) {
-	return count_doubled_pawns(board, WHITE_VAL) - count_doubled_pawns(board, BLACK_VAL);
-}
-
-int8_t net_backwards_pawns(full_board_t * board) {
-	position_t *position = board->position;
-	bitboard_t white_pawns = position->pawns & position->white_oc;
-	bitboard_t black_pawns = position->pawns & position->black_oc;
-	
-	bitboard_t white_non_paired = ~SAFE_BELOW_BB(black_pawns) & white_pawns;
-	bitboard_t black_non_paired = ~SAFE_ABOVE_BB(white_pawns) & black_pawns;
-		
-
-	bitboard_t white_pawn_attacks = white_pawn_attack_mask(white_pawns, FULL_BB);
-	bitboard_t black_pawn_attacks = black_pawn_attack_mask(black_pawns, FULL_BB);
-	
-	bitboard_t white_cant_advance = SAFE_BELOW_BB(black_pawn_attacks) & white_non_paired; 
-	bitboard_t white_backwards = ~white_pawn_attacks & white_cant_advance;
-	
-	bitboard_t black_cant_advance = SAFE_ABOVE_BB(white_pawn_attacks) & black_non_paired;
-	bitboard_t black_backwards = ~black_pawn_attacks & black_cant_advance;
-	return count_bits(white_backwards) - count_bits(black_backwards);
-}
-
-typedef struct {
-    // where non kings are allowed to move
-    bitboard_t allowed_move_mask;
-    // a necessary extra mask for where pawns are allowed to capture 
-    // this is to account for en passant weirdness.
-    bitboard_t extra_pawn_capture_mask;
-    // Number of pieces currently attacking the king
-		u_int8_t king_attacker_count;
-} check_info_t;
-
 
 
 check_info_t non_check_info() {
@@ -891,11 +797,15 @@ bitboard_t inner_black_pawn_dest_bb(bitboard_t origin_bb, bitboard_t pawn_hostil
 				return destination_bb;
 }
 
+
+
+
 // returns true if there are any possible moves
 bool has_moves(
     full_board_t *board, 
     piece_color_t for_color, 
     bitboard_t attacked_mask,
+		bitboard_t allowed_origins,
     check_info_t info) {
 
     position_t *position = board->position;
@@ -934,7 +844,7 @@ bool has_moves(
     bitboard_t pawn_hostile = (hostile | ep_bb);
     bitboard_t non_friendly = ~friendly;
 
-    bitboard_t iter = friendly;
+    bitboard_t iter = friendly & allowed_origins;
 		bitboard_t square_bb;
 		while ((square_bb = LSB(iter))) {
         bitboard_t destination_bb;
@@ -1084,6 +994,7 @@ u_int8_t generate_moves(
 }
 
 //bitboard_t make_pinned_mask(full_board_t * board, bitboard_t piece_bb, piece_color_t for_color, bitboard_t attack_mask) {
+
 bitboard_t ext_get_pinned_mask(full_board_t *board, square_t square) {
 	piece_color_t for_color = board->turn;
   bitboard_t attack_mask = make_attack_mask(board, WHITE_VAL == for_color ? BLACK_VAL : WHITE_VAL);
@@ -1354,8 +1265,20 @@ move_t san_str_to_move(full_board_t *board, char *str,
 	return move;
 }
 
+/*
+// Checks if the given piece (as color and type) can legally moved
+// given a found pinned_mask
+bool can_move_piece(
+		
+		bitboard_t pinned_mask){
+	switch (moving_type) {
+		case PAWN_VAL:
+					
+	}
 
 
+}	
+*/
 													
 san_move_t promotion_to_san(full_board_t * board, promotion_move_t move){
 	bitboard_t pawn_attacks; 
@@ -1762,7 +1685,7 @@ board_status_t get_status(full_board_t * board,
     bitboard_t attack_mask = make_attack_mask(board, 
 															WHITE_VAL == for_color ? BLACK_VAL : WHITE_VAL);
     check_info_t info = make_check_info(board, for_color, attack_mask);
-		bool has_m = has_moves(board, for_color, attack_mask, info);
+		bool has_m = has_moves(board, for_color, attack_mask, FULL_BB, info);
 		board_status_t outcome = info.king_attacker_count ? CHECK_STATUS : NO_STATUS;
 		if (has_m) {
 			if (stack && stack_size) 
@@ -1782,7 +1705,7 @@ bool board_is_forced_draw(full_board_t *board,
     bitboard_t attack_mask = make_attack_mask(board, 
 															WHITE_VAL == for_color ? BLACK_VAL : WHITE_VAL);
     check_info_t info = make_check_info(board, for_color, attack_mask);
-		bool has_m = has_moves(board, for_color, attack_mask, info);
+		bool has_m = has_moves(board, for_color, attack_mask, FULL_BB, info);
 		if (has_m) {
 			return is_seventy_five(board) 
 				|| is_insufficient_material(board) 
@@ -1799,7 +1722,7 @@ bool board_is_draw(full_board_t *board,
     bitboard_t attack_mask = make_attack_mask(board, 
 															WHITE_VAL == for_color ? BLACK_VAL : WHITE_VAL);
     check_info_t info = make_check_info(board, for_color, attack_mask);
-		bool has_m = has_moves(board, for_color, attack_mask, info);
+		bool has_m = has_moves(board, for_color, attack_mask, FULL_BB, info);
 		if (has_m) {
 			return can_claim_fifty(board) 
 				|| is_seventy_five(board) 
@@ -1858,7 +1781,7 @@ bool has_legal_moves(full_board_t *board) {
 		piece_color_t for_color = board->turn;
     bitboard_t attack_mask = make_attack_mask(board, WHITE_VAL == for_color ? BLACK_VAL : WHITE_VAL);
     check_info_t info = make_check_info(board, for_color, attack_mask);
-    return has_moves(board, for_color, attack_mask, info);
+    return has_moves(board, for_color, attack_mask, FULL_BB, info);
 }
 
 int16_t net_mobility(full_board_t * board) {
@@ -1964,28 +1887,6 @@ double board_openness(full_board_t *board) {
 	bitboard_t distant_pawns = pos->pawns & ~(core_center_mask | outer_center_mask);
 	//TODO
 	return 0;
-}
-
-
-int32_t shannon_evaluation(full_board_t * board, undoable_move_t * stack, u_int8_t stack_size) {
-	board_status_t status = get_status(board, stack, stack_size);	
-	if (status & CHECK_STATUS && status & MATE_STATUS) {
-		return board->turn == WHITE_VAL ? -20000 : 20000; 
-	}	
-	else if (is_draw(status)){
-		return 0;
-	}
-	else {
-		return 900 * net_piece_type(board, QUEEN_VAL) +
-					 500 * net_piece_type(board, ROOK_VAL) +
-				 	 300 * net_piece_type(board, BISHOP_VAL) +
-					 300 * net_piece_type(board, KNIGHT_VAL) +
-					 100 * net_piece_type(board, PAWN_VAL) + 
-					 50 * (net_backwards_pawns(board) + 
-								 net_doubled_pawns(board)	+
-								 net_isolated_pawns(board)) + 
-					10 * net_mobility(board); 
-	}
 }
 
 bitboard_t ext_piece_attacks(piece_index_t index, square_t square) {

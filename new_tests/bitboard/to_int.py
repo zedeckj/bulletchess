@@ -15,5 +15,6 @@ class TestToint(unittest.TestCase):
         self.assertEqual(int(Bitboard(SQUARES)), 0xFFFF_FFFF_FFFF_FFFF)
 
 
+
 if __name__ == "__main__":
     unittest.main()

@@ -236,7 +236,7 @@ char * parse_turn(char * str, piece_color_t * color) {
     }
 }
 
-char * parse_castling(char * str, castling_rights_t * castling) {
+char *parse_castling(char * str, castling_rights_t * castling) {
 		if (!str || !str[0]) return "No castling rights specified";
     *castling = 0;
     if (str[0] == '-' && str[1] == '\0') {

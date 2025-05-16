@@ -26,5 +26,10 @@ class TestBitboardLogic(unittest.TestCase):
         self.assertEqual(~Bitboard(SQUARES), Bitboard([])) 
         self.assertEqual(~Bitboard([A1]), Bitboard([sq for sq in SQUARES if sq != A1]))
 
+    def test_bool(self):
+        self.assertFalse(EMPTY_BB)
+        self.assertTrue(Bitboard([A1]))
+        self.assertTrue(FULL_BB)
+
 if __name__ == "__main__":
     unittest.main()

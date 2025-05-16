@@ -215,9 +215,11 @@ renamed perft_native to perft_python
 
 
 5/15 plan
-- CastlingRights additions and overview, (`__sub__` ?)
-- Square to bitboard .bb()
+- CastlingRights additions and overview, (`__sub__` ?), (did not do sub, but `__add__`, constants, from fen, and m ore tests)  X
+- Square to bitboard .bb() X
 - Way more status tests for specific positions and edge cases, improve insufficient material judgement (if needed)
+- Color.flip() and/or `__invert__` X
+
 - finish colorscheme stuff and tests
     - design decision: should ColorScheme have a constructor? 
 - overview all tests, look for obvious holes

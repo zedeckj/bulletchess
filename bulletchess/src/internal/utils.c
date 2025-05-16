@@ -36,6 +36,95 @@ bool is_quiescent(full_board_t *board) {
 	return true;
 }
 
+u_int8_t count_backwards_pawns(full_board_t *board, piece_color_t color) {
+	position_t *position = board->position;
+	bitboard_t white_pawns = position->pawns & position->white_oc;
+	bitboard_t black_pawns = position->pawns & position->black_oc;
+	
+	bitboard_t white_non_paired = ~SAFE_BELOW_BB(black_pawns) & white_pawns;
+	bitboard_t black_non_paired = ~SAFE_ABOVE_BB(white_pawns) & black_pawns;
+		
+
+	bitboard_t white_pawn_attacks = white_pawn_attack_mask(white_pawns, FULL_BB);
+	bitboard_t black_pawn_attacks = black_pawn_attack_mask(black_pawns, FULL_BB);
+
+	if (color == WHITE_VAL) {
+
+		bitboard_t white_cant_advance = SAFE_BELOW_BB(black_pawn_attacks) & white_non_paired; 
+		bitboard_t white_backwards = ~white_pawn_attacks & white_cant_advance;
+		return count_bits(white_backwards);
+	}
+	else {
+		bitboard_t black_cant_advance = SAFE_ABOVE_BB(white_pawn_attacks) & black_non_paired;
+		bitboard_t black_backwards = ~black_pawn_attacks & black_cant_advance;
+		return count_bits(black_backwards);
+	}
+}
+
+
+u_int8_t count_doubled_pawns(full_board_t * board, piece_color_t color) {
+	position_t *position = board->position;
+	bitboard_t friendly_pawns;
+	if (color == WHITE_VAL) friendly_pawns = position->pawns & position->white_oc;
+	else friendly_pawns = position->pawns & position->black_oc;
+	bitboard_t iter = friendly_pawns;
+	bitboard_t one_pawn_bb;
+	u_int8_t count = 0;
+	while ((one_pawn_bb = LSB(iter))) {
+		iter &= ~one_pawn_bb;
+		bitboard_t file_bb = vertical_attack_mask(one_pawn_bb, FULL_BB, FULL_BB) | one_pawn_bb; 
+		if (file_bb & iter) count += 1;
+	}
+	return count;
+}
+
+u_int8_t count_isolated_pawns(full_board_t * board, piece_color_t color) {
+	position_t *position = board->position;
+	bitboard_t friendly_pawns;
+	if (color == WHITE_VAL) friendly_pawns = position->pawns & position->white_oc;
+	else friendly_pawns = position->pawns & position->black_oc;
+	bitboard_t iter = friendly_pawns;
+	bitboard_t one_pawn_bb;
+	u_int8_t count = 0;
+	while ((one_pawn_bb = LSB(iter))) {
+		bitboard_t file_bb = vertical_attack_mask(one_pawn_bb, FULL_BB, FULL_BB) | one_pawn_bb; 
+		if (!(SAFE_LEFT_BB(file_bb) & friendly_pawns 
+			  || SAFE_RIGHT_BB(file_bb) & friendly_pawns)) count += 1;
+		iter &= ~one_pawn_bb;
+	}
+	return count;
+}
+
+int8_t net_isolated_pawns(full_board_t * board) {
+	return count_isolated_pawns(board, WHITE_VAL) - count_isolated_pawns(board, BLACK_VAL);
+}
+
+int8_t net_doubled_pawns(full_board_t * board) {
+	return count_doubled_pawns(board, WHITE_VAL) - count_doubled_pawns(board, BLACK_VAL);
+}
+
+int8_t net_backwards_pawns(full_board_t * board) {
+	position_t *position = board->position;
+	bitboard_t white_pawns = position->pawns & position->white_oc;
+	bitboard_t black_pawns = position->pawns & position->black_oc;
+	
+	bitboard_t white_non_paired = ~SAFE_BELOW_BB(black_pawns) & white_pawns;
+	bitboard_t black_non_paired = ~SAFE_ABOVE_BB(white_pawns) & black_pawns;
+		
+
+	bitboard_t white_pawn_attacks = white_pawn_attack_mask(white_pawns, FULL_BB);
+	bitboard_t black_pawn_attacks = black_pawn_attack_mask(black_pawns, FULL_BB);
+	
+	bitboard_t white_cant_advance = SAFE_BELOW_BB(black_pawn_attacks) & white_non_paired; 
+	bitboard_t white_backwards = ~white_pawn_attacks & white_cant_advance;
+	
+	bitboard_t black_cant_advance = SAFE_ABOVE_BB(white_pawn_attacks) & black_non_paired;
+	bitboard_t black_backwards = ~black_pawn_attacks & black_cant_advance;
+	return count_bits(white_backwards) - count_bits(black_backwards);
+}
+
+
+
 bitboard_t backwards_pawns(full_board_t *board) {
 	position_t *position = board->position;
 	bitboard_t white_pawns = position->pawns & position->white_oc;
@@ -95,8 +184,21 @@ bitboard_t doubled_pawns(full_board_t * board) {
 			| one_pawn_bb; 	
 		if (file_bb & black_pawns & ~one_pawn_bb) doubled |= one_pawn_bb;
 	}
-
 	return doubled;
+}
+
+#define FILE_PASSED(FL)\
+	(((FILE_ ## FL & white_pawns ? FILE_##FL : 0)\
+	 ^ (FILE_ ## FL & black_pawns ? FILE_##FL : 0))\
+	 & pos->pawns)
+	 
+
+bitboard_t passed_pawns(full_board_t *board) {
+	position_t *pos = board->position;
+	bitboard_t white_pawns = pos->pawns & pos->white_oc;
+	bitboard_t black_pawns = pos->pawns & pos->black_oc;
+	return FILE_PASSED(A) | FILE_PASSED(B) | FILE_PASSED(C) | FILE_PASSED(D) 
+			 | FILE_PASSED(E) | FILE_PASSED(F) | FILE_PASSED(G) | FILE_PASSED(H);
 }
 
 
@@ -121,4 +223,85 @@ u_int64_t perft(full_board_t * board, u_int8_t depth) {
     }
 }
 
+#define MAT_FOR(PIECE)\
+	PIECE ## _val * (count_bits(pos->PIECE ## s & pos->white_oc)\
+	- count_bits(pos->PIECE ## s & pos->black_oc))
+
+int64_t material(full_board_t *board, int64_t pawn_val, int64_t knight_val, int64_t bishop_val, int64_t rook_val, int64_t queen_val){
+	position_t *pos = board->position;
+	return MAT_FOR(pawn) + MAT_FOR(knight) + MAT_FOR(bishop) 
+		+ MAT_FOR(rook) + MAT_FOR(queen);
+}
+
+
+int32_t shannon_evaluation(full_board_t * board, undoable_move_t * stack, u_int8_t stack_size) {
+	board_status_t status = get_status(board, stack, stack_size);	
+	if (status & CHECK_STATUS && status & MATE_STATUS) {
+		return board->turn == WHITE_VAL ? -20000 : 20000; 
+	}	
+	else if (is_draw(status)){
+		return 0;
+	}
+	else {
+		return (int32_t)material(board, 100, 300, 300, 500, 900) +
+					 50 * (net_backwards_pawns(board) + 
+								 net_doubled_pawns(board)	+
+								 net_isolated_pawns(board)) + 
+					10 * net_mobility(board); 
+	}
+}
+
+#define OPEN_FL(FL) FL = (FILE_ ## FL & pos->pawns) ? 0 : FILE_ ## FL 
+
+bitboard_t open_files(full_board_t *board) {
+	position_t *pos = board->position;
+	bitboard_t OPEN_FL(A);
+	bitboard_t OPEN_FL(B);	
+	bitboard_t OPEN_FL(C);	
+	bitboard_t OPEN_FL(D);	
+	bitboard_t OPEN_FL(E);	
+	bitboard_t OPEN_FL(F);
+	bitboard_t OPEN_FL(G);
+	bitboard_t OPEN_FL(H);
+	return A | B | C | D | E | F | G | H; 
+}
+#undef OPEN_FL
+
+move_t random_legal_move(full_board_t *board) {
+	move_t buffer[256];
+	u_int8_t count = generate_legal_moves(board, buffer);
+	if (count == 0){
+		return null_move();
+	}
+	else {
+		return buffer[random() % count];	
+	}
+}
+
+bool is_pinned(full_board_t *board, square_t square){
+	bitboard_t sq_bb = SQUARE_TO_BB(square);
+	position_t *pos = board->position;
+	piece_color_t friendly;
+	piece_color_t hostile;
+	bitboard_t hostile_bb;
+	if (pos->white_oc & sq_bb) {
+		friendly = WHITE_VAL;
+		hostile = BLACK_VAL;
+		hostile_bb = pos->black_oc;	
+	}
+	else if (pos->black_oc & sq_bb) {
+		friendly = BLACK_VAL;
+		hostile = WHITE_VAL;
+		hostile_bb = pos->black_oc;
+	}
+	else return false;
+	bitboard_t attack_mask = make_attack_mask(board, hostile);
+	print_bitboard(attack_mask);
+	bitboard_t mask = make_pinned_mask(board, sq_bb, friendly, attack_mask); 
+	print_bitboard(mask);
+	if (~mask) {
+		check_info_t info = make_check_info(board, for_color, attacK_mask);		
+		return count_bits(mask) == 1; 
+	}
+}
 

@@ -254,7 +254,14 @@ static PyObject *PySquare_repr(PyObject *self) {
 #define SQ_DIRECT_OBJ(NAME)\
 	{#NAME, (PyCFunction)PySquare_##NAME, METH_VARARGS | METH_KEYWORDS, NULL}
 
+
+static PyObject* PySquare_to_bitboard(PyObject *self, PyObject *Py_UNUSED(arg)) {
+	return PyBitboard_make(SQUARE_TO_BB(PySquare_get(self)));		
+}
+
+
 static PyMethodDef PySquare_methods[] = {
+	{"bb", PySquare_to_bitboard, METH_NOARGS, NULL},
 	{"from_str", PySquare_from_str, METH_STATIC | METH_O, NULL},
 	{"adjacent", PySquare_around, METH_NOARGS, NULL},
 	SQ_DIRECT_OBJ(nw),	
@@ -469,6 +476,21 @@ static inline piece_color_t PyColor_get(PyObject *self) {
 	return ((PyColorObject *)self)->color;
 }
 
+static PyObject *PyColor_repr(PyObject *self) {
+	piece_color_t color = PyColor_get(self);
+	switch(color) {
+		case WHITE_VAL:
+			return PyUnicode_FromString("<Color: White>");
+		case BLACK_VAL:
+			return PyUnicode_FromString("<Color: Black>");
+		default:
+			PyErr_Format(PyExc_AttributeError, 
+					"Illegal Color with value %d", color);
+			return NULL;
+	}
+}
+
+
 static PyObject *PyColor_str(PyObject *self) {
 	piece_color_t color = PyColor_get(self);
 	switch(color) {
@@ -481,6 +503,25 @@ static PyObject *PyColor_str(PyObject *self) {
 					"Illegal Color with value %d", color);
 			return NULL;
 	}
+}
+
+static PyObject *PyColor_invert(PyObject *self){
+	PyObject *out;
+	switch (PyColor_get(self)) {
+		case BLACK_VAL: out = (PyObject *)WhiteObject;
+		break;
+		case WHITE_VAL: out = (PyObject *)BlackObject;
+		break;
+		default:
+			PyErr_SetString(PyExc_ValueError, "Invalid color generated");
+			return NULL;
+	}
+	Py_INCREF(out);
+	return out;
+}
+
+static PyObject *PyColor_opposite(PyObject *self, void *closure){
+	return PyColor_invert(self);
 }
 
 
@@ -500,6 +541,14 @@ static Py_hash_t PyColor_hash(PyObject *self) {
 	return (PyColor_get(self) + 1);
 }
 
+static PyGetSetDef PyColor_getset[] = {
+	{"opposite", PyColor_opposite, NULL, NULL, NULL},
+	{NULL},
+};
+
+static PyNumberMethods PyColor_as_num = {
+	.nb_invert = PyColor_invert
+};
 
 static PyMethodDef PyColor_methods[] = {
 	{"from_str", PyColor_from_str, METH_O | METH_STATIC, NULL},
@@ -514,9 +563,11 @@ static PyTypeObject PyColorType = {
   .tp_flags = Py_TPFLAGS_DEFAULT, 
 	.tp_str = PyColor_str,
 	.tp_richcompare = PyColor_compare,
-	.tp_repr = PyColor_str,
+	.tp_repr = PyColor_repr,
 	.tp_hash = PyColor_hash,
-	.tp_methods = PyColor_methods
+	.tp_methods = PyColor_methods,
+	.tp_getset = PyColor_getset,
+	.tp_as_number = &PyColor_as_num
 };
 
 
@@ -902,6 +953,25 @@ static char *PyCastlingRights_name(PyObject *self){
 }
 */
 
+static PyObject *PyCastlingRights_add(PyObject *self, PyObject *arg){
+	if (!PyTypeCheck("CastlingRights", arg, &PyCastlingRightsType)) return NULL;
+	castling_rights_t right = PyCastlingRights_get(self);
+	castling_rights_t left = PyCastlingRights_get(arg);
+	return (PyObject *)PyCastlingRights_make(right | left);	
+}
+
+static PyObject *PyCastlingRights_from_fen(PyObject *self, PyObject *arg){
+	if (!PyTypeCheck("str", arg, &PyUnicode_Type)) return NULL;
+	const char *fen = PyUnicode_AsUTF8(arg);
+	castling_rights_t cr;
+	char *err = parse_castling(fen, &cr);
+	if (err){
+		PyErr_SetString(PyExc_ValueError, err);
+		return NULL;
+	}	
+	return (PyObject *)PyCastlingRights_make(cr);
+}
+
 static PyObject *PyCastlingRights_repr(PyObject *self){
 	char *str = castling_fen(PyCastlingRights_get(self));
 	return PyUnicode_FromFormat("<CastlingRights: \"%s\">", str);
@@ -985,6 +1055,8 @@ static PyObject* PyCastlingRights_queenside(PyObject* self, PyObject *args) {
 
 
 static PyMethodDef PyCastlingRights_methods[] = { 
+		{"from_fen", PyCastlingRights_from_fen, METH_STATIC | METH_O, NULL},
+		{"any", PyCastlingRights_any, METH_NOARGS, NULL}, 
 		{"any", PyCastlingRights_any, METH_NOARGS, NULL}, 
 		{"full", PyCastlingRights_full, METH_NOARGS, NULL}, 
 		{"queenside", PyCastlingRights_queenside, METH_O, NULL}, 
@@ -995,6 +1067,9 @@ static PyMethodDef PyCastlingRights_methods[] = {
 
 
 
+static PyNumberMethods PyCastlingRightsAsNum = {
+	.nb_add = PyCastlingRights_add
+};
 
 static PySequenceMethods PyCastlingRightsAsSeq = {
 	.sq_contains = PyCastlingRights_contains
@@ -1015,7 +1090,8 @@ static PyTypeObject PyCastlingRightsType = {
 	.tp_str = PyCastlingRights_str,
 	.tp_new = PyCastlingRights_newfunc,
 	.tp_as_sequence = &PyCastlingRightsAsSeq,
-	.tp_methods = PyCastlingRights_methods
+	.tp_methods = PyCastlingRights_methods,
+	.tp_as_number = &PyCastlingRightsAsNum
 };
 
 
@@ -1366,7 +1442,7 @@ static PyTypeObject PyMoveType = {
 };
 
 
-/* Bitboard Clas */
+/* Bitboard Class */
 
 typedef struct {
 	PyObject_HEAD
@@ -1374,6 +1450,7 @@ typedef struct {
 } PyBitboardObject;
 
 static PyTypeObject PyBitboardType;
+
 
 static PyObject *PyBitboard_make(bitboard_t bitboard){
 	PyBitboardObject *self = PyObject_New(PyBitboardObject, &PyBitboardType);
@@ -1532,7 +1609,10 @@ static PyObject *PyBitboard_from_int(PyObject *cls, PyObject *arg){
 	return (PyObject *)PyBitboard_make(bb);	
 }
 
-
+static Py_hash_t PyBitboard_hash(PyObject *self){
+	Py_hash_t out = PyBitboard_get(self) ;
+	return out == -1 ? -2 : out; 
+}
 
 static PyObject *PyBitboard_empty(PyObject *cls, PyObject *Py_UNUSED(args)){
 	return (PyObject *)PyBitboard_make(0);
@@ -1569,6 +1649,7 @@ static PyMethodDef PyBitboardMethods[] = {
 	{NULL, NULL, 0, NULL},
 };
 
+
 static PyTypeObject PyBitboardType = {
 	.ob_base = PyVarObject_HEAD_INIT(NULL, 0)
 	.tp_name = "bulletchess.Bitboard",
@@ -1585,7 +1666,8 @@ static PyTypeObject PyBitboardType = {
 	.tp_methods = PyBitboardMethods,
 	.tp_repr = PyBitboard_repr,
 	.tp_str = PyBitboard_to_str,
-	.tp_dealloc = PyGeneric_Dealloc
+	.tp_dealloc = PyGeneric_Dealloc,
+	.tp_hash = PyBitboard_hash
 };
 
 
@@ -2171,19 +2253,6 @@ static PyObject *PyBoard_fullmove_get(PyObject *self, void *closure) {
 }
 
 
-static int PyBoard_fullmove_set(PyObject *self, PyObject *val){
-	if (!PyTypeCheck("int", val, &PyLong_Type)) return -1;
-	long long raw = PyLong_AsUnsignedLongLong(val);
-	if (SHRT_MAX < raw) {
-		char exp[30];
-		sprintf(exp, "a value < %d", SHRT_MAX);
-		PyTypeErr(exp, val);
-		return -1;
-	}	
-	PyBoard_board(self)->fullmove_number = raw;	
-	return 0;
-}
-
 
 
 static PyObject *PyBoard_halfmove_get(PyObject *self, void *closure) {
@@ -2191,61 +2260,36 @@ static PyObject *PyBoard_halfmove_get(PyObject *self, void *closure) {
 }
 
 
-static int PyBoard_halfmove_set(PyObject *self, PyObject *val){
-	if (!PyTypeCheck("int", val, &PyLong_Type)) return -1;
-	long long raw = PyLong_AsUnsignedLongLong(val);
-	if (SHRT_MAX < raw) {
-		char exp[30];
-		sprintf(exp, "a value < %d", SHRT_MAX);
-		PyTypeErr(exp, val);
-		return -1;
-	}	
-	PyBoard_board(self)->halfmove_clock = raw;	
-	return 0;
-}
+#define BOARD_CLOCK_SETTER(FIELD)\
+static int PyBoard_##FIELD##_set(PyObject *self, PyObject *val){\
+	if (!PyTypeCheck("int", val, &PyLong_Type)) return -1;\
+	long long raw = PyLong_AsUnsignedLongLong(val);\
+	if (raw == -1 || UINT64_MAX < raw) {\
+		PyErr_Format(PyExc_OverflowError, "a value < %lld", UINT64_MAX);\
+		return -1;\
+	}	\
+	PyBoard_board(self)->FIELD = raw;\
+	return 0;\
+}\
 
+BOARD_CLOCK_SETTER(halfmove_clock)
 
-static PyObject *PyBoard_pawns(PyObject *self, void *closure) {
-	full_board_t *board = PyBoard_board(self);
-	return (PyObject *)PyBitboard_make(board->position->pawns);
-}
+BOARD_CLOCK_SETTER(fullmove_number)
 
-static PyObject *PyBoard_knights(PyObject *self, void *closure) {
-	full_board_t *board = PyBoard_board(self);
-	return (PyObject *)PyBitboard_make(board->position->knights);
-}
+#define POSITION_GETTER(NAME)\
+static PyObject *PyBoard_##NAME(PyObject *self, void *closure){\
+	full_board_t *board = PyBoard_board(self);\
+	return (PyObject *)PyBitboard_make(board->position->NAME);\
+}\
 
-static PyObject *PyBoard_bishops(PyObject *self, void *closure) {
-	full_board_t *board = PyBoard_board(self);
-	return (PyObject *)PyBitboard_make(board->position->bishops);
-}
-
-static PyObject *PyBoard_rooks(PyObject *self, void *closure) {
-	full_board_t *board = PyBoard_board(self);
-	return (PyObject *)PyBitboard_make(board->position->rooks);
-}
-
-static PyObject *PyBoard_queens(PyObject *self, void *closure) {
-	full_board_t *board = PyBoard_board(self);
-	return (PyObject *)PyBitboard_make(board->position->queens);
-}
-
-static PyObject *PyBoard_kings(PyObject *self, void *closure) {
-	full_board_t *board = PyBoard_board(self);
-	return (PyObject *)PyBitboard_make(board->position->kings);
-}
-
-
-static PyObject *PyBoard_white(PyObject *self, void *closure) {
-	full_board_t *board = PyBoard_board(self);
-	return (PyObject *)PyBitboard_make(board->position->white_oc);
-}
-
-
-static PyObject *PyBoard_black(PyObject *self, void *closure) {
-	full_board_t *board = PyBoard_board(self);
-	return (PyObject *)PyBitboard_make(board->position->black_oc);
-}
+POSITION_GETTER(pawns)
+POSITION_GETTER(knights)
+POSITION_GETTER(rooks)
+POSITION_GETTER(bishops)
+POSITION_GETTER(queens)
+POSITION_GETTER(kings)
+POSITION_GETTER(white_oc)
+POSITION_GETTER(black_oc)
 
 static PyObject *PyBoard_empty_bb(PyObject *self, void *closure) {
 	position_t *pos= PyBoard_board(self)->position;
@@ -2312,16 +2356,30 @@ static int PyBoard_set_castling_rights(PyObject *self, PyObject *arg,
 	}
 }
 
-
+static PyObject *PyBoard_history(PyObject *self, void *closure){
+	PyBoardObject *board = (PyBoardObject *)self;
+	PyObject *list = PyList_New(board->stack_size);
+	for (int i = 0; i < board->stack_size; i++){
+		PyObject *move = PyMove_make(board->move_stack[i].move);
+		if (!move){
+			for (int j = 0; j < i; j++){
+				Py_DECREF(PyList_GET_ITEM(list, j));
+			}
+			return NULL;
+		}
+		PyList_SET_ITEM(list, i, move);
+	}	
+	return list;
+}
 
 
 static PyGetSetDef Board_getset[] = {
     {"turn", 
 			(getter)PyBoard_turn_get, (setter)PyBoard_turn_set, NULL, NULL},
     {"fullmove_number", 
-			(getter)PyBoard_fullmove_get, (setter)PyBoard_fullmove_set, NULL, NULL},
+			(getter)PyBoard_fullmove_get, (setter)PyBoard_fullmove_number_set, NULL, NULL},
     {"halfmove_clock", 
-			(getter)PyBoard_halfmove_get, (setter)PyBoard_halfmove_set, NULL, NULL},
+			(getter)PyBoard_halfmove_get, (setter)PyBoard_halfmove_clock_set, NULL, NULL},
     {"en_passant_square", 
 			(getter)PyBoard_ep_square, (setter)PyBoard_ep_set, NULL, NULL},
     {"pawns", 
@@ -2337,10 +2395,10 @@ static PyGetSetDef Board_getset[] = {
     {"kings", 
 			(getter)PyBoard_kings, NULL, NULL, NULL},
 		{"white", 
-			(getter)PyBoard_white, NULL, NULL, NULL},
+			(getter)PyBoard_white_oc, NULL, NULL, NULL},
 		{"black", 
-			(getter)PyBoard_black, NULL, NULL, NULL},
-	
+			(getter)PyBoard_black_oc, NULL, NULL, NULL},
+		{"history", PyBoard_history, NULL, NULL, NULL},	
 		{"unoccupied",
 			PyBoard_empty_bb, NULL, NULL, NULL},	
 		{"castling_rights",
@@ -2606,8 +2664,9 @@ static PyObject *PyUtils_srandom(PyObject *self, PyObject *arg){
 UTIL_FROM_BOARD_TO_BB(isolated_pawns)
 UTIL_FROM_BOARD_TO_BB(backwards_pawns)
 UTIL_FROM_BOARD_TO_BB(doubled_pawns)
+UTIL_FROM_BOARD_TO_BB(passed_pawns)
 
-
+UTIL_FROM_BOARD_TO_BB(open_files)
 
 
 static PyObject *PyUtils_attack_mask(PyObject*self, PyObject*args) { 
@@ -2644,12 +2703,69 @@ static PyObject *PyReset_Hash(PyObject *self, PyObject *Py_UNUSED(args)){
 	Py_RETURN_NONE;
 }
 
+static PyObject *PyUtils_evaluate(PyObject *self, PyObject *arg){
+	if (!PyTypeCheck("Board", arg, &PyBoardType)) return NULL;
+	PyBoardObject *board = (PyBoardObject *)arg;
+	int32_t eval = shannon_evaluation(board->board, board->move_stack, board->stack_size);
+	return PyLong_FromLong(eval);
+}
+
+
+static PyObject *PyUtils_material(PyObject *self, PyObject *args, PyObject *kwargs){
+	PyObject *board_obj;
+	int64_t pawn_val = 100, 
+					knight_val = 300, 
+					bishop_val = 300, 
+					rook_val = 500, 
+					queen_val = 900;
+	static char *kwlist[] = 
+	{"board", "pawn_value", "knight_value", "bishop_value", "rook_value", "queen_value", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|LLLLL", kwlist, 
+				&board_obj, &pawn_val, &knight_val, &bishop_val, &rook_val, &queen_val)) 
+		return NULL;
+	if (!PyTypeCheck("Board", board_obj, &PyBoardType)) return NULL;
+	PyBoardObject *board = (PyBoardObject *)board_obj;
+	int64_t mat = material(board->board, pawn_val, knight_val, 
+			bishop_val, rook_val, queen_val); 
+	return PyLong_FromLongLong(mat);
+}
+
+
+static PyObject *PyUtils_mobility(PyObject *self, PyObject *arg){
+	if (!PyTypeCheck("Board", arg, &PyBoardType)) return NULL;
+	PyBoardObject *board = (PyBoardObject *)arg;
+	int mob = net_mobility(board->board); 
+	return PyLong_FromLong(mob);
+}
+
+static PyObject *PyUtils_random_legal_move(PyObject *self, PyObject *arg){
+	if (!PyTypeCheck("Board", arg, &PyBoardType)) return NULL;
+	PyBoardObject *board = (PyBoardObject*)arg;
+	return PyMove_from_opt(random_legal_move(board->board));
+}
+
+
+static PyObject *PyUtils_is_pinned(PyObject *self, PyObject *args){
+	PyObject *arg1, *arg2;
+	if (!PyArg_ParseTuple(args, "OO", &arg1, &arg2)) return NULL;
+	if (!PyTypeCheck("Board", arg1, &PyBoardType)) return NULL;
+	if (!PyTypeCheck("Square", arg2, &PySquareType)) return NULL;
+	PY_RETURN_BOOL(is_pinned(PyBoard_board(arg1), PySquare_get(arg2)));
+}
+
 
 static PyMethodDef PyUtilsMethods[] = {
 	//{"pinned_mask", PyUtils_pinned_mask, METH_VARARGS, NULL},	
+	{"evaluate", PyUtils_evaluate, METH_O, NULL},		
+	{"mobility", PyUtils_mobility, METH_O, NULL},
+	{"material", (PyCFunction)PyUtils_material, METH_KEYWORDS | METH_VARARGS, NULL},
 	{"attack_mask", PyUtils_attack_mask, METH_VARARGS, NULL},	
+	{"is_pinned", PyUtils_is_pinned, METH_VARARGS, NULL},
+	{"random_legal_move", PyUtils_random_legal_move, METH_O, NULL},
 	{"backwards_pawns", PyUtils_backwards_pawns, METH_O, NULL},	
+	{"open_files", PyUtils_open_files, METH_O, NULL},	
 	{"isolated_pawns", PyUtils_isolated_pawns, METH_O, NULL},	
+	{"passed_pawns", PyUtils_passed_pawns, METH_O, NULL},	
 	{"doubled_pawns", PyUtils_doubled_pawns, METH_O, NULL},	
 	{"count_moves", PyUtils_count_moves, METH_O, NULL},	
 	{"is_quiescent", PyUtils_is_quiescent, METH_O, NULL},	
@@ -3488,13 +3604,21 @@ PyMODINIT_FUNC PyInit__core(void) {
 		ADD_OBJ("INSUFFICIENT_MATERIAL", INSUFFICIENT_OBJ);
 		ADD_OBJ("FIFTY_MOVE_TIMEOUT", FIFTY_OBJ);
 		ADD_OBJ("SEVENTY_FIVE_MOVE_TIMEOUT", SEVENTY_FIVE_OBJ);
-		ADD_OBJ("THREE_FOLD_REPETITION", THREE_FOLD_OBJ);
-		ADD_OBJ("FIVE_FOLD_REPETITION", FIVE_FOLD_OBJ);
+		ADD_OBJ("THREEFOLD_REPETITION", THREE_FOLD_OBJ);
+		ADD_OBJ("FIVEFOLD_REPETITION", FIVE_FOLD_OBJ);
 
 		ADD_OBJ("DRAW", DRAW_OBJ);
 		ADD_OBJ("FORCED_DRAW", FORCED_DRAW_OBJ);
 		ADD_OBJ("CHECKMATE", CHECKMATE_OBJ);
 		ADD_OBJ("STALEMATE", STALEMATE_OBJ);
+		
+		PyCastlingRightsObject *ALL_CASTLING 
+			= PyCastlingRights_make(FULL_CASTLING);
+		VALIDATE(ALL_CASTLING);
+		PyCastlingRightsObject *MT_CASTLING
+			= PyCastlingRights_make(NO_CASTLING);
+		ADD_OBJ("ALL_CASTLING", ALL_CASTLING);	
+		ADD_OBJ("NO_CASTLING", MT_CASTLING);
 		zobrist_table = create_zobrist_table();
 		fill_zobrist_table(zobrist_table);
 		return m;

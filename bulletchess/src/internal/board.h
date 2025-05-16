@@ -80,8 +80,9 @@ typedef uint8_t castling_rights_t;
 #define WHITE_STARTING 65535ull
 #define BLACK_STARTING 18446462598732840960ull
 
-typedef uint16_t turn_clock_t;
+typedef u_int64_t turn_clock_t;
 typedef piece_color_t piece_color8_t __attribute__ ((vector_size(8)));
+
 
 typedef struct {
     position_t *position;

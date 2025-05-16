@@ -5,6 +5,7 @@ sys.path.append("./")
 from bulletchess import *
 import tqdm
 
+
 def gen_fens_random(init_count : int) -> list[str]:
     return [board.fen() for board in set([Board.random() for _ in tqdm.tqdm(range(init_count), desc = "Making fens")])]
 

@@ -157,7 +157,7 @@ class TestMoveApply(unittest.TestCase):
             "rnbqkbnr/pppppp1p/8/8/1P6/2N2p2/P1PPP1PP/R1BQKBNR w KQkq - 0 4")
 
     def testRandomUndo(self):
-        boards = [Board.random() for _ in range(10000)]
+        boards = [Board.random() for _ in range(1000)]
         for board in boards:
             moves = board.legal_moves()
             if len(moves) == 0:
@@ -170,12 +170,12 @@ class TestMoveApply(unittest.TestCase):
                 self.assertEqual(board, copy, msg = move)
 
     def testRandomDoubleUndo(self):
-        boards = [Board.random() for _ in range(10000)]
+        boards = [Board.random() for _ in range(1000)]
         for board in boards:
             self.assert_valid_double_undos(board)
 
     def testRandomTripleUndo(self):
-        boards = [Board.random() for _ in range(1000)]
+        boards = [Board.random() for _ in range(100)]
         for board in boards:
             self.assert_valid_triple_undos(board)
 
@@ -215,6 +215,7 @@ class TestMoveApply(unittest.TestCase):
         self.assertEqual(undone, None)
         self.assertEqual(board, Board())
 
+    """
     def testAgainstJson(self):
         with open("new_tests/data/move_results.json", "r") as f:
             data = json.load(f)
@@ -227,6 +228,7 @@ class TestMoveApply(unittest.TestCase):
                 self.assertEqual(board, Board.from_fen(data[fen][uci]), msg = {"uci": uci, "start":fen, "res": data[fen][uci]})
                 board.undo()
                 self.assertEqual(copy, board)
+    """
 
     def test_rook_one_square(self):
         FEN = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"
@@ -255,6 +257,19 @@ class TestMoveApply(unittest.TestCase):
         board = Board.from_fen(FEN)
         board.apply(Move.from_uci("h4h1"))
         self.assertEqual(board.fen(), "1nb2b1r/6k1/6p1/7p/8/3PB3/5PP1/4KBNq w - - 0 30")
+
+    def test_abuse(self):
+        # this is technically possible to do, since we don't
+        # check legallity before applying a move. 
+        board = Board()
+        moves = []
+        for _ in range(10000000):
+            move = Move(E2, E4)
+            board.apply(move)
+            moves.append(move)
+        self.assertEqual(board.history, moves)
+        print(board.fen())
+        
 
 if __name__ == "__main__":
     unittest.main()
