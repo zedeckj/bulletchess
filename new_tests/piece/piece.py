@@ -69,7 +69,8 @@ class TestPiece(unittest.TestCase):
             Piece(BLACK, KING) : "k",
         }
         for piece in expected:
-            self.assertEqual(Piece.from_str(expected[piece]), piece)
+            self.assertEqual(Piece.from_chr(expected[piece]), piece)
+
 
     def test_unicode(self):
         expected = {
@@ -97,9 +98,9 @@ class TestPiece(unittest.TestCase):
 
     def test_from_str_err(self):
         with self.assertRaisesRegex(TypeError, re.escape("Expected a str, got 2 (int)")):
-            Piece.from_str(2) #type: ignore
+            Piece.from_chr(2) #type: ignore
         with self.assertRaisesRegex(ValueError, re.escape("Invalid Piece string \"m\"")):
-            Piece.from_str("m") 
+            Piece.from_chr("m") 
 
 
     def test_type_err(self):

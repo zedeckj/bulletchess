@@ -35,5 +35,11 @@ class TestColor(unittest.TestCase):
         self.assertIs(~BLACK, WHITE) 
         self.assertIs(~WHITE, BLACK)
 
+    def test_from_str(self):
+        self.assertEqual(Color.from_str("White"), WHITE)
+        self.assertEqual(Color.from_str("BLACK"), BLACK)
+        with self.assertRaisesRegex(ValueError, re.escape("Unknown Color string \"RED\"")):
+            Color.from_str("RED")
+
 if __name__ == "__main__":
     unittest.main()

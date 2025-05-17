@@ -225,3 +225,10 @@ renamed perft_native to perft_python
 - overview all tests, look for obvious holes
 - FEN integration test
 - clean up perft.py, should only have to call assertPerftIs(board, depth, nodes) for both python version and builtin, renamed perft_native to perft_python
+
+
+5/16 revised
+- Fix SAN bad error messages, test all pieces and formats individually
+- Document all Classes and Non dunders
+- Address Board Equality, need to decide on where 3 types of equality go, legally equal, object equal, object equal + history 
+- Document dunders 

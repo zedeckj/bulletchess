@@ -91,10 +91,11 @@ typedef struct {
     optional_square_t en_passant_square;
     turn_clock_t halfmove_clock;
     turn_clock_t fullmove_number;
-//    move_stack_t *move_stack;
 } full_board_t;
 
 
+// fills the given board with the starting position
+void starting_board(full_board_t *board);
 
 // Returns true if the specified square index is empty
 bool square_empty(position_t * board, square_t square);

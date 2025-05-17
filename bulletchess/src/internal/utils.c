@@ -283,25 +283,21 @@ bool is_pinned(full_board_t *board, square_t square){
 	position_t *pos = board->position;
 	piece_color_t friendly;
 	piece_color_t hostile;
-	bitboard_t hostile_bb;
 	if (pos->white_oc & sq_bb) {
 		friendly = WHITE_VAL;
 		hostile = BLACK_VAL;
-		hostile_bb = pos->black_oc;	
 	}
 	else if (pos->black_oc & sq_bb) {
 		friendly = BLACK_VAL;
 		hostile = WHITE_VAL;
-		hostile_bb = pos->black_oc;
 	}
 	else return false;
 	bitboard_t attack_mask = make_attack_mask(board, hostile);
-	print_bitboard(attack_mask);
 	bitboard_t mask = make_pinned_mask(board, sq_bb, friendly, attack_mask); 
-	print_bitboard(mask);
 	if (~mask) {
-		check_info_t info = make_check_info(board, for_color, attacK_mask);		
-		return count_bits(mask) == 1; 
+		check_info_t info = make_check_info(board, friendly, attack_mask);
+		return !has_moves(board, friendly, attack_mask, sq_bb, info); 
 	}
+	return false;
 }
 

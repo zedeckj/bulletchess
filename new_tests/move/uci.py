@@ -28,6 +28,7 @@ class TestUCI(unittest.TestCase):
     def test_construct(self):
         self.assert_symmetric_str("e2e4")
         self.assert_symmetric_str("a1a5")
+        self.assert_symmetric_str("a1d4")
         self.assert_symmetric_str("h7h8q")
         self.assert_symmetric_str("H7H8q")
             
@@ -79,6 +80,16 @@ class TestUCI(unittest.TestCase):
             Move.from_uci("e7e8c")
         with self.assertRaisesRegex(ValueError, re.escape("Invalid UCI: Given string is too long, expected at most 5 characters, got 'a2a3a4'")):
             Move.from_uci("a2a3a4")
+
+    def test_promotion(self):
+        move = Move.from_uci("b7b8q")
+        self.assertEqual(move, Move(B7, B8, promote_to = QUEEN))
+        self.assertTrue(move != None)
+        if move != None:
+            self.assertEqual(move.origin, B7)
+            self.assertEqual(move.destination, B8)
+            self.assertEqual(move.promotion, QUEEN)
+        
 
 if __name__ == "__main__":
     unittest.main()

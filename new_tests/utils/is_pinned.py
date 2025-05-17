@@ -49,7 +49,7 @@ class TestIsPinned(unittest.TestCase):
                     self.assertFalse(utils.is_pinned(board, square), msg = "\n" + board.pretty(highlighted_squares=Bitboard([square])))
 
 if __name__ == "__main__":
-    board = Board.from_fen("6k1/5p2/8/3B4/2K5/8/8/8 w - - 0 1")
-    utils.is_pinned(board, F7)
-    #unittest.main()
+    #board = Board.from_fen("6k1/5p2/8/3B4/2K5/8/8/8 w - - 0 1")
+    #utils.is_pinned(board, F7)
+    unittest.main()
     

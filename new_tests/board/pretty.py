@@ -5,7 +5,7 @@ from bulletchess import *
 
 import json
 
-def print_moves_from(board : Board, origin : Square, color_scheme : ColorScheme, name : str):
+def print_moves_from(board : Board, origin : Square, color_scheme : Board.ColorScheme, name : str):
     moves = board.legal_moves()
     dest = EMPTY_BB
     for move in moves:
@@ -29,18 +29,18 @@ class TestBoardPretty(unittest.TestCase):
         board.apply(Move(E7, E5))
         board.apply(Move(G1, F3))
         board.apply(Move(B8, C6))
-        print_moves_from(board, D2, CYAN, "CYAN?")
-        print_moves_from(board, F3, SLATE, "SLATE?")
-        print_moves_from(board, E1, OAK, "OAK?")
-        print_moves_from(board, B1, GREEN, "GREEN?")
-        print_moves_from(board, F1, WALNUT, "WALNUT?")
-        NEW_COLOR1 = ColorScheme(251, 138, 222)
-        print_moves_from(board, B2, NEW_COLOR1, "???")
-        NEW_COLOR2 = ColorScheme(224, 197, 189) 
-        WRONG_COLOR = ColorScheme(223,52,230)
-        print_moves_from(board, A2, NEW_COLOR2, "ROSE?")
-        GREY_COLOR = ColorScheme(251,243,231)
-        print_moves_from(board, A2, GREY_COLOR, "GREY?")
+        print_moves_from(board, D2, Board.LAGOON, "LAGOON")
+        print_moves_from(board, F3, Board.SLATE, "SLATE")
+        print_moves_from(board, E1, Board.OAK, "OAK")
+        print_moves_from(board, B1, Board.GREEN, "GREEN")
+        print_moves_from(board, F1, Board.WALNUT, "WALNUT")
+        #NEW_COLOR1 = ColorScheme(251, 138, 222)
+        print_moves_from(board, B2, Board.CLAY, "CLAY")
+        #NEW_COLOR2 = ColorScheme(224, 197, 189) 
+        print_moves_from(board, A2, Board.ROSE, "ROSE")
+        #GREY_COLOR = ColorScheme(251,243,231)
+        print_moves_from(board, A2, Board.STEEL, "STEEL")
+        
 
 
 if __name__ == "__main__":

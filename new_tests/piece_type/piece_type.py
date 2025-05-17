@@ -48,6 +48,14 @@ class TestSquare(unittest.TestCase):
             hashes.add(hash(pt))
         self.assertEqual(len(hashes), 6)
 
+    def test_str(self):
+        self.assertEqual(str(PAWN), "Pawn")
+        self.assertEqual(str(BISHOP), "Bishop")
+        self.assertEqual(str(KNIGHT), "Knight")
+        self.assertEqual(str(ROOK), "Rook")
+        self.assertEqual(str(QUEEN), "Queen")
+        self.assertEqual(str(KING), "King")
+
 
     def test_misuse(self):
         with self.assertRaisesRegex(TypeError, re.escape("cannot create 'bulletchess.PieceType' instances")):

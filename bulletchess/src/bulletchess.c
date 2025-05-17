@@ -729,7 +729,7 @@ static PyGetSetDef PyPiece_getset[] = {
 
 static PyMethodDef PyPiece_methods[] = {
 	{"unicode", PyPiece_unicode, METH_NOARGS , NULL},
-	{"from_str", PyPiece_from_str, METH_O | METH_STATIC, NULL},
+	{"from_chr", PyPiece_from_str, METH_O | METH_STATIC, NULL},
 	{NULL, NULL, 0, NULL}
 };
 
@@ -838,7 +838,7 @@ static PyObject *PyCastlingType_str(PyObject *self){
 	return PyUnicode_FromString(str);
 }
 
-static PyObject *PyCastlingType_from_str(PyObject *self, PyObject *arg) {
+static PyObject *PyCastlingType_from_chr(PyObject *self, PyObject *arg) {
 	if (!PyTypeCheck("str", arg, &PyUnicode_Type)) return NULL;
 	Py_ssize_t len;
 	const char *str = PyUnicode_AsUTF8AndSize(arg, &len);
@@ -859,7 +859,7 @@ static PyObject *PyCastlingType_from_str(PyObject *self, PyObject *arg) {
 
 
 static PyMethodDef PyCastlingType_methods[] = {
-	{"from_str", PyCastlingType_from_str, METH_O | METH_STATIC, NULL},
+	{"from_chr", PyCastlingType_from_chr, METH_O | METH_STATIC, NULL},
 	{NULL, NULL, 0, NULL}
 };
 
@@ -1016,51 +1016,80 @@ static int PyCastlingRights_contains(PyObject *self, PyObject *arg){
 	return check & PyCastlingRights_get(self) ? 1 : 0;
 }
 
-static PyObject* PyCastlingRights_any(PyObject* self, PyObject *Py_UNUSED(args)){
-	return PY_BOOL(PyCastlingRights_get(self));
-}
 
-
-static PyObject* PyCastlingRights_full(PyObject* self, PyObject *Py_UNUSED(args)){
-	return PY_BOOL(PyCastlingRights_get(self) == FULL_CASTLING);
-}
-
-
-static PyObject* PyCastlingRights_kingside(PyObject* self, PyObject *args) {	
-	if (!args || Py_IsNone(args)) return PY_BOOL(PyCastlingRights_get(self) & ANY_KINGSIDE);	
-	if (PyTypeCheck("Color or None", args, &PyColorType)) {
-		piece_color_t color = PyColor_get(args);
-		if (color == WHITE_VAL) {
-			return PY_BOOL(WHITE_KINGSIDE & PyCastlingRights_get(self));
-		}
-		else return PY_BOOL(BLACK_KINGSIDE & PyCastlingRights_get(self));
+static PyObject* PyCastlingRights_full(PyObject* self, PyObject *args){
+	castling_rights_t cr = PyCastlingRights_get(self);
+	PyObject *arg = NULL;
+	if (!PyArg_ParseTuple(args, "|O", &arg)) return NULL;
+	if (!arg || Py_IsNone(arg)) 
+		return PY_BOOL(cr == FULL_CASTLING);	
+	if (!PyTypeCheck("Color or None", arg, &PyColorType)) return NULL;
+	switch (PyColor_get(arg)){
+		case WHITE_VAL:
+			return PY_BOOL((cr & WHITE_FULL_CASTLING) 
+					== WHITE_FULL_CASTLING);
+		default:
+			return PY_BOOL((cr & BLACK_FULL_CASTLING)	
+					== BLACK_FULL_CASTLING);
 	}
-	return NULL;
 }
 
-
-
-static PyObject* PyCastlingRights_queenside(PyObject* self, PyObject *args) {	
-	if (!args || Py_IsNone(args)) return PY_BOOL(PyCastlingRights_get(self) & ANY_QUEENSIDE);	
-	if (PyTypeCheck("Color or None", args, &PyColorType)) {
-		piece_color_t color = PyColor_get(args);
-		if (color == WHITE_VAL) {
-			return PY_BOOL(WHITE_QUEENSIDE & PyCastlingRights_get(self));
-		}
-		else return PY_BOOL(BLACK_QUEENSIDE & PyCastlingRights_get(self));
+static PyObject* PyCastlingRights_any(PyObject* self, PyObject *args){
+	castling_rights_t cr = PyCastlingRights_get(self);
+	PyObject *arg = NULL;
+	if (!PyArg_ParseTuple(args, "|O", &arg)) return NULL;
+	if (!arg || Py_IsNone(arg)) 
+		return PY_BOOL(cr);	
+	if (!PyTypeCheck("Color or None", arg, &PyColorType)) return NULL;
+	switch (PyColor_get(arg)){
+		case WHITE_VAL:
+			return PY_BOOL((cr & WHITE_FULL_CASTLING));
+		default:
+			return PY_BOOL((cr & BLACK_FULL_CASTLING));
 	}
-	return NULL;
 }
+
+
+static PyObject* PyCastlingRights_queenside(PyObject* self, PyObject *args){
+	castling_rights_t cr = PyCastlingRights_get(self);
+	PyObject *arg = NULL;
+	if (!PyArg_ParseTuple(args, "|O", &arg)) return NULL;
+	if (!arg || Py_IsNone(arg)) 
+		return PY_BOOL(cr & ANY_QUEENSIDE);	
+	if (!PyTypeCheck("Color or None", arg, &PyColorType)) return NULL;
+	switch (PyColor_get(arg)){
+		case WHITE_VAL:
+			return PY_BOOL((cr & WHITE_QUEENSIDE));
+		default:
+			return PY_BOOL((cr & BLACK_QUEENSIDE));
+	}
+}
+
+static PyObject* PyCastlingRights_kingside(PyObject* self, PyObject *args){
+	castling_rights_t cr = PyCastlingRights_get(self);
+	PyObject *arg = NULL;
+	if (!PyArg_ParseTuple(args, "|O", &arg)) return NULL;
+	if (!arg || Py_IsNone(arg)) 
+		return PY_BOOL(cr & ANY_KINGSIDE);	
+	if (!PyTypeCheck("Color or None", arg, &PyColorType)) return NULL;
+	switch (PyColor_get(arg)){
+		case WHITE_VAL:
+			return PY_BOOL((cr & WHITE_KINGSIDE));
+		default:
+			return PY_BOOL((cr & BLACK_KINGSIDE));
+	}
+}
+
 
 
 
 static PyMethodDef PyCastlingRights_methods[] = { 
 		{"from_fen", PyCastlingRights_from_fen, METH_STATIC | METH_O, NULL},
-		{"any", PyCastlingRights_any, METH_NOARGS, NULL}, 
-		{"any", PyCastlingRights_any, METH_NOARGS, NULL}, 
-		{"full", PyCastlingRights_full, METH_NOARGS, NULL}, 
-		{"queenside", PyCastlingRights_queenside, METH_O, NULL}, 
-		{"kingside", PyCastlingRights_kingside, METH_O, NULL}, 
+		{"any", PyCastlingRights_any, METH_VARARGS, NULL}, 
+		{"any", PyCastlingRights_any, METH_VARARGS, NULL}, 
+		{"full", PyCastlingRights_full, METH_VARARGS, NULL}, 
+		{"queenside", PyCastlingRights_queenside, METH_VARARGS, NULL}, 
+		{"kingside", PyCastlingRights_kingside, METH_VARARGS, NULL}, 
 		{NULL, NULL, 0, NULL}
 };
 
@@ -1230,9 +1259,10 @@ static PyObject *PyMove_from_san(PyObject *self, PyObject *args) {
 	const char *san = PyUnicode_AsUTF8(san_obj);
 	bool err = false;
 	char err_msg[300];
-	move_t move = san_str_to_move(PyBoard_board(board), san, &err, err_msg);
+	move_t move = san_str_to_move(PyBoard_board(board), 
+			san, &err, err_msg);
 	if (err) {
-		PyErr_SetString(PyExc_ValueError, err_msg);
+		PyErr_Format(PyExc_ValueError, "%s for %R, got \"%s\"", err_msg, board, san);
 		return NULL;
 	}
 	return (PyObject *)PyMove_make(move);
@@ -1710,34 +1740,37 @@ static int PyColorScheme_init(PyObject *self, PyObject *args, PyObject *kwargs){
 }
 
 
-PyObject *OAK;
-PyObject *CYAN;
-PyObject *SLATE;
-PyObject *GREEN;
-PyObject* WALNUT;
+PyObject *OAK = NULL;
+PyObject *LAGOON = NULL;
+PyObject *SLATE = NULL;
+PyObject *GREEN = NULL;
+PyObject* WALNUT = NULL;
+PyObject* CLAY = NULL;
+PyObject* ROSE = NULL;
+PyObject* STEEL = NULL;
 #define DEFINE_COLOR(NAME, ...)\
 	NAME = PyColorScheme_make(__VA_ARGS__);\
 	if (!NAME) goto err
 
 static bool PyColorScheme_predefined(){
-	CYAN = NULL;
-	SLATE = NULL;
-	OAK = NULL;
-	GREEN = NULL;
-	WALNUT = NULL;
-	DEFINE_COLOR(CYAN, 0, 117, 33, 195);
+	DEFINE_COLOR(LAGOON, 0, 117, 33, 195);
 	DEFINE_COLOR(SLATE, 0,251 ,103, 231);
-	DEFINE_COLOR(OAK,0, 222, 172, 226); 
+	DEFINE_COLOR(OAK,0, 222, 172, 228); 
 	DEFINE_COLOR(GREEN, 0, 230, 64, 226);
 	DEFINE_COLOR(WALNUT, 0, 230, 137, 226);
-	
+	DEFINE_COLOR(CLAY, 0, 251, 138, 222);
+	DEFINE_COLOR(ROSE, 0, 224, 197, 189);
+	DEFINE_COLOR(STEEL, 0, 251, 243, 231);
 	return true;
 	err:
-	Py_XDECREF(CYAN);
+	Py_XDECREF(LAGOON);
 	Py_XDECREF(SLATE);
 	Py_XDECREF(OAK);
 	Py_XDECREF(GREEN);
 	Py_XDECREF(WALNUT);
+	Py_XDECREF(CLAY);
+	Py_XDECREF(ROSE);
+	Py_XDECREF(STEEL);
 	return false;
 }
 
@@ -1770,14 +1803,14 @@ static PyGetSetDef PyColorSchemeGetDefs[] = {
 
 static PyTypeObject PyColorSchemeType = {
 	.ob_base = PyVarObject_HEAD_INIT(NULL, 0)
-	.tp_name = "bulletchess.ColorScheme",
+	.tp_name = "bulletchess.Board.ColorScheme",
 	.tp_basicsize = sizeof(PyColorSchemeObject),
   .tp_itemsize = 0,
-  .tp_flags = Py_TPFLAGS_DEFAULT, 
-	.tp_new = PyType_GenericNew,
-	.tp_init = PyColorScheme_init,
+  //.tp_flags = Py_TPFLAGS_DEFAULT, 
+	//.tp_new = PyType_GenericNew,
+	//.tp_init = PyColorScheme_init,
 	.tp_repr = PyColorScheme_repr,
-	.tp_dealloc = PyGeneric_Dealloc,
+	//.tp_dealloc = PyGeneric_Dealloc,
 	.tp_getset = PyColorSchemeGetDefs
 };
 
@@ -1909,8 +1942,9 @@ static PyObject *PyBoard_from_fen(PyObject *cls, PyObject *args) {
 }
 
 static void PyBoard_setup_starting(PyObject *self) {
-	const char *fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-	parse_fen(fen, PyBoard_board(self)); 
+	//const char *fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+	//parse_fen(fen, PyBoard_board(self)); 
+	starting_board(PyBoard_board(self));
 }
 
 static bool PyBoard_apply_struct(PyBoardObject *board_obj, move_t move);
@@ -2181,7 +2215,7 @@ static PyObject *PyBoard_##NAME(PyObject *self, PyObject *Py_UNUSED(arg)){\
 	PY_RETURN_BOOL(NAME(board->board, board->move_stack, board->stack_size));\
 }
 
-
+/*
 PYBOARD_STACK_PREDICATE(is_fivefold_repetition)
 PYBOARD_STACK_PREDICATE(is_threefold_repetition)
 PYBOARD_STACK_PREDICATE(board_is_draw)
@@ -2190,17 +2224,18 @@ PYBOARD_PREDICATE(is_checkmate)
 PYBOARD_PREDICATE(is_stalemate)
 PYBOARD_PREDICATE(in_check)
 PYBOARD_PREDICATE(is_insufficient_material)
-
 PYBOARD_PREDICATE(can_claim_fifty)
 PYBOARD_PREDICATE(is_seventy_five)
+*/
+
 static PyMethodDef board_methods[] = { 
     {"from_fen", PyBoard_from_fen, METH_O | METH_STATIC, NULL},  
     {"random", PyBoard_random, METH_NOARGS | METH_STATIC, NULL},  
     {"empty", PyBoard_empty, METH_NOARGS | METH_STATIC, NULL},  
 		{"fen", PyBoard_to_fen, METH_NOARGS, NULL},
-		{"is_insufficient_material", PyBoard_is_insufficient_material, METH_NOARGS, NULL},
 		{"pretty", (PyCFunction) PyBoard_pretty, METH_VARARGS | METH_KEYWORDS, NULL},
 		/*
+		{"is_insufficient_material", PyBoard_is_insufficient_material, METH_NOARGS, NULL},
 		{"is_draw", PyBoard_board_is_draw, METH_NOARGS, NULL},
 		{"is_fifty_move_timeout", PyBoard_can_claim_fifty, METH_NOARGS, NULL},
 		{"is_seventy_five_move_timeout", PyBoard_is_seventy_five, METH_NOARGS, NULL},
@@ -3434,7 +3469,6 @@ static struct PyModuleDef bulletchess_definition = {
 
 
 PyMODINIT_FUNC PyInit__core(void) {
-    if (PyType_Ready(&PyBoardType) < 0) return NULL;
 		if (PyType_Ready(&PyColorType) < 0) return NULL;
 		if (PyType_Ready(&PySquareType) < 0) return NULL;
 		if (PyType_Ready(&PyPieceTypeType) < 0) return NULL;
@@ -3449,6 +3483,8 @@ PyMODINIT_FUNC PyInit__core(void) {
 		if (PyType_Ready(&PyCastlingRightsType) < 0) return NULL;
 		if (PyType_Ready(&PyColorSchemeType) < 0) return NULL;
 		if (PyType_Ready(&PyBoardStatusType) < 0) return NULL;
+	
+		
 		initstate(time(NULL), rand_state, 256);
 		PyMoves_prep();
 		PyObject *m = PyModule_Create(&bulletchess_definition);
@@ -3476,7 +3512,6 @@ PyMODINIT_FUNC PyInit__core(void) {
 		ADD_PGN("PGNResult", &PyPGNResultType);
 
 		ADD_OBJ("utils", utils);
-		ADD_OBJ("Board", &PyBoardType);
 		ADD_OBJ("Bitboard", &PyBitboardType);
 		ADD_OBJ("Color", &PyColorType);
 		ADD_OBJ("Square", &PySquareType);
@@ -3485,8 +3520,25 @@ PyMODINIT_FUNC PyInit__core(void) {
 		ADD_OBJ("CastlingType", &PyCastlingTypeType);
 		ADD_OBJ("CastlingRights", &PyCastlingRightsType);
 		ADD_OBJ("Move", &PyMoveType);
-		ADD_OBJ("ColorScheme", &PyColorSchemeType);
 		ADD_OBJ("BoardStatus", &PyBoardStatusType);
+		
+		VALIDATE(PyColorScheme_predefined());
+		PyObject *board_dict = PyDict_New();
+		PyDict_SetItemString(board_dict, "LAGOON", LAGOON);
+		PyDict_SetItemString(board_dict, "OAK", OAK);
+		PyDict_SetItemString(board_dict, "SLATE", SLATE);
+		PyDict_SetItemString(board_dict, "GREEN", GREEN);
+		PyDict_SetItemString(board_dict, "WALNUT", WALNUT);
+		PyDict_SetItemString(board_dict, "CLAY", CLAY);
+		PyDict_SetItemString(board_dict, "ROSE", ROSE);
+		PyDict_SetItemString(board_dict, "STEEL", STEEL);
+		PyDict_SetItemString(board_dict, "STEEL", STEEL);
+		PyDict_SetItemString(board_dict, "ColorScheme", 
+				&PyColorSchemeType);
+		PyBoardType.tp_dict = board_dict; 
+		VALIDATE(!(PyType_Ready(&PyBoardType) < 0))
+		ADD_OBJ("Board", &PyBoardType);
+		
 		WhiteKingside = PyCastlingType_new(WHITE_KINGSIDE);
 		VALIDATE(WhiteKingside);	
 		BlackKingside = PyCastlingType_new(BLACK_KINGSIDE);
@@ -3590,13 +3642,6 @@ PyMODINIT_FUNC PyInit__core(void) {
 		PyList_Append(PieceTypes_List, KING);
 		ADD_OBJ("PIECE_TYPES", PieceTypes_List);
 
-		VALIDATE(PyColorScheme_predefined());
-		ADD_OBJ("CYAN", CYAN);
-		ADD_OBJ("OAK", OAK);
-		ADD_OBJ("SLATE", SLATE);
-		ADD_OBJ("GREEN", GREEN);
-		ADD_OBJ("WALNUT", WALNUT);		
-		
 		VALIDATE(PyBoardStatus_make_all());
 
 		ADD_OBJ("CHECK", CHECK_OBJ);

@@ -61,5 +61,18 @@ class TestCastlingMoves(unittest.TestCase):
         self.assertEqual(Move.castle(BLACK_KINGSIDE), Move(E8, G8))
         self.assertEqual(Move.castle(BLACK_QUEENSIDE), Move(E8, C8))
 
+    def test_expample(self):
+        board = Board.from_fen("r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 0 1")
+        move = Move.castle(WHITE_KINGSIDE)
+        self.assertTrue(move == Move(E1, G1))
+        board.apply(move)
+        self.assertTrue(board == Board.from_fen("r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQ1RK1 b kq - 1 1"))
+
+    def test_is_castling_example(self):
+        FEN = "r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4"
+        board = Board.from_fen(FEN)
+        self.assertTrue(Move(E1, G1).is_castling(board) == True)
+        self.assertTrue(Move(E1, G1).is_castling(Board.empty()) == False)
+
 if __name__ == "__main__":
     unittest.main()

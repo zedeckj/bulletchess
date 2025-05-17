@@ -48,6 +48,23 @@ move_t undo_move(full_board_t * board);
 */
 
 
+void starting_board(full_board_t *board) {
+	position_t *pos = board->position;
+	pos->pawns = PAWNS_STARTING;
+	pos->knights = KNIGHTS_STARTING;
+	pos->bishops = BISHOPS_STARTING;
+	pos->rooks = ROOKS_STARTING;
+	pos->queens = QUEENS_STARTING;
+	pos->kings = KINGS_STARTING;
+	pos->white_oc = WHITE_STARTING;
+	pos->black_oc = BLACK_STARTING;
+	board->castling_rights = FULL_CASTLING;
+	board->turn = WHITE_VAL;
+	board->en_passant_square.exists = false;
+	board->halfmove_clock = 0;
+	board->fullmove_number = 1;
+}
+
 
 
 piece_t get_piece_at_bb(position_t * board, bitboard_t square_bb);
@@ -162,7 +179,7 @@ bitboard_t get_piece_type_bb(position_t* position, piece_type_t piece_type) {
 		case QUEEN_VAL:
 		piece_bb = position->queens;
 		break;
-		case KING_VAL:
+		default:
 		piece_bb = position->kings;
 		break;
 	}

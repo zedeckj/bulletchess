@@ -49,6 +49,7 @@ INVALID_SANS = [
     "e2e4"
 ]
 
+ITALIAN_GAME = "r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3"
 def testSanEq(tester : unittest.TestCase,
               san : str,
               uci : str,
@@ -205,6 +206,9 @@ class TestSAN(unittest.TestCase):
         testSanEq(self, "O-O", "e1g1")
         testSanEq(self, "O-O-O", "e1c1")
 
+
+        
+
     def testRegressionReadSan(self):
         if FOCUS:
             return
@@ -215,7 +219,52 @@ class TestSAN(unittest.TestCase):
             board = Board.from_fen(fens[i])
             roundtrip_str_san(self, sans[i], board)
 
+    def testExamples(self):
+        self.assertEqual(Move.from_san("e4", Board()), Move(E2, E4))
+        self.assertEqual(Move.from_san("Nf6", Board.from_fen(ITALIAN_GAME)), Move(G8, F6))
+        self.assertTrue(Move(E2, E4).san(Board()) == "e4")
+        FEN = "r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4"
+        self.assertTrue(Move(E1, G1).san(Board.from_fen(FEN)) == "O-O")
+        
+    def test_rook_invalid(self):
+        board = Board.from_fen("5k2/8/8/8/8/8/3R4/2K5 w - - 0 1")
+        with self.assertRaisesRegex(ValueError, re.escape("Rook moving to e3 is not legal")):
+            Move.from_san("Re3", board)
+        with self.assertRaisesRegex(ValueError, re.escape("Rook moving to e3 is not legal")):
+            Move.from_san("Rde3", board)
+        with self.assertRaisesRegex(ValueError, re.escape("Rook moving to e3 is not legal")):
+            Move.from_san("R2e3", board)
+        with self.assertRaisesRegex(ValueError, re.escape("Rook moving to e3 is not legal")):
+            Move.from_san("Rd2e3", board)
 
+    def test_wrong_turn(self):
+        board = Board.from_fen("3k4/8/8/8/8/2n5/8/3K4 w - - 0 1")
+        with self.assertRaisesRegex(ValueError, re.escape("White has no Knight to move")):
+            self.assertEqual(Move.from_san("Nd5", board), Move(D3, D5))
+        board = Board.from_fen("3k3N/8/8/8/8/2n5/8/3K4 w - - 0 1")
+        with self.assertRaisesRegex(ValueError, re.escape("Knight moving to d5 is not legal")):
+            self.assertEqual(Move.from_san("Nd5", board), Move(D3, D5))
+
+    def test_no_specifer(self):
+        board = Board.from_fen("3k4/8/8/8/8/2n5/8/3K4 b - - 0 1")
+        with self.assertRaisesRegex(ValueError, re.escape("Black has no Pawn to move")):
+            self.assertEqual(Move.from_san("d5", board), Move(D3, D5))
+        board = Board.from_fen("3k2b1/8/8/8/8/2n5/8/3K4 b - - 0 1")
+        with self.assertRaisesRegex(ValueError, re.escape("Black has no Pawn to move")):
+            Move.from_san("d5", board)
+        board = Board.from_fen("3k4/8/8/8/8/2n5/7p/3K4 b - - 0 1")
+        with self.assertRaisesRegex(ValueError, re.escape("Pawn moving to d5 is not legal")):
+            Move.from_san("d5", board)
+
+    def test_pawn_illegal_push(self):
+        board = Board.from_fen(ITALIAN_GAME)
+        with self.assertRaisesRegex(ValueError, re.escape("Pawn moving to e4 is not legal")):
+            Move.from_san("e4", board)
+
+    def test_illegal_knight(self):
+        board = Board.from_fen(ITALIAN_GAME)
+        with self.assertRaisesRegex(ValueError, "Knight moving to f3 is not legal"):
+            self.assertEqual(Move.from_san("Nf3", board), Move(G1, F3))
 
     def testMisuse(self):
         with self.assertRaisesRegex(TypeError, re.escape("function takes exactly 2 arguments (1 given)")):
@@ -226,8 +275,13 @@ class TestSAN(unittest.TestCase):
             san = Move(E2,E4).san(None) #type: ignore
         with self.assertRaisesRegex(ValueError, re.escape("Cannot convert Move to san, <Move: e2e4> is illegal for <Board: \"8/8/8/8/8/8/8/8 w - - 0 1\">")):
             san = Move(E2,E4).san(Board.empty()) #type: ignore
+        board = Board.from_fen(ITALIAN_GAME)
+        with self.assertRaises(ValueError):
+            Move(E8, E6).san(board)
 
 
 FOCUS = False
 if __name__ == "__main__":
+       #with self.assertRaisesRegex(ValueError, re.escape("Pawn moving to e4 is not legal")):
+            
     unittest.main() 

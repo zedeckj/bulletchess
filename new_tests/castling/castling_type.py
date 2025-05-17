@@ -28,7 +28,12 @@ class TestCastlingType(unittest.TestCase):
         self.assertEqual(str(BLACK_KINGSIDE), "k")
         self.assertEqual(str(BLACK_QUEENSIDE), "q")
 
- 
+    def test_from_str(self):
+        self.assertTrue(CastlingType.from_chr("K") == WHITE_KINGSIDE)
+        self.assertTrue(CastlingType.from_chr("Q") == WHITE_QUEENSIDE)
+        self.assertTrue(CastlingType.from_chr("k") == BLACK_KINGSIDE)
+        self.assertTrue(CastlingType.from_chr("q") == BLACK_QUEENSIDE)
+
     def test_hash(self):
         self.assertEqual(hash(WHITE_KINGSIDE), 1)
         self.assertEqual(hash(WHITE_QUEENSIDE), 2)
