@@ -55,9 +55,17 @@ def perft(board : Board, depth: int) -> int:
     """
     #
 
-def perft_fen(fen : str, depth : int) -> int: ...
+def perft_fen(fen : str, depth : int) -> int: 
+    """
+    Sames as `utils.perft()`, but takes a Forsyth-Edwards Notation `str` description of a position instead of a `Board`. 
+    """
+    ...
 
-def backwards_pawns(board : Board) -> Bitboard: ...
+def backwards_pawns(board : Board) -> Bitboard: 
+    """
+    TODO
+    """
+    ...
 
 def isolated_pawns(board : Board) -> Bitboard: ...
 

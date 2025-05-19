@@ -129,24 +129,29 @@ bitboard_t backwards_pawns(full_board_t *board) {
 	position_t *position = board->position;
 	bitboard_t white_pawns = position->pawns & position->white_oc;
 	bitboard_t black_pawns = position->pawns & position->black_oc;
-	
+
+	// only pawns that are not paired up with an opposing pawn
 	bitboard_t white_non_paired = ~SAFE_BELOW_BB(black_pawns) & white_pawns;
 	bitboard_t black_non_paired = ~SAFE_ABOVE_BB(white_pawns) & black_pawns;
 		
-
 	bitboard_t white_pawn_attacks = white_pawn_attack_mask(white_pawns, FULL_BB);
 	bitboard_t black_pawn_attacks = black_pawn_attack_mask(black_pawns, FULL_BB);
 
+	// and that would be attacked if they advanced
 	bitboard_t white_cant_advance = SAFE_BELOW_BB(black_pawn_attacks) 
 		& white_non_paired; 
 
 	bitboard_t black_cant_advance = SAFE_ABOVE_BB(white_pawn_attacks) 
 		& black_non_paired;
 
+	// and arent protected
 	bitboard_t white_backwards = ~white_pawn_attacks & white_cant_advance;
 	
 	bitboard_t black_backwards = ~black_pawn_attacks & black_cant_advance;
 	
+	// and wouldnt be protected if they advanced
+	white_backwards &= ~SAFE_BELOW_BB(white_pawn_attacks);	
+	black_backwards &= ~SAFE_ABOVE_BB(black_pawn_attacks);	
 	return white_backwards | black_backwards;
 }
 
@@ -168,6 +173,8 @@ bitboard_t isolated_pawns(full_board_t *board) {
 	}
 	return isolated;
 }
+
+
 
 
 bitboard_t doubled_pawns(full_board_t * board) {
@@ -192,13 +199,72 @@ bitboard_t doubled_pawns(full_board_t * board) {
 	 ^ (FILE_ ## FL & black_pawns ? FILE_##FL : 0))\
 	 & pos->pawns)
 	 
+// ^ completely wrong
 
-bitboard_t passed_pawns(full_board_t *board) {
+
+bitboard_t passed_pawns_old(full_board_t *board) {
 	position_t *pos = board->position;
 	bitboard_t white_pawns = pos->pawns & pos->white_oc;
 	bitboard_t black_pawns = pos->pawns & pos->black_oc;
 	return FILE_PASSED(A) | FILE_PASSED(B) | FILE_PASSED(C) | FILE_PASSED(D) 
 			 | FILE_PASSED(E) | FILE_PASSED(F) | FILE_PASSED(G) | FILE_PASSED(H);
+}
+
+	
+#define BLACK_BLOCKERS(RANK)\
+	SAFE_BELOW_BB(RANK &\
+			(black_pawns\
+			 | SAFE_LEFT_BB(black_pawns)\
+			 | SAFE_RIGHT_BB(black_pawns)))
+
+	
+#define WHITE_BLOCKERS(RANK)\
+	SAFE_ABOVE_BB(RANK &\
+			(white_pawns\
+			 | SAFE_LEFT_BB(white_pawns)\
+			 | SAFE_RIGHT_BB(white_pawns)))
+		
+#define CLEAR_FROM_ABOVE(RANK)\
+	 (BELOW_BB(RANK &\
+				white_cleared &\
+				~(black_pawns |\
+				 SAFE_LEFT_BB(black_pawns) |\
+				 SAFE_RIGHT_BB(black_pawns))))
+
+
+#define CLEAR_FROM_BELOW(RANK)\
+	 (ABOVE_BB(RANK &\
+				black_cleared &\
+				~(white_pawns |\
+				 SAFE_LEFT_BB(white_pawns) |\
+				 SAFE_RIGHT_BB(white_pawns))))
+
+
+
+bitboard_t passed_pawns(full_board_t *board) {
+	position_t *pos = board->position;
+	bitboard_t white_pawns = pos->pawns & pos->white_oc;
+	bitboard_t black_pawns = pos->pawns & pos->black_oc;
+	bitboard_t white_cleared  = RANK_8 & ~black_pawns;
+	white_cleared |= CLEAR_FROM_ABOVE(RANK_8);
+	white_cleared |= CLEAR_FROM_ABOVE(RANK_7);	
+	white_cleared |= CLEAR_FROM_ABOVE(RANK_6);
+	white_cleared |= CLEAR_FROM_ABOVE(RANK_5);	
+	white_cleared |= CLEAR_FROM_ABOVE(RANK_4);
+	white_cleared |= CLEAR_FROM_ABOVE(RANK_3);	
+	white_cleared |= CLEAR_FROM_ABOVE(RANK_2);
+	white_cleared |= CLEAR_FROM_ABOVE(RANK_1);	
+	
+	bitboard_t black_cleared = RANK_1 & ~white_pawns;	
+	black_cleared |= CLEAR_FROM_BELOW(RANK_1);
+	black_cleared |= CLEAR_FROM_BELOW(RANK_2);
+	black_cleared |= CLEAR_FROM_BELOW(RANK_3);
+	black_cleared |= CLEAR_FROM_BELOW(RANK_4);
+	black_cleared |= CLEAR_FROM_BELOW(RANK_5);
+	black_cleared |= CLEAR_FROM_BELOW(RANK_6);
+	black_cleared |= CLEAR_FROM_BELOW(RANK_7);
+	return (white_cleared & white_pawns) 
+		| (black_cleared & black_pawns);
 }
 
 

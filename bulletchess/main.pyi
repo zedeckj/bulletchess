@@ -442,7 +442,7 @@ class Bitboard:
     @staticmethod
     def from_int(value : int):
         """
-        Constructs a `Bitboard` using the `int` representation which would be used internally.
+        Constructs a `Bitboard` using the `int` representation from `Bitboard.int()`
 
         Examples:
         ```
@@ -463,39 +463,164 @@ class Bitboard:
         ...
 
     def __getitem__(self, square : Square) -> bool:
+        """
+        Returns `True` if the `Square` index is contained in this `Bitboard`
+
+        Examples:
+        ```
+        bb = Bitboard([A1, B2, C3])
+        bb[A1] == True
+        bb[A2] == False
+        ```
+
+        """
         ...
 
     def __setitem__(self, square : Square, value : bool):
+        """
+        Adds the `Square` index to this `Bitboard` if assigned `True`. Otherwise, removes the `Square` index if it is present. 
+
+        Examples:
+        ```
+        bb = Bitboard([A1, B2, C3])
+        bb2 = Bitboard([B2, C3])
+        bb3 = Bitboard([B2, C3, C4])
+        bb[A1] = False
+        bb == bb2
+        bb[C4] = True
+        bb == bb3
+        ```
+
+        """
         ...
 
     def __delitem__(self, square : Square):
+        """
+        Removes the `Square` index from this Bitboard, if it is present. 
+
+        Examples:
+        ```
+        bb = Bitboard([A1, B2, C3])
+        bb2 = Bitboard([B2, C3])
+        del bb[A1]
+        bb == bb2
+        ```
+
+        """
         ...
 
     def __len__(self) -> int:
+        """
+        Returns the number of `Square` items that are contained by this `Bitboard`.
+
+        Examples:
+        ```
+        len(Bitboard([])) == 0
+        len(Bitboard([A1, A2])) == 2
+        len(RANK_1) == 8
+        len(FULL_BB) == 64
+        ```
+        """
         ...
 
     def __contains__(self, square : Square) -> bool:
+        """
+        Evaluates to `True` if the given `Square` is included in this `Bitboard`'s set of `Square` values
+
+        Examples:
+        ```
+        A1 in Bitboard([A1, A2]) == True
+        H3 in FULL_BB == True
+        C6 in RANK_1 == False
+        ```
+        """
         ...
 
     def __eq__(self, other : Any) -> bool:
+        """
+        Evalutes to `True` if compared to another `Bitboard` with the same set of `Square` values.
+
+        Examples:
+        ```
+        Bitboard([A1, A2, A3, A4, A5, A6, A7, A8]) == A_FILE
+        Bitboard([C4]) != Bitboard([C3])
+        ```
+        """
         ...
 
     def __invert__(self) -> "Bitboard":
+        """
+        Creates a new `Bitboard` with oppositely included `Square` values.
+
+        Examples:
+        ```
+        FULL_BB == ~EMPTY_BB
+        LIGHT_SQUARE_BB == ~DARK_SQUARE_BB
+        ```  
+        """
         ...
 
     def __and__(self, other : "Bitboard") -> "Bitboard":
+        """
+        Creates a new `Bitboard` containing only `Square` values that are included in both `Bitboard` operands
+
+        Examples:
+        ```
+        Bitboard([A1]) & Bitboard([A1, A2]) == Bitboard([A1])
+        LIGHT_SQUARE_BB & DARK_SQUARE_BB == EMPTY_BB
+        ```
+        """
         ...
 
     def __or__(self, other : "Bitboard") -> "Bitboard":
+        """
+        Creates a new `Bitboard` containing only `Square` values that are included in one of the `Bitboard` operands
+
+        Examples:
+        ```
+        Bitboard([A1]) & Bitboard([A1, A2]) == Bitboard([A1, A2])
+        LIGHT_SQUARE_BB & DARK_SQUARE_BB == FULL_BB
+        ```
+        """
         ...
 
     def __xor__(self, other : "Bitboard") -> "Bitboard":
-        ...
+        """
+        Creates a new `Bitboard` containing only `Square` values that are included in one of the, but not both, `Bitboard` operands
+
+        Examples:
+        ```
+        Bitboard([A1]) ^ Bitboard([A1, A2]) == Bitboard([A2])
+        LIGHT_SQUARE_BB ^ DARK_SQUARE_BB == FULL_BB
+        ```
+        """
 
     def __int__(self) -> int:
+        """
+        An integer representation of this `Bitboard` which can be used symmetrically with `Bitboard.from_int`.
+
+        Examples:
+        ```
+        int(EMPTY_BB) == 0
+        int(Bitboard[A1]) == 1
+        int(Bitbard([E2, E3, E4, D2, F2])) == 269498368
+        Bitboard.from_int(int(DARK_SQUARE_BB)) == DARK_SQUARE_BB
+        ```
+        
+        """
         ...
 
     def __bool__(self) -> bool:
+        """
+        Evalutes to `True` if this `Bitboard` contains any `Square` values.
+
+        Examples:
+        ```
+        bool(Bitboard([])) == False
+        bool(EMPTY_BB) == False
+        bool(Bitboard([A1])) == True
+        ```
+        """
         ...
 
 RANK_1 : Bitboard
@@ -550,11 +675,27 @@ class CastlingType:
         """
         ...
 
-    def __str__(self) -> str: ...
+    def __str__(self) -> str: 
+        """
+        Serializes this `CastlingType` as a 1 character ASCII `str`.
+
+        Examples:
+        ```
+        str(WHITE_KINGSIDE) == "K"
+        str(WHITE_QUEENSIDE) == "Q"
+        str(BLACK_KINGSIDE) == "k"
+        str(BLACK_QUEENSIDE) == "q"
+        ```
+        """
+        ...
+
+    def __eq__(self, other : Any) -> bool: 
+        """
+        Evaluates to `True` if compared with the same `CastlingType`
+        """
+        ...
 
     def __repr__(self) -> str: ...
-
-    def __eq__(self, other : Any) -> bool: ...
 
     def __hash__(self) -> int: ...
 
@@ -606,21 +747,55 @@ class Move:
 
     @property 
     def origin(self) -> Square:
+        """
+        Gets the origin `Square` of this `Move`.
+        
+        Examples:
+        ```
+        Move(E2, E4).origin == E2
+        Move.from_uci("a1d4").origin == A1
+        ```
+        """
         ...
 
     @property
     def destination(self) -> Square:
+        """
+        Gets the destination `Square` of this `Move`.
+
+        Examples:
+        ```
+        Move(E2, E4).destination == E4
+        Move.from_uci("a1d4").destination == D4
+        ```
+        """
         ...
 
     @property
     def promotion(self) -> Optional[PieceType]:
+        """
+        Gets the `PieceType` this `Move` specifies a promotion to. If this move is not a promotion, evaluates to `None`.
+
+        Examples:
+        ```
+        Move.from_uci("b7b8q").promotion == QUEEN
+        Move(E2, E4).promotion == None
+        ```
+        """
         ...
 
     def __eq__(self, other : Any) -> bool:
+        """
+        Evaluates to `True` if compared with another `Move` with the same origin, destination, and promotion values.
+
+        Examples:
+        ```
+        Move(E2, E4) == Move.from_uci("e2e4")
+        Move(A7, A8) != Move.from_uci("a7a8q")
+        ```
+        """
         ...
 
-    def __hash__(self) -> int: 
-        ...
 
     @staticmethod
     def from_san(san : str, board : "Board") -> "Move":
@@ -724,6 +899,22 @@ class Move:
         ...
 
     def __str__(self) -> str:
+        """
+        Serializes a `Move` as a str identically to `Move.uci()`
+
+        Examples:
+        ```
+        str(Move(E2, E4)) == "e2e4"
+        str(Move(A1, D4)) == "a1d4"
+        str(Move(B7, B8, promote_to = QUEEN)) == "b7b8q"
+        ```
+        """
+        ...
+
+    def __hash__(self) -> int: 
+        ...
+
+    def __repr__(self) -> str:
         ...
 
 
@@ -746,9 +937,9 @@ class CastlingRights:
 
         Examples:
         ```
-        CastlingRights.from_fen("KQkq") == CastlingRights([WHITE_KINGSIDE, WHITE_QUEENSIDE, BLACK_KINGSIDE, BLACK_QUEENSIDE])
+        CastlingRights.from_fen("KQkq") == ALL_CASTLING
         CastlingRights.from_fen("Qk") == CastlingRights([WHITE_QUEENSIDE, BLACK_KINGSIDE])
-        CastlingRights.from_fen("-") == CastlingRights([])
+        CastlingRights.from_fen("-") == NO_CASTLING
         
         :raises: :exc: `ValueError` if the given `str` is not a valid FEN descriptor of castling rights.
         ```
@@ -757,21 +948,70 @@ class CastlingRights:
         ...
 
     def __contains__(self, castling_type : CastlingType) -> bool:
+        """
+        Evaluates to `True` if the given `CastlingType` is included in this `CastlingRights. 
+
+        Examples:
+        ```
+        WHITE_KINGSIDE in ALL_CASTLING == True
+        BLACK_KINGSIDE in NO_CASTLING == False
+        ```
+        """
         ...
 
     def __add__(self, other : CastlingRights) -> CastlingRights:
+        """
+        Combines the given `CastlingRights` operands into a new `CastlingRights`
+
+        Examples:
+        ```
+        CastlingRights.from_fen("KQ") + CastlingRights.from_fen("kq") == ALL_CASTLING
+        ```
+        """
         ...
 
     def __eq__(self, other : Any) -> bool:
+        """
+        Evaluates to `True` if compared with a `CastlingRights` object with the same included `CastlingType` values.
+        """
         ...
 
-    def __le__(self, other : Any) -> bool:
+    def __le__(self, other : CastlingRights) -> bool:
+        """
+        Evaluates to `True` if compared with a `CastlingRights` object that has a subset or equvialent `CastlingType` values.
+        """
+        ...
+
+    def __lt__(self, other : CastlingRights) -> bool:
+        """
+        Evaluates to `True` if compared with a `CastlingRights` object that has a strict subset of `CastlingType` values.
+        """
+        ...
+
+    def __gt__(self, other : CastlingRights) -> bool:
+        """
+        Evaluates to `True` if compared with a `CastlingRights` object that has a strict superset of `CastlingType` values.
+        """
+        ...
+
+    def __ge__(self, other : CastlingRights) -> bool:
+        """
+        Evaluates to `True` if compared with a `CastlingRights` object that has a superset or equivalent `CastlingType` values.
+        """
         ...
 
     def __str__(self) -> str:
-        ...
+        """
+        Serializes this `CastlingRights` as a `str` of its Forsyth-Edwards Notation.
 
-    def __repr__(self) -> str:
+        Examples:
+        ```
+        str(NO_CASTLING) == "-"
+        str(CastlingRights([WHITE_KINGSIDE, WHITE_QUEENSIDE])) == "KQ"
+        str(FULL_CASTLING) == "KQkq"
+        ```
+
+        """
         ...
 
     def full(self, color : Optional[Color] = None) -> bool: 
@@ -781,10 +1021,10 @@ class CastlingRights:
 
         Examples:
         ```
-        CastlingRights.from_fen("KQkq").full() == True
+        ALL_CASTLING.full() == True
         CastlingRights.from_fen("KQk").full() == False
         CastlingRights.from_fen("KQk").full(WHITE) == True
-        CastlingRights.from_fen("-").full() == False
+        NO_CASTLING.full() == False
         ```
         """
         ...
@@ -796,11 +1036,11 @@ class CastlingRights:
 
         Examples:
         ```
-        CastlingRights.from_fen("KQkq").any() == True
+        ALL_CASTLING.any() == True
         CastlingRights.from_fen("KQk").any() == True
         CastlingRights.from_fen("K").any() == True
         CastlingRights.from_fen("K").any(BLACK) == False
-        CastlingRights.from_fen("-").full() == False
+        NO_CASTLING.full() == False
         ```
         """
         ...
@@ -812,11 +1052,11 @@ class CastlingRights:
 
         Examples:
         ```
-        CastlingRights.from_fen("KQkq").kingside() == True
+        ALL_CASTLING.kingside() == True
         CastlingRights.from_fen("Q").kingside() == False
         CastlingRights.from_fen("K").kingside() == True
         CastlingRights.from_fen("K").kingside(BLACK) == False
-        CastlingRights.from_fen("-").kingside() == False
+        NO_CASTLING.kingside() == False
         ```
         """
         ...
@@ -828,14 +1068,18 @@ class CastlingRights:
 
         Examples:
         ```
-        CastlingRights.from_fen("KQkq").queenside() == True
+        ALL_CASTLING.queenside() == True
         CastlingRights.from_fen("Q").queenside() == True
         CastlingRights.from_fen("K").queenside() == False
         CastlingRights.from_fen("Q").queenside(BLACK) == False
-        CastlingRights.from_fen("-").queenside() == False
+        NO_CASTLING.queenside() == False
         ```
         """
         ...
+
+    def __repr__(self) -> str: ...
+
+    def __hash__(self) -> int: ...
 
 
 ALL_CASTLING : CastlingRights
@@ -853,11 +1097,19 @@ class Board:
 
     """
 
-    def __init__(self) -> None:
+    def __init__(self):
+        """
+        Initializes a `Board` representing the starting position.
+        """
         ...
 
     @staticmethod
     def from_fen(fen : str) -> "Board":
+        """
+        Creates a `Board` from the given Forsyth-Edwards Notation `str`.
+
+        :raises: :exc: `ValueError` if the given FEN `str` is malformed.
+        """
         ...
 
     @staticmethod
@@ -877,42 +1129,81 @@ class Board:
 
     @property
     def turn(self) -> Color:
+        """
+        Gets the `Color` of the player whose turn it is.
+        """
         ...
 
     @property
     def halfmove_clock(self) -> int:
+        """
+        Gets the current halfmove clock as an `int`. This represents the number of ply that have passed since a
+        capture or pawn advance.
+        """
         ...
 
     @property
     def fullmove_number(self) -> int:
+        """
+        Gets the current fullmove number as an `int`. This represents the total number of turns each player has taken
+        since the start of a game.
+        """
         ...
 
     @property
     def en_passant_square(self) -> Optional[Square]:
+        """
+        Gets the current en passant `Square`, if it exists. Otherwise returns `None`.
+        """
         ...
 
     @property
     def castling_rights(self) -> CastlingRights:
+        """
+        Gets the current `CastlingRights` of this `Board`.
+        """
         ...
 
     @castling_rights.setter
     def castling_rights(self, castling_rights : CastlingRights) -> None:
+        """
+        Sets this `Board`'s `CastlingRights` to the given value. 
+
+        :raises: :exc: `ValueError` if the given `CastlingRights` are illegal for this `Board`'s position.
+        """
         ...
 
     @turn.setter
     def turn(self, new_turn : Color) -> None:
-        ...
+        """
+        Sets this `Board`'s turn to the specified `Color.
+        """
 
     @halfmove_clock.setter
     def halfmove_clock(self, new_halfmove_clock : int) -> None:
+        """
+        Sets this `Board`'s halfmove clock to the provided `int`.
+
+        :raises: :exc: `OverflowError` if the provided `int` value is greater or equal to `2 ** 64`
+        """
         ...
 
     @fullmove_number.setter
     def fullmove_number(self, new_fullmove_number : int) -> None:
+        """
+        Sets this `Board`'s fullmove number to the provided `int`.
+
+        :raises: :exc: `OverflowError` if the provided `int` value is greater or equal to `2 ** 64`
+        """
         ...
 
     @en_passant_square.setter
     def en_passant_square(self, new_ep_square : Optional[Square]) -> None:
+        """
+        Sets this `Board`'s en passant `Square` to the provided value. Cleares the en passant `Square` if given `None`
+
+        :raises: :exc: If the specified `Square` could not be one that a Pawn has just passed over in an intial two square advance.
+        """
         ...
 
     def legal_moves(self) -> list[Move]:
@@ -974,6 +1265,9 @@ class Board:
         ...
 
     def __hash__(self) -> int:
+        """
+        Performs a Zobrist hash of this Board.
+        """
         ...
     
     def __contains__(self, piece : Optional[Piece]) -> bool:
@@ -1055,11 +1349,15 @@ class Board:
         """
         ...
 
-
     def pretty(self, 
-               color_scheme : Board.ColorScheme = OAK,
+               color_scheme : Board.ColorScheme = Board.OAK,
                highlighted_squares : Bitboard = EMPTY_BB,
                targeted_squares : Bitboard = EMPTY_BB) -> str:
+        """
+        Creates a `str` representation of this `Board` using Unicode chess characters and the provided `Board.ColorScheme` as a palette. 
+        `Bitboard`s can be specified for highlighting particular squares, as for example a `Move`'s origin, as well as for targetting 
+        certain squares, as for possible `Move` destinations.
+        """
         ...
 
     class ColorScheme:
@@ -1089,6 +1387,14 @@ class BoardStatus:
     def __contains__(self, board : Board) -> bool:
         """
         Checks if a a `Board` is "in" the state represented by this `BoardStatus`
+
+        Examples:
+        ```
+        Board() in DRAW == False
+        # Scholar's Mate
+        FEN = "r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4"
+        Board.from_fen(FEN) in CHECKMATE == True
+        ```
         """
         ...
 

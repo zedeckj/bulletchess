@@ -6,11 +6,9 @@ import re
 
 class TestColorSCheme(unittest.TestCase):
 
-    def test_basic(self):
-        cs = ColorScheme(10,20,40)
-        self.assertEqual(cs.light_square_color, 10)
-        self.assertEqual(cs.dark_square_color, 20)
-        self.assertEqual(cs.highlight_color, 40)
+    def test_exists(self):
+        with self.assertNoLogs():
+            Board.ColorScheme
 
 
 

@@ -20,7 +20,9 @@ class TestBitboardIndex(unittest.TestCase):
         b1[A2] = True
         b1[A3] = False
         self.assertEqual(b1, b2)
-
+        b1[A1] = False
+        b1[A2] = False
+        self.assertEqual(b1, Bitboard([]))
 
     def test_del(self):
         b1 = Bitboard([])

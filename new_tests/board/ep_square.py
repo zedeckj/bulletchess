@@ -19,5 +19,15 @@ class TestBoardClocks(unittest.TestCase):
         board.en_passant_square = E3 
         self.assertEqual(board.en_passant_square, E3)
 
+    def test_illegal_ep(self):
+        board = Board()
+        with self.assertRaisesRegex(ValueError, "Illegal en passant square, must be on either Ranks 3 or 5."):
+            board.en_passant_square = A1
+        with self.assertRaisesRegex(ValueError, "Illegal en passant square, if on Rank 3, must have a white pawn on the same File on Rank 4"):
+            board.en_passant_square = E3
+        with self.assertRaisesRegex(ValueError, "Illegal en passant square, if on Rank 5, must have a black pawn on the same File on Rank 6"):
+            board.en_passant_square = E5
+
+
 if __name__ == "__main__":
     unittest.main()

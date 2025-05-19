@@ -20,7 +20,7 @@ def int_to_crs(i : int) -> list[CastlingType]:
 
 combinations = [int_to_crs(i) for i in range(16)]
 
-class TestCastlingType(unittest.TestCase):
+class TestCastlingRights(unittest.TestCase):
 
     def test_combinations(self):
         self.assertEqual(len(combinations), 16)
@@ -64,6 +64,27 @@ class TestCastlingType(unittest.TestCase):
     def test_contains(self):
         for cts in combinations:
             self.assert_contains(cts)
+
+    def test_compare(self):
+        self.assertTrue(CastlingRights.from_fen("KQ") < CastlingRights.from_fen("KQkq"))
+        self.assertTrue(CastlingRights.from_fen("KQ") <= CastlingRights.from_fen("KQkq"))
+        self.assertTrue(CastlingRights.from_fen("KQkq") <= CastlingRights.from_fen("KQkq"))
+        self.assertFalse(CastlingRights.from_fen("KQkq") < CastlingRights.from_fen("KQkq"))
+
+        self.assertTrue(CastlingRights.from_fen("KQkq") > CastlingRights.from_fen("KQ"))
+        self.assertTrue(CastlingRights.from_fen("KQkq") >= CastlingRights.from_fen("KQ"))
+        self.assertTrue(CastlingRights.from_fen("KQkq") >= CastlingRights.from_fen("KQkq"))
+        self.assertFalse(CastlingRights.from_fen("KQkq") > CastlingRights.from_fen("KQkq"))
+
+    def test_compare_type(self):
+        with self.assertRaises(TypeError):
+            ALL_CASTLING < 0 # type: ignore
+        with self.assertRaises(TypeError):
+            ALL_CASTLING > True # type: ignore
+        with self.assertRaises(TypeError):
+            ALL_CASTLING <= "foo" # type: ignore
+        with self.assertRaises(TypeError):
+            ALL_CASTLING >= 3.5 # type: ignore
 
     def test_contains_err(self):
         with self.assertRaisesRegex(TypeError, re.escape("Expected a CastlingType, got True (bool)")):

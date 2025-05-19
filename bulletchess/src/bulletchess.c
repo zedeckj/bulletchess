@@ -922,7 +922,53 @@ static castling_rights_t PyCastlingRights_get(PyObject *self){
 	return ((PyCastlingRightsObject *)self)->castling_rights;
 }
 
-BASIC_COMPARE(PyCastlingRights)
+
+static inline bool castling_lte(castling_rights_t c1, castling_rights_t c2){
+	#define lt_bit(mask) (~(c1 & mask) | (c2 & mask))
+	return lt_bit(WHITE_KINGSIDE)
+				&& lt_bit(WHITE_QUEENSIDE)
+				&& lt_bit(BLACK_KINGSIDE)
+				&& lt_bit(BLACK_QUEENSIDE);
+	#undef lt_bit
+}
+
+
+static PyObject * PyCastlingRights_compare(PyObject *self,\
+			PyObject *other, int op){
+	#define castle_check\
+		if (!Py_IS_TYPE(other, &PyCastlingRightsType))\
+			Py_RETURN_NOTIMPLEMENTED; 
+	switch (op){
+			case Py_EQ:
+				PY_RETURN_BOOL(self == other);
+			case Py_NE:
+				PY_RETURN_BOOL(self != other);
+			case Py_LT: {
+				castle_check
+				PY_RETURN_BOOL(self != other && 
+						castling_lte(PyCastlingRights_get(self), 
+						PyCastlingRights_get(other)))
+			}
+			case Py_LE: {
+				castle_check
+				PY_RETURN_BOOL(castling_lte(PyCastlingRights_get(self), 
+						PyCastlingRights_get(other)))
+			}
+			case Py_GT: {
+				castle_check
+				PY_RETURN_BOOL(self != other && 
+						castling_lte(PyCastlingRights_get(other), 
+						PyCastlingRights_get(self)))
+			}
+			case Py_GE: {
+				castle_check
+				PY_RETURN_BOOL(castling_lte(PyCastlingRights_get(self), 
+						PyCastlingRights_get(other)))
+			}		
+			default:
+				Py_RETURN_NOTIMPLEMENTED;
+	}
+}
 
 static Py_hash_t PyCastlingRights_hash(PyObject *self) {
 	Py_hash_t h = PyCastlingRights_get(self);

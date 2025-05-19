@@ -6,31 +6,45 @@ import re
 
 board1 = Board.from_fen("8/p1p3p1/3p3p/1P5P/1PP1P1P1/8/8/8 w - - 0 1")
 board2 = Board.from_fen("4k3/2p3p1/1p2p2p/1P2P2P/1PP3P1/4P3/8/4K3 w - - 0 1")
+board3 = Board.from_fen("3k4/8/4p3/4P3/5PP1/8/8/3K4 w - - 0 1")
+board4 = Board.from_fen("8/8/7p/1P2Pp1P/2Pp1PP1/8/8/8 w - - 0 1")
+board5 = Board.from_fen("5rk1/1q1r1pbp/pp1p1np1/4p1B1/1PP1P3/2NQ1P2/P5PP/2RR2K1 w - - 9 22")
+board6 = Board.from_fen("8/5p2/8/4P3/8/8/5P2/8 w - - 0 1")
 
 class TestPawnBitboardUtils(unittest.TestCase):
 
+    def assertBitboardEqual(self, bb : Bitboard, squares : list[Square]):
+        self.assertEqual(bb, Bitboard(squares), msg = "\n" + str(bb) + "\n doesnt equal \n" + str(Bitboard(squares)))
+
     def test_isolated(self):
-        self.assertEqual(utils.isolated_pawns(board1), Bitboard([A7, E4]))
-        self.assertEqual(utils.isolated_pawns(board2), Bitboard([E3, E5, E6]))
+        self.assertBitboardEqual(utils.isolated_pawns(board1), ([A7, E4]))
+        self.assertBitboardEqual(utils.isolated_pawns(board2), ([E3, E5, E6]))
 
     def test_doubled(self):
-        self.assertEqual(utils.doubled_pawns(board1), Bitboard([B4, B5]))
-        self.assertEqual(utils.doubled_pawns(board2), Bitboard([B4, B5, E3, E5]))
+        self.assertBitboardEqual(utils.doubled_pawns(board1), ([B4, B5]))
+        self.assertBitboardEqual(utils.doubled_pawns(board2), ([B4, B5, E3, E5]))
 
     def test_backwards(self):
-        self.assertEqual(utils.backwards_pawns(board1), Bitboard([C4, E4, A7, C7, G7, G4]))
-        self.assertEqual(utils.backwards_pawns(board2), Bitboard([C4, C7, G7, G4]))
+        self.assertBitboardEqual(utils.backwards_pawns(board1), ([E4, A7, C7, G7, G4]))
+        self.assertBitboardEqual(utils.backwards_pawns(board2), ([C7, G7, G4]))
+        self.assertBitboardEqual(utils.backwards_pawns(board3), [])
+        self.assertBitboardEqual(utils.backwards_pawns(board5), [D6])
+        self.assertBitboardEqual(utils.backwards_pawns(board6), [F7])
 
     def test_passed(self):
-        self.assertEqual(set(utils.passed_pawns(board1)), set(Bitboard([E4, B5, B4, D6, A7])))
-        self.assertEqual(utils.passed_pawns(board2), Bitboard([]))
+        self.assertBitboardEqual(utils.passed_pawns(board1), [])
+        self.assertBitboardEqual(utils.passed_pawns(board2), ([]))
+        self.assertBitboardEqual(utils.passed_pawns(board4), ([B5, C4, E5, D4]))
+        self.assertBitboardEqual(utils.passed_pawns(board5), [])
 
     def test_open_files(self):
-        self.assertEqual(utils.open_files(board1), F_FILE)
-        self.assertEqual(utils.open_files(board2), F_FILE | A_FILE | D_FILE)
+        self.assertBitboardEqual(utils.open_files(board1), list(F_FILE))
+        self.assertBitboardEqual(utils.open_files(board2), list(F_FILE | A_FILE | D_FILE))
 
 
 if __name__ == "__main__":
-    print(board1.pretty())
-    print(board2.pretty())
+
+
     unittest.main()
+    
+    print(utils.backwards_pawns(board5))
