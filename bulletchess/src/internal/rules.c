@@ -434,7 +434,7 @@ bitboard_t make_attack_mask(full_board_t *board, piece_color_t attacker) {
         attacking |= diagonal_attack_mask(enemy_queens, can_move_to, empty);
     }
     attacking |= king_attack_mask(enemy_kings, can_move_to);
-    return attacking;
+		return attacking;
 }
 
 
@@ -535,7 +535,7 @@ check_info_t make_check_info(full_board_t *board, piece_color_t for_color, bitbo
 
     
     // In order to find attackers against the king, we treat the King
-    // as if it move like each piece type, and see if it could attack an enemy piece of that type
+    // as if it moved like each piece type, and see if it could attack an enemy piece of that type
     bool add_ep = false;
     if (enemy_pawns) {
         /*
@@ -657,13 +657,15 @@ bitboard_t inner_king_dest_bb(bitboard_t origin_bb,
 bitboard_t inner_white_pawn_dest_bb(bitboard_t origin_bb, 
 																		bitboard_t pawn_hostile, 
 																		bitboard_t empty, 
-																		bitboard_t allowed_mask){	
+																		bitboard_t allowed_push,
+																		bitboard_t allowed_capture,
+																		bitboard_t pinned_mask){	
 				bitboard_t destination_bb = 
-					white_pawn_push_mask(origin_bb, empty);
-				
+					white_pawn_push_mask(origin_bb, empty) & allowed_push;	
 				destination_bb 
-					|= white_pawn_attack_mask(origin_bb, pawn_hostile); 
-				destination_bb &= allowed_mask;
+					|= white_pawn_attack_mask(origin_bb, pawn_hostile) 
+					& allowed_capture; 
+				destination_bb &= pinned_mask;
 				return destination_bb;
 }
 
@@ -671,12 +673,14 @@ bitboard_t inner_white_pawn_dest_bb(bitboard_t origin_bb,
 bitboard_t inner_black_pawn_dest_bb(bitboard_t origin_bb, 
 																		bitboard_t pawn_hostile, 
 																		bitboard_t empty, 
-																		bitboard_t allowed_mask){ 
+																		bitboard_t allowed_push,
+																		bitboard_t allowed_capture,
+																		bitboard_t pinned_mask){ 
 				bitboard_t destination_bb 
-					= black_pawn_push_mask(origin_bb, empty) ;
+					= black_pawn_push_mask(origin_bb, empty) & allowed_push;
 				destination_bb 
-					|= black_pawn_attack_mask(origin_bb, pawn_hostile); 
-				destination_bb &= allowed_mask;
+					|= black_pawn_attack_mask(origin_bb, pawn_hostile) & allowed_capture; 
+				destination_bb &= pinned_mask;
 				return destination_bb;
 }
 
@@ -833,14 +837,15 @@ bool has_moves(
 																		attacked_mask);
         bitboard_t allowed_mask = pinned_mask & info.allowed_move_mask;
         if (square_bb & pos->pawns) {
-            allowed_mask &= info.extra_pawn_capture_mask;
 						if (is_white) {
 								destination_bb = inner_white_pawn_dest_bb(square_bb, pawn_hostile, 
-										empty, allowed_mask); 
+										empty, allowed_mask, 
+										info.extra_pawn_capture_mask,
+										pinned_mask); 
             }
             else {
-								destination_bb = inner_black_pawn_dest_bb(square_bb, pawn_hostile, 
-										empty, allowed_mask); 
+								destination_bb = inner_black_pawn_dest_bb(square_bb, pawn_hostile, empty, allowed_mask, 
+										info.extra_pawn_capture_mask, pinned_mask); 
             }
         }
         else if (square_bb & pos->knights) {
@@ -882,7 +887,7 @@ if (square_bb & position->PIECE ##s){\
 
 #define ADD_PAWN(COLOR, RANK)\
 destination_bb = inner_##COLOR##_pawn_dest_bb(square_bb,\
-		pawn_hostile, empty, allowed_mask);\
+		pawn_hostile, empty, allowed_mask, info.extra_pawn_capture_mask, pinned_mask);\
 if (square_bb & RANK)\
 	add_from_bitboard_##COLOR##_promotes(origin, destination_bb,\
 																	move_buffer, &move_index);\
@@ -933,12 +938,11 @@ u_int8_t generate_moves(full_board_t *board, piece_color_t for_color,
             add_from_bitboard(origin, destination_bb, move_buffer, KING_VAL, &move_index);
             continue;
         }
-				bitboard_t pinned_mask = make_pinned_mask(board, square_bb, for_color, 
-																		attacked_mask);
+				bitboard_t pinned_mask = make_pinned_mask(board, square_bb, 
+						for_color, attacked_mask);
         bitboard_t allowed_mask = pinned_mask & info.allowed_move_mask;
 				if (square_bb & position->pawns) {
             bitboard_t destination_bb;
-						allowed_mask &= info.extra_pawn_capture_mask;
 						if (is_white) {
             	ADD_PAWN(white, RANK_7)
 						}

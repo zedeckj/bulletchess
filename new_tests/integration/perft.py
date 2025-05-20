@@ -23,22 +23,6 @@ def native_perft(board : Board, depth : int) -> int:
 
 class TestPerft(unittest.TestCase):
 
-    def mutation_testing_perft(self, board : Board, depth : int):
-        if depth == 0:
-            return 1
-        elif depth == 1:
-            return count_moves(board)
-        else:
-            moves = board.legal_moves()
-            nodes = 0
-            fen = board.fen()
-            for move in moves:
-                board.apply(move)
-                nodes += native_perft(board, depth - 1)
-                board.undo()
-                self.assertEqual(fen, board.fen(), msg = (move, depth, moves, board[A1]))
-            return nodes 
-
     # Positions taken from https://www.chessprogramming.org/Perft_Results
 
     def test_native(self):

@@ -21,15 +21,24 @@ bool is_quiescent(full_board_t *board);
 // A backwards pawn is considered to be a pawn which is not defended by friendly pawns,
 // and has any piece (including empty) besides a non enemy pawn in front of it which it cannot advance to or can be captured by an enemy pawn
 bitboard_t backwards_pawns(full_board_t *board);
+bitboard_t white_backwards_pawns(full_board_t *board);
+bitboard_t black_backwards_pawns(full_board_t *board);
 
 bitboard_t isolated_pawns(full_board_t *board);
+bitboard_t white_isolated_pawns(full_board_t *board);
+bitboard_t black_isolated_pawns(full_board_t *board);
 
 bitboard_t doubled_pawns(full_board_t *board);
+bitboard_t white_doubled_pawns(full_board_t *board);
+bitboard_t black_doubled_pawns(full_board_t *board);
 
 bitboard_t open_files(full_board_t *board);
 
+bitboard_t half_open_files(full_board_t *board, piece_color_t color);
 
 bitboard_t passed_pawns(full_board_t *board);
+bitboard_t white_passed_pawns(full_board_t *board);
+bitboard_t black_passed_pawns(full_board_t *board);
 
 move_t random_legal_move(full_board_t *board);
 

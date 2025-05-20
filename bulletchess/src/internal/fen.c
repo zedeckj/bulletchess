@@ -325,7 +325,10 @@ char * parse_ep_square(char * str, optional_square_t * ep) {
     else return "Invalid en-passant square";
 }
 
-char * parse_clock(char * str, turn_clock_t * clock, char * missing) {
+
+
+
+char *parse_clock_forced(char * str, turn_clock_t * clock, char * missing) {
 		if (!str || !str[0]) {
 			return missing;
 		}
@@ -336,7 +339,7 @@ char * parse_clock(char * str, turn_clock_t * clock, char * missing) {
             }
         }
         int parsed = atoi(str);
-        if (parsed < UINT16_MAX) {
+        if (parsed < UINT64_MAX) {
             *clock = parsed;
             return 0;
         }
@@ -344,13 +347,32 @@ char * parse_clock(char * str, turn_clock_t * clock, char * missing) {
     return "Empty clock";
 }
 
+char *parse_clock(char * str, turn_clock_t * clock, 
+		turn_clock_t def, char *msg) {
+    if (str && str[0]) {
+        for (int i = 0; str[i]; i++) {
+						if (!isdigit(str[i])) {
+							return msg;
+            }
+        }
+        int parsed = atoi(str);
+        if (parsed < UINT64_MAX) {
+            *clock = parsed;
+            return 0;
+        }
+    }
+		*clock = def;
+		return 0;
+}
 
 char *parse_halfmove(char * str, turn_clock_t *clock) {
-	return parse_clock(str, clock, "Missing halfmove clock");
+	//return parse_clock(str, clock, "Missing halfmove clock");
+	return parse_clock(str, clock, 0, "Halfmove clock includes a non-digit"); 
 }
 
 char *parse_fullmove(char *str, turn_clock_t *clock) {
-	return parse_clock(str, clock, "Missing fullmove timer");
+	//return parse_clock(str, clock, "Missing fullmove timer");
+	return parse_clock(str, clock, 1, "Fullmove timer includes a non-digit"); 
 }
 
 

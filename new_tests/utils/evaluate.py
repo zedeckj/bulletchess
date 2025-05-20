@@ -3,6 +3,7 @@ import sys
 
 sys.path.append("./")
 from bulletchess import *
+from bulletchess.utils import *
 
 
 def evaluate(board : Board):
@@ -11,10 +12,13 @@ def evaluate(board : Board):
     elif board in DRAW:
         return 0
     else:
-        bad_pawns = utils.backwards_pawns(board) | utils.isolated_pawns(board) | utils.doubled_pawns(board)
         return (
             utils.material(board) + 
-            + 50 * (len(bad_pawns & board.black) - len(bad_pawns & board.white))
+            + 50 * (
+                (len(backwards_pawns(board, BLACK)) - len(backwards_pawns(board, WHITE)))
+                + (len(isolated_pawns(board, BLACK)) - len(isolated_pawns(board, WHITE)))
+                + (len(doubled_pawns(board, BLACK)) - len(doubled_pawns(board, WHITE)))
+            )
             + 10 * utils.mobility(board))
 
 class TestEvaluation(unittest.TestCase):

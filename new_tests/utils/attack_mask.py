@@ -28,5 +28,12 @@ class TestAttackMask(unittest.TestCase):
         attack = utils.attack_mask(board, BLACK)
         self.assertEqual(expected,attack)
 
+    def testPawn(self):
+        expected = Bitboard([D5, F5])
+        board = Board.empty()
+        board[E4] = Piece(WHITE, PAWN)
+        self.assertEqual(utils.attack_mask(board, WHITE), expected)
+        self.assertEqual(utils.attack_mask(board, BLACK), EMPTY_BB)
+
 if __name__ == "__main__":
     unittest.main()

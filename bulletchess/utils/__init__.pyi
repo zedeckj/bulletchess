@@ -4,8 +4,8 @@ from typing import Optional
 
 def count_moves(board : Board) -> int: 
     """
-    Counts the number of legal moves that could be performed, without actually
-    constructing the Move objects. This is much faster than doing 
+    Counts the number of legal moves that could be performed for the given :class:`Board`, without actually
+    constructing any :class:`Move` objects. This is much faster than calling 
     `len(Board.legal_moves())`
     """
     ...
@@ -61,23 +61,59 @@ def perft_fen(fen : str, depth : int) -> int:
     """
     ...
 
-def backwards_pawns(board : Board) -> Bitboard: 
+def backwards_pawns(board : Board, color : Optional[Color] = None) -> Bitboard: 
     """
-    TODO
+    Returns a :class:`Bitboard` containing all :class:`Square` values with a backwards pawn for the given `Board`.
+
+    A backwards pawn is defined as a pawn that:
+    - is behind all other friendly pawns in its own and adjacent files.
+    - has no enemy pawn directly in front of it
+    - can not advance without being attacked by an enemy pawn
     """
     ...
 
-def isolated_pawns(board : Board) -> Bitboard: ...
+def isolated_pawns(board : Board, color : Optional[Color] = None) -> Bitboard: 
+    """
+    Returns a :class:`Bitboard` containing all :class:`Square` values with an isolated pawn for the given `Board`.
 
-def doubled_pawns(board : Board) -> Bitboard: ...
+    An isolated pawn is defined as a pawn with no friendly pawns in adjacent files.  
+    """
+    ...
 
-def passed_pawns(board : Board) -> Bitboard: ...
+def doubled_pawns(board : Board, color : Optional[Color] = None) -> Bitboard: 
+    """
+    Returns a :class:`Bitboard` containing all :class:`Square` values with a passed pawn for the given `Board`.
 
-def is_pinned(board : Board, square : Square) -> bool: ...
+    A doubled pawn is defined as a pawn with a friendly pawn in the same file.  
+
+    """
+    ...
+
+def passed_pawns(board : Board, color : Optional[Color] = None) -> Bitboard:
+    """
+    Returns a :class:`Bitboard` containing all :class:`Square` values with a passed pawn for the given `Board`.
+
+    A passed pawn is defined as a pawn with no enemy pawns in its file or adjacent files which can
+    block it from advancing forward, ulitmately to promote.
+    """
+    ...
+
+def is_pinned(board : Board, square : Square) -> bool:
+    """
+    Returns `True` if the given :class:`Square` has a piece which is pinned in the given :class:`Board`.
+
+    A piece is considered pinned if it is not allowed to move at all, as doing so would place the moving player's king in check.
+    """
+    ...
 
 def reset_hashing() -> None: ...
 
-def attack_mask(board : Board, attacker : Color) -> Bitboard: ...
+def attack_mask(board : Board, attacker : Color) -> Bitboard: 
+    """
+    Returns a :class:`Bitboard` of containing all :class:`Square` which are being attacked by the specified :class:`Color`. 
+    """
+    ...
+
 
 def material(board : Board, 
              pawn_value : int = 100,
@@ -86,14 +122,29 @@ def material(board : Board,
              rook_value : int = 500,
              queen_value : int = 900) -> int: 
     """
-    Calculates the net material value on the provided Board. By default,
-    uses standard evaluations of each PieceType measured in centipawns.
+    Calculates the net material value on the provided :class:`Board`. By default,
+    uses standard evaluations of each :class:`PieceType` measured in centipawns.
     """
     ...
 
-def mobility(board : Board) -> int: ...
+def mobility(board : Board) -> int: 
+    """
+    Returns the number of moves for the `Board` as if it were it the `WHITE`'s turn,
+    subtracted by the number of moves as if it were `BLACK`'s turn.  
+    """
+    ...
 
-def open_files(board : Board) -> Bitboard: ...
+def open_files(board : Board) -> Bitboard: 
+    """
+    Returns a :class:`Bitboard` of all files that have no pawns of either :class:`Color`.
+    """
+    ...
+
+def half_open_files(board : Board, for_color : Color) -> Bitboard:
+    """
+    Returns a :class:`Bitboard` of all files that have no pawns of the given :class:`Color`.
+    """
+    ...
 
 #NOT USING def pinned_mask(board : Board, on_square : Square) -> Bitboard: ...
 
@@ -101,7 +152,13 @@ def open_files(board : Board) -> Bitboard: ...
 #def trapped_mask(board : Board) -> Bitboard: ...
 
 #
-def random_legal_move(board : Board) -> Optional[Move]: ...
+def random_legal_move(board : Board) -> Optional[Move]: 
+    """
+    Returns a random legal :class:`Move` for the given :class:`Board`.
+
+    This is much faster than `random.choice(board.legal_moves())`.
+    """
+    ...
 
 
 #def random_board() -> Board: # implementing this and replacing Board.random() would be a good way to force all tests to become deterministic

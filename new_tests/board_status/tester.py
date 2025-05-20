@@ -9,6 +9,7 @@ class BoardStatusTester(unittest.TestCase):
 
     def assertMate(self, board : Board):
         self.assertEqual(utils.count_moves(board), 0)
+        self.assertEqual(len(board.legal_moves()), 0)
         self.assertTrue(board in MATE)
         self.assertFalse(board in INSUFFICIENT_MATERIAL)
         self.assertFalse(board in FIFTY_MOVE_TIMEOUT)
@@ -17,27 +18,80 @@ class BoardStatusTester(unittest.TestCase):
         self.assertFalse(board in FIVEFOLD_REPETITION)
         self.assertFalse(board in INSUFFICIENT_MATERIAL)
 
+    def assertNotMate(self, board : Board):
+        self.assertGreater(utils.count_moves(board), 0)
+        self.assertGreater(len(board.legal_moves()), 0)
+        self.assertTrue(board not in MATE)
+
     def assertCheck(self, board : Board):
+        self.assertTrue(board in CHECK)
         self.assertTrue(utils.attack_mask(board, board.turn.opposite) & board.kings)
 
     def assertNotCheck(self, board : Board):
         self.assertTrue(board not in CHECK)
-        self.assertFalse(utils.attack_mask(board, board.turn.opposite) & board.kings)
+        
+        self.assertFalse(utils.attack_mask(board, board.turn.opposite) & (board.kings & board.turn), msg = board.pretty())
+
+    def assertOnlyCheck(self, board : Board):
+        self.assertCheck(board)
+        self.assertNotMate(board)
 
     def assertCheckmate(self, board : Board):
         self.assertCheck(board)
         self.assertMate(board)
 
+    def assertLastNotCapture(self, board : Board):
+        moves = board.history
+        self.assertFalse(moves[-1].is_capture(board))
+
     def assertStalemate(self, board : Board):
         self.assertNotCheck(board)
         self.assertMate(board)
+        self.assertTrue(board in FORCED_DRAW)
+        self.assertTrue(board in DRAW)
 
     def assertThreefold(self, board : Board):
-        self.assertIn(board, THREEFOLD_REPETITION)
+        self.assertNotMate(board)
+        self.assertTrue(board in THREEFOLD_REPETITION)
+        self.assertTrue(board.halfmove_clock >= 6)
+        self.assertTrue(board.fullmove_number >= 3)
+        self.assertLastNotCapture(board)
+        self.assertTrue(board in DRAW)
+        self.assertTrue(board not in FORCED_DRAW)
 
     def assertFivefold(self, board : Board):
-        self.assertIn(board, THREEFOLD_REPETITION)
-        self.assertIn(board, FIVEFOLD_REPETITION)
+        self.assertNotMate(board)
+        self.assertThreefold(board)
+        self.assertTrue(board in FIVEFOLD_REPETITION)
+        self.assertTrue(board.halfmove_clock >= 10)
+        self.assertTrue(board.fullmove_number >= 5)
+        self.assertLastNotCapture(board)
+        self.assertTrue(board in DRAW)
+        self.assertTrue(board not in FORCED_DRAW)
 
-    def test_use_this(self):
-        raise NotImplementedError("Dont forget to use this new tester")
+    def assertFifty(self, board : Board):
+        self.assertTrue(board in FIFTY_MOVE_TIMEOUT)
+        self.assertTrue(board.halfmove_clock >= 99)
+        self.assertIsNone(board.en_passant_square)
+        self.assertNotMate(board)
+        self.assertLastNotCapture(board)
+        self.assertTrue(board in DRAW)
+        self.assertFalse(board in FORCED_DRAW)
+
+
+    def assertSeventyFive(self, board : Board):
+        self.assertTrue(board in SEVENTY_FIVE_MOVE_TIMEOUT)
+        self.assertTrue(board.halfmove_clock >= 149)
+        self.assertIsNone(board.en_passant_square)
+        self.assertNotMate(board)
+        self.assertLastNotCapture(board)
+        self.assertTrue(board in DRAW)
+        self.assertTrue(board not in FORCED_DRAW)
+
+    def assertInsf(self, board : Board):
+        self.assertTrue(board in INSUFFICIENT_MATERIAL)
+        self.assertTrue(board in DRAW)
+        self.assertTrue(board in FORCED_DRAW)
+        self.assertEqual(board.queens, EMPTY_BB)
+        self.assertEqual(board.rooks, EMPTY_BB)
+        self.assertEqual(board.pawns, EMPTY_BB)

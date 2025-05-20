@@ -1,5 +1,6 @@
 import unittest
 import sys
+import re
 sys.path.append("./")
 from bulletchess import *
 
@@ -68,14 +69,19 @@ class TestBoardFEN(unittest.TestCase):
         self.assertFenInvalid( "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq e12", err)
         self.assertFenInvalid( "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq hhhh", err)
 
-        err = "Missing halfmove clock"
-        self.assertFenInvalid("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - ", err) 
-        err = "Missing fullmove timer"
-        self.assertFenInvalid("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 1", err) 
-        err = "Clock includes a non-digit"
+        err = "Halfmove clock includes a non-digit"
         self.assertFenInvalid("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - a", err) 
+        err = "Fullmove timer includes a non-digit"
         self.assertFenInvalid("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 10 1.", err) 
  
+
+    def test_without_clocks(self):
+        FEN1 = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - "
+        FEN2 = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+        self.assertEqual(Board.from_fen(FEN1), Board.from_fen(FEN2))
+        FEN1 = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 1"
+        FEN2 = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 1 1"
+        self.assertEqual(Board.from_fen(FEN1), Board.from_fen(FEN2))
 
     def test_starting(self):
         board = Board()
@@ -90,8 +96,10 @@ class TestBoardFEN(unittest.TestCase):
             self.assertEqual(board.fen(), fen)
 
     def test_misuse(self):
+        with self.assertRaisesRegex(TypeError, re.escape("Expected a str, got 3 (int)")):
+            Board().from_fen(3) #type: ignore
         with self.assertRaises(TypeError):
-            Board().fen(3) #type: ignore
+            Board.from_fen() #type: ignore
 
     def test_Roundtrip(self):
         FEN = "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10"

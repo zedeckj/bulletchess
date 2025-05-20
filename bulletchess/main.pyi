@@ -1,4 +1,4 @@
-from typing import Optional, Any, Collection, Iterator
+from typing import Optional, Any, Collection, Iterator, overload, override
 
 
 class Color:
@@ -28,7 +28,7 @@ class Color:
         ...
 
     @property
-    def opposite(self) -> Color: 
+    def opposite(self) -> "Color": 
         """
         Gets the opposite `Color` to this one. 
 
@@ -57,7 +57,7 @@ class Color:
         """
         ...
 
-    def __invert__(self) -> Color:
+    def __invert__(self) -> "Color":
         """
         Alias for :pyattr:`opposite`,  Allows ``~WHITE`` syntax."""
         ...
@@ -79,7 +79,7 @@ class PieceType:
 
 
     @staticmethod
-    def from_str(piece_type : str) -> PieceType:
+    def from_str(piece_type : str) -> "PieceType":
         """Return the piece type corresponding to *name* (case‑insensitive).
 
         Examples
@@ -454,7 +454,7 @@ F1: Square
 #: The G1 Square
 G1: Square
 #: The H1 Square
-H1: SquareW
+H1: Square
 #: The A2 Square
 A2: Square
 #: The B2 Square
@@ -1017,9 +1017,6 @@ class Move:
         """
         ...
 
-    # ------------------------------------------------------------------ #
-    #  Constructors
-    # ------------------------------------------------------------------ #
 
     @staticmethod
     def castle(castling_type: CastlingType) -> "Move":
@@ -1282,7 +1279,7 @@ class Move:
 
 class CastlingRights:
     """
-    A set of :class:`CastlingType` values that encodes a position’s castling
+    A set of :class:`CastlingType` values that encodes a :class:`Board`'s castling
     permissions.
     """
 
@@ -1684,10 +1681,42 @@ class Board:
         """
         ...
 
+    @overload
     def __getitem__(self, square : Square) -> Optional[Piece]:
         """
-        Gets the `Piece` at the specified `Square` on this `Board`. Evaluates to `None` if no `Piece` is placed
+        Returns the `Piece` at the specified `Square` on this `Board`. Evaluates to `None` if no `Piece` is placed
         on the given `Square`.
+        """
+        ...
+
+    @overload
+    def __getitem__(self, piece_type : Optional[PieceType]) -> Bitboard:
+        """
+        Returns a :class:`Bitboard` of all squares which have the given :class:`PieceType`
+        If given `None`, returns a :class:`Bitboard` of all empty squares.
+        """
+        ...
+
+    @overload
+    def __getitem__(self, color : Optional[Color]) -> Bitboard:
+        """
+        Returns a :class:`Bitboard` of all squares which have a piece with the given :class:`Color`.
+        If given `None`, returns a :class:`Bitboard` of all empty squares.
+        """
+        ...
+
+    @overload
+    def __getitem__(self, piece : Optional[Piece]) -> Bitboard:
+        """
+        Returns a :class:`Bitboard` of all squares which have the given :class:`Piece`.
+        If given `None`, returns a :class:`Bitboard` of all empty squares.
+        """
+        ...
+
+    @overload
+    def __getitem__(self, piece_tuple : tuple[Color, PieceType]) -> Bitboard:
+        """
+        Returns a :class:`Bitboard` of all squares which have the given :class:`Color` and :class:`PieceType`.
         """
         ...
 
@@ -1810,50 +1839,78 @@ class Board:
     class ColorScheme:
 
         """
-        A pallete of colors to be used with `Board.pretty()` 
+        A pallete of colors to be used with :func:`Board.pretty()` to stylize printed 
+        boards.
         """
 
+    #: A light blue color pallete
     LAGOON : ColorScheme
+    #: A slightly purplish, grey color pallete
     SLATE : ColorScheme
+    #: A classical, wood styled color pallete
     OAK : ColorScheme
+    #: A familiar green and white color pallete
     GREEN : ColorScheme
+    #: A less saturated wood styled color pallete 
     WALNUT: ColorScheme
+    #: A pinkish red color pallete
     ROSE : ColorScheme
+    #: A dulled rosy brown and grey color pallete
     CLAY : ColorScheme
+    #: A monochromatic grey color pallete
     STEEL : ColorScheme
 
 class BoardStatus:
     """
-    Represents a possible state, such as Check, Checkmate, Stalemate, or Threefold Repetition that 
-    a `Board` may have.
+    A predicate-like object that answers the question *“is this board in
+    status X?”*  Examples of statuses include **check**, **check-mate**,
+    **stalemate**, and repetition or 50-move draw claims.
     """
 
-    def __repr__(self) -> str:
+    def __repr__(self) -> str: ...
+
+    def __eq__(self, other : Any) -> bool: ...
+
+    def __contains__(self, board: Board) -> bool:
+        """
+        Return ``True`` if *board* satisfies this status.
+
+        :param board: position to test.
+        :type  board: Board
+        :returns: membership flag.
+        :rtype:   bool
+
+        Examples
+        --------
+        >>> Board() in DRAW
+        False
+        >>> FEN = "r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4"
+        >>> Board.from_fen(FEN) in CHECKMATE
+        True
+        """
         ...
 
-    def __contains__(self, board : Board) -> bool:
-        """
-        Checks if a a `Board` is "in" the state represented by this `BoardStatus`
 
-        Examples:
-        ```
-        Board() in DRAW == False
-        # Scholar's Mate
-        FEN = "r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4"
-        Board.from_fen(FEN) in CHECKMATE == True
-        ```
-        """
-        ...
-
-
-CHECK : BoardStatus
-MATE : BoardStatus
-CHECKMATE : BoardStatus
-STALEMATE : BoardStatus
-INSUFFICIENT_MATERIAL : BoardStatus
-FIFTY_MOVE_TIMEOUT : BoardStatus
-SEVENTY_FIVE_MOVE_TIMEOUT : BoardStatus
-THREEFOLD_REPETITION : BoardStatus
-FIVEFOLD_REPETITION : BoardStatus
-DRAW : BoardStatus
-FORCED_DRAW : BoardStatus
+#: The side to move is currently in check.
+CHECK: BoardStatus
+#: The side to move has no legal moves.
+MATE: BoardStatus
+#: Side to move has no legal moves, and is in check.
+CHECKMATE: BoardStatus
+#: Side to move has no legal moves, and is **not** in check.
+STALEMATE: BoardStatus
+#: Not enough material remains for either side to mate.
+INSUFFICIENT_MATERIAL: BoardStatus
+#: Fifty moves (plies) have passed without a pawn move or capture.
+FIFTY_MOVE_TIMEOUT: BoardStatus
+#: Seventy-five moves (plies) have passed without a pawn move or capture.
+SEVENTY_FIVE_MOVE_TIMEOUT: BoardStatus
+#: Same position has occurred three times with the same side to move.
+THREEFOLD_REPETITION: BoardStatus
+#: Same position has occurred five times with the same side to move.
+FIVEFOLD_REPETITION: BoardStatus
+#: Any condition that entitles a player to claim a draw.
+DRAW: BoardStatus
+#: Draw that the rules enforce automatically (e.g. 75-move, 5-fold, or
+#: insufficient material) even if the player does not claim it.
+FORCED_DRAW: BoardStatus

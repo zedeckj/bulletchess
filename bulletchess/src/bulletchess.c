@@ -1983,7 +1983,10 @@ static PyObject *PyBoard_from_fen_str(const char *fen) {
 
 static PyObject *PyBoard_from_fen(PyObject *cls, PyObject *args) {
 	const char *fen = PyUnicode_AsUTF8AndSize(args, NULL);
-	if (!fen) return NULL;
+	if (!fen) {
+		PyTypeErr("str", args);
+		return NULL;
+	}
 	return PyBoard_from_fen_str(fen);
 }
 
@@ -2162,7 +2165,79 @@ static PyObject *PyBoard_get_piece_at(PyObject *self, PyObject *key) {
 	return PyPiece_make(piece);	
 }
 
+static inline PyObject *PyBoard_get_color_bb(PyObject *board, 
+		PyObject *color){
+	if (color == WhiteObject){
+		return PyBitboard_make(PyBoard_board(board)->position->white_oc);
+	}
+	else {
+		return PyBitboard_make(PyBoard_board(board)->position->black_oc);
+	}
+}
 
+
+static inline PyObject *PyBoard_get_pt_bb(PyObject *board, 
+		PyObject *piece_type){
+	return PyBitboard_make(get_piece_type_bb(PyBoard_board(board)->position, 
+			PyPieceType_get(piece_type)));	
+}
+
+static inline PyObject *PyBoard_get_bb(PyObject *board, 
+		PyObject *color, PyObject *piece_type){
+	piece_t piece = (piece_t){
+		.color = PyColor_get(color),
+		.type = PyPieceType_get(piece_type)
+	};
+	return PyBitboard_make(get_piece_bb(PyBoard_board(board)->position,
+				piece));	
+}
+
+static PyObject *PyBoard_empty_bb(PyObject *self, void *closure) {
+	position_t *pos= PyBoard_board(self)->position;
+	return (PyObject *)PyBitboard_make(
+		~(pos->white_oc | pos->black_oc)	
+	);
+}
+
+static inline PyObject *PyBoard_get_index_tuple(PyObject *self,
+		PyObject *key){
+	PyObject *color;
+	PyObject *piece_type;
+	if (!PyArg_ParseTuple(key, "OO", &color, &piece_type))
+		return NULL;
+	if (!PyTypeCheck("Color as the first item", color, &PyColorType))
+		return NULL;
+	if (!PyTypeCheck("PieceType as the second item", piece_type, &PyPieceTypeType)){
+		return NULL;
+	}
+	return PyBoard_get_bb(self, color, piece_type);	
+}
+
+static PyObject *PyBoard_get_index(PyObject *self, PyObject *key) {
+	if (Py_IsNone(key)) {
+		return PyBoard_empty_bb(self, NULL);
+	}
+	else if (Py_IS_TYPE(key, &PySquareType)){
+		return PyBoard_get_piece_at(self, key);	
+	}
+	else if (Py_IS_TYPE(key, &PyPieceTypeType)) {
+		return PyBoard_get_pt_bb(self, key);
+	}
+	else if (Py_IS_TYPE(key, &PyColorType)){
+		return PyBoard_get_color_bb(self, key);
+	}
+	else if (PyTuple_Check(key)){
+		return PyBoard_get_index_tuple(self, key);
+	}
+	else if (Py_IS_TYPE(key, &PyPieceType)){
+		piece_t piece = PyPiece_get(key);
+		return PyBitboard_make(get_piece_bb(PyBoard_board(self)->position,
+				piece));	
+	}
+	PyTypeErr("PieceType, Color, Piece, Square, None,"
+		 " or tuple[Color, PieceType]", key);
+	return NULL;
+}
 
 int PyBoard_set_piece_at(PyObject *self, PyObject *key, PyObject *val) {	
 	if (!PyTypeCheck("Square", key, &PySquareType)) return -1;
@@ -2186,7 +2261,7 @@ static PyObject *PyBoard_random(PyObject *cls, PyObject *args){
 	if (!board) return NULL;
 	setstate(rand_state);
 	PyBoard_setup_starting((PyObject *)board);
-	u_int8_t depth = 4 + (random() % 100);
+	u_int8_t depth = 4 + (random() % 300);
 	move_t moves[256];
 	PyBoard_set_capacity(board, depth * 1 + 5);	
 	for (u_int8_t i = 0; i < depth; i++) {
@@ -2402,13 +2477,6 @@ POSITION_GETTER(kings)
 POSITION_GETTER(white_oc)
 POSITION_GETTER(black_oc)
 
-static PyObject *PyBoard_empty_bb(PyObject *self, void *closure) {
-	position_t *pos= PyBoard_board(self)->position;
-	return (PyObject *)PyBitboard_make(
-		~(pos->white_oc | pos->black_oc)	
-	);
-}
-
 static int PyBoard_contains(PyObject *self, PyObject *arg){
 	position_t *pos = PyBoard_board(self)->position;
 	if (Py_IsNone(arg)) {
@@ -2518,7 +2586,7 @@ static PyGetSetDef Board_getset[] = {
 };
 
 static PyMappingMethods PyBoardAsMap = {
-	.mp_subscript = PyBoard_get_piece_at,
+	.mp_subscript = PyBoard_get_index,
 	.mp_ass_subscript = PyBoard_set_piece_at,
 	.mp_length = NULL,
 };
@@ -2694,6 +2762,9 @@ static int PyBoardStatus_contains(PyObject *self, PyObject *arg) {
 	}	
 }
 
+Py_hash_t PyBoardStatus_hash(PyObject *self) {
+	return (Py_hash_t)PyBoardStatus_get(self);
+}
 
 static PySequenceMethods PyBoardStatusAsSeq = {
 	.sq_contains = PyBoardStatus_contains
@@ -2709,7 +2780,8 @@ static PyTypeObject PyBoardStatusType = {
   .tp_itemsize = 0,
   .tp_flags = Py_TPFLAGS_DEFAULT, 
 	.tp_repr = PyBoardStatus_repr,
-	.tp_as_sequence = &PyBoardStatusAsSeq
+	.tp_as_sequence = &PyBoardStatusAsSeq,
+	.tp_hash = PyBoardStatus_hash,
 };
 
 
@@ -2771,11 +2843,34 @@ static PyObject *PyUtils_srandom(PyObject *self, PyObject *arg){
 		return (PyObject *)PyBitboard_make(func(PyBoard_board(args))); \
 	}
 
+#define UTIL_FROM_BOARD_OPT_COLOR_TO_BB(func)\
+static PyObject *PyUtils_ ## func (PyObject *self,\
+		PyObject *args, PyObject *kwargs) { \
+		PyObject *board_obj;\
+		PyObject *color_obj = NULL;\
+		static char* kwlist[] = {"board", "color", 0};\
+		if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O", kwlist,\
+					&board_obj, &color_obj))\
+			return NULL;\
+		if (!PyTypeCheck("Board", board_obj, &PyBoardType)) return NULL; \
+		full_board_t *board = PyBoard_board(board_obj);\
+		if (!color_obj || Py_IsNone(color_obj)) return \
+			(PyObject *)PyBitboard_make(func(board));\
+		if (!PyTypeCheck("Color or None", color_obj, &PyColorType))\
+		return NULL;\
+		switch (PyColor_get(color_obj)){\
+			case WHITE_VAL:\
+				return (PyObject *)PyBitboard_make(white_## func(board));\
+			default:\
+				return (PyObject *)PyBitboard_make(black_## func(board));\
+		}\
+}
 
-UTIL_FROM_BOARD_TO_BB(isolated_pawns)
-UTIL_FROM_BOARD_TO_BB(backwards_pawns)
-UTIL_FROM_BOARD_TO_BB(doubled_pawns)
-UTIL_FROM_BOARD_TO_BB(passed_pawns)
+
+UTIL_FROM_BOARD_OPT_COLOR_TO_BB(isolated_pawns)
+UTIL_FROM_BOARD_OPT_COLOR_TO_BB(backwards_pawns)
+UTIL_FROM_BOARD_OPT_COLOR_TO_BB(doubled_pawns)
+UTIL_FROM_BOARD_OPT_COLOR_TO_BB(passed_pawns)
 
 UTIL_FROM_BOARD_TO_BB(open_files)
 
@@ -2789,6 +2884,20 @@ static PyObject *PyUtils_attack_mask(PyObject*self, PyObject*args) {
 	bitboard_t attack_mask = make_attack_mask(PyBoard_board(board), PyColor_get(color));
 	return (PyObject *)PyBitboard_make(attack_mask);
 }
+
+
+static PyObject *PyUtils_half_open_files(PyObject *self, PyObject *args){
+	PyObject *board;
+	PyObject *color;
+	if (!PyArg_ParseTuple(args, "OO", &board, &color)) return NULL;
+	if (!PyTypeCheck("Board", board, &PyBoardType)) return NULL; 
+	if (!PyTypeCheck("Color", color, &PyColorType)) return NULL; 
+	bitboard_t mask= half_open_files(PyBoard_board(board), 
+			PyColor_get(color));
+	return (PyObject *)PyBitboard_make(mask);
+}
+
+
 
 
 // too dependent on implementation details, not intuitive on its own
@@ -2871,13 +2980,18 @@ static PyMethodDef PyUtilsMethods[] = {
 	{"mobility", PyUtils_mobility, METH_O, NULL},
 	{"material", (PyCFunction)PyUtils_material, METH_KEYWORDS | METH_VARARGS, NULL},
 	{"attack_mask", PyUtils_attack_mask, METH_VARARGS, NULL},	
+	{"half_open_files", PyUtils_half_open_files, METH_VARARGS, NULL},	
 	{"is_pinned", PyUtils_is_pinned, METH_VARARGS, NULL},
 	{"random_legal_move", PyUtils_random_legal_move, METH_O, NULL},
-	{"backwards_pawns", PyUtils_backwards_pawns, METH_O, NULL},	
 	{"open_files", PyUtils_open_files, METH_O, NULL},	
-	{"isolated_pawns", PyUtils_isolated_pawns, METH_O, NULL},	
-	{"passed_pawns", PyUtils_passed_pawns, METH_O, NULL},	
-	{"doubled_pawns", PyUtils_doubled_pawns, METH_O, NULL},	
+	{"isolated_pawns", (PyCFunction)PyUtils_isolated_pawns, 
+		METH_VARARGS | METH_KEYWORDS, NULL},	
+	{"backwards_pawns", (PyCFunction)PyUtils_backwards_pawns, 
+		METH_VARARGS | METH_KEYWORDS, NULL},	
+	{"passed_pawns", (PyCFunction)PyUtils_passed_pawns, 
+		METH_VARARGS | METH_KEYWORDS, NULL},	
+	{"doubled_pawns", (PyCFunction)PyUtils_doubled_pawns, 
+		METH_KEYWORDS | METH_VARARGS, NULL},	
 	{"count_moves", PyUtils_count_moves, METH_O, NULL},	
 	{"is_quiescent", PyUtils_is_quiescent, METH_O, NULL},	
 	{"perft", PyUtils_perft,  METH_VARARGS, NULL},	
