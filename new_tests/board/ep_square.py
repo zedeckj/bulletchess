@@ -16,18 +16,26 @@ class TestBoardClocks(unittest.TestCase):
 
     def test_set_ep(self):
         board = Board()
+        board[E2] = None
+        board[E4] = Piece(WHITE, PAWN)
+        board.turn = BLACK
         board.en_passant_square = E3 
         self.assertEqual(board.en_passant_square, E3)
 
     def test_illegal_ep(self):
         board = Board()
-        with self.assertRaisesRegex(ValueError, "Illegal en passant square, must be on either Ranks 3 or 5."):
+        with self.assertRaisesRegex(ValueError, re.escape("Illegal en passant Square: A1. Must be on either rank 3 or rank 6.")):
             board.en_passant_square = A1
-        with self.assertRaisesRegex(ValueError, "Illegal en passant square, if on Rank 3, must have a white pawn on the same File on Rank 4"):
+        with self.assertRaisesRegex(ValueError, re.escape("Illegal en passant Square: E3. Must be on rank 6 if it is white's turn.")):
             board.en_passant_square = E3
-        with self.assertRaisesRegex(ValueError, "Illegal en passant square, if on Rank 5, must have a black pawn on the same File on Rank 6"):
-            board.en_passant_square = E5
-
+        board.turn = BLACK
+        with self.assertRaisesRegex(ValueError, re.escape("Illegal en passant Square: E3. There is no corresponding white pawn.")):
+            board.en_passant_square = E3
+        with self.assertRaisesRegex(ValueError, re.escape("Illegal en passant Square: E6. Must be on rank 3 if it is black's turn.")):
+            board.en_passant_square = E6
+        board.turn = WHITE
+        with self.assertRaisesRegex(ValueError, re.escape("Illegal en passant Square: E6. There is no corresponding black pawn.")):
+            board.en_passant_square = E6
 
 if __name__ == "__main__":
     unittest.main()

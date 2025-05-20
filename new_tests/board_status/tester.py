@@ -33,4 +33,11 @@ class BoardStatusTester(unittest.TestCase):
         self.assertMate(board)
 
     def assertThreefold(self, board : Board):
-        ...
+        self.assertIn(board, THREEFOLD_REPETITION)
+
+    def assertFivefold(self, board : Board):
+        self.assertIn(board, THREEFOLD_REPETITION)
+        self.assertIn(board, FIVEFOLD_REPETITION)
+
+    def test_use_this(self):
+        raise NotImplementedError("Dont forget to use this new tester")

@@ -2305,6 +2305,29 @@ static PyObject *PyBoard_ep_square(PyObject *self, void *closure) {
 	return PySquare_from_optional(PyBoard_board(self)->en_passant_square);
 }
 
+static inline char *new_ep_legal(full_board_t *board, square_t ep) {
+	bitboard_t ep_bb = SQUARE_TO_BB(ep);
+	bitboard_t on_3 = ep_bb & RANK_3;
+	bitboard_t on_6 = ep_bb & RANK_6;
+	if (!on_3 && !on_6) {
+		return "Must be on either rank 3 or rank 6";
+	}	
+	position_t *pos = board->position;
+	bitboard_t white_pawns = pos->pawns & pos->white_oc;
+	bitboard_t black_pawns = pos->pawns & pos->black_oc;
+	if (board->turn == WHITE_VAL) {
+		if (on_3) return "Must be on rank 6 if it is white's turn";
+		if (!(SAFE_BELOW_BB(ep_bb) & black_pawns)) 
+			return "There is no corresponding black pawn";
+	}
+	else {	
+			if (on_6) return "Must be on rank 3 if it is black's turn";
+			if (!(SAFE_ABOVE_BB(ep_bb) & white_pawns))
+				return "There is no corresponding white pawn";
+			
+	}
+	return 0;
+}
 
 static int PyBoard_ep_set(PyObject *self, PyObject *val){
 	if (Py_IsNone(val)) {
@@ -2312,8 +2335,15 @@ static int PyBoard_ep_set(PyObject *self, PyObject *val){
 		return 0;
 	}
 	if (!PyTypeCheck("Square or None", val, &PySquareType)) return -1;
+	square_t ep_sq = PySquare_get(val);
+	char *err = new_ep_legal(PyBoard_board(self), ep_sq);
+	if (err) {
+		PyErr_Format(PyExc_ValueError,
+				"Illegal en passant Square: %S. %s.", val, err);
+		return -1;
+	}
 	PyBoard_board(self)->en_passant_square.exists = true;
-  PyBoard_board(self)->en_passant_square.square	= PySquare_get(val);	
+  PyBoard_board(self)->en_passant_square.square	= ep_sq;	
 	return 0;
 }
 

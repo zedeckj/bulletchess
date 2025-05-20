@@ -181,6 +181,12 @@ class TestMoveGeneration(unittest.TestCase):
             self.useTree(json.load(f), ["r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"])
 
 
+    def test_forced_ep(self):
+        board = Board.from_fen("rn2qb2/3bpk1r/p4n1p/2p3pP/7K/4PPP1/PPPPN3/RNB4R w - g6 0 15")
+        moves = board.legal_moves()
+        self.assertEqual(len(moves), 1)
+        self.assertIn(Move.from_uci("h5g6"), moves)
+
     def test_fen_mutation(self):
         board = Board()
         fen = board.fen()

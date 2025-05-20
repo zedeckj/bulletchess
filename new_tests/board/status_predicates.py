@@ -6,6 +6,7 @@ import json
 
 
 CHECK_FENS = [
+    "rn2qb2/3bpk1r/p4n1p/2p3pP/7K/4PPP1/PPPPN3/RNB4R w - g6 0 15",
     "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1",
     "rnbqk1nr/pppp1ppp/8/4P3/1b6/8/PPP1PPPP/RNBQKBNR w KQkq - 1 3",
     "rnbqkbnr/ppp1pppp/8/1B1p4/4P3/8/PPPP1PPP/RNBQK1NR b KQkq - 1 2",
@@ -14,6 +15,7 @@ CHECK_FENS = [
 ]
 
 CHECKMATE_FENS = [  
+    "rnb2bB1/2ppq3/6R1/p3kp2/P3pP2/4P3/N1P5/2KRB3 b - - 0 1",
     "r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4",
     "rnb1k1nr/pppp1ppp/8/2b1p1N1/4P3/2N5/PPPP1qPP/R1BQKB1R w KQkq - 0 5",
 
@@ -155,6 +157,7 @@ class TestStatusPredicates(unittest.TestCase):
                 case "other":
                     self.assertFalse(board in CHECK)
                     self.assertFalse(board in INSUFFICIENT_MATERIAL)
+
 
 if __name__ == "__main__":
     unittest.main()

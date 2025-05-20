@@ -124,7 +124,6 @@ int8_t net_backwards_pawns(full_board_t * board) {
 }
 
 
-
 bitboard_t backwards_pawns(full_board_t *board) {
 	position_t *position = board->position;
 	bitboard_t white_pawns = position->pawns & position->white_oc;
@@ -136,22 +135,48 @@ bitboard_t backwards_pawns(full_board_t *board) {
 		
 	bitboard_t white_pawn_attacks = white_pawn_attack_mask(white_pawns, FULL_BB);
 	bitboard_t black_pawn_attacks = black_pawn_attack_mask(black_pawns, FULL_BB);
-
+		
 	// and that would be attacked if they advanced
-	bitboard_t white_cant_advance = SAFE_BELOW_BB(black_pawn_attacks) 
+	bitboard_t white_cant_advance = 
+		SAFE_BELOW_BB(black_pawn_attacks) 
 		& white_non_paired; 
 
-	bitboard_t black_cant_advance = SAFE_ABOVE_BB(white_pawn_attacks) 
+	bitboard_t black_cant_advance = 
+		SAFE_ABOVE_BB(white_pawn_attacks) 
 		& black_non_paired;
 
 	// and arent protected
-	bitboard_t white_backwards = ~white_pawn_attacks & white_cant_advance;
+	bitboard_t white_candidates= ~white_pawn_attacks & white_cant_advance;
 	
-	bitboard_t black_backwards = ~black_pawn_attacks & black_cant_advance;
+	bitboard_t black_candidates = ~black_pawn_attacks & black_cant_advance;
+
+	bitboard_t white_non_back = RANK_1 & white_candidates;
+
+	#define NONE_BELOW(RANK)\
+		(RANK & ~SAFE_ABOVE_BB(white_non_back | SAFE_LEFT_BB(white_non_back) | SAFE_RIGHT_BB(white_non_back)))
 	
+	white_non_back |= NONE_BELOW(RANK_2);
+	white_non_back |= NONE_BELOW(RANK_3);
+	white_non_back |= NONE_BELOW(RANK_4);
+	white_non_back |= NONE_BELOW(RANK_5);
+	white_non_back |= NONE_BELOW(RANK_6);
+	white_non_back |= NONE_BELOW(RANK_7);
+	white_non_back |= NONE_BELOW(RANK_8);
+	bitboard_t black_non_back = RANK_8 & black_candidates;
+	
+	#define NONE_ABOVE(RANK)\
+		(RANK & black_candidates & ~SAFE_BELOW_BB(black_non_back | SAFE_LEFT_BB(black_non_back) | SAFE_RIGHT_BB(black_non_back)))
+	black_non_back |= NONE_ABOVE(RANK_7);
+	black_non_back |= NONE_ABOVE(RANK_6);
+	black_non_back |= NONE_ABOVE(RANK_5);
+	black_non_back |= NONE_ABOVE(RANK_4);
+	black_non_back |= NONE_ABOVE(RANK_3);
+	black_non_back |= NONE_ABOVE(RANK_2);
+	black_non_back |= NONE_ABOVE(RANK_1);
+
 	// and wouldnt be protected if they advanced
-	white_backwards &= ~SAFE_BELOW_BB(white_pawn_attacks);	
-	black_backwards &= ~SAFE_ABOVE_BB(black_pawn_attacks);	
+	bitboard_t white_backwards = white_candidates & white_non_back & ~SAFE_BELOW_BB(white_pawn_attacks);	
+	bitboard_t black_backwards = black_candidates & black_non_back & ~SAFE_ABOVE_BB(black_pawn_attacks);	
 	return white_backwards | black_backwards;
 }
 
@@ -309,11 +334,18 @@ int32_t shannon_evaluation(full_board_t * board, undoable_move_t * stack, u_int8
 		return 0;
 	}
 	else {
+		position_t *pos = board->position;
+		bitboard_t back_bb = backwards_pawns(board);
+		bitboard_t dbl_bb = doubled_pawns(board);
+		bitboard_t isl_bb = isolated_pawns(board);
+		bitboard_t bad_bb = back_bb | dbl_bb | isl_bb;
+		int32_t bad_net;
+		if (bad_bb) {
+			bad_net = count_bits(pos->white_oc & bad_bb) - count_bits(pos->black_oc & bad_bb);
+		}
+		else bad_net = 0;	
 		return (int32_t)material(board, 100, 300, 300, 500, 900) +
-					 50 * (net_backwards_pawns(board) + 
-								 net_doubled_pawns(board)	+
-								 net_isolated_pawns(board)) + 
-					10 * net_mobility(board); 
+					-50 * bad_net + 10 * net_mobility(board); 
 	}
 }
 

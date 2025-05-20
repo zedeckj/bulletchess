@@ -43,8 +43,5 @@ class TestPawnBitboardUtils(unittest.TestCase):
 
 
 if __name__ == "__main__":
-
-
     unittest.main()
     
-    print(utils.backwards_pawns(board5))

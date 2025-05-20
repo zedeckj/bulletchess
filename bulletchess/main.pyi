@@ -9,18 +9,21 @@ class Color:
     """
 
     @staticmethod
-    def from_str(color : str) -> Color:
-        """
-        Gets the `Color` corresponding to the given `str`.
-        This function is case insensitive. 
-        
-        Examples:
-        ```
-        Color.from_str("White") == WHITE
-        Color.from_str("BLACK") == BLACK
-        ```
+    def from_str(name: str) -> "Color":
+        """Return the colour corresponding to *name* (case‑insensitive).
 
-        :raises: :exc:`ValueError` if the string is not some case variation of `"WHITE"` or `"BLACK"`.
+        Examples
+        --------
+        >>> Color.from_str("White") is WHITE
+        True
+        >>> Color.from_str("BLACK") is BLACK
+        True
+
+        :param name: The string ``"white"`` or ``"black"`` in any case.
+        :type name: str
+        :returns: The matching :class:`Color` instance.
+        :rtype: Color
+        :raises ValueError: If *name* is not recognised.
         """
         ...
 
@@ -28,43 +31,44 @@ class Color:
     def opposite(self) -> Color: 
         """
         Gets the opposite `Color` to this one. 
-        """
-        ...
 
-    def __eq__(self, other : Any) -> bool:
-        """
-        Evalutes to `True` if compared with the same `Color`
-        """
-        ...
+        Examples
+        --------
+        >>> WHITE.opposite is BLACK
+        True
+        >>> BLACK.opposite is WHITE
+        True
 
-    def __hash__(self) -> int:
+        :returns: The opposite :class:`Color` instance.
+        :rtype: Color
+        """
         ...
 
     def __str__(self) -> str:
         """
         Serializes a `Color` to a string of its name in title case.
 
-        Examples:
-        ```
-        str(WHITE) == "White"
-        str(BLACK) == "Black"
-        ```
+        Examples
+        ---------
+        >>> str(WHITE)
+        "White"
+        >>> str(BLACK)
+        "Black"
         """
         ...
 
     def __invert__(self) -> Color:
         """
-        Short-hand for `Color.opposite`, gets the opposite `Color` to this one. 
-        """
+        Alias for :pyattr:`opposite`,  Allows ``~WHITE`` syntax."""
         ...
 
-    def __repr__(self) -> str:
-        ...
+    def __hash__(self) -> int: ...
+    def __repr__(self) -> str: ...
+    def __eq__(self, other : Any) -> bool: ...
     
-
-
-
+#: The white player
 WHITE : Color
+#: The black player
 BLACK : Color
 
 class PieceType:
@@ -76,54 +80,57 @@ class PieceType:
 
     @staticmethod
     def from_str(piece_type : str) -> PieceType:
-        """
-        Gets the `PieceType` corresponding to the given `str` while being case insensitive.  
-        
-        Examples:
-        ```
-        PieceType.from_str("pawn") == PAWN
-        PieceType.from_str("KNIGHT") == KNIGHT
-        PieceType.from_str("Bishop") == BISHOP
-        PieceType.from_str("rOoK") == ROOK
-        PieceType.from_str("QUeEN") == QUEEN
-        PieceType.from_str("king") == KING
-        ```
-        :raises: :exc: `ValueError` If the given string is not of the six PieceType names
+        """Return the piece type corresponding to *name* (case‑insensitive).
+
+        Examples
+        --------
+        >>> PieceType.from_str("pawn") is PAWN
+        True
+        >>> PieceType.from_str("kNiGhT") is KNIGHT
+        True
+
+        :param name: One of ``"pawn"``, ``"knight"``, ``"bishop"``,
+                     ``"rook"``, ``"queen"`` or ``"king"`` (any case).
+        :type name: str
+        :rtype: PieceType
+        :returns: The matching :class:`PieceType`.
+        :raises ValueError: If *name* is not recognised.
         """
         ...
 
-    def __eq__(self, other : Any) -> bool:
-        """
-        Evalutes to `True` if compared with the same PieceType 
-        """
-        ...
-
-    def __hash__(self) -> int:
-        ...
 
     def __str__(self) -> str:
         """
         Serializes a `PieceType` to a `str` of its name in title case.
 
-        Examples:
-        ```
-        str(PAWN) == "Pawn"
-        str(BISHOP) == "Bishop"
+        Examples
+        ---------
+        >>> str(PAWN)
+        "Pawn"
+        >>> str(BISHOP)
+        "Bishop"
         ```
         """
         ...
 
-    def __repr__(self) -> str:
-        ...
+    def __repr__(self) -> str: ...
+    def __eq__(self, other : Any) -> bool: ...
+    def __hash__(self) -> int: ...
 
-
+#: PieceType for pawns
 PAWN : PieceType
+#: PieceType for knights
 KNIGHT : PieceType
+#: PieceType for bishops
 BISHOP : PieceType
+#: PieceType for rooks
 ROOK : PieceType
+#: PieceType for queens
 QUEEN : PieceType
+#: PieceType for kings
 KING : PieceType
 
+#: A list of all PieceTypes
 PIECE_TYPES : list[PieceType] = [PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING]
 
 
@@ -135,30 +142,34 @@ class Piece:
 
 
     def __init__(self, color : Color, type : PieceType):
-        """
-        Initializes a Piece of the given Color and PieceType
+        """Initialise the `Piece` with *color* and *type*.
+
+        :param color: The owning side.
+        :type color: Color
+        :param type: The intrinsic kind of the piece.
+        :type type: PieceType
         """
         ...
 
     @staticmethod
-    def from_chr(piece_str : str) -> Piece:
-        """
-        Gets the Piece corresponding to the given ASCII character. Capital letters are used for White pieces, 
-        and lower case for Black.
+    def from_chr(char : str) -> Piece:
+        """Return the piece encoded by *char* (ASCII piece letter).
 
-        Examples:
-        ```
-        Piece.from_chr("P") == Piece(WHITE, PAWN)
-        Piece.from_chr("B") == Piece(WHITE, BISHOP)
-        Piece.from_chr("R") == Piece(WHITE, ROOK)
-        Piece.from_chr("n") == Piece(BLACK, KNIGHT)
-        Piece.from_chr("q") == Piece(BLACK, QUEEN)
-        Piece.from_chr("k") == Piece(BLACK, KING)
-        Piece.from_chr(str(Piece(WHITE, KING))) == Piece(WHITE, KING)
-        ```
+        Upper‑case letters encode *white* pieces, lower‑case letters encode
+        *black*.
 
-        :raises: :exc: `ValueError` if given anything besides one of the 12 ASCII character's representing a Piece
+        Examples
+        --------
+        >>> Piece.from_chr("P")
+        <Piece: (White, Pawn)>
+        >>> Piece.from_chr("n")
+        <Piece: (Black, Knight)>
 
+        :param char: One of ``PRNBQKprnbqk``.
+        :type char: str
+        :rtype: Piece
+        :returns: The corresponding :class:`Piece`.
+        :raises ValueError: If *char* is not a valid piece letter.
         """
         ...
 
@@ -178,16 +189,14 @@ class Piece:
 
     def unicode(self) -> str:
         """
-        Gets a `str` of the Unicode character corresponding to this `Piece`.
+        Returns Unicode figurine character corresponding to this `Piece`.
 
-        Examples:
-        ```
-        Piece(WHITE, PAWN).unicode() == "♙"
-        Piece(BLACK, KNIGHT).unicode() == "♞"
-        Piece(WHITE, BISHOP).unicode() == "♗"
-        Piece(WHITE, ROOK).unicode() == "♖"
-        Piece(BLACK, QUEEN).unicode() == "♛"
-        Piece(BLACK, KING).unicode() == "♚"
+        Examples
+        --------
+        >>> Piece(WHITE, PAWN).unicode()
+        "♙"
+        >>> Piece(BLACK, KNIGHT).unicode()
+        "♞"
         ```
         """
         ...
@@ -205,15 +214,12 @@ class Piece:
         """
         Serializes a `Piece` as a single ASCII character `str`. Uses uppercase for `Piece` that is `WHITE`, and lowercase for any `Piece` that is `BLACK`.
 
-        Examples:
-        ```
-        str(Piece(WHITE, PAWN)) == "P"
-        str(Piece(WHITE, BISHOP)) == "B"
-        str(Piece(WHITE, ROOK)) == "R"
-        str(Piece(BLACK, KNIGHT)) == "n"
-        str(Piece(BLACK, QUEEN)) == "q"
-        str(Piece(BLACK, KING)) == "k"
-        ```
+        Examples
+        --------
+        >>> str(Piece(WHITE, PAWN))
+        "P"
+        >>> str(Piece(BLACK, KNIGHT))
+        "n"
         """
         ...
 
@@ -225,17 +231,16 @@ class Square:
     """
 
     @staticmethod
-    def from_str(square_str : str) -> Square:
+    def from_str(name : str) -> Square:
         """
-        Gets the `Square` corresponding to the given `str` in a case insentive manner.
+        Return the square encoded by *name* (case‑insensitive).
 
-        Examples:
-        ```
+        Examples
+        --------
         Square.from_string("E1") == E1
+        >>> True
         Square.from_string("a2") == A2
-        Square.from_string(str(H8)) == H8
-
-        ```
+        >>> True
 
         :raises: :exc: `ValueError` if given a string which does not represent a Square
         """
@@ -243,455 +248,733 @@ class Square:
 
     def bb(self) -> Bitboard: 
         """
-        Creates a `Bitboard` containing only this `Square`. 
+        Creates a :class:`Bitboard` containing **only** this :class:`Square`. 
 
-        Examples:
-        ```
-        A1.bb() == Bitboard([A1])
-        H3.bb() == Bitboard([H3])
-        ```
+        Examples
+        --------
+        >>> A1.bb() == Bitboard([A1])
+        True
+        >>> H3.bb() == Bitboard([H3])
+        True
         """
         ...
 
     def adjacent(self) -> Bitboard: 
         """
-        Creates a `Bitboard` of all adjacent `Squares` to this `Square`.
+        Creates a `Bitboard` of all neighbors orthogonal or diagonal to this :class:`Square`.
 
-        Examples:
-        ```
-        A1.adjacent() == Bitboard([A2, B1, B2])
-        E5.adjacent() == Bitboard([D4, D5, D6, E4, E6, F4, F5, F6])
-        ```
-        
+        Examples
+        --------
+        >>> A1.adjacent() == Bitboard([A2, B1, B2])
+        True
+        >>> E5.adjacent() == Bitboard([D4, D5, D6, E4, E6, F4, F5, F6])
+        True
         """
 
 
 
         ...
 
-    def north(self, distance : int = 1) -> Optional[Square]: 
+    def north(self, distance: int = 1) -> Optional["Square"]:
         """
-        Gets the `Square` on the same file but with a rank that is the specified distance higher. 
-        If this would be out of bounds of a `Board`, returns `None`.
-        
-        Examples:
-        ```
-        B6.north() == B7
-        A1.north(distance = 3) == A4
-        B8.north(distance = 2) == None
+        Return the square *distance* ranks above this square.
 
-        ```
+        :param distance: how many ranks to move north.
+        :type  distance: int, default 1
+        :returns: the target square, or ``None`` if it would be off the board.
+        :rtype:   Square | None
 
-        """
-        ...
-
-    def south(self, distance : int = 1) -> Optional[Square]: 
-        """
-        Gets the `Square` on the same file but with a rank that is the specified distance lower. 
-        If this would be out of bounds of a `Board`, returns `None`.
-        
-        Examples:
-        ```
-        B6.south() == B5
-        A1.south(distance = 3) == None
-        B8.south(distance = 2) == B6
-        
-        ```
-
-        """
-        
-        ...
-
-    def east(self, distance : int = 1) -> Optional[Square]: 
-        """
-        Gets the `Square` on the same rank but with a file that is the specified amount further through the alphabet. 
-        If this would be out of bounds of a `Board`, returns `None`.
-        
-        Examples:
-        ```
-        B6.east() == C6
-        A1.east(distance = 3) == D1
-        H8.east(distance = 2) == None
-        
-        ```
-
+        Examples
+        --------
+        >>> B6.north() is B7
+        True
+        >>> A1.north(distance=3) is A4
+        True
+        >>> B8.north(distance=2)
+        None
         """
         ...
 
-    def west(self, distance : int = 1) -> Optional[Square]: 
+    def south(self, distance: int = 1) -> Optional["Square"]:
         """
-        Gets the `Square` on the same rank but with a file that is the specified amount backwards through the alphabet. 
-        If this would be out of bounds of a `Board`, returns `None`.
-        
-        Examples:
-        ```
-        B6.west() == A6
-        A1.west(distance = 3) == None
-        H8.west(distance = 2) == E8
-        
-        ```
+        Return the square *distance* ranks below this square.
 
+        :param distance: how many ranks to move south.
+        :type  distance: int, default 1
+        :returns: the target square, or ``None`` if it would be off the board.
+        :rtype:   Square | None
+
+        Examples
+        --------
+        >>> B6.south() is B5
+        True
+        >>> B8.south(distance=2) is B6
+        True
+        >>> A1.south(distance=3)
+        None
         """
         ...
 
-    def nw(self, distance : int = 1) -> Optional[Square]: ...
+    def east(self, distance: int = 1) -> Optional["Square"]:
+        """
+        Return the square *distance* files to the east of this square.
 
-    def ne(self, distance : int = 1) -> Optional[Square]: ...
+        :param distance: how many files to move east (toward the H-file).
+        :type  distance: int, default 1
+        :returns: the target square, or ``None`` if it would be off the board.
+        :rtype:   Square | None
 
-    def sw(self, distance : int = 1) -> Optional[Square]: ...
-
-    def se(self, distance : int = 1) -> Optional[Square]: ...
-
-    def __eq__(self, other : Any) -> bool:
+        Examples
+        --------
+        >>> B6.east() is C6
+        True
+        >>> A1.east(distance=3) is D1
+        True
+        >>> H8.east(distance=2)
+        None
+        """
         ...
 
-    def __hash__(self) -> int:
+    def west(self, distance: int = 1) -> Optional["Square"]:
+        """
+        Return the square *distance* files to the west of this square.
+
+        :param distance: how many files to move west (toward the A-file).
+        :type  distance: int, default 1
+        :returns: the target square, or ``None`` if it would be off the board.
+        :rtype:   Square | None
+
+        Examples
+        --------
+        >>> B6.west() == A6
+        True
+        >>> H8.west(distance=2) == E8
+        True
+        >>> A1.west(distance=3)
+        None
+        """
         ...
 
-    def __str__(self) -> str:
+    def nw(self, distance: int = 1) -> Optional["Square"]:
+        """
+        Return the square *distance* files west and ranks north of this square.
+
+        :param distance: number of steps to move north-west.
+        :type  distance: int, default 1
+        :returns: the target square, or ``None`` if it would be off the board.
+        :rtype:   Square | None
+
+        Examples
+        --------
+        >>> C3.nw() == B4
+        True
+        >>> A1.nw()
+        None
+        >>> D4.nw(distance=2) == B6
+        True
+        """
         ...
 
+    def ne(self, distance: int = 1) -> Optional["Square"]:
+        """
+        Return the square *distance* files east and ranks north of this square.
+
+        :param distance: number of steps to move north-east.
+        :type  distance: int, default 1
+        :returns: the target square, or ``None`` if it would be off the board.
+        :rtype:   Square | None
+
+        Examples
+        --------
+        >>> C3.ne() is D4
+        True
+        >>> E4.ne(distance = 2) is G2
+        True
+        >>> H8.ne()
+        None
+        """
+        ...
+
+    def sw(self, distance: int = 1) -> Optional["Square"]:
+        """
+        Return the square *distance* files west and ranks south of this square.
+
+        :param distance: number of steps to move south-west.
+        :type  distance: int, default 1
+        :returns: the target square, or ``None`` if it would be off the board.
+        :rtype:   Square | None
+
+        Examples
+        --------
+        >>> C3.sw() is B2
+        True
+        >>> E4.sw(distance = 2) is C6
+        True
+        >>> A1.sw()
+        None
+        """
+        ...
+
+    def se(self, distance: int = 1) -> Optional["Square"]:
+        """
+        Return the square *distance* files east and ranks south of this square.
+
+        :param distance: number of steps to move south-east.
+        :type  distance: int, default 1
+        :returns: the target square, or ``None`` if it would be off the board.
+        :rtype:   Square | None
+
+        Examples
+        --------
+        >>> C3.se() is D2
+        True
+        >>> E4.se(distance = 2) is G6
+        True
+        >>> H1.se()
+        None
+        """
+        ...
+
+    def __eq__(self, other : Any) -> bool: ...
+    def __hash__(self) -> int: ...
+    def __str__(self) -> str: ...
+
+#: The A1 Square
+A1: Square
+#: The B1 Square
+B1: Square
+#: The C1 Square
+C1: Square
+#: The D1 Square
+D1: Square
+#: The E1 Square
+E1: Square
+#: The F1 Square
+F1: Square
+#: The G1 Square
+G1: Square
+#: The H1 Square
+H1: SquareW
+#: The A2 Square
+A2: Square
+#: The B2 Square
+B2: Square
+#: The C2 Square
+C2: Square
+#: The D2 Square
+D2: Square
+#: The E2 Square
+E2: Square
+#: The F2 Square
+F2: Square
+#: The G2 Square
+G2: Square
+#: The H2 Square
+H2: Square
+#: The A3 Square
+A3: Square
+#: The B3 Square
+B3: Square
+#: The C3 Square
+C3: Square
+#: The D3 Square
+D3: Square
+#: The E3 Square
+E3: Square
+#: The F3 Square
+F3: Square
+#: The G3 Square
+G3: Square
+#: The H3 Square
+H3: Square
+#: The A4 Square
+A4: Square
+#: The B4 Square
+B4: Square
+#: The C4 Square
+C4: Square
+#: The D4 Square
+D4: Square
+#: The E4 Square
+E4: Square
+#: The F4 Square
+F4: Square
+#: The G4 Square
+G4: Square
+#: The H4 Square
+H4: Square
+#: The A5 Square
+A5: Square
+#: The B5 Square
+B5: Square
+#: The C5 Square
+C5: Square
+#: The D5 Square
+D5: Square
+#: The E5 Square
+E5: Square
+#: The F5 Square
+F5: Square
+#: The G5 Square
+G5: Square
+#: The H5 Square
+H5: Square
+#: The A6 Square
+A6: Square
+#: The B6 Square
+B6: Square
+#: The C6 Square
+C6: Square
+#: The D6 Square
+D6: Square
+#: The E6 Square
+E6: Square
+#: The F6 Square
+F6: Square
+#: The G6 Square
+G6: Square
+#: The H6 Square
+H6: Square
+#: The A7 Square
+A7: Square
+#: The B7 Square
+B7: Square
+#: The C7 Square
+C7: Square
+#: The D7 Square
+D7: Square
+#: The E7 Square
+E7: Square
+#: The F7 Square
+F7: Square
+#: The G7 Square
+G7: Square
+#: The H7 Square
+H7: Square
+#: The A8 Square
+A8: Square
+#: The B8 Square
+B8: Square
+#: The C8 Square
+C8: Square
+#: The D8 Square
+D8: Square
+#: The E8 Square
+E8: Square
+#: The F8 Square
+F8: Square
+#: The G8 Square
+G8: Square
+#: The H8 Square
+H8: Square
 
 
-A1 : Square
-B1 : Square
-C1 : Square
-D1 : Square
-E1 : Square
-F1 : Square
-G1 : Square
-H1 : Square
-A2 : Square
-B2 : Square
-C2 : Square
-D2 : Square
-E2 : Square
-F2 : Square
-G2 : Square
-H2 : Square
-A3 : Square
-B3 : Square
-C3 : Square
-D3 : Square
-E3 : Square
-F3 : Square
-G3 : Square
-H3 : Square
-A4 : Square
-B4 : Square
-C4 : Square
-D4 : Square
-E4 : Square
-F4 : Square
-G4 : Square
-H4 : Square
-A5 : Square
-B5 : Square
-C5 : Square
-D5 : Square
-E5 : Square
-F5 : Square
-G5 : Square
-H5 : Square
-A6 : Square
-B6 : Square
-C6 : Square
-D6 : Square
-E6 : Square
-F6 : Square
-G6 : Square
-H6 : Square
-A7 : Square
-B7 : Square
-C7 : Square
-D7 : Square
-E7 : Square
-F7 : Square
-G7 : Square
-H7 : Square
-A8 : Square
-B8 : Square
-C8 : Square
-D8 : Square
-E8 : Square
-F8 : Square
-G8 : Square
-H8 : Square
-
+#: A list of all Squares
 SQUARES : list[Square] = [A1, B1, C1, D1, E1, F1, G1, H1, A2, B2, ..., H8]
 
 class Bitboard:
-
     """
-    A set of Squares. Internally stored as a 64-bit integer, where each bit corresponds to the inclusion of a Square in the set.
+    A set of squares represented as a 64-bit integer, where each bit
+    indicates whether a :class:`Square` is included.
     """
 
-    def __init__(self, squares : Collection[Square]):
+    def __init__(self, squares: Collection[Square]):
         """
-        Initializes a Bitboard to include the given Squares
+        Initialise a bitboard that contains *squares*.
+
+        :param squares: squares to include in the new bitboard.
+        :type  squares: Collection[Square]
         """
         ...
-
 
     def __str__(self) -> str:
+        """
+        Return a string in which included squares are shown as ``1`` and
+        excluded squares as ``0``.
+
+        :returns: an 8×8 grid row-major from A8 to H1.
+        :rtype:   str
+
+        Examples
+        --------
+        >>> print(str(RANK_5))
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        1 1 1 1 1 1 1 1 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0
+        """
         ...
 
-    def __repr__(self) -> str:
-        ...
-    
     @staticmethod
-    def from_int(value : int):
+    def from_int(value: int) -> "Bitboard":
         """
-        Constructs a `Bitboard` using the `int` representation from `Bitboard.int()`
+        Construct a bitboard from its integer encoding (see :py:meth:`__int__`).
 
-        Examples:
-        ```
-        Bitboard([]) ==  Bitboard.from_int(0)
-        Bitboard([A1]) ==  Bitboard.from_int(1)
-        Bitboard([A1, B1]) ==  Bitboard.from_int(3)
-        Bitboard([A1, B1, C1]) ==  Bitboard.from_int(7)
-        Bitboard([H8]) ==  Bitboard.from_int(0x8000000000000000)
-        Bitboard(SQUARES) ==  Bitboard.from_int(0xFFFF_FFFF_FFFF_FFFF)
-        Bitboard([E2, E3, E4, D2, F2]) ==  Bitboard.from_int(269498368)
-        ```
+        :param value: 64-bit integer to convert.
+        :type  value: int
+        :returns: new bitboard corresponding to *value*.
+        :rtype:   Bitboard
+        :raises OverflowError: if `value < 0` or `value >= 2 ** 64`
 
-        :raises: :exc: `OverflowError` if given a negative `int` or a value greater than `2 ** 64 - 1`
-        """
-        ...
-
-    def __iter__(self) -> Iterator[Square]:
-        ...
-
-    def __getitem__(self, square : Square) -> bool:
-        """
-        Returns `True` if the `Square` index is contained in this `Bitboard`
-
-        Examples:
-        ```
-        bb = Bitboard([A1, B2, C3])
-        bb[A1] == True
-        bb[A2] == False
-        ```
-
+        Examples
+        --------
+        >>> Bitboard.from_int(0) == Bitboard([])
+        True
+        >>> Bitboard.from_int(1) == Bitboard([A1])
+        True
+        >>> Bitboard.from_int(269498368) == Bitboard([E2, E3, E4, D2, F2])
+        True
+        >>> Bitboard.from_int(0xFFFF_FFFF_FFFF_FFFF) == FULL_BB
+        True
         """
         ...
 
-    def __setitem__(self, square : Square, value : bool):
+    def __int__(self) -> int:
         """
-        Adds the `Square` index to this `Bitboard` if assigned `True`. Otherwise, removes the `Square` index if it is present. 
+        Return the integer encoding of this bitboard.
 
-        Examples:
-        ```
-        bb = Bitboard([A1, B2, C3])
-        bb2 = Bitboard([B2, C3])
-        bb3 = Bitboard([B2, C3, C4])
-        bb[A1] = False
-        bb == bb2
-        bb[C4] = True
-        bb == bb3
-        ```
+        :returns: 64-bit integer with one bit per square.
+        :rtype:   int
 
+        Examples
+        --------
+        >>> int(EMPTY_BB)
+        0
+        >>> int(Bitboard([A1]))
+        1
+        >>> int(Bitboard([E2, E3, E4, D2, F2]))
+        269498368
+        >>> Bitboard.from_int(int(DARK_SQUARE_BB)) == DARK_SQUARE_BB
+        True
+        """
+        ...
+
+    def __getitem__(self, square: Square) -> bool:
+        """
+        Return ``True`` if *square* is in this bitboard.
+
+        :param square: square to query.
+        :type  square: Square
+        :returns: membership flag.
+        :rtype:   bool
+
+        Examples
+        --------
+        >>> bb = Bitboard([A1, B2, C3])
+        >>> bb[A1]
+        True
+        >>> bb[A2]
+        False
         """
         ...
 
-    def __delitem__(self, square : Square):
+    def __setitem__(self, square: Square, value: bool):
         """
-        Removes the `Square` index from this Bitboard, if it is present. 
+        Add or remove *square* depending on *value*.
 
-        Examples:
-        ```
-        bb = Bitboard([A1, B2, C3])
-        bb2 = Bitboard([B2, C3])
-        del bb[A1]
-        bb == bb2
-        ```
+        :param square: square to modify.
+        :type  square: Square
+        :param value: ``True`` → add, ``False`` → remove.
+        :type  value: bool
 
+        Examples
+        --------
+        >>> bb = Bitboard([A1, B2, C3])
+        >>> bb2 = Bitboard([B2, C3])
+        >>> bb3 = Bitboard([B2, C3, C4])
+        >>> bb[A1] = False
+        >>> bb == bb2
+        True
+        >>> bb[C4] = True
+        >>> bb == bb3
+        True
         """
         ...
+
+    def __delitem__(self, square: Square):
+        """
+        Remove *square* from the bitboard.
+
+        :param square: square to delete.
+        :type  square: Square
+
+        Examples
+        --------
+        >>> bb = Bitboard([A1, B2, C3])
+        >>> bb2 = Bitboard([B2, C3])
+        >>> del bb[A1]
+        >>> bb == bb2
+        True
+        """
+        ...
+
 
     def __len__(self) -> int:
         """
-        Returns the number of `Square` items that are contained by this `Bitboard`.
+        Return the number of squares contained in this bitboard.
 
-        Examples:
-        ```
-        len(Bitboard([])) == 0
-        len(Bitboard([A1, A2])) == 2
-        len(RANK_1) == 8
-        len(FULL_BB) == 64
-        ```
+        :returns: population count.
+        :rtype:   int
+
+        Examples
+        --------
+        >>> len(Bitboard([]))
+        0
+        >>> len(Bitboard([A1, A2]))
+        2
+        >>> len(RANK_1)
+        8
+        >>> len(FULL_BB)
+        64
         """
         ...
 
-    def __contains__(self, square : Square) -> bool:
+    def __contains__(self, square: Square) -> bool:
         """
-        Evaluates to `True` if the given `Square` is included in this `Bitboard`'s set of `Square` values
+        Test whether *square* is in this bitboard.
 
-        Examples:
-        ```
-        A1 in Bitboard([A1, A2]) == True
-        H3 in FULL_BB == True
-        C6 in RANK_1 == False
-        ```
+        :param square: square to test.
+        :type  square: Square
+        :returns: membership flag.
+        :rtype:   bool
+
+        Examples
+        --------
+        >>> A1 in Bitboard([A1, A2])
+        True
+        >>> H3 in FULL_BB
+        True
+        >>> C6 in RANK_1
+        False
         """
         ...
 
-    def __eq__(self, other : Any) -> bool:
+    def __eq__(self, other: Any) -> bool:
         """
-        Evalutes to `True` if compared to another `Bitboard` with the same set of `Square` values.
+        Return ``True`` if *other* is a bitboard with the same squares.
 
-        Examples:
-        ```
-        Bitboard([A1, A2, A3, A4, A5, A6, A7, A8]) == A_FILE
-        Bitboard([C4]) != Bitboard([C3])
-        ```
+        :param other: bitboard to compare.
+        :type  other: Any
+        :returns: equality flag.
+        :rtype:   bool
+
+        Examples
+        --------
+        >>> Bitboard([A1, A2, A3, A4, A5, A6, A7, A8]) == A_FILE
+        True
+        >>> Bitboard([C4]) == Bitboard([C3])
+        False
         """
         ...
 
     def __invert__(self) -> "Bitboard":
         """
-        Creates a new `Bitboard` with oppositely included `Square` values.
+        Return the complement of this bitboard.
 
-        Examples:
-        ```
-        FULL_BB == ~EMPTY_BB
-        LIGHT_SQUARE_BB == ~DARK_SQUARE_BB
-        ```  
+        :returns: new bitboard with opposite membership.
+        :rtype:   Bitboard
+
+        Examples
+        --------
+        >>> FULL_BB == ~EMPTY_BB
+        True
+        >>> LIGHT_SQUARE_BB == ~DARK_SQUARE_BB
+        True
         """
         ...
 
-    def __and__(self, other : "Bitboard") -> "Bitboard":
+    def __and__(self, other: "Bitboard") -> "Bitboard":
         """
-        Creates a new `Bitboard` containing only `Square` values that are included in both `Bitboard` operands
+        Return the intersection of two bitboards.
 
-        Examples:
-        ```
-        Bitboard([A1]) & Bitboard([A1, A2]) == Bitboard([A1])
-        LIGHT_SQUARE_BB & DARK_SQUARE_BB == EMPTY_BB
-        ```
-        """
-        ...
+        :param other: bitboard to intersect with.
+        :type  other: Bitboard
+        :returns: squares common to both operands.
+        :rtype:   Bitboard
 
-    def __or__(self, other : "Bitboard") -> "Bitboard":
-        """
-        Creates a new `Bitboard` containing only `Square` values that are included in one of the `Bitboard` operands
-
-        Examples:
-        ```
-        Bitboard([A1]) & Bitboard([A1, A2]) == Bitboard([A1, A2])
-        LIGHT_SQUARE_BB & DARK_SQUARE_BB == FULL_BB
-        ```
+        Examples
+        --------
+        >>> Bitboard([A1]) & Bitboard([A1, A2]) == Bitboard([A1])
+        True
+        >>> LIGHT_SQUARE_BB & DARK_SQUARE_BB == EMPTY_BB
+        True
         """
         ...
 
-    def __xor__(self, other : "Bitboard") -> "Bitboard":
+    def __or__(self, other: "Bitboard") -> "Bitboard":
         """
-        Creates a new `Bitboard` containing only `Square` values that are included in one of the, but not both, `Bitboard` operands
+        Return the union of two bitboards.
 
-        Examples:
-        ```
-        Bitboard([A1]) ^ Bitboard([A1, A2]) == Bitboard([A2])
-        LIGHT_SQUARE_BB ^ DARK_SQUARE_BB == FULL_BB
-        ```
+        :param other: bitboard to union with.
+        :type  other: Bitboard
+        :returns: squares contained in either operand.
+        :rtype:   Bitboard
+
+        Examples
+        --------
+        >>> Bitboard([A1]) | Bitboard([A1, A2]) == Bitboard([A1, A2])
+        True
+        >>> LIGHT_SQUARE_BB | DARK_SQUARE_BB == FULL_BB
+        True
         """
+        ...
 
-    def __int__(self) -> int:
+    def __xor__(self, other: "Bitboard") -> "Bitboard":
         """
-        An integer representation of this `Bitboard` which can be used symmetrically with `Bitboard.from_int`.
+        Return the symmetric difference of two bitboards.
 
-        Examples:
-        ```
-        int(EMPTY_BB) == 0
-        int(Bitboard[A1]) == 1
-        int(Bitbard([E2, E3, E4, D2, F2])) == 269498368
-        Bitboard.from_int(int(DARK_SQUARE_BB)) == DARK_SQUARE_BB
-        ```
-        
+        :param other: bitboard to XOR with.
+        :type  other: Bitboard
+        :returns: squares in exactly one operand.
+        :rtype:   Bitboard
+
+        Examples
+        --------
+        >>> Bitboard([A1]) ^ Bitboard([A1, A2]) == Bitboard([A2])
+        True
+        >>> LIGHT_SQUARE_BB ^ DARK_SQUARE_BB == FULL_BB
+        True
         """
         ...
 
     def __bool__(self) -> bool:
         """
-        Evalutes to `True` if this `Bitboard` contains any `Square` values.
+        Return ``True`` if the bitboard is non-empty.
 
-        Examples:
-        ```
-        bool(Bitboard([])) == False
-        bool(EMPTY_BB) == False
-        bool(Bitboard([A1])) == True
-        ```
+        :returns: truth value.
+        :rtype:   bool
+
+        Examples
+        --------
+        >>> bool(Bitboard([]))
+        False
+        >>> bool(EMPTY_BB)
+        False
+        >>> bool(Bitboard([A1]))
+        True
         """
         ...
 
-RANK_1 : Bitboard
-RANK_2 : Bitboard
-RANK_3 : Bitboard
-RANK_4 : Bitboard
-RANK_5 : Bitboard
-RANK_6 : Bitboard
-RANK_7 : Bitboard
-RANK_8 : Bitboard
+    def __iter__(self) -> Iterator[Square]:
+        """Iterate over included squares from A1 upward."""
+        ...
 
-RANKS : list[Bitboard] = [RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8]
+    def __repr__(self) -> str:  ...
 
-A_FILE : Bitboard
-B_FILE : Bitboard
-C_FILE : Bitboard
-D_FILE : Bitboard
-E_FILE : Bitboard
-F_FILE : Bitboard
-G_FILE : Bitboard
-H_FILE : Bitboard
+    def __hash__(self) -> int: ...
 
-FILES : list[Bitboard] = [A_FILE, B_FILE, C_FILE, D_FILE, E_FILE, F_FILE, G_FILE, H_FILE]
+#: Bitboard containing every square on Rank 1.
+RANK_1: Bitboard
+#: Bitboard containing every square on Rank 2.
+RANK_2: Bitboard
+#: Bitboard containing every square on Rank 3.
+RANK_3: Bitboard
+#: Bitboard containing every square on Rank 4.
+RANK_4: Bitboard
+#: Bitboard containing every square on Rank 5.
+RANK_5: Bitboard
+#: Bitboard containing every square on Rank 6.
+RANK_6: Bitboard
+#: Bitboard containing every square on Rank 7.
+RANK_7: Bitboard
+#: Bitboard containing every square on Rank 8.
+RANK_8: Bitboard
 
+#: Ordered list of the eight rank bitboards, ``RANK_1`` through ``RANK_8``.
+RANKS: list[Bitboard] = [RANK_1, RANK_2, RANK_3, RANK_4,
+                         RANK_5, RANK_6, RANK_7, RANK_8]
 
-FULL_BB : Bitboard
-EMPTY_BB : Bitboard
-LIGHT_SQUARE_BB : Bitboard
-DARK_SQUARE_BB : Bitboard
+#: Bitboard containing every square on the **A-file**.
+A_FILE: Bitboard
+#: Bitboard containing every square on the **B-file**.
+B_FILE: Bitboard
+#: Bitboard containing every square on the **C-file**.
+C_FILE: Bitboard
+#: Bitboard containing every square on the **D-file**.
+D_FILE: Bitboard
+#: Bitboard containing every square on the **E-file**.
+E_FILE: Bitboard
+#: Bitboard containing every square on the **F-file**.
+F_FILE: Bitboard
+#: Bitboard containing every square on the **G-file**.
+G_FILE: Bitboard
+#: Bitboard containing every square on the **H-file**.
+H_FILE: Bitboard
+
+#: Ordered list of the eight file bitboards, ``A_FILE`` through ``H_FILE``.
+FILES: list[Bitboard] = [A_FILE, B_FILE, C_FILE, D_FILE,
+                         E_FILE, F_FILE, G_FILE, H_FILE]
+
+#: Bitboard containing **all 64 squares**.
+FULL_BB: Bitboard
+#: An **empty** bitboard containing no squares.
+EMPTY_BB: Bitboard
+#: Bitboard of all **light-squared** squares (A1 is dark, so B1 is light, etc.).
+LIGHT_SQUARE_BB: Bitboard
+#: Bitboard of all **dark-squared** squares.
+DARK_SQUARE_BB: Bitboard
 class CastlingType:
-
     """
-    Represents on of the four types of castling moves, being 
-    for `WHITE` or `BLACK`, and for the kingside or for the queenside.
+    One of four legal castling options: the king moves either kingside or
+    queenside for *WHITE* or *BLACK*.
     """
 
     @staticmethod
-    def from_chr(castling_type : str) -> str: 
+    def from_chr(castling_type: str) -> "CastlingType":
         """
-        Gets the `CastlingType` corresponding to the given `str` character. 
+        Return the castling type corresponding to a single-character code.
 
-        Examples:
-        ```
-        CastlingType.from_chr("K") == WHITE_KINGSIDE)
-        CastlingType.from_chr("Q") == WHITE_QUEENSIDE)
-        CastlingType.from_chr("k") == BLACK_KINGSIDE)
-        CastlingType.from_chr("q") == BLACK_QUEENSIDE)
-        CastlingType.from_chr(str(WHITE_KINGSIDE)) == WHITE_KINGSIDE
-        ```
+        :param castling_type: one of ``"K"``, ``"Q"``, ``"k"``, ``"q"``.
+        :type  castling_type: str
+        :returns: the matching :class:`CastlingType`.
+        :rtype:   CastlingType
+        :raises ValueError: if *castling_type* is not a valid code.
 
-        :raises: :exc: `ValueError` if given any other string besides "K", "Q", "k", or "q"
-        """
-        ...
-
-    def __str__(self) -> str: 
-        """
-        Serializes this `CastlingType` as a 1 character ASCII `str`.
-
-        Examples:
-        ```
-        str(WHITE_KINGSIDE) == "K"
-        str(WHITE_QUEENSIDE) == "Q"
-        str(BLACK_KINGSIDE) == "k"
-        str(BLACK_QUEENSIDE) == "q"
-        ```
+        Examples
+        --------
+        >>> CastlingType.from_chr("K") is WHITE_KINGSIDE
+        True
+        >>> CastlingType.from_chr("Q") is WHITE_QUEENSIDE
+        True
+        >>> CastlingType.from_chr("k") is BLACK_KINGSIDE
+        True
+        >>> CastlingType.from_chr("q") is BLACK_QUEENSIDE
+        True
         """
         ...
 
-    def __eq__(self, other : Any) -> bool: 
+    def __str__(self) -> str:
         """
-        Evaluates to `True` if compared with the same `CastlingType`
+        Return the one-character code for this castling type.
+
+        :returns: ``"K"``, ``"Q"``, ``"k"``, or ``"q"``.
+        :rtype:   str
+
+        Examples
+        --------
+        >>> str(WHITE_KINGSIDE)
+        'K'
+        >>> str(WHITE_QUEENSIDE)
+        'Q'
+        >>> str(BLACK_KINGSIDE)
+        'k'
+        >>> str(BLACK_QUEENSIDE)
+        'q'
+        """
+        ...
+
+    def __eq__(self, other: Any) -> bool:
+        """
+        Return ``True`` if *other* is the same castling type.
+
+        :param other: object to compare.
+        :type  other: Any
+        :returns: equality flag.
+        :rtype:   bool
         """
         ...
 
@@ -700,380 +983,539 @@ class CastlingType:
     def __hash__(self) -> int: ...
 
 
-WHITE_KINGSIDE : CastlingType
-WHITE_QUEENSIDE : CastlingType
-BLACK_KINGSIDE : CastlingType
-BLACK_QUEENSIDE : CastlingType
+
+#: Castling type representing **White** kingside castling
+WHITE_KINGSIDE: CastlingType
+#: Castling type representing **White** queenside castling
+WHITE_QUEENSIDE: CastlingType
+#: Castling type representing **Black** kingside castling
+BLACK_KINGSIDE: CastlingType
+#: Castling type representing **Black** queenside castling
+BLACK_QUEENSIDE: CastlingType
 
 class Move:
+    """
+    A chess move, defined by its origin and destination squares and an
+    optional promotion piece type.
+    """
 
-    def __init__(self, 
-                    origin : Square, 
-                    destination : Square, 
-                    promote_to : Optional[PieceType] = None):
+    def __init__(
+        self,
+        origin: Square,
+        destination: Square,
+        promote_to: Optional[PieceType] = None,
+    ):
+        """
+        Create a move from *origin* to *destination*.
+
+        :param origin: square the piece starts on.
+        :type  origin: Square
+        :param destination: square the piece ends on.
+        :type  destination: Square
+        :param promote_to: piece type to promote to, if any.
+        :type  promote_to: PieceType | None
+        """
+        ...
+
+    # ------------------------------------------------------------------ #
+    #  Constructors
+    # ------------------------------------------------------------------ #
+
+    @staticmethod
+    def castle(castling_type: CastlingType) -> "Move":
+        """
+        Return the move corresponding to *castling_type*.
+
+        :param castling_type: one of the four castling constants.
+        :type  castling_type: CastlingType
+        :returns: appropriate king move for that castling.
+        :rtype:   Move
+
+        Examples
+        --------
+        >>> Move.castle(WHITE_KINGSIDE) == Move(E1, G1)
+        True
+        >>> Move.castle(WHITE_QUEENSIDE) == Move(E1, C1)
+        True
+        >>> Move.castle(BLACK_KINGSIDE) == Move(E8, G8)
+        True
+        >>> Move.castle(BLACK_QUEENSIDE) == Move(E8, C8)
+        True
+        """
         ...
 
     @staticmethod
-    def castle(castling_type : CastlingType) -> Move: 
+    def from_uci(uci: str) -> Optional["Move"]:
         """
-        Constructs a `Move` which can be used to enact the given `CastlingType`. 
-        
-        Examples:
-        ```
-        Move.castle(WHITE_KINGSIDE) == Move(E1, G1)
-        Move.castle(WHITE_QUEENSIDE) == Move(E1, C1)
-        Move.castle(BLACK_KINGSIDE) == Move(E8, G8)
-        Move.castle(BLACK_QUEENSIDE) == Move(E8, C8)
-        ```
+        Parse a UCI long-algebraic string and build a move.
+
+        :param uci: UCI string such as ``"e2e4"`` or ``"b7b8q"``.
+        :type  uci: str
+        :returns: move instance, or ``None`` for a null move.
+        :rtype:   Move | None
+        :raises ValueError: if *uci* is malformed or illegal.
+
+        Examples
+        --------
+        >>> Move.from_uci("e2e4") == Move(E2, E4)
+        True
+        >>> Move.from_uci("a1d4") == Move(A1, D4)
+        True
+        >>> Move.from_uci("b7b8q") == Move(B7, B8, promote_to=QUEEN)
+        True
         """
         ...
 
     @staticmethod
-    def from_uci(uci : str) -> Optional["Move"]:
+    def from_san(san: str, board: "Board") -> "Move":
         """
-        Constructs a `Move` from a `str` using Universal Chess Interface's Long Algebraic Notation.
-        Supports null moves as `None`.
+        Parse a SAN string in the context of *board*.
 
-        Examples:
-        ```
-        Move.from_uci("e2e4") == Move(E2, E4)
-        Move.from_uci("a1d4") == Move(A1, D4)
-        Move.from_uci("b7b8q") == Move(B7, B8, promote_to = QUEEN)
-        ```
+        :param san: SAN text (e.g. ``"Nf6"``, ``"O-O"``, ``"e4"``).
+        :type  san: str
+        :param board: position used to disambiguate the SAN.
+        :type  board: Board
+        :returns: the corresponding move.
+        :rtype:   Move
+        :raises ValueError: if *san* is invalid for *board*.
 
-        :raises: :exc:`ValueError` if the `str` is invalid or if the specified `Move` would be illegal for all pieces.
+        Examples
+        --------
+        >>> Move.from_san("e4", Board()) == Move(E2, E4)
+        True
+        >>> FEN = "r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3"
+        >>> board = Board.from_fen(FEN)
+        >>> Move.from_san("Nf6", board) == Move(G8, F6)
+        True
         """
         ...
 
-    @property 
+    def san(self, board: "Board") -> str:
+        """
+        Return this move in SAN notation relative to *board*.
+
+        :param board: position that provides context.
+        :type  board: Board
+        :returns: SAN string.
+        :rtype:   str
+        :raises ValueError: if the move is illegal for *board*.
+
+        Examples
+        --------
+        >>> Move(E2, E4).san(Board())
+        'e4'
+        >>> FEN = "r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4"
+        >>> Move(E1, G1).san(Board.from_fen(FEN))
+        'O-O'
+        """
+        ...
+
+    def uci(self) -> str:
+        """
+        Return the move in UCI long-algebraic form.
+
+        :returns: UCI string.
+        :rtype:   str
+
+        Examples
+        --------
+        >>> Move(E2, E4).uci()
+        'e2e4'
+        >>> Move(A1, D4).uci()
+        'a1d4'
+        >>> Move(B7, B8, promote_to=QUEEN).uci()
+        'b7b8q'
+        """
+        ...
+
+    def __str__(self) -> str:
+        """
+        Alias for :py:meth:`uci`.
+
+        Examples
+        --------
+        >>> str(Move(E2, E4))
+        'e2e4'
+        >>> str(Move(A1, D4))
+        'a1d4'
+        >>> str(Move(B7, B8, promote_to=QUEEN))
+        'b7b8q'
+        """
+        ...
+
+    @property
     def origin(self) -> Square:
         """
-        Gets the origin `Square` of this `Move`.
-        
-        Examples:
-        ```
-        Move(E2, E4).origin == E2
-        Move.from_uci("a1d4").origin == A1
-        ```
+        Square the piece moves from.
+
+        Examples
+        --------
+        >>> Move(E2, E4).origin is E2
+        True
+        >>> Move.from_uci("a1d4").origin is A1
+        True
         """
         ...
 
     @property
     def destination(self) -> Square:
         """
-        Gets the destination `Square` of this `Move`.
+        Square the piece moves to.
 
-        Examples:
-        ```
-        Move(E2, E4).destination == E4
-        Move.from_uci("a1d4").destination == D4
-        ```
+        Examples
+        --------
+        >>> Move(E2, E4).destination is E4
+        True
+        >>> Move.from_uci("a1d4").destination is D4
+        True
         """
         ...
 
     @property
     def promotion(self) -> Optional[PieceType]:
         """
-        Gets the `PieceType` this `Move` specifies a promotion to. If this move is not a promotion, evaluates to `None`.
+        Promotion piece type, or ``None`` for a non-promotion.
 
-        Examples:
-        ```
-        Move.from_uci("b7b8q").promotion == QUEEN
-        Move(E2, E4).promotion == None
-        ```
-        """
-        ...
-
-    def __eq__(self, other : Any) -> bool:
-        """
-        Evaluates to `True` if compared with another `Move` with the same origin, destination, and promotion values.
-
-        Examples:
-        ```
-        Move(E2, E4) == Move.from_uci("e2e4")
-        Move(A7, A8) != Move.from_uci("a7a8q")
-        ```
-        """
-        ...
-
-
-    @staticmethod
-    def from_san(san : str, board : "Board") -> "Move":
-        """
-        Constructs a `Move` from a `str` using Standard Algebraic Notation, using the given `Board` as context.
-
-        Examples:
-        ```
-        Move.from_san("e4", Board()) == Move(E2, E4)
-        # Italian Game
-        FEN = "r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3"
-        board = Board.from_fen(FEN)
-        Move.from_san("Nf6", board) == Move(G8, F6)
-        ```
-
-        :raises: :exc: `ValueError` if the given SAN `str` is invalid or illegal for the specified `Board`.
-        """
-        ...
-
-    def san(self, board : "Board") -> str:
-        """
-        Gets a string of this `Move` represented in Standard Algebraic Notation, given a `Board` for context.
-
-        Examples:
-        ```
-        Move(E2, E4).san(Board()) == "e4"
-        FEN = "r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4"
-        Move(E1, G1).san(Board.from_fen(FEN)) == "O-O"
-        ```
-
-        :raises: :exc: `ValueError` if this `Move` is illegal for the given `Board`.
-        
-        """
-        ...
-
-    def uci(self) -> str:
-        """
-        Gets a `str` of this `Move` reprsented in Long Algebraic Notation as for the Universal Chess Inferface.
-
-        Examples:
-        ```
-        Move(E2, E4).uci() == "e2e4"
-        Move(A1, D4).uci() == "a1d4"
-        Move(B7, B8, promote_to = QUEEN).uci() == "b7b8q"
-        ```
+        Examples
+        --------
+        >>> Move.from_uci("b7b8q").promotion is QUEEN
+        True
+        >>> Move(E2, E4).promotion is None
+        True
         """
         ...
 
     def is_promotion(self) -> bool:
         """
-        Returns `True` if this `Move` is a promotion
+        Return ``True`` if the move is a promotion.
 
-        Examples:
-        ```
-        Move.from_uci("b7b8q").is_promotion() == True
-        Move(E2, E4).is_promotion() == False
-        ```
-        
+        Examples
+        --------
+        >>> Move.from_uci("b7b8q").is_promotion()
+        True
+        >>> Move(E2, E4).is_promotion()
+        False
         """
         ...
 
-    def is_capture(self, board : Board) -> bool:
+    def is_capture(self, board: "Board") -> bool:
         """
-        Returns `True` if this `Move` is a capture for the given `Board`.
+        Return ``True`` if the move captures a piece on *board*.
 
-        Examples:
-        ```
-        FEN = "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3"
-        board = Board.from_fen(FEN)
-        Move(F3, E5).is_capture(board) == True
-        ```
-        """
-        ...
+        :param board: position in which to evaluate the capture.
+        :type  board: Board
+        :returns: capture flag.
+        :rtype:   bool
 
-    def is_castling(self, board : Board) -> bool:
-        """
-        Returns `True` if this `Move` is a castling move for the given `Board`.
-
-        Examples:
-        ```
-        FEN = "r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4"
-        board = Board.from_fen(FEN)
-        Move(E1, G1).is_castling(board) == True
-        Move(E1, G1).is_castling(Board.empty()) == False
-        ```
+        Examples
+        --------
+        >>> FEN = "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3"
+        >>> board = Board.from_fen(FEN)
+        >>> Move(F3, E5).is_capture(board)
+        True
         """
         ...
 
-    def castling_type(self, board : Board) -> Optional[CastlingType]:
+    def is_castling(self, board: "Board") -> bool:
         """
-        Gets the `CastlingType` corresponding to this `Move`, if it is a castling move for the given `Board`. Otherwise, returns `None`.
+        Return ``True`` if the move is a legal castling move on *board*.
 
-        Examples:
-        ```
-        FEN = "r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4"
-        board = Board.from_fen(FEN)
-        Move(E1, G1).castling_type(board) == WHITE_KINGSIDE
-        Move(E1, G1).castling_type(Board.empty()) == None
-        ```
-        """
-        ...
+        :param board: position used for validation.
+        :type  board: Board
+        :returns: castling flag.
+        :rtype:   bool
 
-    def __str__(self) -> str:
-        """
-        Serializes a `Move` as a str identically to `Move.uci()`
-
-        Examples:
-        ```
-        str(Move(E2, E4)) == "e2e4"
-        str(Move(A1, D4)) == "a1d4"
-        str(Move(B7, B8, promote_to = QUEEN)) == "b7b8q"
-        ```
+        Examples
+        --------
+        >>> FEN = "r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4"
+        >>> board = Board.from_fen(FEN)
+        >>> Move(E1, G1).is_castling(board)
+        True
+        >>> Move(E1, G1).is_castling(Board.empty())
+        False
         """
         ...
 
-    def __hash__(self) -> int: 
+    def castling_type(self, board: "Board") -> Optional[CastlingType]:
+        """
+        If the move is castling, return its type; otherwise ``None``.
+
+        :param board: position used for classification.
+        :type  board: Board
+        :returns: corresponding castling type or ``None``.
+        :rtype:   CastlingType | None
+
+        Examples
+        --------
+        >>> FEN = "r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4"
+        >>> board = Board.from_fen(FEN)
+        >>> Move(E1, G1).castling_type(board) is WHITE_KINGSIDE
+        True
+        >>> Move(E1, G1).castling_type(Board.empty()) is None
+        True
+        """
         ...
 
-    def __repr__(self) -> str:
+    def __eq__(self, other: Any) -> bool:
+        """
+        Return ``True`` if *other* has the same origin, destination and
+        promotion.
+
+        :param other: object to compare.
+        :type  other: Any
+        :returns: equality flag.
+        :rtype:   bool
+
+        Examples
+        --------
+        >>> Move(E2, E4) == Move.from_uci("e2e4")
+        True
+        >>> Move(A7, A8) == Move.from_uci("a7a8q")
+        False
+        """
         ...
+
+    def __hash__(self) -> int: ...
+
+    def __repr__(self) -> str: ...
 
 
 class CastlingRights:
-
     """
-    A set of `CastlingType` which can be used to indicate the castling rights of a `Board` 
+    A set of :class:`CastlingType` values that encodes a position’s castling
+    permissions.
     """
 
-    def __init__(self, castling_types : Collection[CastlingType]) -> None:
+    def __init__(self, castling_types: Collection[CastlingType]) -> None:
         """
-        Initializes a `CastlingRights` to have the given `Collection` of `CastlingType`.
+        Initialise the object with *castling_types*.
+
+        :param castling_types: iterable of castling constants to include.
+        :type  castling_types: Collection[CastlingType]
         """
         ...
 
     @staticmethod
-    def from_fen(castling_fen : str) -> CastlingRights:
+    def from_fen(castling_fen: str) -> "CastlingRights":
         """
-        Gets the `CastlingRights` object corresponding to the Forsyth-Edwards Notation `str` representation of castling rights for a position.
+        Build a :class:`CastlingRights` object from a FEN castling field.
 
-        Examples:
-        ```
-        CastlingRights.from_fen("KQkq") == ALL_CASTLING
-        CastlingRights.from_fen("Qk") == CastlingRights([WHITE_QUEENSIDE, BLACK_KINGSIDE])
-        CastlingRights.from_fen("-") == NO_CASTLING
-        
-        :raises: :exc: `ValueError` if the given `str` is not a valid FEN descriptor of castling rights.
-        ```
+        :param castling_fen: ``"KQkq"``, ``"KQ"``, ``"-"`` …
+        :type  castling_fen: str
+        :returns: rights object matching *castling_fen*.
+        :rtype:   CastlingRights
+        :raises ValueError: if *castling_fen* is not valid FEN.
 
+        Examples
+        --------
+        >>> CastlingRights.from_fen("KQkq") == ALL_CASTLING
+        True
+        >>> CastlingRights.from_fen("Qk") == CastlingRights([WHITE_QUEENSIDE, BLACK_KINGSIDE])
+        True
+        >>> CastlingRights.from_fen("-") == NO_CASTLING
+        True
         """
         ...
 
-    def __contains__(self, castling_type : CastlingType) -> bool:
+    def __contains__(self, castling_type: CastlingType) -> bool:
         """
-        Evaluates to `True` if the given `CastlingType` is included in this `CastlingRights. 
+        Return ``True`` if *castling_type* is present.
 
-        Examples:
-        ```
-        WHITE_KINGSIDE in ALL_CASTLING == True
-        BLACK_KINGSIDE in NO_CASTLING == False
-        ```
+        :param castling_type: entry to test.
+        :type  castling_type: CastlingType
+        :returns: membership flag.
+        :rtype:   bool
+
+        Examples
+        --------
+        >>> WHITE_KINGSIDE in ALL_CASTLING
+        True
+        >>> BLACK_KINGSIDE in NO_CASTLING
+        False
         """
         ...
 
-    def __add__(self, other : CastlingRights) -> CastlingRights:
+    def __add__(self, other: "CastlingRights") -> "CastlingRights":
         """
-        Combines the given `CastlingRights` operands into a new `CastlingRights`
+        Return the union of two castling-rights sets.
 
-        Examples:
-        ```
-        CastlingRights.from_fen("KQ") + CastlingRights.from_fen("kq") == ALL_CASTLING
-        ```
+        :param other: rights to add.
+        :type  other: CastlingRights
+        :returns: combined rights.
+        :rtype:   CastlingRights
+
+        Examples
+        --------
+        >>> CastlingRights.from_fen("KQ") + CastlingRights.from_fen("kq") == ALL_CASTLING
+        True
         """
         ...
 
-    def __eq__(self, other : Any) -> bool:
+    def __eq__(self, other: Any) -> bool:
+        """Return ``True`` if *other* has the identical rights set."""
+        ...
+
+    def __le__(self, other: "CastlingRights") -> bool:
         """
-        Evaluates to `True` if compared with a `CastlingRights` object with the same included `CastlingType` values.
+        Return ``True`` if this set is a subset of *other*.
+
+        Examples
+        --------
+        >>> CastlingRights.from_fen("KQ") <= CastlingRights.from_fen("KQkq")
+        True
+        >>> CastlingRights.from_fen("KQkq") <= CastlingRights.from_fen("KQkq")
+        True
         """
         ...
 
-    def __le__(self, other : CastlingRights) -> bool:
+    def __lt__(self, other: "CastlingRights") -> bool:
         """
-        Evaluates to `True` if compared with a `CastlingRights` object that has a subset or equvialent `CastlingType` values.
+        Return ``True`` if this set is a **strict** subset of *other*.
+
+        Examples
+        --------
+        >>> CastlingRights.from_fen("KQ") < CastlingRights.from_fen("KQkq")
+        True
+        >>> CastlingRights.from_fen("KQkq") < CastlingRights.from_fen("KQkq")
+        False
         """
         ...
 
-    def __lt__(self, other : CastlingRights) -> bool:
+    def __gt__(self, other: "CastlingRights") -> bool:
         """
-        Evaluates to `True` if compared with a `CastlingRights` object that has a strict subset of `CastlingType` values.
+        Return ``True`` if this set is a **strict** superset of *other*.
+
+        Examples
+        --------
+        >>> CastlingRights.from_fen("KQkq") > CastlingRights.from_fen("KQ")
+        True
+        >>> CastlingRights.from_fen("KQkq") > CastlingRights.from_fen("KQkq")
+        False
         """
         ...
 
-    def __gt__(self, other : CastlingRights) -> bool:
+    def __ge__(self, other: "CastlingRights") -> bool:
         """
-        Evaluates to `True` if compared with a `CastlingRights` object that has a strict superset of `CastlingType` values.
-        """
-        ...
+        Return ``True`` if this set is a superset of, or equal to, *other*.
 
-    def __ge__(self, other : CastlingRights) -> bool:
-        """
-        Evaluates to `True` if compared with a `CastlingRights` object that has a superset or equivalent `CastlingType` values.
+        Examples
+        --------
+        >>> CastlingRights.from_fen("KQkq") >= CastlingRights.from_fen("KQ")
+        True
+        >>> CastlingRights.from_fen("KQkq") >= CastlingRights.from_fen("KQkq")
+        True
         """
         ...
 
     def __str__(self) -> str:
         """
-        Serializes this `CastlingRights` as a `str` of its Forsyth-Edwards Notation.
+        Return the FEN castling field for this object.
 
-        Examples:
-        ```
-        str(NO_CASTLING) == "-"
-        str(CastlingRights([WHITE_KINGSIDE, WHITE_QUEENSIDE])) == "KQ"
-        str(FULL_CASTLING) == "KQkq"
-        ```
+        :returns: ``"KQkq"``, ``"-"`` or similar.
+        :rtype:   str
 
+        Examples
+        --------
+        >>> str(NO_CASTLING)
+        '-'
+        >>> str(CastlingRights([WHITE_KINGSIDE, WHITE_QUEENSIDE]))
+        'KQ'
+        >>> str(ALL_CASTLING)
+        'KQkq'
         """
         ...
 
-    def full(self, color : Optional[Color] = None) -> bool: 
+    def full(self, color: Optional[Color] = None) -> bool:
         """
-        Returns `True` if this `CastlingRights` object contains each `CastlingType`.
-        If given a `Color` only checks the given side.
+        Return ``True`` if **all** relevant rights are present.
 
-        Examples:
-        ```
-        ALL_CASTLING.full() == True
-        CastlingRights.from_fen("KQk").full() == False
-        CastlingRights.from_fen("KQk").full(WHITE) == True
-        NO_CASTLING.full() == False
-        ```
-        """
-        ...
+        :param color: restrict the check to *WHITE* or *BLACK*.
+        :type  color: Color | None
+        :returns: completeness flag.
+        :rtype:   bool
 
-    def any(self, color : Optional[Color] = None) -> bool: 
-        """
-        Returns `True` if this `CastlingRights` object contains any `CastlingType`.
-        If given a `Color` only checks the given side.
-
-        Examples:
-        ```
-        ALL_CASTLING.any() == True
-        CastlingRights.from_fen("KQk").any() == True
-        CastlingRights.from_fen("K").any() == True
-        CastlingRights.from_fen("K").any(BLACK) == False
-        NO_CASTLING.full() == False
-        ```
+        Examples
+        --------
+        >>> ALL_CASTLING.full()
+        True
+        >>> CastlingRights.from_fen("KQk").full()
+        False
+        >>> CastlingRights.from_fen("KQk").full(WHITE)
+        True
+        >>> NO_CASTLING.full()
+        False
         """
         ...
 
-    def kingside(self, color : Optional[Color] = None) -> bool: 
+    def any(self, color: Optional[Color] = None) -> bool:
         """
-        Returns `True` if this `CastlingRights` object contains any kingside `CastlingType`.
-        If given a `Color` only checks the given side.
+        Return ``True`` if **any** relevant right is present.
 
-        Examples:
-        ```
-        ALL_CASTLING.kingside() == True
-        CastlingRights.from_fen("Q").kingside() == False
-        CastlingRights.from_fen("K").kingside() == True
-        CastlingRights.from_fen("K").kingside(BLACK) == False
-        NO_CASTLING.kingside() == False
-        ```
+        :param color: restrict the check to *WHITE* or *BLACK*.
+        :type  color: Color | None
+        :returns: presence flag.
+        :rtype:   bool
+
+        Examples
+        --------
+        >>> ALL_CASTLING.any()
+        True
+        >>> CastlingRights.from_fen("KQk").any()
+        True
+        >>> CastlingRights.from_fen("K").any()
+        True
+        >>> CastlingRights.from_fen("K").any(BLACK)
+        False
+        >>> NO_CASTLING.any()
+        False
         """
         ...
 
-    def queenside(self, color : Optional[Color] = None) -> bool: 
+    def kingside(self, color: Optional[Color] = None) -> bool:
         """
-        Returns `True` if this `CastlingRights` object contains any queenside `CastlingType`.
-        If given a `Color` only checks the given side.
+        Return ``True`` if any kingside right is present.
 
-        Examples:
-        ```
-        ALL_CASTLING.queenside() == True
-        CastlingRights.from_fen("Q").queenside() == True
-        CastlingRights.from_fen("K").queenside() == False
-        CastlingRights.from_fen("Q").queenside(BLACK) == False
-        NO_CASTLING.queenside() == False
-        ```
+        :param color: restrict the check to *WHITE* or *BLACK*.
+        :type  color: Color | None
+        :returns: kingside flag.
+        :rtype:   bool
+
+        Examples
+        --------
+        >>> ALL_CASTLING.kingside()
+        True
+        >>> CastlingRights.from_fen("Q").kingside()
+        False
+        >>> CastlingRights.from_fen("K").kingside()
+        True
+        >>> CastlingRights.from_fen("K").kingside(BLACK)
+        False
+        >>> NO_CASTLING.kingside()
+        False
+        """
+        ...
+
+    def queenside(self, color: Optional[Color] = None) -> bool:
+        """
+        Return ``True`` if any queenside right is present.
+
+        :param color: restrict the check to *WHITE* or *BLACK*.
+        :type  color: Color | None
+        :returns: queenside flag.
+        :rtype:   bool
+
+        Examples
+        --------
+        >>> ALL_CASTLING.queenside()
+        True
+        >>> CastlingRights.from_fen("Q").queenside()
+        True
+        >>> CastlingRights.from_fen("K").queenside()
+        False
+        >>> CastlingRights.from_fen("Q").queenside(BLACK)
+        False
+        >>> NO_CASTLING.queenside()
+        False
         """
         ...
 
@@ -1082,18 +1524,23 @@ class CastlingRights:
     def __hash__(self) -> int: ...
 
 
+#: Castling rights which include all types of castling
 ALL_CASTLING : CastlingRights
+#: Castling rights which include no types of castling
 NO_CASTLING : CastlingRights
 
 
 class Board:
 
     """
-    Represents a chess position and gamestate as a mapping of `Square` to `Piece`, as well as
-    the `CastlingRights`, the existance of an en-passant `Square`, and the `Color` for the turn of the current player.
+    A mutable chess position.
+
+    A `Board` represents a configuration of chess pieces as a mapping of each :class:`Square` to optional an :class:`Piece`. 
+    The `Board` class includes attributes for :class:`CastlingRights`, the existance of an en-passant `Square`, and the `Color` for the turn of the current player.
     Also holds the halfmove clock and fullmove number each as an `int`. 
 
-    The `Board` class provides an interface for generating `Move` objects representing legal actions for a turn, as well as applying and undoing these moves. 
+    The `Board` class provides an interface for generating `Move` objects representing legal actions for a turn, 
+    as well as applying and undoing these moves. 
 
     """
 
