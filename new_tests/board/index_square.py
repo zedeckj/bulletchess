@@ -49,9 +49,9 @@ class TestBoardIndex(unittest.TestCase):
         board = Board()
         for square in SQUARES:
             if square in STARTING_SQUARE_TABLE:
-                self.assertEqual(board[square], STARTING_SQUARE_TABLE[square])
+                self.assertIs(board[square], STARTING_SQUARE_TABLE[square])
             else:
-                 self.assertEqual(board[square], None)
+                 self.assertIs(board[square], None)
 
     def test_set(self):
         board = Board()
@@ -84,7 +84,7 @@ class TestBoardIndex(unittest.TestCase):
         del board[E2]
         self.assertEqual(board[E2], None)
         board[E2] = Piece(WHITE, PAWN)
-        self.assertEqual(board[E2], Piece(WHITE, PAWN))
+        self.assertIs(board[E2], Piece(WHITE, PAWN))
 
     def test_del2(self):
         board = Board()

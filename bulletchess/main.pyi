@@ -1550,9 +1550,20 @@ class Board:
     @staticmethod
     def from_fen(fen : str) -> "Board":
         """
-        Creates a `Board` from the given Forsyth-Edwards Notation `str`.
+        Build a board from a FEN string.
 
-        :raises: :exc: `ValueError` if the given FEN `str` is malformed.
+        The FEN is not required to included a halfmove clock or fullmove number. The default values for these are 0 and 1.
+
+        :param fen: full FEN record.
+        :type  fen: str
+        :returns: board represented by *fen*.
+        :rtype:   Board
+        :raises ValueError: if *fen* is malformed.
+
+        Examples
+        --------
+        >>> Board.from_fen("8/8/8/8/8/8/8/K6k w - - 0 1").turn is WHITE
+        True
         """
         ...
 
@@ -1574,7 +1585,7 @@ class Board:
     @property
     def turn(self) -> Color:
         """
-        Gets the `Color` of the player whose turn it is.
+        Side to move, either `WHITE` or `BLACK`.
         """
         ...
 
@@ -1660,6 +1671,10 @@ class Board:
         """
         Applies the given `Move` to this `Board`, updating its state. The `Move` argument is not checked
         to be legal. `None` can be passed as the argument to skip a turn.   
+
+        Examples
+        ---------
+        >>>
         """
         ...
 
@@ -1737,6 +1752,8 @@ class Board:
         """
         Returns `True` if compared with another `Board` with the same mapping of `Square` to `Piece` objects,
         equvilent `CastlingRights`, en-passant `Square` values, and halfmove and fullmove clocks.
+
+        Two boards may be considered equal despite having different move histories. 
         """
         ...
 
@@ -1753,77 +1770,51 @@ class Board:
         """
         ...
 
-
-    @property
-    def pawns(self) -> Bitboard:
-        """
-        Gets a `Bitboard` of all `Square` objects which have a `PAWN` typed `Piece` for this `Board`
-        """
-        ...
-
-    @property
-    def knights(self) -> Bitboard:
-        """
-        Gets a `Bitboard` of all `Square` objects which have a `KNIGHT` typed `Piece` for this `Board`
-        """
-        ...
-
-    @property
-    def bishops(self) -> Bitboard:
-        """
-        Gets a `Bitboard` of all `Square` objects which have a `BISHOP` typed `Piece` for this `Board`
-        """
-        ...
-
-    @property
-    def rooks(self) -> Bitboard:
-        """
-        Gets a `Bitboard` of all `Square` objects which have a `ROOK` typed `Piece` for this `Board`
-        """
-        ...
-
-    @property
-    def queens(self) -> Bitboard:
-        """
-        Gets a `Bitboard` of all `Square` objects which have a `QUEEN` typed `Piece` for this `Board`
-        """
-        ...
-
-    @property
-    def kings(self) -> Bitboard:
-        """
-        Gets a `Bitboard` of all `Square` objects which have a `KING` typed `Piece` for this `Board`
-        """
-        ...
-
-    @property
-    def white(self) -> Bitboard:
-        """
-        Gets a `Bitboard` of all `Square` objects which have a `WHITE` colored `Piece` for this `Board`
-        """
-        ...
-
-    @property
-    def black(self) -> Bitboard:
-        """
-        Gets a `Bitboard` of all `Square` objects which have a `BLACK` colored `Piece` for this `Board`
-        """
-        ...
-
-    @property
-    def unoccupied(self) -> Bitboard:
-        """
-        Gets a `Bitboard` of all `Square` objects which have no `Piece` value for this `Board`
-        """
-        ...
-
     @property
     def history(self) -> list[Move]:
         """
         Gets a `list` of `Move` objects of every `Move` which have been used with `Board.apply()` and have not 
         been undone with `Board.undo()` for this `Board` 
+
+        Examples
+        --------
+        >>> board = Board()
+        >>> board.apply(Move(E2, E4))
+        >>> board.apply(Move(E7, E5))
+        >>> board.apply(Move(G1, F3))
+        >>> board.history
+        [<Move: e2e4>, <Move: e7e5>, <Move: g1f3>]
         """
         ...
+
+    def __str__(self):
+        """
+        Returns an ASCII `str` representation of this :class:`Board`.
+
+        Examples
+        ---------
+        >>> print(str(Board()))
+        r n b q k b n r 
+        p p p p p p p p 
+        - - - - - - - - 
+        - - - - - - - - 
+        - - - - - - - - 
+        - - - - - - - - 
+        P P P P P P P P 
+        R N B Q K B N R 
+
+        >>> FEN = "rnb3r1/R3Q3/2p5/1p1k1p1r/1n1P4/8/4P3/2K2B1r b - - 3 69"
+        >>> board = Board.from_fen(FEN)
+        >>> print(str(board))
+        r n b - - - r - 
+        R - - - Q - - - 
+        - - p - - - - - 
+        - p - k - p - r 
+        - n - P - - - - 
+        - - - - - - - - 
+        - - - - P - - - 
+        - - K - - B - r 
+        """
 
     def pretty(self, 
                color_scheme : Board.ColorScheme = Board.OAK,
@@ -1867,10 +1858,6 @@ class BoardStatus:
     **stalemate**, and repetition or 50-move draw claims.
     """
 
-    def __repr__(self) -> str: ...
-
-    def __eq__(self, other : Any) -> bool: ...
-
     def __contains__(self, board: Board) -> bool:
         """
         Return ``True`` if *board* satisfies this status.
@@ -1889,6 +1876,10 @@ class BoardStatus:
         True
         """
         ...
+
+    def __repr__(self) -> str: ...
+
+    def __eq__(self, other : Any) -> bool: ...
 
 
 #: The side to move is currently in check.

@@ -2203,13 +2203,12 @@ static inline PyObject *PyBoard_get_index_tuple(PyObject *self,
 		PyObject *key){
 	PyObject *color;
 	PyObject *piece_type;
-	if (!PyArg_ParseTuple(key, "OO", &color, &piece_type))
+	if (!PyArg_ParseTuple(key, "OO", &color, &piece_type)) 
 		return NULL;
 	if (!PyTypeCheck("Color as the first item", color, &PyColorType))
 		return NULL;
-	if (!PyTypeCheck("PieceType as the second item", piece_type, &PyPieceTypeType)){
+	if (!PyTypeCheck("PieceType as the second item", piece_type, &PyPieceTypeType))
 		return NULL;
-	}
 	return PyBoard_get_bb(self, color, piece_type);	
 }
 
@@ -2218,7 +2217,10 @@ static PyObject *PyBoard_get_index(PyObject *self, PyObject *key) {
 		return PyBoard_empty_bb(self, NULL);
 	}
 	else if (Py_IS_TYPE(key, &PySquareType)){
-		return PyBoard_get_piece_at(self, key);	
+		square_t square = PySquare_get(key);	
+		full_board_t *board = PyBoard_board(self);
+		piece_t piece = get_piece_at(board->position, square);
+		return PyPiece_make(piece);	
 	}
 	else if (Py_IS_TYPE(key, &PyPieceTypeType)) {
 		return PyBoard_get_pt_bb(self, key);
@@ -2234,8 +2236,8 @@ static PyObject *PyBoard_get_index(PyObject *self, PyObject *key) {
 		return PyBitboard_make(get_piece_bb(PyBoard_board(self)->position,
 				piece));	
 	}
-	PyTypeErr("PieceType, Color, Piece, Square, None,"
-		 " or tuple[Color, PieceType]", key);
+	PyTypeErr("PieceType, Color, Piece, Square,"
+		 " tuple[Color, PieceType], or None", key);
 	return NULL;
 }
 

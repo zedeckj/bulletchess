@@ -41,6 +41,15 @@ class TestBoardIndexing(unittest.TestCase):
         self.assertEqual(board[QUEEN], Bitboard([]))
         self.assertEqual(board[KING], Bitboard([C6, E5, G1]))
 
+    def test_err(self):
+        board = Board()
+        with self.assertRaisesRegex(TypeError, re.escape("Expected a Color as the first item, got A1 (bulletchess.Square)")):
+            _ = board[A1, WHITE] #type: ignore
+        with self.assertRaisesRegex(TypeError, re.escape("Expected a PieceType as the second item, got White (bulletchess.Color)")):
+            _ = board[WHITE, WHITE] #type: ignore
+        with self.assertRaisesRegex(TypeError, re.escape("Expected a PieceType, Color, Piece, Square, tuple[Color, PieceType], or None, got 2 (int)")):
+            _ = board[2] #type: ignore
+
 if __name__ == "__main__":
     unittest.main()
     
