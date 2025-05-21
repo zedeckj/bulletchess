@@ -188,7 +188,7 @@ class TestSAN(unittest.TestCase):
         if FOCUS:
             return
         for i in range(20):
-            board = Board.random()
+            board = utils.random_board()
             roundtripPerft(self, board, 3)
 
     def test_ambigious_pseudolegal(self):

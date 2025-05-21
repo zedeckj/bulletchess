@@ -149,7 +149,7 @@ class TestFen(unittest.TestCase):
 
 
     def testRandomSymmetry(self):
-        boards = [Board.random() for _ in range(10000)]
+        boards = [utils.random_board() for _ in range(10000)]
         for board1 in boards:
             board1.validate()
             fen1 = board1.fen()

@@ -56,7 +56,7 @@ class TestMaterial(unittest.TestCase):
         self.assertEqual(utils.material(board), 1100)
 
     def testRandom(self):
-        boards = [Board.random() for _ in range(10000)]
+        boards = [utils.random_board() for _ in range(10000)]
         for board in boards:
             vals = {
                 PAWN : random.randint(1, 10),

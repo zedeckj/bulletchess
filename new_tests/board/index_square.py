@@ -56,9 +56,9 @@ class TestBoardIndex(unittest.TestCase):
     def test_set(self):
         board = Board()
         board[A1] = Piece(WHITE, QUEEN)
-        self.assertEqual(board[A1], Piece(WHITE, QUEEN))
+        self.assertIs(board[A1], Piece(WHITE, QUEEN))
         board[H8] = None
-        self.assertEqual(board[H8], None)
+        self.assertIs(board[H8], None)
 
     def test_set2(self):
         for piece_type in PIECE_TYPES:
@@ -70,8 +70,8 @@ class TestBoardIndex(unittest.TestCase):
                     if square in unchanged:
                         del unchanged[square]
                         for square2 in unchanged:
-                            self.assertEqual(board[square2], unchanged[square2])
-                    self.assertEqual(board[square], Piece(color, piece_type))
+                            self.assertIs(board[square2], unchanged[square2])
+                    self.assertIs(board[square], Piece(color, piece_type))
 
 
     def test_typerr(self):
@@ -82,7 +82,7 @@ class TestBoardIndex(unittest.TestCase):
     def test_del(self):
         board = Board()
         del board[E2]
-        self.assertEqual(board[E2], None)
+        self.assertIs(board[E2], None)
         board[E2] = Piece(WHITE, PAWN)
         self.assertIs(board[E2], Piece(WHITE, PAWN))
 
@@ -93,15 +93,15 @@ class TestBoardIndex(unittest.TestCase):
             del board[square]
             if square in unchanged:
                 del unchanged[square]
-                self.assertEqual(board[square], None)
+                self.assertIs(board[square], None)
                 for square2 in unchanged:
-                    self.assertEqual(board[square2], unchanged[square2])
+                    self.assertIs(board[square2], unchanged[square2])
 
     def test_set_none(self):
         board = Board()
         for square in SQUARES:
             board[square] = None
-            self.assertEqual(board[square], None)
+            self.assertIs(board[square], None)
 
 if __name__ == "__main__":
     unittest.main()

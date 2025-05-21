@@ -11,7 +11,7 @@ class TestBoardIndex(unittest.TestCase):
     def test_collisions(self):
         COUNT = 10000
         utils.set_random_seed(0)
-        boards = set([Board.random() for _ in range(COUNT)])
+        boards = set([utils.random_board() for _ in range(COUNT)])
         hashes = set([hash(board) for board in boards])
         self.assertEqual(len(hashes), len(boards))
 
@@ -21,7 +21,7 @@ class TestBoardIndex(unittest.TestCase):
 
 
     def test_stateless(self):
-        boards = [Board.random() for _ in range(1000)]
+        boards = [utils.random_board() for _ in range(1000)]
         hashes1 = [hash(board) for board in boards]
         hashes2 = [hash(board) for board in boards]
         self.assertEqual(hashes1, hashes2)

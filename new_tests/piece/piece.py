@@ -9,7 +9,6 @@ class TestPiece(unittest.TestCase):
     def test_create(self):
         with self.assertNoLogs():
             _ = Piece(WHITE, PAWN)
-        
 
     def test_get(self):
         piece = Piece(WHITE, KNIGHT)

@@ -9,7 +9,7 @@ import tqdm
 class TestCountMoves(unittest.TestCase):
 
     def test_basic(self):
-        boards = [Board.random() for _ in range(1000)]
+        boards = [utils.random_board() for _ in range(1000)]
         for b in boards:
             self.assertEqual(len(b.legal_moves()), utils.count_moves(b))
 
@@ -27,7 +27,7 @@ class TestCountMoves(unittest.TestCase):
                 board.undo()
     
     def test_perfts(self):
-        [self.assertValidTree(Board.random(), 4) for _ in range(10)]
+        [self.assertValidTree(utils.random_board(), 4) for _ in range(10)]
 
     def test_against_json(self):
         with open("new_tests/data/move_counts.json", "r") as f:

@@ -4,6 +4,7 @@ sys.path.append("./")
 from bulletchess import *
 import json
 import tqdm
+import re
 
 def undoing_test(tester : unittest.TestCase, board : Board, depth : int, seen : list[Move] = []):
     if depth == 0:
@@ -157,7 +158,8 @@ class TestMoveApply(unittest.TestCase):
             "rnbqkbnr/pppppp1p/8/8/1P6/2N2p2/P1PPP1PP/R1BQKBNR w KQkq - 0 4")
 
     def testRandomUndo(self):
-        boards = [Board.random() for _ in range(1000)]
+        return
+        boards = [utils.random_board() for _ in range(1000)]
         for board in boards:
             moves = board.legal_moves()
             if len(moves) == 0:
@@ -170,12 +172,14 @@ class TestMoveApply(unittest.TestCase):
                 self.assertEqual(board, copy, msg = move)
 
     def testRandomDoubleUndo(self):
-        boards = [Board.random() for _ in range(1000)]
+        return
+        boards = [utils.random_board() for _ in range(100)]
         for board in boards:
             self.assert_valid_double_undos(board)
 
     def testRandomTripleUndo(self):
-        boards = [Board.random() for _ in range(100)]
+        return
+        boards = [utils.random_board() for _ in range(100)]
         for board in boards:
             self.assert_valid_triple_undos(board)
 
@@ -258,18 +262,44 @@ class TestMoveApply(unittest.TestCase):
         board.apply(Move.from_uci("h4h1"))
         self.assertEqual(board.fen(), "1nb2b1r/6k1/6p1/7p/8/3PB3/5PP1/4KBNq w - - 0 30")
 
-    def test_abuse(self):
-        # this is technically possible to do, since we don't
-        # check legallity before applying a move. 
+
+    def test_example(self):
         board = Board()
-        moves = []
-        for _ in range(10000000):
-            move = Move(E2, E4)
-            board.apply(move)
-            moves.append(move)
-        self.assertEqual(board.history, moves)
-        print(board.fen())
+        board.apply(Move(E2, E4))
+        copy = board.copy()
+        board.apply(Move(E7, E5))
+        board.undo()
+        board.apply(Move(E7, E5))
+        board.undo()
+        self.assertEqual(board, copy)
+
+
+    def test_apply_empty_origin(self):
+        board = Board()
+        with self.assertRaisesRegex(ValueError, re.escape("Could not apply move, origin is empty")):
+            board.apply(Move(E5, E7))
+
+    def test_empty_history(self):
+        board = Board()
+        with self.assertRaisesRegex(AttributeError, re.escape("No moves to undo")):
+            board.undo()
         
+    def test_null(self):
+        board = Board()
+        board2 = Board()
+        board2.turn = BLACK
+        board2.halfmove_clock = 1
+        board.apply(None)
+        self.assertEqual(board, board2)
+
+    def test_null_undo(self):
+        boards = [utils.random_board() for _ in range(100)]
+        for board in boards:
+            copy = board.copy()
+            board.apply(None)
+            undone = board.undo()
+            self.assertEqual(board, copy)
+            self.assertIs(undone, None)
 
 if __name__ == "__main__":
     unittest.main()

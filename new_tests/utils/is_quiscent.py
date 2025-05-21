@@ -12,7 +12,7 @@ class TestIsQuiscent(unittest.TestCase):
 
 
     def testRandom(self):
-        boards = [Board.random() for _ in range(10000)]
+        boards = [utils.random_board() for _ in range(10000)]
         for board in boards:
             moves = board.legal_moves()
             quiet = not board in CHECK

@@ -90,7 +90,7 @@ typedef struct {
 #define F8 61
 #define G8 62
 #define H8 63
-
+#define ERR_SQ 64
 
 
 // Macros for bitboard_t

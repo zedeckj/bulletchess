@@ -43,7 +43,7 @@ class TestEvaluation(unittest.TestCase):
         self.assertEvalEqual(board)
 
     def test_random(self):
-        boards = [Board.random() for _ in range(100000)]
+        boards = [utils.random_board() for _ in range(100000)]
         for board in boards:
             self.assertEvalEqual(board)
 

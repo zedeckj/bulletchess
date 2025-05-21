@@ -11,7 +11,7 @@ import tqdm
 
 
 def gen_fens_random(init_count : int) -> list[str]:
-    return [board.fen() for board in set([Board.random() for _ in tqdm.tqdm(range(init_count), desc = "Making fens")])]
+    return [board.fen() for board in set([utils.random_board() for _ in tqdm.tqdm(range(init_count), desc = "Making fens")])]
 
 def get_fens_tree(board : chess.Board, depth : int) -> list[str]:
     fens = [board.fen(en_passant= "fen")]

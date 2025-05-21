@@ -117,7 +117,7 @@ class TestMoveApply(unittest.TestCase):
             "rnbqkbnr/pppppp1p/8/8/1P6/2N2p2/P1PPP1PP/R1BQKBNR w KQkq - 0 4")
 
     def testRandomUndo(self):
-        boards = [Board.random() for _ in range(10000)]
+        boards = [utils.random_board() for _ in range(10000)]
         for board in boards:
             moves = board.legal_moves()
             if len(moves) == 0:

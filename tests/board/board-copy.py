@@ -19,7 +19,7 @@ class TestBoard(unittest.TestCase):
 
 
     def test_piece_at(self):
-        board = Board.random()
+        board = utils.random_board()
         copy = board.copy()
         for square in SQUARES:
             self.assertEqual(board.get_piece_at(square), 

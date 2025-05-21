@@ -15,7 +15,7 @@ class TestMoveConstruction(unittest.TestCase):
     def test_misuse(self):
         with self.assertRaisesRegex(TypeError, re.escape("function missing required argument 'destination' (pos 2)")):
             Move('foo') #type: ignore
-        with self.assertRaisesRegex(TypeError, re.escape("Expected a PieceType or None for promote_to, got E3 (bulletchess.Square)")):
+        with self.assertRaisesRegex(TypeError, re.escape("Expected a PieceType or None, got E3 (bulletchess.Square)")):
             Move(E1, E2, promote_to=E3) #type: ignore
         with self.assertRaisesRegex(TypeError, re.escape("Expected a destination Square, got True (bool)")):
             Move(E1, True, promote_to=E3) #type: ignore
@@ -37,6 +37,9 @@ class TestMoveConstruction(unittest.TestCase):
             Move(H7, H8, promote_to = PAWN)
         with self.assertRaisesRegex(ValueError, re.escape("Illegal Move, a Pawn cannot promote to a King")):
             Move(H7, H8, promote_to = KING)
+
+    def test_is(self):
+        self.assertIs(Move(E2, E4), Move(E2, E4))
 
 if __name__ == "__main__":
     unittest.main()

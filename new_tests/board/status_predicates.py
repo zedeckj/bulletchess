@@ -75,7 +75,7 @@ class TestStatusPredicates(unittest.TestCase):
             self.assertTrue(board in FORCED_DRAW)
 
     def test_agreement_move_count(self):
-        boards = [Board.random() for _ in range(10000)]
+        boards = [utils.random_board() for _ in range(10000)]
         for board in boards:
             if utils.count_moves(board) != 0:
                 self.assertFalse(board in CHECKMATE)

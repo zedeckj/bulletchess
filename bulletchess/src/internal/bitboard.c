@@ -49,6 +49,7 @@ bool serialize_sqr_caps(square_t square, char *buffer) {
 	return false;
 }
 
+
 square_t unchecked_bb_to_square(bitboard_t bb){
 	switch (bb){
     case SQUARE_TO_BB(A1): return A1;
@@ -116,7 +117,7 @@ square_t unchecked_bb_to_square(bitboard_t bb){
 		case SQUARE_TO_BB(H7): return H7;
 		case SQUARE_TO_BB(H8): return H8;
 	}
-	return -1;
+	return ERR_SQ;
 }
 
 

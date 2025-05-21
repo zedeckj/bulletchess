@@ -2,7 +2,7 @@ import bulletchess.backend as bk
 from bulletchess import *
 import random
 
-boards = [Board.random() for _ in range(100000)]
+boards = [utils.random_board() for _ in range(100000)]
 moves = []
 
 new_boards = []

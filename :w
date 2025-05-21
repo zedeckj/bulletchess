@@ -2040,7 +2040,8 @@ static PyObject *PyBoard_empty(PyObject *cls, PyObject *Py_UNUSED(args)) {
 
 
 static int
-Board_init(PyObject *self, PyObject *args, PyObject *kwds){
+Board_init(PyObject *self, PyObject *args, PyObject *kwds)
+{
     if (!PyArg_UnpackTuple(args, "Board", 0, 0) ||  
         (kwds && PyDict_Size(kwds))) {
         PyErr_SetString(PyExc_TypeError,
@@ -2290,6 +2291,33 @@ int PyBoard_set_piece_at(PyObject *self, PyObject *key, PyObject *val) {
 	}
 }
 
+static PyObject *PyBoard_random(PyObject *cls, PyObject *args){
+	PyBoardObject *board = PyBoard_alloc();
+	if (!board) return NULL;
+	setstate(rand_state);
+	PyBoard_setup_starting((PyObject *)board);
+	u_int8_t depth = 4 + (random() % 300);
+	move_t moves[256];
+	PyBoard_set_capacity(board, depth * 1 + 5);	
+	for (u_int8_t i = 0; i < depth; i++) {
+		u_int8_t count = generate_legal_moves(board->board, moves);
+		if (!count) return (PyObject *)board;
+		u_int8_t attempts = 0;
+		u_int8_t index;
+		retry:
+		index = random() % count;
+		if (attempts++ < 3 && !is_capture(board->board, moves[index])) {
+			goto retry;	
+		}
+		if (!PyBoard_apply_struct(board, moves[index])) {
+			Py_DECREF(board);
+			return NULL;
+		}
+	}
+	return (PyObject *)board;
+}
+
+
 static PyObject *PyBoard_pretty(PyObject *self, PyObject *args, PyObject *kwargs){
 	PyObject *color_scheme = OAK, 
 					 *selected_obj = NULL, 
@@ -2358,6 +2386,7 @@ PYBOARD_PREDICATE(is_seventy_five)
 
 static PyMethodDef board_methods[] = { 
     {"from_fen", PyBoard_from_fen, METH_O | METH_STATIC, NULL},  
+    {"random", PyBoard_random, METH_NOARGS | METH_STATIC, NULL},  
     {"empty", PyBoard_empty, METH_NOARGS | METH_STATIC, NULL},  
 		{"fen", PyBoard_to_fen, METH_NOARGS, NULL},
 		{"pretty", (PyCFunction) PyBoard_pretty, METH_VARARGS | METH_KEYWORDS, NULL},
@@ -2983,7 +3012,7 @@ static PyObject *PyUtils_boards_deeply_equal(PyObject *self,
 #define POSITION_GETTER(NAME)\
 static PyObject *PyUtils_##NAME(PyObject *self, PyObject *arg){\
 	if (!PyTypeCheck("Board", arg, &PyBoardType)) return NULL;\
-	full_board_t *board = PyBoard_board(arg);\
+	full_board_t *board = PyBoard_board(self);\
 	return (PyObject *)PyBitboard_make(board->position->NAME);\
 }\
 
@@ -3001,47 +3030,6 @@ static PyObject *PyUtils_empty(PyObject *self, PyObject *arg) {
 	return PyBoard_empty_bb(arg, NULL);	
 }
 
-
-static PyObject *PyUtils_random_board(PyObject *self, 
-		PyObject *Py_UNUSED(args)){
-	PyBoardObject *board = PyBoard_alloc();
-	if (!board) return NULL;
-	setstate(rand_state);
-	PyBoard_setup_starting((PyObject *)board);
-	u_int8_t depth = 4 + (random() % 300);
-	move_t moves[256];
-	PyBoard_set_capacity(board, depth * 1 + 5);	
-	for (u_int8_t i = 0; i < depth; i++) {
-		u_int8_t count = generate_legal_moves(board->board, moves);
-		if (!count) return (PyObject *)board;
-		u_int8_t attempts = 0;
-		u_int8_t index;
-		retry:
-		index = random() % count;
-		if (attempts++ < 3 && !is_capture(board->board, moves[index])) {
-			goto retry;	
-		}
-		if (!PyBoard_apply_struct(board, moves[index])) {
-			Py_DECREF(board);
-			return NULL;
-		}
-	}
-	return (PyObject *)board;
-}
-
-static PyObject *PyUtils_piece_bitboard(PyObject *self, 
-		PyObject *args){
-	PyObject *board;
-	PyObject *piece;
-	if (!PyArg_ParseTuple(args, "OO", &board, &piece)) return NULL;
-	if (!PyTypeCheck("Board", board, &PyBoardType)) return NULL;
-	if (!PyTypeCheck("Piece", piece, &PyPieceType)) return NULL;
-	piece_t p= PyPiece_get(piece);	
-	return PyBitboard_make(
-			get_piece_bb(PyBoard_board(board)->position,
-			p));
-}
-
 #define POSITION_OBJ(FIELD, NAME)\
 {NAME, PyUtils_##FIELD, METH_O, NULL}
 
@@ -3054,19 +3042,13 @@ static PyObject *PyUtils_king_sq(PyObject *self, PyObject *args){
 	full_board_t *b = PyBoard_board(board);
 	position_t *pos = b->position;
 	bitboard_t king_bb = pos->kings;
-	if (PyColor_get(color) == WHITE_VAL){
+	if (color == WhiteObject){
 		king_bb &= pos->white_oc;	
 	}
 	else {
 		king_bb &= pos->black_oc;
 	}
-	square_t sq = unchecked_bb_to_square(king_bb);	
-	if (sq == ERR_SQ) {
-		PyErr_Format(PyExc_AttributeError, 
-				"Board has multiple %S kings", color);
-		return NULL;
-	}	
-	else return PySquare_make(sq);
+	square_t sq = unchecked_bb_to_square(bb)	
 }
 
 static PyMethodDef PyUtilsMethods[] = {
@@ -3074,13 +3056,11 @@ static PyMethodDef PyUtilsMethods[] = {
 	POSITION_OBJ(knights, "knight_bitboard"),
 	POSITION_OBJ(bishops, "bishop_bitboard"),
 	POSITION_OBJ(rooks, "rook_bitboard"),
-	POSITION_OBJ(queens, "queen_bitboard"),
-	POSITION_OBJ(kings, "king_bitboard"),
+	POSITION_OBJ(queens, "queens_bitboard"),
+	POSITION_OBJ(kings, "kings_bitboard"),
 	POSITION_OBJ(white_oc, "white_bitboard"),
 	POSITION_OBJ(black_oc, "black_bitboard"),
-	{"king_square", PyUtils_king_sq, METH_VARARGS, NULL},
 	{"unoccupied_bitboard", PyUtils_empty, METH_O, NULL},
-	{"piece_bitboard", PyUtils_piece_bitboard, METH_VARARGS, NULL},
 	{"legally_equal", PyUtils_boards_legally_equal, METH_VARARGS, NULL},
 	{"deeply_equal", PyUtils_boards_deeply_equal, METH_VARARGS, NULL},
 	{"evaluate", PyUtils_evaluate, METH_O, NULL},		
@@ -3104,7 +3084,6 @@ static PyMethodDef PyUtilsMethods[] = {
 	{"perft", PyUtils_perft,  METH_VARARGS, NULL},	
 	{"perft_fen", PyUtils_perft_fen,  METH_VARARGS, NULL},	
 	{"set_random_seed", PyUtils_srandom, METH_O, NULL},
-	{"random_board", PyUtils_random_board, METH_NOARGS, NULL},
 	{"reset_hashing", PyReset_Hash, METH_NOARGS, NULL},
 	{NULL, NULL, 0, NULL}
 };

@@ -7,12 +7,12 @@ class TestBoardCop(unittest.TestCase):
 
     def assertBoardsEqual(self, board1: Board, board2: Board):
         self.assertEqual(board1, board2)
-        self.assertEqual(board1.pawns, board2.pawns)
-        self.assertEqual(board1.knights, board2.knights)
-        self.assertEqual(board1.bishops, board2.bishops)
-        self.assertEqual(board1.rooks, board2.rooks)
-        self.assertEqual(board1.queens, board2.queens)
-        self.assertEqual(board1.kings, board2.kings)
+        self.assertEqual(board1[PAWN], board2[PAWN])
+        self.assertEqual(board1[KNIGHT], board2[KNIGHT])
+        self.assertEqual(board1[BISHOP], board2[BISHOP])
+        self.assertEqual(board1[ROOK], board2[ROOK])
+        self.assertEqual(board1[QUEEN], board2[QUEEN])
+        self.assertEqual(board1[KING], board2[KING])
         self.assertEqual(board1.halfmove_clock, board2.halfmove_clock)
         self.assertEqual(board1.fullmove_number, board2.fullmove_number)
         self.assertEqual(board1.turn, board2.turn)
@@ -30,7 +30,7 @@ class TestBoardCop(unittest.TestCase):
         self.assertEqual(cpy, Board())
 
     def test_random(self):
-        boards = [Board.random() for _ in range(10000)]
+        boards = [utils.random_board() for _ in range(10000)]
         for board in boards:
             self.assertBoardsEqual(board, board.copy())
 

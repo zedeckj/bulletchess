@@ -1,4 +1,4 @@
-from typing import Optional, Any, Collection, Iterator, overload, override
+from typing import Optional, Any, Collection, Iterator, overload
 
 
 class Color:
@@ -1568,13 +1568,6 @@ class Board:
         ...
 
     @staticmethod
-    def random() -> "Board":
-        """
-        Creates a `Board` with a position determined by appling a random number of randomly selected legal moves.
-        """
-        ...
-
-    @staticmethod
     def empty() -> "Board":
         """
         Creates a completely empty `Board`, with no pieces on it.
@@ -1663,30 +1656,67 @@ class Board:
 
     def legal_moves(self) -> list[Move]:
         """
-        Generates a `list` of legal `Move` objects for this `Board`'s position. 
+        Generates a `list` of legal :class:`Move` objects for this :class:`Board`'s position. 
         """
         ...
 
     def apply(self, move : Optional[Move]) -> None:
         """
-        Applies the given `Move` to this `Board`, updating its state. The `Move` argument is not checked
-        to be legal. `None` can be passed as the argument to skip a turn.   
+        Applies the given :class:`Move` to this :class:`Board`, updating its state. The :class:`Move` argument is not checked
+        to be legal outside of checking if the origin has a Piece. `None` can be passed as the argument to skip a turn.   
 
         Examples
         ---------
-        >>>
+        >>> board = Board()
+        >>> board.apply(Move(E2, E4))
+        >>> print(board)
+        r n b q k b n r 
+        p p p p p p p p 
+        - - - - - - - - 
+        - - - - - - - - 
+        - - - - P - - - 
+        - - - - - - - - 
+        P P P P - P P P 
+        R N B Q K B N R 
+
+        :raises: :exc: `ValueError` if the given :class:`Move`'s origin is an empty square.
         """
         ...
 
     def undo(self) -> Move: 
         """
-        Undoes the last `Move` applied to this `Board`, and returns the `Move` that was played.
+        Undoes the last :class:`Move` applied to this :class:`Board`, and returns the :class:`Move` that was played.
+
+        Examples
+        --------
+        >>> board = Board()
+        >>> board.apply(Move(E2, E4))
+        >>> board.apply(Move(E7, E5))
+        >>> board.undo() == Move(E7, E5)
+        True
+        >>> print(board)
+        r n b q k b n r 
+        p p p p p p p p 
+        - - - - - - - - 
+        - - - - - - - - 
+        - - - - P - - - 
+        - - - - - - - - 
+        P P P P - P P P 
+        R N B Q K B N R 
+
+        :raises: :exc: `AttributeError` if there are no moves to undo.
         """
         ...
 
     def fen(self) -> str:
         """
         Gets the Forsyth-Edwards Notation representation as a `str` of this `Board`.
+
+        Examples
+        --------
+        >>> board = Board()
+        >>> board.fen()
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
         """
         ...
 
@@ -1697,6 +1727,12 @@ class Board:
         ...
 
     @overload
+    def __getitem__(self, none : None) -> Bitboard:
+        """
+        Returns a :class:`Bitboard` of all empty squares.
+        """
+
+    @overload
     def __getitem__(self, square : Square) -> Optional[Piece]:
         """
         Returns the `Piece` at the specified `Square` on this `Board`. Evaluates to `None` if no `Piece` is placed
@@ -1705,26 +1741,23 @@ class Board:
         ...
 
     @overload
-    def __getitem__(self, piece_type : Optional[PieceType]) -> Bitboard:
+    def __getitem__(self, piece_type : PieceType) -> Bitboard:
         """
         Returns a :class:`Bitboard` of all squares which have the given :class:`PieceType`
-        If given `None`, returns a :class:`Bitboard` of all empty squares.
         """
         ...
 
     @overload
-    def __getitem__(self, color : Optional[Color]) -> Bitboard:
+    def __getitem__(self, color : Color) -> Bitboard:
         """
         Returns a :class:`Bitboard` of all squares which have a piece with the given :class:`Color`.
-        If given `None`, returns a :class:`Bitboard` of all empty squares.
         """
         ...
 
     @overload
-    def __getitem__(self, piece : Optional[Piece]) -> Bitboard:
+    def __getitem__(self, piece : Piece) -> Bitboard:
         """
         Returns a :class:`Bitboard` of all squares which have the given :class:`Piece`.
-        If given `None`, returns a :class:`Bitboard` of all empty squares.
         """
         ...
 
@@ -1753,7 +1786,10 @@ class Board:
         Returns `True` if compared with another `Board` with the same mapping of `Square` to `Piece` objects,
         equvilent `CastlingRights`, en-passant `Square` values, and halfmove and fullmove clocks.
 
-        Two boards may be considered equal despite having different move histories. 
+        To check if two :class:`Board` instances are "legally" equal, as in in terms of all of the above besides the halfmove
+        and fullmove clocks, use :func:`utils.legally_equal`
+
+        Two boards may be considered equal despite having different move histories.
         """
         ...
 
@@ -1821,9 +1857,9 @@ class Board:
                highlighted_squares : Bitboard = EMPTY_BB,
                targeted_squares : Bitboard = EMPTY_BB) -> str:
         """
-        Creates a `str` representation of this `Board` using Unicode chess characters and the provided `Board.ColorScheme` as a palette. 
-        `Bitboard`s can be specified for highlighting particular squares, as for example a `Move`'s origin, as well as for targetting 
-        certain squares, as for possible `Move` destinations.
+        Creates a `str` representation of this `Board` using Unicode chess figurines and the provided `Board.ColorScheme` as a palette
+        for the background and highlights. `Bitboard`s can be specified for highlighting particular squares, as for example a `Move`'s origin, 
+        as well as for targetting certain squares, as for possible `Move` destinations.
         """
         ...
 

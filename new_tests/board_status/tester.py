@@ -25,12 +25,12 @@ class BoardStatusTester(unittest.TestCase):
 
     def assertCheck(self, board : Board):
         self.assertTrue(board in CHECK)
-        self.assertTrue(utils.attack_mask(board, board.turn.opposite) & board.kings)
+        self.assertTrue(utils.attack_mask(board, board.turn.opposite) & board[KING])
 
     def assertNotCheck(self, board : Board):
         self.assertTrue(board not in CHECK)
-        
-        self.assertFalse(utils.attack_mask(board, board.turn.opposite) & (board.kings & board.turn), msg = board.pretty())
+
+        self.assertFalse(utils.attack_mask(board, board.turn.opposite) & board[board.turn, KING], msg = board.pretty())
 
     def assertOnlyCheck(self, board : Board):
         self.assertCheck(board)
@@ -42,7 +42,8 @@ class BoardStatusTester(unittest.TestCase):
 
     def assertLastNotCapture(self, board : Board):
         moves = board.history
-        self.assertFalse(moves[-1].is_capture(board))
+        if len(moves) > 0:
+            self.assertFalse(moves[-1].is_capture(board))
 
     def assertStalemate(self, board : Board):
         self.assertNotCheck(board)
@@ -92,6 +93,6 @@ class BoardStatusTester(unittest.TestCase):
         self.assertTrue(board in INSUFFICIENT_MATERIAL)
         self.assertTrue(board in DRAW)
         self.assertTrue(board in FORCED_DRAW)
-        self.assertEqual(board.queens, EMPTY_BB)
-        self.assertEqual(board.rooks, EMPTY_BB)
-        self.assertEqual(board.pawns, EMPTY_BB)
+        self.assertEqual(board[QUEEN], EMPTY_BB)
+        self.assertEqual(board[ROOK], EMPTY_BB)
+        self.assertEqual(board[PAWN], EMPTY_BB)

@@ -45,19 +45,19 @@ def is_quiescent(board : Board) -> bool:
     Determines if the given Board's position is 'quiescent', meaning that the position is not Check,
     and that there are  no possible captures that could be made on this turn.
     """
-    #
+    ...
 
 def perft(board : Board, depth: int) -> int:
     """
-    Performs a tree walk of legal moves starting from the provided Board, 
+    Performs a tree walk of legal moves starting from the provided :class:`Board`, 
     and returns the number of leaf nodes at the given depth. For more information, 
     see: https://www.chessprogramming.org/Perft
     """
-    #
+    ...
 
 def perft_fen(fen : str, depth : int) -> int: 
     """
-    Sames as `utils.perft()`, but takes a Forsyth-Edwards Notation `str` description of a position instead of a `Board`. 
+    Sames as `utils.perft()`, but takes a Forsyth-Edwards Notation `str` description of a position instead of a :class:`Board`. 
     """
     ...
 
@@ -161,5 +161,61 @@ def random_legal_move(board : Board) -> Optional[Move]:
     ...
 
 
-#def random_board() -> Board: # implementing this and replacing Board.random() would be a good way to force all tests to become deterministic
+def random_board() -> Board:
+    """
+    Returns a :class:`Board` with a position determined by appling a random number of randomly selected legal moves.
+    """
+    ...
 
+
+def legally_equal(board1 : Board, board2 : Board) -> bool:
+    """
+    Returns `True` if given two :class:`Board` instances with the same mapping of `Square` to `Piece` objects,
+    equivilant `CastlingRights`, and en-passant `Square` values.
+
+    Unlike :func:`Board.__eq__`, does not check the halfmove clock and fullmove number. 
+    """
+    ...
+
+def deeply_equal(board1 : Board, board2 : Board) -> bool:
+    """
+    Returns `True` if given two :class:`Board` instances have the same move history,
+    along with equivalent mappings of `Square` to `Piece` objects,
+    equivilant `CastlingRights`, and en-passant `Square` values, halfmove clocks, and fullmove numbers.
+
+    This function has the same behavior as `board1 == board2 and board1.history == board2.history`, but is much faster.
+    """
+    ...
+
+def piece_bitboard(board : Board, piece : Piece) -> Bitboard:
+    ...
+
+def unoccupied_bitboard(board : Board) -> Bitboard:
+    ...
+
+def white_bitboard(board : Board) -> Color:
+    ...
+
+def black_bitboard(board : Board) -> Color:
+    ...
+
+def king_bitboard(board : Board) -> Color:
+    ...
+
+def queen_bitboard(board : Board) -> Color:
+    ...
+
+def bishop_bitboard(board : Board) -> Color:
+    ...
+
+def rook_bitboard(board : Board) -> Color:
+    ...
+
+def pawn_bitboard(board : Board) -> Color:
+    ...
+
+def knight_bitboard(board : Board) -> Color:
+    ...
+
+def king_square(board : Board, color : Color) -> Square:
+    ...
