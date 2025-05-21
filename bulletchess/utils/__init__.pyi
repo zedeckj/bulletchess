@@ -17,7 +17,7 @@ def set_random_seed(seed : Optional[int]) -> None:
 
 def evaluate(board : Board):
     """
-    A simple heuristic function for the utility of a Board
+    A simple heuristic function for the utility of a :class:`Board`
     based on Claude Shannon's example evaluation function.
     This implementation differs in using centipawns instead of fractional values,
     and explicitly evaluates positions which can be claimed as a draw as 0.
@@ -42,7 +42,7 @@ def evaluate(board : Board):
 
 def is_quiescent(board : Board) -> bool:
     """
-    Determines if the given Board's position is 'quiescent', meaning that the position is not Check,
+    Determines if the given :class:`Board`'s position is 'quiescent', meaning that the position is not Check,
     and that there are  no possible captures that could be made on this turn.
     """
     ...
@@ -146,12 +146,6 @@ def half_open_files(board : Board, for_color : Color) -> Bitboard:
     """
     ...
 
-#NOT USING def pinned_mask(board : Board, on_square : Square) -> Bitboard: ...
-
-#def checkers(board : Board) -> int: ...
-#def trapped_mask(board : Board) -> Bitboard: ...
-
-#
 def random_legal_move(board : Board) -> Optional[Move]: 
     """
     Returns a random legal :class:`Move` for the given :class:`Board`.
@@ -164,6 +158,30 @@ def random_legal_move(board : Board) -> Optional[Move]:
 def random_board() -> Board:
     """
     Returns a :class:`Board` with a position determined by appling a random number of randomly selected legal moves.
+    The generated :class:`Board` may be checkmate or a draw. 
+
+    Examples
+    --------
+    >>> board = random_board()
+    >>> print(board)
+    r Q - - k - - r 
+    - b - p n p p - 
+    p b - - p - - - 
+    - - - - - - P - 
+    - p P - - - p - 
+    N - - - - N - - 
+    P - - P P P - - 
+    R - B - K - - - 
+    >>> board2 = random_board()
+    >>> print(board2)
+    - - K - - - - - 
+    - - - - - - - - 
+    - - - - - - - - 
+    - - - - - - - - 
+    - - - - - - - - 
+    - - - - - - - - 
+    - k - - - - - - 
+    - - - - - - - - 
     """
     ...
 
@@ -188,34 +206,263 @@ def deeply_equal(board1 : Board, board2 : Board) -> bool:
     ...
 
 def piece_bitboard(board : Board, piece : Piece) -> Bitboard:
+    """
+    Gets a :class:`Bitboard` of squares with the given :class:`Piece` on the given :class:`Board`.
+
+    Examples
+    --------
+    >>> from bulletchess import *
+    >>> piece = Piece(WHITE, PAWN)
+    >>> board = Board()
+    >>> bb = piece_bitboard(board, piece)
+    >>> print(bb)
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    1 1 1 1 1 1 1 1 
+    0 0 0 0 0 0 0 0 
+
+    >>> bb == board[WHITE, PAWN]
+    True
+    """
     ...
 
 def unoccupied_bitboard(board : Board) -> Bitboard:
+    """
+    An explict alias for indexing a :class:`Board` with `None`.
+
+    Gets a :class:`Bitboard` of all empty squares on the given :class:`Board`. 
+
+    Examples
+    --------
+    >>> board = Board()
+    >>> bb = unoccupied_bitboard(board)
+    >>> print(bb)
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    1 1 1 1 1 1 1 1 
+    1 1 1 1 1 1 1 1 
+    1 1 1 1 1 1 1 1 
+    1 1 1 1 1 1 1 1 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+
+    >>> bb == board[None]
+    True
+    """
     ...
 
 def white_bitboard(board : Board) -> Color:
+    """
+    An explict alias for indexing a :class:`Board` with `WHITE`.
+
+    Gets a :class:`Bitboard` of all squares with a white piece on the given :class:`Board`. 
+
+    Examples
+    --------
+    >>> board = Board()
+    >>> bb = white_bitboard(board)
+    >>> print(bb)
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    1 1 1 1 1 1 1 1 
+    1 1 1 1 1 1 1 1 
+
+    >>> bb == board[WHITE]
+    True
+    """
     ...
 
 def black_bitboard(board : Board) -> Color:
+    """
+    An explict alias for indexing a :class:`Board` with `BLACK`.
+
+    Gets a :class:`Bitboard` of all squares with a black piece on the given :class:`Board`. 
+
+    Examples
+    --------
+    >>> board = Board()
+    >>> bb = black_bitboard(board)
+    >>> print(bb)
+    1 1 1 1 1 1 1 1 
+    1 1 1 1 1 1 1 1 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    >>> bb == board[BLACK]
+    True
+    """
     ...
 
 def king_bitboard(board : Board) -> Color:
+    """
+    An explict alias for indexing a :class:`Board` with `KING`.
+
+    Gets a :class:`Bitboard` of all squares with a king on the given :class:`Board`. 
+
+    Examples
+    --------
+    >>> board = Board()
+    >>> bb = king_bitboard(board)
+    >>> print(bb)
+    0 0 0 0 1 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 1 0 0 0 
+    >>> bb == board[KING]
+    True
+    """
     ...
 
 def queen_bitboard(board : Board) -> Color:
+    """
+    An explict alias for indexing a :class:`Board` with `QUEEN`.
+
+    Gets a :class:`Bitboard` of all squares with a queen on the given :class:`Board`. 
+
+    Examples
+    --------
+    >>> board = Board()
+    >>> bb = queen_bitboard(board)
+    >>> print(bb)
+    0 0 0 1 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 1 0 0 0 0 
+    >>> bb == board[QUEEN]
+    True
+    """
     ...
 
 def bishop_bitboard(board : Board) -> Color:
+    """
+    An explict alias for indexing a :class:`Board` with `BISHOP`.
+
+    Gets a :class:`Bitboard` of all squares with a bishop on the given :class:`Board`. 
+
+    Examples
+    --------
+    >>> board = Board()
+    >>> bb = bishop_bitboard(board)
+    >>> print(bb)
+    0 0 1 0 0 1 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 1 0 0 1 0 0 
+    >>> bb == board[BISHOP]
+    True
+    """
     ...
 
 def rook_bitboard(board : Board) -> Color:
+    """
+    An explict alias for indexing a :class:`Board` with `ROOK`.
+
+    Gets a :class:`Bitboard` of all squares with a rook on the given :class:`Board`. 
+
+    Examples
+    --------
+    >>> board = Board()
+    >>> bb = rook_bitboard(board)
+    >>> print(bb)
+    1 0 0 0 0 0 0 1 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    1 0 0 0 0 0 0 1 
+
+    >>> bb == board[ROOK]
+    True
+    """
     ...
 
 def pawn_bitboard(board : Board) -> Color:
+    """
+    An explict alias for indexing a :class:`Board` with `PAWN`.
+
+    Gets a :class:`Bitboard` of all squares with a pawn on the given :class:`Board`. 
+
+    Examples
+    --------
+    >>> board = Board()
+    >>> bb = pawn_bitboard(board)
+    >>> print(bb)
+    0 0 0 0 0 0 0 0 
+    1 1 1 1 1 1 1 1 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    1 1 1 1 1 1 1 1 
+    0 0 0 0 0 0 0 0 
+    >>> bb == board[PAWN]
+    True
+    """
     ...
 
 def knight_bitboard(board : Board) -> Color:
+    """
+    An explict alias for indexing a :class:`Board` with `KNIGHT`.
+
+    Gets a :class:`Bitboard` of all squares with a knight on the given :class:`Board`. 
+
+    Examples
+    --------
+    >>> board = Board()
+    >>> bb = knight_bitboard(board)
+    >>> print(bb)
+    0 1 0 0 0 0 1 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 1 0 0 0 0 1 0 
+
+    >>> bb == board[KNIGHT]
+    True
+    >>> 
+    """
     ...
 
 def king_square(board : Board, color : Color) -> Square:
+    """
+    Gets the :class:`Square` which has the the king of the specified :class:`Color` on the given :class:`Board`. 
+
+    :raises: :exc: `AttributeError` if the given :class:`Board` has multiple kings of the given :class:`Color`.
+
+    Examples
+    --------
+    >>> board = Board()
+    >>> king_square(board, WHITE) is E1
+    True
+    >>> king_square(board, BLACK) is E8
+    True
+    """
     ...
