@@ -7,7 +7,7 @@ import re
 board1 = Board.from_fen("8/p1p3p1/3p3p/1P5P/1PP1P1P1/8/8/8 w - - 0 1")
 board2 = Board.from_fen("4k3/2p3p1/1p2p2p/1P2P2P/1PP3P1/4P3/8/4K3 w - - 0 1")
 board3 = Board.from_fen("3k4/8/4p3/4P3/5PP1/8/8/3K4 w - - 0 1")
-board4 = Board.from_fen("8/8/7p/1P2Pp1P/2Pp1PP1/8/8/8 w - - 0 1")
+board4 = Board.from_fen("7k/8/7p/1P2Pp1P/2Pp1PP1/8/8/7K w - - 0 1")
 board5 = Board.from_fen("5rk1/1q1r1pbp/pp1p1np1/4p1B1/1PP1P3/2NQ1P2/P5PP/2RR2K1 w - - 9 22")
 board6 = Board.from_fen("8/5p2/8/4P3/8/8/5P2/8 w - - 0 1")
 

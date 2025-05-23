@@ -1,5 +1,3 @@
 Metadata-Version: 2.4
 Name: bulletchess
-Version: 0.1.0
-Summary: Bullet-speed chess core in C
-Dynamic: summary
+Version: 0.2.0

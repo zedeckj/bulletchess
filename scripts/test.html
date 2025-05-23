@@ -1,0 +1,149 @@
+<style>
+	.bulletchess-board {
+		all: unset;
+	}
+	.bulletchess-board *,
+	.bulletchess-board *::before,
+	.bulletchess-board *::after {
+  		all: unset;           
+	}
+	.bulletchess-board .lt {
+  		height: 50px;
+  		width: 50px;
+  		background-color: #F0D9B5;
+		text-align: center;
+		vertical-align: middle;
+	}
+	.bulletchess-board .dk {
+	  	height: 50px;
+  		width: 50px;
+  		background-color: #B58863;
+		text-align: center;
+		vertical-align: middle;
+	}
+	.bulletchess-board .row {
+		display: flex;
+	}
+	.bulletchess-board .wP {
+		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wP.svg");
+		
+	}
+	.bulletchess-board .wN {
+		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wN.svg");
+	}
+	.bulletchess-board .wB {
+		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wB.svg");
+	}
+	.bulletchess-board .wR {
+		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wR.svg");
+	}
+	.bulletchess-board .wQ {
+		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wQ.svg");
+	}
+	.bulletchess-board .wK {
+		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wK.svg");
+	}
+	.bulletchess-board .bP {
+		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bP.svg");
+	}
+	.bulletchess-board .bN {
+		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bN.svg");
+	}
+	.bulletchess-board .bB {
+		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bB.svg");
+	}
+	.bulletchess-board .bR {
+		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bR.svg");
+	}
+	.bulletchess-board .bQ {
+		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bQ.svg");
+	}
+	.bulletchess-board .bK {
+		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bK.svg");
+	}
+	
+</style>
+<div class ="bulletchess-board">
+	<div class = "row">
+		<div class = "lt">%s</div>		
+		<div class = "dk">%s</div>		
+		<div class = "lt">%s</div>		
+		<div class = "dk">%s</div>		
+		<div class = "lt">%s</div>		
+		<div class = "dk">%s</div>		
+		<div class = "lt">%s</div>		
+		<div class = "dk">%s</div>		
+	</div>
+	<div class = "row">
+		<div class = "dk">%s</div>		
+		<div class = "lt">%s</div>		
+		<div class = "dk">%s</div>		
+		<div class = "lt">%s</div>	
+		<div class = "dk">%s</div>		
+		<div class = "lt">%s</div>		
+		<div class = "dk">%s</div>		
+		<div class = "lt">%s</div>		
+	</div>
+	<div class = "row">
+		<div class = "lt">%s</div>		
+		<div class = "dk">%s</div>		
+		<div class = "lt">%s</div>		
+		<div class = "dk">%s</div>		
+		<div class = "lt">%s</div>		
+		<div class = "dk">%s</div>		
+		<div class = "lt">%s</div>		
+		<div class = "dk">%s</div>		
+	</div>
+	<div class = "row">
+		<div class = "dk">%s</div>		
+		<div class = "lt">%s</div>		
+		<div class = "dk">%s</div>		
+		<div class = "lt">%s</div>	
+		<div class = "dk">%s</div>		
+		<div class = "lt">%s</div>		
+		<div class = "dk">%s</div>		
+		<div class = "lt">%s</div>		
+	</div>
+
+<div class = "row">
+		<div class = "lt">%s</div>		
+		<div class = "dk">%s</div>		
+		<div class = "lt">%s</div>		
+		<div class = "dk">%s</div>		
+		<div class = "lt">%s</div>		
+		<div class = "dk">%s</div>		
+		<div class = "lt">%s</div>		
+		<div class = "dk">%s</div>		
+	</div>
+	<div class = "row">
+		<div class = "dk">%s</div>		
+		<div class = "lt">%s</div>		
+		<div class = "dk">%s</div>		
+		<div class = "lt">%s</div>	
+		<div class = "dk">%s</div>		
+		<div class = "lt">%s</div>		
+		<div class = "dk">%s</div>		
+		<div class = "lt">%s</div>		
+	</div>
+
+<div class = "row">
+		<div class = "lt">%s</div>		
+		<div class = "dk">%s</div>		
+		<div class = "lt">%s</div>		
+		<div class = "dk">%s</div>		
+		<div class = "lt">%s</div>		
+		<div class = "dk">%s</div>		
+		<div class = "lt">%s</div>		
+		<div class = "dk">%s</div>		
+	</div>
+	<div class = "row">
+		<div class = "dk">%s</div>		
+		<div class = "lt">%s</div>		
+		<div class = "dk">%s</div>		
+		<div class = "lt">%s</div>	
+		<div class = "dk">%s</div>		
+		<div class = "lt">%s</div>		
+		<div class = "dk">%s</div>		
+		<div class = "lt">%s</div>		
+	</div>
+</div>

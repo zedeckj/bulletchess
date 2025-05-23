@@ -1,7 +1,6 @@
 import unittest
 import sys
 from typing import Sequence
-sys.path.append("./")
 from bulletchess import *
 import re
 
@@ -50,6 +49,7 @@ class TestCastlingRights(unittest.TestCase):
         if len(string) == 0:
             string = "-"
         self.assertEqual(str(cr), string)
+        self.assertEqual(cr.fen(), string)
         self.assertEqual(repr(cr), f"<CastlingRights: \"{string}\">")
 
     def assert_contains(self, types_list : Sequence[CastlingType]):
@@ -65,6 +65,10 @@ class TestCastlingRights(unittest.TestCase):
         for cts in combinations:
             self.assert_contains(cts)
 
+    def test_iter(self):
+        self.assertEqual([WHITE_KINGSIDE, WHITE_QUEENSIDE, BLACK_KINGSIDE, BLACK_QUEENSIDE], list(ALL_CASTLING))
+        self.assertEqual([], list(NO_CASTLING))
+
     def test_compare(self):
         self.assertTrue(CastlingRights.from_fen("KQ") < CastlingRights.from_fen("KQkq"))
         self.assertTrue(CastlingRights.from_fen("KQ") <= CastlingRights.from_fen("KQkq"))
@@ -75,6 +79,15 @@ class TestCastlingRights(unittest.TestCase):
         self.assertTrue(CastlingRights.from_fen("KQkq") >= CastlingRights.from_fen("KQ"))
         self.assertTrue(CastlingRights.from_fen("KQkq") >= CastlingRights.from_fen("KQkq"))
         self.assertFalse(CastlingRights.from_fen("KQkq") > CastlingRights.from_fen("KQkq"))
+
+    def test_as_bool(self):
+        self.assertTrue(bool(ALL_CASTLING))
+        self.assertFalse(bool(NO_CASTLING))
+
+    def test_len(self):
+        self.assertEqual(len(ALL_CASTLING), 4)
+        self.assertEqual(len(NO_CASTLING), 0)
+        self.assertEqual(len(CastlingRights([WHITE_KINGSIDE])), 1)
 
     def test_compare_type(self):
         with self.assertRaises(TypeError):
@@ -251,3 +264,4 @@ class TestCastlingRights(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+    Board()

@@ -10,11 +10,6 @@ def count_moves(board : Board) -> int:
     """
     ...
 
-def set_random_seed(seed : Optional[int]) -> None:
-    ...
-
-
-
 def evaluate(board : Board):
     """
     A simple heuristic function for the utility of a :class:`Board`
@@ -69,6 +64,29 @@ def backwards_pawns(board : Board, color : Optional[Color] = None) -> Bitboard:
     - is behind all other friendly pawns in its own and adjacent files.
     - has no enemy pawn directly in front of it
     - can not advance without being attacked by an enemy pawn
+
+    Examples
+    --------
+    board = Board.from_fen("4k3/2p3p1/1p2p2p/1P2P2P/1PP3P1/4P3/8/4K3 w - - 0 1")
+    >>> print(board)
+    - - - - k - - - 
+    - - p - - - p - 
+    - p - - p - - p 
+    - P - - P - - P 
+    - P P - - - P - 
+    - - - - P - - - 
+    - - - - - - - - 
+    - - - - K - - - 
+
+    >>> print(backwards_pawns(board))
+    0 0 0 0 0 0 0 0 
+    0 0 1 0 0 0 1 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 1 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
     """
     ...
 
@@ -77,6 +95,28 @@ def isolated_pawns(board : Board, color : Optional[Color] = None) -> Bitboard:
     Returns a :class:`Bitboard` containing all :class:`Square` values with an isolated pawn for the given `Board`.
 
     An isolated pawn is defined as a pawn with no friendly pawns in adjacent files.  
+    Examples
+    --------
+    board = Board.from_fen("4k3/2p3p1/1p2p2p/1P2P2P/1PP3P1/4P3/8/4K3 w - - 0 1")
+    >>> print(board)
+    - - - - k - - - 
+    - - p - - - p - 
+    - p - - p - - p 
+    - P - - P - - P 
+    - P P - - - P - 
+    - - - - P - - - 
+    - - - - - - - - 
+    - - - - K - - - 
+
+    >>> print(isolated_pawns(board))
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 1 0 0 0 
+    0 0 0 0 1 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 1 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
     """
     ...
 
@@ -85,7 +125,28 @@ def doubled_pawns(board : Board, color : Optional[Color] = None) -> Bitboard:
     Returns a :class:`Bitboard` containing all :class:`Square` values with a passed pawn for the given `Board`.
 
     A doubled pawn is defined as a pawn with a friendly pawn in the same file.  
+    Examples
+    --------
+    board = Board.from_fen("4k3/2p3p1/1p2p2p/1P2P2P/1PP3P1/4P3/8/4K3 w - - 0 1")
+    >>> print(board)
+    - - - - k - - - 
+    - - p - - - p - 
+    - p - - p - - p 
+    - P - - P - - P 
+    - P P - - - P - 
+    - - - - P - - - 
+    - - - - - - - - 
+    - - - - K - - - 
 
+    >>> print(doubled_pawns(board))
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 1 0 0 1 0 0 0 
+    0 1 0 0 0 0 0 0 
+    0 0 0 0 1 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
     """
     ...
 
@@ -95,6 +156,28 @@ def passed_pawns(board : Board, color : Optional[Color] = None) -> Bitboard:
 
     A passed pawn is defined as a pawn with no enemy pawns in its file or adjacent files which can
     block it from advancing forward, ulitmately to promote.
+    Examples
+    --------
+    >>> board = Board.from_fen("7k/8/7p/1P2Pp1P/2Pp1PP1/8/8/7K w - - 0 1")
+    >>> print(board)
+    - - - - - - - k 
+    - - - - - - - - 
+    - - - - - - - p 
+    - P - - P p - P 
+    - - P p - P P - 
+    - - - - - - - - 
+    - - - - - - - - 
+    - - - - - - - K 
+
+    >>> print(passed_pawns(board))
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 1 0 0 1 0 0 0 
+    0 0 1 1 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
     """
     ...
 
@@ -103,14 +186,66 @@ def is_pinned(board : Board, square : Square) -> bool:
     Returns `True` if the given :class:`Square` has a piece which is pinned in the given :class:`Board`.
 
     A piece is considered pinned if it is not allowed to move at all, as doing so would place the moving player's king in check.
+
+    Examples
+    ---------
+    >>> board = Board.from_fen("rnbqk1nr/pppp1ppp/8/4p3/1b6/2NP4/PPP1PPPP/R1BQKBNR w KQkq - 1 3")
+    >>> print(board)
+    r n b q k - n r 
+    p p p p - p p p 
+    - - - - - - - - 
+    - - - - p - - - 
+    - b - - - - - - 
+    - - N P - - - - 
+    P P P - P P P P 
+    R - B Q K B N R 
+
+    >>> is_pinned(board, A1)
+    False
+    >>> is_pinned(board, D3)
+    False
+    >>> is_pinned(board, C3)
+    True
     """
     ...
-
-def reset_hashing() -> None: ...
 
 def attack_mask(board : Board, attacker : Color) -> Bitboard: 
     """
     Returns a :class:`Bitboard` of containing all :class:`Square` which are being attacked by the specified :class:`Color`. 
+
+    Examples
+    --------
+    >>> board = Board()
+    >>> print(attack_mask(board, WHITE))
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    1 1 1 1 1 1 1 1 
+    1 1 1 1 1 1 1 1 
+    0 1 1 1 1 1 1 0 
+
+    >>> board = Board.from_fen("7k/8/8/1r6/8/8/8/7K w - - 0 1")
+    >>> print(board)
+    - - - - - - - k 
+    - - - - - - - - 
+    - - - - - - - - 
+    - r - - - - - - 
+    - - - - - - - - 
+    - - - - - - - - 
+    - - - - - - - - 
+    - - - - - - - K 
+
+    >>> print(attack_mask(board, BLACK))
+    0 1 0 0 0 0 1 0 
+    0 1 0 0 0 0 1 1 
+    0 1 0 0 0 0 0 0 
+    1 0 1 1 1 1 1 1 
+    0 1 0 0 0 0 0 0 
+    0 1 0 0 0 0 0 0 
+    0 1 0 0 0 0 0 0 
+    0 1 0 0 0 0 0 0 
     """
     ...
 
@@ -137,12 +272,69 @@ def mobility(board : Board) -> int:
 def open_files(board : Board) -> Bitboard: 
     """
     Returns a :class:`Bitboard` of all files that have no pawns of either :class:`Color`.
+    
+    Examples
+    --------
+    >>> board = Board.from_fen("4k3/2p3p1/1p2p2p/1P2P2P/1PP3P1/4P3/8/4K3 w - - 0 1")
+    >>> print(board)
+    - - - - k - - - 
+    - - p - - - p - 
+    - p - - p - - p 
+    - P - - P - - P 
+    - P P - - - P - 
+    - - - - P - - - 
+    - - - - - - - - 
+    - - - - K - - - 
+
+    >>> print(open_files(board))
+    1 0 0 1 0 1 0 0 
+    1 0 0 1 0 1 0 0 
+    1 0 0 1 0 1 0 0 
+    1 0 0 1 0 1 0 0 
+    1 0 0 1 0 1 0 0 
+    1 0 0 1 0 1 0 0 
+    1 0 0 1 0 1 0 0 
+    1 0 0 1 0 1 0 0 
     """
     ...
 
 def half_open_files(board : Board, for_color : Color) -> Bitboard:
     """
-    Returns a :class:`Bitboard` of all files that have no pawns of the given :class:`Color`.
+    Returns a :class:`Bitboard` of all files that have no pawns of the given :class:`Color`, but do 
+    have pawns of the opposite :class:`Color.
+    
+    Examples
+    --------
+    >>> board = Board.from_fen("3k4/8/4p3/4P3/5PP1/8/8/3K4 w - - 0 1")
+    >>> print(board)
+    - - - k - - - - 
+    - - - - - - - - 
+    - - - - p - - - 
+    - - - - P - - - 
+    - - - - - P P - 
+    - - - - - - - - 
+    - - - - - - - - 
+    - - - K - - - - 
+
+    >>> print(half_open_files(board, WHITE))
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+    0 0 0 0 0 0 0 0 
+
+    >>> print(half_open_files(board, BLACK))
+    0 0 0 0 0 1 1 0 
+    0 0 0 0 0 1 1 0 
+    0 0 0 0 0 1 1 0 
+    0 0 0 0 0 1 1 0 
+    0 0 0 0 0 1 1 0 
+    0 0 0 0 0 1 1 0 
+    0 0 0 0 0 1 1 0 
+    0 0 0 0 0 1 1 0 
     """
     ...
 
@@ -151,6 +343,14 @@ def random_legal_move(board : Board) -> Optional[Move]:
     Returns a random legal :class:`Move` for the given :class:`Board`.
 
     This is much faster than `random.choice(board.legal_moves())`.
+
+    Examples
+    ---------
+    >>> board = Board()
+    >>> random_legal_move(board)
+    <Move: g1h3>
+    >>> random_legal_move(board)
+    <Move: d2d3>
     """
     ...
 
@@ -172,6 +372,7 @@ def random_board() -> Board:
     N - - - - N - - 
     P - - P P P - - 
     R - B - K - - - 
+
     >>> board2 = random_board()
     >>> print(board2)
     - - K - - - - - 
@@ -192,6 +393,15 @@ def legally_equal(board1 : Board, board2 : Board) -> bool:
     equivilant `CastlingRights`, and en-passant `Square` values.
 
     Unlike :func:`Board.__eq__`, does not check the halfmove clock and fullmove number. 
+    Examples
+    --------
+    >>> board = Board()
+    >>> board2 = Board()
+    >>> board.halfmove_clock = 10
+    >>> board == board2
+    False
+    >>> legally_equal(board, board2)
+    True
     """
     ...
 
@@ -202,6 +412,20 @@ def deeply_equal(board1 : Board, board2 : Board) -> bool:
     equivilant `CastlingRights`, and en-passant `Square` values, halfmove clocks, and fullmove numbers.
 
     This function has the same behavior as `board1 == board2 and board1.history == board2.history`, but is much faster.
+    
+    Examples
+    ---------
+    >>> board = Board()
+    >>> board2 = Board()
+    >>> board.apply(Move(E2, E4))
+    >>> board2[E2] = None
+    >>> board2[E4] = Piece(WHITE, PAWN)
+    >>> board2.turn = BLACK
+    >>> board2.en_passant_square = E3
+    >>> board == board2
+    True
+    >>> deeply_equal(board, board2)
+    False
     """
     ...
 
@@ -299,6 +523,7 @@ def black_bitboard(board : Board) -> Color:
     0 0 0 0 0 0 0 0 
     0 0 0 0 0 0 0 0 
     0 0 0 0 0 0 0 0 
+
     >>> bb == board[BLACK]
     True
     """
@@ -323,6 +548,7 @@ def king_bitboard(board : Board) -> Color:
     0 0 0 0 0 0 0 0 
     0 0 0 0 0 0 0 0 
     0 0 0 0 1 0 0 0 
+
     >>> bb == board[KING]
     True
     """
@@ -347,6 +573,7 @@ def queen_bitboard(board : Board) -> Color:
     0 0 0 0 0 0 0 0 
     0 0 0 0 0 0 0 0 
     0 0 0 1 0 0 0 0 
+
     >>> bb == board[QUEEN]
     True
     """
@@ -371,6 +598,7 @@ def bishop_bitboard(board : Board) -> Color:
     0 0 0 0 0 0 0 0 
     0 0 0 0 0 0 0 0 
     0 0 1 0 0 1 0 0 
+
     >>> bb == board[BISHOP]
     True
     """
@@ -420,6 +648,7 @@ def pawn_bitboard(board : Board) -> Color:
     0 0 0 0 0 0 0 0 
     1 1 1 1 1 1 1 1 
     0 0 0 0 0 0 0 0 
+
     >>> bb == board[PAWN]
     True
     """
