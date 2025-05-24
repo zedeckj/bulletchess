@@ -49,7 +49,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/walkthrough';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Main Documentation" href="../main.html" />
+    <link rel="next" title="Performance Comparisons" href="performance.html" />
     <link rel="prev" title="bulletchess" href="../index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -137,6 +137,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="performance.html">
+    Performance Comparisons
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../main.html">
     Main Documentation
   </a>
@@ -144,8 +151,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../performance.html">
-    Performance Comparisons
+  <a class="nav-link nav-internal" href="../utils.html">
+    Utilities
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../pgn.html">
+    Portable Game Notation
   </a>
 </li>
 
@@ -230,6 +244,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="performance.html">
+    Performance Comparisons
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../main.html">
     Main Documentation
   </a>
@@ -237,8 +258,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../performance.html">
-    Performance Comparisons
+  <a class="nav-link nav-internal" href="../utils.html">
+    Utilities
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../pgn.html">
+    Portable Game Notation
   </a>
 </li>
 
@@ -332,12 +360,182 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="basic-walkthrough">
 <span id="sphx-glr-auto-examples-walkthrough-py"></span><h1>Basic Walkthrough<a class="headerlink" href="#basic-walkthrough" title="Link to this heading">#</a></h1>
-<p>First, lets import everything from <a href="#id1"><span class="problematic" id="id2">:pkg:`bulletchess`</span></a></p>
+<p>First, lets import everything from <code class="docutils literal notranslate"><span class="pre">bulletchess</span></code></p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bulletchess</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
 </pre></div>
 </div>
 <p>The <code class="xref py py-func docutils literal notranslate"><span class="pre">Board()</span></code> constructor returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code> representing the starting position.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">board</span> <span class="o">=</span> <span class="n">Board</span><span class="p">()</span>
+<span class="n">board</span>
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<style>
+    .bulletchess-board {
+            all: unset;
+    }
+    .bulletchess-board *,
+    .bulletchess-board *::before,
+    .bulletchess-board *::after {
+            all: unset;
+    }
+    .bulletchess-board .lt {
+            height: 50px;
+            width: 50px;
+            background-color: #F0D9B5;
+            text-align: center;
+            vertical-align: middle;
+    }
+    .bulletchess-board .dk {
+            height: 50px;
+            width: 50px;
+            background-color: #B58863;
+            text-align: center;
+            vertical-align: middle;
+    }
+    .bulletchess-board .row {
+            display: flex;
+    }
+    .bulletchess-board .wP {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wP.svg");
+    }
+    .bulletchess-board .wN {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wN.svg");
+    }
+    .bulletchess-board .wB {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wB.svg");
+    }
+    .bulletchess-board .wR {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wR.svg");
+    }
+    .bulletchess-board .wQ {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wQ.svg");
+    }
+    .bulletchess-board .wK {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wK.svg");
+    }
+    .bulletchess-board .bP {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bP.svg");
+    }
+    .bulletchess-board .bN {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bN.svg");
+    }
+    .bulletchess-board .bB {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bB.svg");
+    }
+    .bulletchess-board .bR {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bR.svg");
+    }
+    .bulletchess-board .bQ {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bQ.svg");
+    }
+    .bulletchess-board .bK {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bK.svg");
+    }
+</style>
+<div class ="bulletchess-board">
+    <div class = "row">
+            <div class = "lt"><div class = "bR"></div></div>
+            <div class = "dk"><div class = "bN"></div></div>
+            <div class = "lt"><div class = "bB"></div></div>
+            <div class = "dk"><div class = "bQ"></div></div>
+            <div class = "lt"><div class = "bK"></div></div>
+            <div class = "dk"><div class = "bB"></div></div>
+            <div class = "lt"><div class = "bN"></div></div>
+            <div class = "dk"><div class = "bR"></div></div>
+    </div>
+    <div class = "row">
+            <div class = "dk"><div class = "bP"></div></div>
+            <div class = "lt"><div class = "bP"></div></div>
+            <div class = "dk"><div class = "bP"></div></div>
+            <div class = "lt"><div class = "bP"></div></div>
+            <div class = "dk"><div class = "bP"></div></div>
+            <div class = "lt"><div class = "bP"></div></div>
+            <div class = "dk"><div class = "bP"></div></div>
+            <div class = "lt"><div class = "bP"></div></div>
+    </div>
+    <div class = "row">
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+    </div>
+    <div class = "row">
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+    </div>
+<div class = "row">
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+    </div>
+    <div class = "row">
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+    </div>
+<div class = "row">
+            <div class = "lt"><div class = "wP"></div></div>
+            <div class = "dk"><div class = "wP"></div></div>
+            <div class = "lt"><div class = "wP"></div></div>
+            <div class = "dk"><div class = "wP"></div></div>
+            <div class = "lt"><div class = "wP"></div></div>
+            <div class = "dk"><div class = "wP"></div></div>
+            <div class = "lt"><div class = "wP"></div></div>
+            <div class = "dk"><div class = "wP"></div></div>
+    </div>
+    <div class = "row">
+            <div class = "dk"><div class = "wR"></div></div>
+            <div class = "lt"><div class = "wN"></div></div>
+            <div class = "dk"><div class = "wB"></div></div>
+            <div class = "lt"><div class = "wQ"></div></div>
+            <div class = "dk"><div class = "wK"></div></div>
+            <div class = "lt"><div class = "wB"></div></div>
+            <div class = "dk"><div class = "wN"></div></div>
+            <div class = "lt"><div class = "wR"></div></div>
+    </div>
+</div>
+
+</div>
+<br />
+<br /><p>the <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code> class defines <code class="xref py py-func docutils literal notranslate"><span class="pre">Board._repr_html_()</span></code>, which allows positions to be rendered
+like the above in Jupyter note books, or Sphinx documenation like this page.
+For displaying a <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code> as plain text, we use <code class="xref py py-func docutils literal notranslate"><span class="pre">Board.__str__()</span></code></p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">board</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>r n b q k b n r
+p p p p p p p p
+- - - - - - - -
+- - - - - - - -
+- - - - - - - -
+- - - - - - - -
+P P P P P P P P
+R N B Q K B N R
+</pre></div>
+</div>
+<p>Other positions can be specified by either using <code class="xref py py-func docutils literal notranslate"><span class="pre">Board.from_fen()</span></code>. When rendering a <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code> as HTML, the side to move is always oriented on the bottom.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">board</span> <span class="o">=</span> <span class="n">Board</span><span class="o">.</span><span class="n">from_fen</span><span class="p">(</span><span class="s2">&quot;rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2&quot;</span><span class="p">)</span>
 <span class="n">board</span>
 </pre></div>
 </div>
@@ -413,7 +611,7 @@ to download the full example code.</p>
             <div class = "dk"><div class = "wQ"></div></div>
             <div class = "lt"><div class = "wK"></div></div>
             <div class = "dk"><div class = "wB"></div></div>
-            <div class = "lt"><div class = "wN"></div></div>
+            <div class = "lt"></div>
             <div class = "dk"><div class = "wR"></div></div>
     </div>
     <div class = "row">
@@ -421,7 +619,7 @@ to download the full example code.</p>
             <div class = "lt"><div class = "wP"></div></div>
             <div class = "dk"><div class = "wP"></div></div>
             <div class = "lt"><div class = "wP"></div></div>
-            <div class = "dk"><div class = "wP"></div></div>
+            <div class = "dk"></div>
             <div class = "lt"><div class = "wP"></div></div>
             <div class = "dk"><div class = "wP"></div></div>
             <div class = "lt"><div class = "wP"></div></div>
@@ -432,7 +630,7 @@ to download the full example code.</p>
             <div class = "lt"></div>
             <div class = "dk"></div>
             <div class = "lt"></div>
-            <div class = "dk"></div>
+            <div class = "dk"><div class = "wN"></div></div>
             <div class = "lt"></div>
             <div class = "dk"></div>
     </div>
@@ -441,7 +639,7 @@ to download the full example code.</p>
             <div class = "lt"></div>
             <div class = "dk"></div>
             <div class = "lt"></div>
-            <div class = "dk"></div>
+            <div class = "dk"><div class = "wP"></div></div>
             <div class = "lt"></div>
             <div class = "dk"></div>
             <div class = "lt"></div>
@@ -449,7 +647,7 @@ to download the full example code.</p>
 <div class = "row">
             <div class = "lt"></div>
             <div class = "dk"></div>
-            <div class = "lt"></div>
+            <div class = "lt"><div class = "bP"></div></div>
             <div class = "dk"></div>
             <div class = "lt"></div>
             <div class = "dk"></div>
@@ -469,7 +667,7 @@ to download the full example code.</p>
 <div class = "row">
             <div class = "lt"><div class = "bP"></div></div>
             <div class = "dk"><div class = "bP"></div></div>
-            <div class = "lt"><div class = "bP"></div></div>
+            <div class = "lt"></div>
             <div class = "dk"><div class = "bP"></div></div>
             <div class = "lt"><div class = "bP"></div></div>
             <div class = "dk"><div class = "bP"></div></div>
@@ -490,37 +688,161 @@ to download the full example code.</p>
 
 </div>
 <br />
-<br /><p>Other positions can be specified by either using <code class="xref py py-func docutils literal notranslate"><span class="pre">Board.from_fen()</span></code>.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">board</span> <span class="o">=</span> <span class="n">Board</span><span class="o">.</span><span class="n">from_fen</span><span class="p">(</span><span class="s2">&quot;rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>r n b q k b n r
-p p - p p p p p
-- - - - - - - -
-- - p - - - - -
-- - - - P - - -
-- - - - - N - -
-P P P P - P P P
-R N B Q K B - R
-</pre></div>
-</div>
-<p>Or by assigning <code class="xref py py-class docutils literal notranslate"><span class="pre">Piece</span></code> locations manually. We can use <code class="xref py py-func docutils literal notranslate"><span class="pre">Board.empty()</span></code> to start from a clean slate.</p>
+<br /><p>Or by assigning <code class="xref py py-class docutils literal notranslate"><span class="pre">Piece</span></code> locations manually. We can use <code class="xref py py-func docutils literal notranslate"><span class="pre">Board.empty()</span></code> to start from a clean slate.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">board</span> <span class="o">=</span> <span class="n">Board</span><span class="o">.</span><span class="n">empty</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+<span class="n">board</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>- - - - - - - -
-- - - - - - - -
-- - - - - - - -
-- - - - - - - -
-- - - - - - - -
-- - - - - - - -
-- - - - - - - -
-- - - - - - - -
-</pre></div>
+<div class="output_subarea output_html rendered_html output_result">
+<style>
+    .bulletchess-board {
+            all: unset;
+    }
+    .bulletchess-board *,
+    .bulletchess-board *::before,
+    .bulletchess-board *::after {
+            all: unset;
+    }
+    .bulletchess-board .lt {
+            height: 50px;
+            width: 50px;
+            background-color: #F0D9B5;
+            text-align: center;
+            vertical-align: middle;
+    }
+    .bulletchess-board .dk {
+            height: 50px;
+            width: 50px;
+            background-color: #B58863;
+            text-align: center;
+            vertical-align: middle;
+    }
+    .bulletchess-board .row {
+            display: flex;
+    }
+    .bulletchess-board .wP {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wP.svg");
+    }
+    .bulletchess-board .wN {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wN.svg");
+    }
+    .bulletchess-board .wB {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wB.svg");
+    }
+    .bulletchess-board .wR {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wR.svg");
+    }
+    .bulletchess-board .wQ {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wQ.svg");
+    }
+    .bulletchess-board .wK {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wK.svg");
+    }
+    .bulletchess-board .bP {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bP.svg");
+    }
+    .bulletchess-board .bN {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bN.svg");
+    }
+    .bulletchess-board .bB {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bB.svg");
+    }
+    .bulletchess-board .bR {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bR.svg");
+    }
+    .bulletchess-board .bQ {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bQ.svg");
+    }
+    .bulletchess-board .bK {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bK.svg");
+    }
+</style>
+<div class ="bulletchess-board">
+    <div class = "row">
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+    </div>
+    <div class = "row">
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+    </div>
+    <div class = "row">
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+    </div>
+    <div class = "row">
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+    </div>
+<div class = "row">
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+    </div>
+    <div class = "row">
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+    </div>
+<div class = "row">
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+    </div>
+    <div class = "row">
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+    </div>
 </div>
-<p>And then assign a <code class="xref py py-class docutils literal notranslate"><span class="pre">Piece</span></code> to each <code class="xref py py-class docutils literal notranslate"><span class="pre">Square</span></code>.</p>
+
+</div>
+<br />
+<br /><p>And then assign a <code class="xref py py-class docutils literal notranslate"><span class="pre">Piece</span></code> to each <code class="xref py py-class docutils literal notranslate"><span class="pre">Square</span></code>.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">board</span><span class="p">[</span><span class="n">G2</span><span class="p">]</span> <span class="o">=</span> <span class="n">Piece</span><span class="p">(</span><span class="n">WHITE</span><span class="p">,</span> <span class="n">KING</span><span class="p">)</span>
 <span class="n">board</span><span class="p">[</span><span class="n">F2</span><span class="p">]</span> <span class="o">=</span> <span class="n">Piece</span><span class="p">(</span><span class="n">WHITE</span><span class="p">,</span> <span class="n">PAWN</span><span class="p">)</span>
 <span class="n">board</span><span class="p">[</span><span class="n">G3</span><span class="p">]</span> <span class="o">=</span> <span class="n">Piece</span><span class="p">(</span><span class="n">WHITE</span><span class="p">,</span> <span class="n">PAWN</span><span class="p">)</span>
@@ -532,79 +854,173 @@ R N B Q K B - R
 <span class="n">board</span><span class="p">[</span><span class="n">F6</span><span class="p">]</span> <span class="o">=</span> <span class="n">Piece</span><span class="p">(</span><span class="n">BLACK</span><span class="p">,</span> <span class="n">PAWN</span><span class="p">)</span>
 <span class="n">board</span><span class="p">[</span><span class="n">G7</span><span class="p">]</span> <span class="o">=</span> <span class="n">Piece</span><span class="p">(</span><span class="n">BLACK</span><span class="p">,</span> <span class="n">PAWN</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+<span class="n">board</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>- - - - - - - -
-- - - r - k p -
-- - - - - p - -
-- - - - - - - -
-- - - - - - - -
-- R - - - - P -
-- - - - - P K P
-- - - - - - - -
-</pre></div>
+<div class="output_subarea output_html rendered_html output_result">
+<style>
+    .bulletchess-board {
+            all: unset;
+    }
+    .bulletchess-board *,
+    .bulletchess-board *::before,
+    .bulletchess-board *::after {
+            all: unset;
+    }
+    .bulletchess-board .lt {
+            height: 50px;
+            width: 50px;
+            background-color: #F0D9B5;
+            text-align: center;
+            vertical-align: middle;
+    }
+    .bulletchess-board .dk {
+            height: 50px;
+            width: 50px;
+            background-color: #B58863;
+            text-align: center;
+            vertical-align: middle;
+    }
+    .bulletchess-board .row {
+            display: flex;
+    }
+    .bulletchess-board .wP {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wP.svg");
+    }
+    .bulletchess-board .wN {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wN.svg");
+    }
+    .bulletchess-board .wB {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wB.svg");
+    }
+    .bulletchess-board .wR {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wR.svg");
+    }
+    .bulletchess-board .wQ {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wQ.svg");
+    }
+    .bulletchess-board .wK {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wK.svg");
+    }
+    .bulletchess-board .bP {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bP.svg");
+    }
+    .bulletchess-board .bN {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bN.svg");
+    }
+    .bulletchess-board .bB {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bB.svg");
+    }
+    .bulletchess-board .bR {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bR.svg");
+    }
+    .bulletchess-board .bQ {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bQ.svg");
+    }
+    .bulletchess-board .bK {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bK.svg");
+    }
+</style>
+<div class ="bulletchess-board">
+    <div class = "row">
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+    </div>
+    <div class = "row">
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"><div class = "bR"></div></div>
+            <div class = "dk"></div>
+            <div class = "lt"><div class = "bK"></div></div>
+            <div class = "dk"><div class = "bP"></div></div>
+            <div class = "lt"></div>
+    </div>
+    <div class = "row">
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"><div class = "bP"></div></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+    </div>
+    <div class = "row">
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+    </div>
+<div class = "row">
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+    </div>
+    <div class = "row">
+            <div class = "dk"></div>
+            <div class = "lt"><div class = "wR"></div></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"><div class = "wP"></div></div>
+            <div class = "lt"></div>
+    </div>
+<div class = "row">
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"><div class = "wP"></div></div>
+            <div class = "lt"><div class = "wK"></div></div>
+            <div class = "dk"><div class = "wP"></div></div>
+    </div>
+    <div class = "row">
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+    </div>
 </div>
-<p>We can get the FEN of this position with <code class="xref py py-func docutils literal notranslate"><span class="pre">Board.fen()</span></code>. We might want to set the halfmove clock
+
+</div>
+<br />
+<br /><p>We can get the FEN of this position with <code class="xref py py-func docutils literal notranslate"><span class="pre">Board.fen()</span></code>. We might want to set the halfmove clock
 and fullmove number for this endgame position. Let’s also make it black’s turn.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">board</span><span class="o">.</span><span class="n">halfmove_clock</span> <span class="o">=</span> <span class="mi">3</span>
 <span class="n">board</span><span class="o">.</span><span class="n">fullmove_number</span> <span class="o">=</span> <span class="mi">43</span>
 <span class="n">board</span><span class="o">.</span><span class="n">turn</span> <span class="o">=</span> <span class="n">BLACK</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="n">board</span><span class="o">.</span><span class="n">fen</span><span class="p">())</span>
+<span class="n">board</span><span class="o">.</span><span class="n">fen</span><span class="p">()</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>8/3r1kp1/5p2/8/8/1R4P1/5PKP/8 b - - 3 43
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;8/3r1kp1/5p2/8/8/1R4P1/5PKP/8 b - - 3 43&#39;
 </pre></div>
 </div>
-<p>For a nicer view of a position, we can use <code class="xref py py-func docutils literal notranslate"><span class="pre">Board.pretty()</span></code>.
-Lets try some different <code class="xref py py-class docutils literal notranslate"><span class="pre">Board.ColorScheme</span></code> options too.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">board</span><span class="o">.</span><span class="n">pretty</span><span class="p">())</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">board</span><span class="o">.</span><span class="n">pretty</span><span class="p">(</span><span class="n">Board</span><span class="o">.</span><span class="n">SLATE</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">board</span><span class="o">.</span><span class="n">pretty</span><span class="p">(</span><span class="n">Board</span><span class="o">.</span><span class="n">GREEN</span><span class="p">))</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>    ♜   ♚ ♟
-        ♟
-
-
-♖         ♙
-        ♙ ♔ ♙
-
-
-
-    ♜   ♚ ♟
-        ♟
-
-
-♖         ♙
-        ♙ ♔ ♙
-
-
-
-    ♜   ♚ ♟
-        ♟
-
-
-♖         ♙
-        ♙ ♔ ♙
-</pre></div>
-</div>
-<p>We can also use <code class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code> objects to highlight difference squares.
-This can be used for example in order to show a <code class="xref py py-class docutils literal notranslate"><span class="pre">Piece</span></code>’s possible moves.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">board</span><span class="o">.</span><span class="n">pretty</span><span class="p">(</span><span class="n">board</span><span class="o">.</span><span class="n">WALNUT</span><span class="p">,</span> <span class="n">highlighted_squares</span><span class="o">=</span> <span class="n">G7</span><span class="o">.</span><span class="n">bb</span><span class="p">(),</span> <span class="n">targeted_squares</span><span class="o">=</span> <span class="n">Bitboard</span><span class="p">([</span><span class="n">G6</span><span class="p">,</span> <span class="n">G5</span><span class="p">])))</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>    ♜   ♚ ♟
-        ♟  •
-           •
-
-♖         ♙
-        ♙ ♔ ♙
-</pre></div>
-</div>
-<p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code> is an efficient representation of a set of <code class="xref py py-class docutils literal notranslate"><span class="pre">Square</span></code> values. Indexing a <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code>
-with a <code class="xref py py-class docutils literal notranslate"><span class="pre">Color</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">PieceType</span></code>, or both returns <code class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code> of squares with the relevant kind of <code class="xref py py-class docutils literal notranslate"><span class="pre">Piece</span></code>.</p>
+<p>Indexing a <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code> with a <code class="xref py py-class docutils literal notranslate"><span class="pre">Color</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">PieceType</span></code>, or both returns <code class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code>
+of squares with the relevant kind of <code class="xref py py-class docutils literal notranslate"><span class="pre">Piece</span></code>. A <code class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code> is simply an efficient representation
+of a set of squares.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">board</span><span class="p">[</span><span class="n">WHITE</span><span class="p">])</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">board</span><span class="p">[</span><span class="n">ROOK</span><span class="p">])</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">board</span><span class="p">[</span><span class="n">BLACK</span><span class="p">,</span> <span class="n">PAWN</span><span class="p">])</span>
@@ -650,69 +1066,491 @@ with a <code class="xref py py-class docutils literal notranslate"><span class="
 Moves can be created manually with the <code class="xref py py-func docutils literal notranslate"><span class="pre">Move()</span></code> constructor.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">selected_move</span> <span class="o">=</span> <span class="n">Move</span><span class="p">(</span><span class="n">D7</span><span class="p">,</span> <span class="n">D3</span><span class="p">)</span>
 <span class="n">board</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">selected_move</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">board</span><span class="o">.</span><span class="n">pretty</span><span class="p">())</span>
+<span class="n">board</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>        ♚ ♟
-        ♟
-
-
-♖   ♜     ♙
-        ♙ ♔ ♙
-</pre></div>
+<div class="output_subarea output_html rendered_html output_result">
+<style>
+    .bulletchess-board {
+            all: unset;
+    }
+    .bulletchess-board *,
+    .bulletchess-board *::before,
+    .bulletchess-board *::after {
+            all: unset;
+    }
+    .bulletchess-board .lt {
+            height: 50px;
+            width: 50px;
+            background-color: #F0D9B5;
+            text-align: center;
+            vertical-align: middle;
+    }
+    .bulletchess-board .dk {
+            height: 50px;
+            width: 50px;
+            background-color: #B58863;
+            text-align: center;
+            vertical-align: middle;
+    }
+    .bulletchess-board .row {
+            display: flex;
+    }
+    .bulletchess-board .wP {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wP.svg");
+    }
+    .bulletchess-board .wN {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wN.svg");
+    }
+    .bulletchess-board .wB {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wB.svg");
+    }
+    .bulletchess-board .wR {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wR.svg");
+    }
+    .bulletchess-board .wQ {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wQ.svg");
+    }
+    .bulletchess-board .wK {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wK.svg");
+    }
+    .bulletchess-board .bP {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bP.svg");
+    }
+    .bulletchess-board .bN {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bN.svg");
+    }
+    .bulletchess-board .bB {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bB.svg");
+    }
+    .bulletchess-board .bR {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bR.svg");
+    }
+    .bulletchess-board .bQ {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bQ.svg");
+    }
+    .bulletchess-board .bK {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bK.svg");
+    }
+</style>
+<div class ="bulletchess-board">
+    <div class = "row">
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+    </div>
+    <div class = "row">
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"><div class = "bK"></div></div>
+            <div class = "dk"><div class = "bP"></div></div>
+            <div class = "lt"></div>
+    </div>
+    <div class = "row">
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"><div class = "bP"></div></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+    </div>
+    <div class = "row">
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+    </div>
+<div class = "row">
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+    </div>
+    <div class = "row">
+            <div class = "dk"></div>
+            <div class = "lt"><div class = "wR"></div></div>
+            <div class = "dk"></div>
+            <div class = "lt"><div class = "bR"></div></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"><div class = "wP"></div></div>
+            <div class = "lt"></div>
+    </div>
+<div class = "row">
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"><div class = "wP"></div></div>
+            <div class = "lt"><div class = "wK"></div></div>
+            <div class = "dk"><div class = "wP"></div></div>
+    </div>
+    <div class = "row">
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+    </div>
 </div>
-<p>Oh, but that was a blunder. moves can be undone with <cite>Board.undo()</cite>, which returns
+
+</div>
+<br />
+<br /><p>Oh, but that was a blunder. moves can be undone with <cite>Board.undo()</cite>, which returns
 the last <code class="xref py py-class docutils literal notranslate"><span class="pre">Move</span></code> applied. Getting the <cite>str</cite> of a <code class="xref py py-class docutils literal notranslate"><span class="pre">Move</span></code> renders the move
 in UCI long algebraic notation.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Undoing &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">board</span><span class="o">.</span><span class="n">undo</span><span class="p">()))</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">board</span><span class="o">.</span><span class="n">pretty</span><span class="p">())</span>
+<span class="n">board</span>
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Undoing d7d3
-
-      ♜   ♚ ♟
-          ♟
-
-
-  ♖         ♙
-          ♙ ♔ ♙
 </pre></div>
 </div>
-<p>Lets run the game through for a bit. Moves can also be constructed from UCI or standard algebraic notation.</p>
+<div class="output_subarea output_html rendered_html output_result">
+<style>
+    .bulletchess-board {
+            all: unset;
+    }
+    .bulletchess-board *,
+    .bulletchess-board *::before,
+    .bulletchess-board *::after {
+            all: unset;
+    }
+    .bulletchess-board .lt {
+            height: 50px;
+            width: 50px;
+            background-color: #F0D9B5;
+            text-align: center;
+            vertical-align: middle;
+    }
+    .bulletchess-board .dk {
+            height: 50px;
+            width: 50px;
+            background-color: #B58863;
+            text-align: center;
+            vertical-align: middle;
+    }
+    .bulletchess-board .row {
+            display: flex;
+    }
+    .bulletchess-board .wP {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wP.svg");
+    }
+    .bulletchess-board .wN {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wN.svg");
+    }
+    .bulletchess-board .wB {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wB.svg");
+    }
+    .bulletchess-board .wR {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wR.svg");
+    }
+    .bulletchess-board .wQ {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wQ.svg");
+    }
+    .bulletchess-board .wK {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wK.svg");
+    }
+    .bulletchess-board .bP {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bP.svg");
+    }
+    .bulletchess-board .bN {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bN.svg");
+    }
+    .bulletchess-board .bB {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bB.svg");
+    }
+    .bulletchess-board .bR {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bR.svg");
+    }
+    .bulletchess-board .bQ {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bQ.svg");
+    }
+    .bulletchess-board .bK {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bK.svg");
+    }
+</style>
+<div class ="bulletchess-board">
+    <div class = "row">
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+    </div>
+    <div class = "row">
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"><div class = "wP"></div></div>
+            <div class = "dk"><div class = "wK"></div></div>
+            <div class = "lt"><div class = "wP"></div></div>
+    </div>
+    <div class = "row">
+            <div class = "lt"></div>
+            <div class = "dk"><div class = "wR"></div></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"><div class = "wP"></div></div>
+            <div class = "dk"></div>
+    </div>
+    <div class = "row">
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+    </div>
+<div class = "row">
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+    </div>
+    <div class = "row">
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"><div class = "bP"></div></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+    </div>
+<div class = "row">
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"><div class = "bR"></div></div>
+            <div class = "lt"></div>
+            <div class = "dk"><div class = "bK"></div></div>
+            <div class = "lt"><div class = "bP"></div></div>
+            <div class = "dk"></div>
+    </div>
+    <div class = "row">
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+    </div>
+</div>
+
+</div>
+<br />
+<br /><p>Lets run the game through for a bit. Moves can also be constructed from UCI or standard algebraic notation.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">board</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">Move</span><span class="o">.</span><span class="n">from_san</span><span class="p">(</span><span class="s2">&quot;g5&quot;</span><span class="p">,</span> <span class="n">board</span><span class="p">))</span>
 <span class="n">board</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">Move</span><span class="o">.</span><span class="n">from_uci</span><span class="p">(</span><span class="s2">&quot;h2h4&quot;</span><span class="p">))</span>
 <span class="n">board</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">Move</span><span class="p">(</span><span class="n">G5</span><span class="p">,</span> <span class="n">H4</span><span class="p">))</span>
 <span class="n">board</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">Move</span><span class="p">(</span><span class="n">G3</span><span class="p">,</span> <span class="n">H4</span><span class="p">))</span>
 <span class="n">board</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">Move</span><span class="o">.</span><span class="n">from_san</span><span class="p">(</span><span class="s2">&quot;Kg7&quot;</span><span class="p">,</span> <span class="n">board</span><span class="p">))</span>
 <span class="n">board</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">Move</span><span class="o">.</span><span class="n">from_san</span><span class="p">(</span><span class="s2">&quot;Rg3&quot;</span><span class="p">,</span> <span class="n">board</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">board</span><span class="o">.</span><span class="n">pretty</span><span class="p">())</span>
+<span class="n">board</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>♜     ♚
-    ♟
+<div class="output_subarea output_html rendered_html output_result">
+<style>
+    .bulletchess-board {
+            all: unset;
+    }
+    .bulletchess-board *,
+    .bulletchess-board *::before,
+    .bulletchess-board *::after {
+            all: unset;
+    }
+    .bulletchess-board .lt {
+            height: 50px;
+            width: 50px;
+            background-color: #F0D9B5;
+            text-align: center;
+            vertical-align: middle;
+    }
+    .bulletchess-board .dk {
+            height: 50px;
+            width: 50px;
+            background-color: #B58863;
+            text-align: center;
+            vertical-align: middle;
+    }
+    .bulletchess-board .row {
+            display: flex;
+    }
+    .bulletchess-board .wP {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wP.svg");
+    }
+    .bulletchess-board .wN {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wN.svg");
+    }
+    .bulletchess-board .wB {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wB.svg");
+    }
+    .bulletchess-board .wR {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wR.svg");
+    }
+    .bulletchess-board .wQ {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wQ.svg");
+    }
+    .bulletchess-board .wK {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wK.svg");
+    }
+    .bulletchess-board .bP {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bP.svg");
+    }
+    .bulletchess-board .bN {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bN.svg");
+    }
+    .bulletchess-board .bB {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bB.svg");
+    }
+    .bulletchess-board .bR {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bR.svg");
+    }
+    .bulletchess-board .bQ {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bQ.svg");
+    }
+    .bulletchess-board .bK {
+            content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bK.svg");
+    }
+</style>
+<div class ="bulletchess-board">
+    <div class = "row">
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+    </div>
+    <div class = "row">
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"><div class = "wP"></div></div>
+            <div class = "dk"><div class = "wK"></div></div>
+            <div class = "lt"></div>
+    </div>
+    <div class = "row">
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"><div class = "wR"></div></div>
+            <div class = "dk"></div>
+    </div>
+    <div class = "row">
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"><div class = "wP"></div></div>
+    </div>
+<div class = "row">
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+    </div>
+    <div class = "row">
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"><div class = "bP"></div></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+    </div>
+<div class = "row">
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"><div class = "bR"></div></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"><div class = "bK"></div></div>
+            <div class = "dk"></div>
+    </div>
+    <div class = "row">
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+            <div class = "dk"></div>
+            <div class = "lt"></div>
+    </div>
+</div>
 
-        ♙
-      ♖
-    ♙ ♔
-</pre></div>
 </div>
-<p>Black exposed their king, and is now in check.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">board</span> <span class="ow">in</span> <span class="n">CHECK</span><span class="p">)</span>
+<br />
+<br /><p>Black exposed their king, and is now in check.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">board</span> <span class="ow">in</span> <span class="n">CHECK</span>
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>True
 </pre></div>
 </div>
 <p>But the game is still ongoing.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">board</span> <span class="ow">in</span> <span class="n">CHECKMATE</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">board</span> <span class="ow">in</span> <span class="n">DRAW</span><span class="p">)</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">board</span> <span class="ow">in</span> <span class="n">CHECKMATE</span> <span class="ow">or</span> <span class="n">board</span> <span class="ow">in</span> <span class="n">DRAW</span>
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>False
-False
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.332 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.004 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-walkthrough-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/28217d2df47e45e64172a3d73d2f2d10/walkthrough.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">walkthrough.ipynb</span></code></a></p>
@@ -747,11 +1585,11 @@ False
       </div>
     </a>
     <a class="right-next"
-       href="../main.html"
+       href="performance.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Main Documentation</p>
+        <p class="prev-next-title">Performance Comparisons</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

@@ -34,7 +34,10 @@ void board_html(full_board_t *board, char * buffer){{
 	position_t *pos = board->position;
 	const char *template = {template};
 	{declarations}
-	sprintf(buffer, template, {args}); 
+	if (board->turn == WHITE_VAL) 
+		sprintf(buffer, template, {args}); 
+	else
+		sprintf(buffer, template, {args2}); 
 }}
 
 

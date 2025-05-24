@@ -21,7 +21,7 @@
 Basic Walkthrough
 =================
 
-First, lets import everything from :pkg:`bulletchess`
+First, lets import everything from ``bulletchess``
 
 .. GENERATED FROM PYTHON SOURCE LINES 7-10
 
@@ -123,24 +123,24 @@ The :func:`Board()` constructor returns a :class:`Board` representing the starti
     </style>
     <div class ="bulletchess-board">
     	<div class = "row">
-    		<div class = "lt"><div class = "wR"></div></div>
-    		<div class = "dk"><div class = "wN"></div></div>
-    		<div class = "lt"><div class = "wB"></div></div>
-    		<div class = "dk"><div class = "wQ"></div></div>
-    		<div class = "lt"><div class = "wK"></div></div>
-    		<div class = "dk"><div class = "wB"></div></div>
-    		<div class = "lt"><div class = "wN"></div></div>
-    		<div class = "dk"><div class = "wR"></div></div>
+    		<div class = "lt"><div class = "bR"></div></div>
+    		<div class = "dk"><div class = "bN"></div></div>
+    		<div class = "lt"><div class = "bB"></div></div>
+    		<div class = "dk"><div class = "bQ"></div></div>
+    		<div class = "lt"><div class = "bK"></div></div>
+    		<div class = "dk"><div class = "bB"></div></div>
+    		<div class = "lt"><div class = "bN"></div></div>
+    		<div class = "dk"><div class = "bR"></div></div>
     	</div>
     	<div class = "row">
-    		<div class = "dk"><div class = "wP"></div></div>
-    		<div class = "lt"><div class = "wP"></div></div>
-    		<div class = "dk"><div class = "wP"></div></div>
-    		<div class = "lt"><div class = "wP"></div></div>
-    		<div class = "dk"><div class = "wP"></div></div>
-    		<div class = "lt"><div class = "wP"></div></div>
-    		<div class = "dk"><div class = "wP"></div></div>
-    		<div class = "lt"><div class = "wP"></div></div>
+    		<div class = "dk"><div class = "bP"></div></div>
+    		<div class = "lt"><div class = "bP"></div></div>
+    		<div class = "dk"><div class = "bP"></div></div>
+    		<div class = "lt"><div class = "bP"></div></div>
+    		<div class = "dk"><div class = "bP"></div></div>
+    		<div class = "lt"><div class = "bP"></div></div>
+    		<div class = "dk"><div class = "bP"></div></div>
+    		<div class = "lt"><div class = "bP"></div></div>
     	</div>
     	<div class = "row">
     		<div class = "lt"></div>
@@ -166,6 +166,210 @@ The :func:`Board()` constructor returns a :class:`Board` representing the starti
     		<div class = "lt"></div>
     		<div class = "dk"></div>
     		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    	</div>
+    	<div class = "row">
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    	</div>
+    <div class = "row">
+    		<div class = "lt"><div class = "wP"></div></div>
+    		<div class = "dk"><div class = "wP"></div></div>
+    		<div class = "lt"><div class = "wP"></div></div>
+    		<div class = "dk"><div class = "wP"></div></div>
+    		<div class = "lt"><div class = "wP"></div></div>
+    		<div class = "dk"><div class = "wP"></div></div>
+    		<div class = "lt"><div class = "wP"></div></div>
+    		<div class = "dk"><div class = "wP"></div></div>
+    	</div>
+    	<div class = "row">
+    		<div class = "dk"><div class = "wR"></div></div>
+    		<div class = "lt"><div class = "wN"></div></div>
+    		<div class = "dk"><div class = "wB"></div></div>
+    		<div class = "lt"><div class = "wQ"></div></div>
+    		<div class = "dk"><div class = "wK"></div></div>
+    		<div class = "lt"><div class = "wB"></div></div>
+    		<div class = "dk"><div class = "wN"></div></div>
+    		<div class = "lt"><div class = "wR"></div></div>
+    	</div>
+    </div>
+
+    </div>
+    <br />
+    <br />
+
+.. GENERATED FROM PYTHON SOURCE LINES 18-21
+
+the :class:`Board` class defines :func:`Board._repr_html_()`, which allows positions to be rendered
+like the above in Jupyter note books, or Sphinx documenation like this page.
+For displaying a :class:`Board` as plain text, we use :func:`Board.__str__()`
+
+.. GENERATED FROM PYTHON SOURCE LINES 21-24
+
+.. code-block:: Python
+
+
+    print(str(board))
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    r n b q k b n r 
+    p p p p p p p p 
+    - - - - - - - - 
+    - - - - - - - - 
+    - - - - - - - - 
+    - - - - - - - - 
+    P P P P P P P P 
+    R N B Q K B N R 
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 25-26
+
+Other positions can be specified by either using :func:`Board.from_fen()`. When rendering a :class:`Board` as HTML, the side to move is always oriented on the bottom. 
+
+.. GENERATED FROM PYTHON SOURCE LINES 26-30
+
+.. code-block:: Python
+
+
+    board = Board.from_fen("rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2")
+    board
+
+
+
+
+
+
+.. raw:: html
+
+    <div class="output_subarea output_html rendered_html output_result">
+    <style>
+    	.bulletchess-board {
+    		all: unset;
+    	}
+    	.bulletchess-board *,
+    	.bulletchess-board *::before,
+    	.bulletchess-board *::after {
+      		all: unset;
+    	}
+    	.bulletchess-board .lt {
+      		height: 50px;
+      		width: 50px;
+      		background-color: #F0D9B5;
+    		text-align: center;
+    		vertical-align: middle;
+    	}
+    	.bulletchess-board .dk {
+    	  	height: 50px;
+      		width: 50px;
+      		background-color: #B58863;
+    		text-align: center;
+    		vertical-align: middle;
+    	}
+    	.bulletchess-board .row {
+    		display: flex;
+    	}
+    	.bulletchess-board .wP {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wP.svg");
+    	}
+    	.bulletchess-board .wN {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wN.svg");
+    	}
+    	.bulletchess-board .wB {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wB.svg");
+    	}
+    	.bulletchess-board .wR {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wR.svg");
+    	}
+    	.bulletchess-board .wQ {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wQ.svg");
+    	}
+    	.bulletchess-board .wK {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wK.svg");
+    	}
+    	.bulletchess-board .bP {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bP.svg");
+    	}
+    	.bulletchess-board .bN {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bN.svg");
+    	}
+    	.bulletchess-board .bB {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bB.svg");
+    	}
+    	.bulletchess-board .bR {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bR.svg");
+    	}
+    	.bulletchess-board .bQ {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bQ.svg");
+    	}
+    	.bulletchess-board .bK {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bK.svg");
+    	}
+    </style>
+    <div class ="bulletchess-board">
+    	<div class = "row">
+    		<div class = "lt"><div class = "wR"></div></div>
+    		<div class = "dk"><div class = "wN"></div></div>
+    		<div class = "lt"><div class = "wB"></div></div>
+    		<div class = "dk"><div class = "wQ"></div></div>
+    		<div class = "lt"><div class = "wK"></div></div>
+    		<div class = "dk"><div class = "wB"></div></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"><div class = "wR"></div></div>
+    	</div>
+    	<div class = "row">
+    		<div class = "dk"><div class = "wP"></div></div>
+    		<div class = "lt"><div class = "wP"></div></div>
+    		<div class = "dk"><div class = "wP"></div></div>
+    		<div class = "lt"><div class = "wP"></div></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"><div class = "wP"></div></div>
+    		<div class = "dk"><div class = "wP"></div></div>
+    		<div class = "lt"><div class = "wP"></div></div>
+    	</div>
+    	<div class = "row">
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"><div class = "wN"></div></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    	</div>
+    	<div class = "row">
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"><div class = "wP"></div></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    	</div>
+    <div class = "row">
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"><div class = "bP"></div></div>
     		<div class = "dk"></div>
     		<div class = "lt"></div>
     		<div class = "dk"></div>
@@ -185,7 +389,7 @@ The :func:`Board()` constructor returns a :class:`Board` representing the starti
     <div class = "row">
     		<div class = "lt"><div class = "bP"></div></div>
     		<div class = "dk"><div class = "bP"></div></div>
-    		<div class = "lt"><div class = "bP"></div></div>
+    		<div class = "lt"></div>
     		<div class = "dk"><div class = "bP"></div></div>
     		<div class = "lt"><div class = "bP"></div></div>
     		<div class = "dk"><div class = "bP"></div></div>
@@ -208,80 +412,182 @@ The :func:`Board()` constructor returns a :class:`Board` representing the starti
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 18-20
-
-Other positions can be specified by either using :func:`Board.from_fen()`.
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 20-24
-
-.. code-block:: Python
-
-
-    board = Board.from_fen("rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2")
-    print(board)
-
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    r n b q k b n r 
-    p p - p p p p p 
-    - - - - - - - - 
-    - - p - - - - - 
-    - - - - P - - - 
-    - - - - - N - - 
-    P P P P - P P P 
-    R N B Q K B - R 
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 25-27
+.. GENERATED FROM PYTHON SOURCE LINES 31-32
 
 Or by assigning :class:`Piece` locations manually. We can use :func:`Board.empty()` to start from a clean slate.
 
-
-.. GENERATED FROM PYTHON SOURCE LINES 27-31
+.. GENERATED FROM PYTHON SOURCE LINES 32-36
 
 .. code-block:: Python
 
 
     board = Board.empty()
-    print(board)
+    board
 
 
 
 
 
-.. rst-class:: sphx-glr-script-out
 
- .. code-block:: none
+.. raw:: html
 
-    - - - - - - - - 
-    - - - - - - - - 
-    - - - - - - - - 
-    - - - - - - - - 
-    - - - - - - - - 
-    - - - - - - - - 
-    - - - - - - - - 
-    - - - - - - - - 
+    <div class="output_subarea output_html rendered_html output_result">
+    <style>
+    	.bulletchess-board {
+    		all: unset;
+    	}
+    	.bulletchess-board *,
+    	.bulletchess-board *::before,
+    	.bulletchess-board *::after {
+      		all: unset;
+    	}
+    	.bulletchess-board .lt {
+      		height: 50px;
+      		width: 50px;
+      		background-color: #F0D9B5;
+    		text-align: center;
+    		vertical-align: middle;
+    	}
+    	.bulletchess-board .dk {
+    	  	height: 50px;
+      		width: 50px;
+      		background-color: #B58863;
+    		text-align: center;
+    		vertical-align: middle;
+    	}
+    	.bulletchess-board .row {
+    		display: flex;
+    	}
+    	.bulletchess-board .wP {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wP.svg");
+    	}
+    	.bulletchess-board .wN {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wN.svg");
+    	}
+    	.bulletchess-board .wB {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wB.svg");
+    	}
+    	.bulletchess-board .wR {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wR.svg");
+    	}
+    	.bulletchess-board .wQ {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wQ.svg");
+    	}
+    	.bulletchess-board .wK {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wK.svg");
+    	}
+    	.bulletchess-board .bP {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bP.svg");
+    	}
+    	.bulletchess-board .bN {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bN.svg");
+    	}
+    	.bulletchess-board .bB {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bB.svg");
+    	}
+    	.bulletchess-board .bR {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bR.svg");
+    	}
+    	.bulletchess-board .bQ {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bQ.svg");
+    	}
+    	.bulletchess-board .bK {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bK.svg");
+    	}
+    </style>
+    <div class ="bulletchess-board">
+    	<div class = "row">
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    	</div>
+    	<div class = "row">
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    	</div>
+    	<div class = "row">
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    	</div>
+    	<div class = "row">
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    	</div>
+    <div class = "row">
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    	</div>
+    	<div class = "row">
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    	</div>
+    <div class = "row">
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    	</div>
+    	<div class = "row">
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    	</div>
+    </div>
 
+    </div>
+    <br />
+    <br />
 
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 32-34
+.. GENERATED FROM PYTHON SOURCE LINES 37-39
 
 And then assign a :class:`Piece` to each :class:`Square`.
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 34-48
+.. GENERATED FROM PYTHON SOURCE LINES 39-53
 
 .. code-block:: Python
 
@@ -297,35 +603,172 @@ And then assign a :class:`Piece` to each :class:`Square`.
     board[F6] = Piece(BLACK, PAWN)
     board[G7] = Piece(BLACK, PAWN)
 
-    print(board)
+    board
 
 
 
 
 
-.. rst-class:: sphx-glr-script-out
 
- .. code-block:: none
+.. raw:: html
 
-    - - - - - - - - 
-    - - - r - k p - 
-    - - - - - p - - 
-    - - - - - - - - 
-    - - - - - - - - 
-    - R - - - - P - 
-    - - - - - P K P 
-    - - - - - - - - 
+    <div class="output_subarea output_html rendered_html output_result">
+    <style>
+    	.bulletchess-board {
+    		all: unset;
+    	}
+    	.bulletchess-board *,
+    	.bulletchess-board *::before,
+    	.bulletchess-board *::after {
+      		all: unset;
+    	}
+    	.bulletchess-board .lt {
+      		height: 50px;
+      		width: 50px;
+      		background-color: #F0D9B5;
+    		text-align: center;
+    		vertical-align: middle;
+    	}
+    	.bulletchess-board .dk {
+    	  	height: 50px;
+      		width: 50px;
+      		background-color: #B58863;
+    		text-align: center;
+    		vertical-align: middle;
+    	}
+    	.bulletchess-board .row {
+    		display: flex;
+    	}
+    	.bulletchess-board .wP {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wP.svg");
+    	}
+    	.bulletchess-board .wN {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wN.svg");
+    	}
+    	.bulletchess-board .wB {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wB.svg");
+    	}
+    	.bulletchess-board .wR {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wR.svg");
+    	}
+    	.bulletchess-board .wQ {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wQ.svg");
+    	}
+    	.bulletchess-board .wK {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wK.svg");
+    	}
+    	.bulletchess-board .bP {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bP.svg");
+    	}
+    	.bulletchess-board .bN {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bN.svg");
+    	}
+    	.bulletchess-board .bB {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bB.svg");
+    	}
+    	.bulletchess-board .bR {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bR.svg");
+    	}
+    	.bulletchess-board .bQ {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bQ.svg");
+    	}
+    	.bulletchess-board .bK {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bK.svg");
+    	}
+    </style>
+    <div class ="bulletchess-board">
+    	<div class = "row">
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    	</div>
+    	<div class = "row">
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"><div class = "bR"></div></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"><div class = "bK"></div></div>
+    		<div class = "dk"><div class = "bP"></div></div>
+    		<div class = "lt"></div>
+    	</div>
+    	<div class = "row">
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"><div class = "bP"></div></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    	</div>
+    	<div class = "row">
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    	</div>
+    <div class = "row">
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    	</div>
+    	<div class = "row">
+    		<div class = "dk"></div>
+    		<div class = "lt"><div class = "wR"></div></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"><div class = "wP"></div></div>
+    		<div class = "lt"></div>
+    	</div>
+    <div class = "row">
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"><div class = "wP"></div></div>
+    		<div class = "lt"><div class = "wK"></div></div>
+    		<div class = "dk"><div class = "wP"></div></div>
+    	</div>
+    	<div class = "row">
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    	</div>
+    </div>
 
+    </div>
+    <br />
+    <br />
 
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 49-51
+.. GENERATED FROM PYTHON SOURCE LINES 54-56
 
 We can get the FEN of this position with :func:`Board.fen()`. We might want to set the halfmove clock
 and fullmove number for this endgame position. Let's also make it black's turn.
 
-.. GENERATED FROM PYTHON SOURCE LINES 51-58
+.. GENERATED FROM PYTHON SOURCE LINES 56-63
 
 .. code-block:: Python
 
@@ -334,7 +777,7 @@ and fullmove number for this endgame position. Let's also make it black's turn.
     board.fullmove_number = 43
     board.turn = BLACK
 
-    print(board.fen())
+    board.fen()
 
 
 
@@ -344,104 +787,18 @@ and fullmove number for this endgame position. Let's also make it black's turn.
 
  .. code-block:: none
 
-    8/3r1kp1/5p2/8/8/1R4P1/5PKP/8 b - - 3 43
+
+    '8/3r1kp1/5p2/8/8/1R4P1/5PKP/8 b - - 3 43'
 
 
 
+.. GENERATED FROM PYTHON SOURCE LINES 64-67
 
-.. GENERATED FROM PYTHON SOURCE LINES 59-61
+Indexing a :class:`Board` with a :class:`Color`, :class:`PieceType`, or both returns :class:`Bitboard` 
+of squares with the relevant kind of :class:`Piece`. A :class:`Bitboard` is simply an efficient representation 
+of a set of squares.
 
-For a nicer view of a position, we can use :func:`Board.pretty()`. 
-Lets try some different :class:`Board.ColorScheme` options too.
-
-.. GENERATED FROM PYTHON SOURCE LINES 61-66
-
-.. code-block:: Python
-
-
-    print(board.pretty())
-    print(board.pretty(Board.SLATE))
-    print(board.pretty(Board.GREEN))
-
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-                    
-          ♜   ♚ ♟   
-              ♟     
-                    
-                    
-      ♖         ♙   
-              ♙ ♔ ♙ 
-                    
-    
-                    
-          ♜   ♚ ♟   
-              ♟     
-                    
-                    
-      ♖         ♙   
-              ♙ ♔ ♙ 
-                    
-    
-                    
-          ♜   ♚ ♟   
-              ♟     
-                    
-                    
-      ♖         ♙   
-              ♙ ♔ ♙ 
-                    
-    
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 67-69
-
-We can also use :class:`Bitboard` objects to highlight difference squares. 
-This can be used for example in order to show a :class:`Piece`'s possible moves.
-
-.. GENERATED FROM PYTHON SOURCE LINES 69-73
-
-.. code-block:: Python
-
-
-    print(board.pretty(board.WALNUT, highlighted_squares= G7.bb(), targeted_squares= Bitboard([G6, G5])))
-
-
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-                    
-          ♜   ♚ ♟   
-              ♟  •  
-                 •  
-                    
-      ♖         ♙   
-              ♙ ♔ ♙ 
-                    
-    
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 74-76
-
-A :class:`Bitboard` is an efficient representation of a set of :class:`Square` values. Indexing a :class:`Board`
-with a :class:`Color`, :class:`PieceType`, or both returns :class:`Bitboard` of squares with the relevant kind of :class:`Piece`.
-
-.. GENERATED FROM PYTHON SOURCE LINES 76-81
+.. GENERATED FROM PYTHON SOURCE LINES 67-72
 
 .. code-block:: Python
 
@@ -489,11 +846,11 @@ with a :class:`Color`, :class:`PieceType`, or both returns :class:`Bitboard` of 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 82-83
+.. GENERATED FROM PYTHON SOURCE LINES 73-74
 
 We can generate legal :class:`Move` objects for this position with :func:`Board.legal_moves()`
 
-.. GENERATED FROM PYTHON SOURCE LINES 83-87
+.. GENERATED FROM PYTHON SOURCE LINES 74-78
 
 .. code-block:: Python
 
@@ -514,55 +871,192 @@ We can generate legal :class:`Move` objects for this position with :func:`Board.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 88-90
+.. GENERATED FROM PYTHON SOURCE LINES 79-81
 
 Lets move our rook. To perform a move, we use :func:`Board.apply()`. 
 Moves can be created manually with the :func:`Move()` constructor.
 
-.. GENERATED FROM PYTHON SOURCE LINES 90-96
+.. GENERATED FROM PYTHON SOURCE LINES 81-87
 
 .. code-block:: Python
 
 
     selected_move = Move(D7, D3)
     board.apply(selected_move)
-    print(board.pretty())
+    board
 
 
 
 
 
 
-.. rst-class:: sphx-glr-script-out
 
- .. code-block:: none
+.. raw:: html
 
-                    
-              ♚ ♟   
-              ♟     
-                    
-                    
-      ♖   ♜     ♙   
-              ♙ ♔ ♙ 
-                    
-    
+    <div class="output_subarea output_html rendered_html output_result">
+    <style>
+    	.bulletchess-board {
+    		all: unset;
+    	}
+    	.bulletchess-board *,
+    	.bulletchess-board *::before,
+    	.bulletchess-board *::after {
+      		all: unset;
+    	}
+    	.bulletchess-board .lt {
+      		height: 50px;
+      		width: 50px;
+      		background-color: #F0D9B5;
+    		text-align: center;
+    		vertical-align: middle;
+    	}
+    	.bulletchess-board .dk {
+    	  	height: 50px;
+      		width: 50px;
+      		background-color: #B58863;
+    		text-align: center;
+    		vertical-align: middle;
+    	}
+    	.bulletchess-board .row {
+    		display: flex;
+    	}
+    	.bulletchess-board .wP {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wP.svg");
+    	}
+    	.bulletchess-board .wN {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wN.svg");
+    	}
+    	.bulletchess-board .wB {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wB.svg");
+    	}
+    	.bulletchess-board .wR {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wR.svg");
+    	}
+    	.bulletchess-board .wQ {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wQ.svg");
+    	}
+    	.bulletchess-board .wK {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wK.svg");
+    	}
+    	.bulletchess-board .bP {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bP.svg");
+    	}
+    	.bulletchess-board .bN {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bN.svg");
+    	}
+    	.bulletchess-board .bB {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bB.svg");
+    	}
+    	.bulletchess-board .bR {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bR.svg");
+    	}
+    	.bulletchess-board .bQ {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bQ.svg");
+    	}
+    	.bulletchess-board .bK {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bK.svg");
+    	}
+    </style>
+    <div class ="bulletchess-board">
+    	<div class = "row">
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    	</div>
+    	<div class = "row">
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"><div class = "bK"></div></div>
+    		<div class = "dk"><div class = "bP"></div></div>
+    		<div class = "lt"></div>
+    	</div>
+    	<div class = "row">
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"><div class = "bP"></div></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    	</div>
+    	<div class = "row">
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    	</div>
+    <div class = "row">
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    	</div>
+    	<div class = "row">
+    		<div class = "dk"></div>
+    		<div class = "lt"><div class = "wR"></div></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"><div class = "bR"></div></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"><div class = "wP"></div></div>
+    		<div class = "lt"></div>
+    	</div>
+    <div class = "row">
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"><div class = "wP"></div></div>
+    		<div class = "lt"><div class = "wK"></div></div>
+    		<div class = "dk"><div class = "wP"></div></div>
+    	</div>
+    	<div class = "row">
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    	</div>
+    </div>
 
+    </div>
+    <br />
+    <br />
 
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 97-100
+.. GENERATED FROM PYTHON SOURCE LINES 88-91
 
 Oh, but that was a blunder. moves can be undone with `Board.undo()`, which returns
 the last :class:`Move` applied. Getting the `str` of a :class:`Move` renders the move
 in UCI long algebraic notation.
 
-.. GENERATED FROM PYTHON SOURCE LINES 100-105
+.. GENERATED FROM PYTHON SOURCE LINES 91-96
 
 .. code-block:: Python
 
 
     print("Undoing " + str(board.undo()))
-    print(board.pretty())
+    board
 
 
 
@@ -574,24 +1068,166 @@ in UCI long algebraic notation.
  .. code-block:: none
 
     Undoing d7d3
-                    
-          ♜   ♚ ♟   
-              ♟     
-                    
-                    
-      ♖         ♙   
-              ♙ ♔ ♙ 
-                    
-    
 
 
+.. raw:: html
 
+    <div class="output_subarea output_html rendered_html output_result">
+    <style>
+    	.bulletchess-board {
+    		all: unset;
+    	}
+    	.bulletchess-board *,
+    	.bulletchess-board *::before,
+    	.bulletchess-board *::after {
+      		all: unset;
+    	}
+    	.bulletchess-board .lt {
+      		height: 50px;
+      		width: 50px;
+      		background-color: #F0D9B5;
+    		text-align: center;
+    		vertical-align: middle;
+    	}
+    	.bulletchess-board .dk {
+    	  	height: 50px;
+      		width: 50px;
+      		background-color: #B58863;
+    		text-align: center;
+    		vertical-align: middle;
+    	}
+    	.bulletchess-board .row {
+    		display: flex;
+    	}
+    	.bulletchess-board .wP {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wP.svg");
+    	}
+    	.bulletchess-board .wN {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wN.svg");
+    	}
+    	.bulletchess-board .wB {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wB.svg");
+    	}
+    	.bulletchess-board .wR {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wR.svg");
+    	}
+    	.bulletchess-board .wQ {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wQ.svg");
+    	}
+    	.bulletchess-board .wK {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wK.svg");
+    	}
+    	.bulletchess-board .bP {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bP.svg");
+    	}
+    	.bulletchess-board .bN {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bN.svg");
+    	}
+    	.bulletchess-board .bB {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bB.svg");
+    	}
+    	.bulletchess-board .bR {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bR.svg");
+    	}
+    	.bulletchess-board .bQ {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bQ.svg");
+    	}
+    	.bulletchess-board .bK {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bK.svg");
+    	}
+    </style>
+    <div class ="bulletchess-board">
+    	<div class = "row">
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    	</div>
+    	<div class = "row">
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"><div class = "wP"></div></div>
+    		<div class = "dk"><div class = "wK"></div></div>
+    		<div class = "lt"><div class = "wP"></div></div>
+    	</div>
+    	<div class = "row">
+    		<div class = "lt"></div>
+    		<div class = "dk"><div class = "wR"></div></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"><div class = "wP"></div></div>
+    		<div class = "dk"></div>
+    	</div>
+    	<div class = "row">
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    	</div>
+    <div class = "row">
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    	</div>
+    	<div class = "row">
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"><div class = "bP"></div></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    	</div>
+    <div class = "row">
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"><div class = "bR"></div></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"><div class = "bK"></div></div>
+    		<div class = "lt"><div class = "bP"></div></div>
+    		<div class = "dk"></div>
+    	</div>
+    	<div class = "row">
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    	</div>
+    </div>
 
-.. GENERATED FROM PYTHON SOURCE LINES 106-107
+    </div>
+    <br />
+    <br />
+
+.. GENERATED FROM PYTHON SOURCE LINES 97-98
 
 Lets run the game through for a bit. Moves can also be constructed from UCI or standard algebraic notation.
 
-.. GENERATED FROM PYTHON SOURCE LINES 107-116
+.. GENERATED FROM PYTHON SOURCE LINES 98-107
 
 .. code-block:: Python
 
@@ -602,39 +1238,176 @@ Lets run the game through for a bit. Moves can also be constructed from UCI or s
     board.apply(Move(G3, H4))
     board.apply(Move.from_san("Kg7", board))
     board.apply(Move.from_san("Rg3", board))
-    print(board.pretty())
+    board
 
 
 
 
 
-.. rst-class:: sphx-glr-script-out
 
- .. code-block:: none
+.. raw:: html
 
-                    
-          ♜     ♚   
-              ♟     
-                    
-                  ♙ 
-                ♖   
-              ♙ ♔   
-                    
-    
+    <div class="output_subarea output_html rendered_html output_result">
+    <style>
+    	.bulletchess-board {
+    		all: unset;
+    	}
+    	.bulletchess-board *,
+    	.bulletchess-board *::before,
+    	.bulletchess-board *::after {
+      		all: unset;
+    	}
+    	.bulletchess-board .lt {
+      		height: 50px;
+      		width: 50px;
+      		background-color: #F0D9B5;
+    		text-align: center;
+    		vertical-align: middle;
+    	}
+    	.bulletchess-board .dk {
+    	  	height: 50px;
+      		width: 50px;
+      		background-color: #B58863;
+    		text-align: center;
+    		vertical-align: middle;
+    	}
+    	.bulletchess-board .row {
+    		display: flex;
+    	}
+    	.bulletchess-board .wP {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wP.svg");
+    	}
+    	.bulletchess-board .wN {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wN.svg");
+    	}
+    	.bulletchess-board .wB {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wB.svg");
+    	}
+    	.bulletchess-board .wR {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wR.svg");
+    	}
+    	.bulletchess-board .wQ {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wQ.svg");
+    	}
+    	.bulletchess-board .wK {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/wK.svg");
+    	}
+    	.bulletchess-board .bP {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bP.svg");
+    	}
+    	.bulletchess-board .bN {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bN.svg");
+    	}
+    	.bulletchess-board .bB {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bB.svg");
+    	}
+    	.bulletchess-board .bR {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bR.svg");
+    	}
+    	.bulletchess-board .bQ {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bQ.svg");
+    	}
+    	.bulletchess-board .bK {
+    		content:url("https://raw.githubusercontent.com/lichess-org/lila/cff8e62ce78815f84b59aadc0bdf44d326bfb88f/public/piece/cburnett/bK.svg");
+    	}
+    </style>
+    <div class ="bulletchess-board">
+    	<div class = "row">
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    	</div>
+    	<div class = "row">
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"><div class = "wP"></div></div>
+    		<div class = "dk"><div class = "wK"></div></div>
+    		<div class = "lt"></div>
+    	</div>
+    	<div class = "row">
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"><div class = "wR"></div></div>
+    		<div class = "dk"></div>
+    	</div>
+    	<div class = "row">
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"><div class = "wP"></div></div>
+    	</div>
+    <div class = "row">
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    	</div>
+    	<div class = "row">
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"><div class = "bP"></div></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    	</div>
+    <div class = "row">
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"><div class = "bR"></div></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"><div class = "bK"></div></div>
+    		<div class = "dk"></div>
+    	</div>
+    	<div class = "row">
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    		<div class = "dk"></div>
+    		<div class = "lt"></div>
+    	</div>
+    </div>
 
+    </div>
+    <br />
+    <br />
 
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 117-118
+.. GENERATED FROM PYTHON SOURCE LINES 108-109
 
 Black exposed their king, and is now in check.
 
-.. GENERATED FROM PYTHON SOURCE LINES 118-121
+.. GENERATED FROM PYTHON SOURCE LINES 109-112
 
 .. code-block:: Python
 
 
-    print(board in CHECK)
+    board in CHECK
 
 
 
@@ -643,23 +1416,22 @@ Black exposed their king, and is now in check.
 .. rst-class:: sphx-glr-script-out
 
  .. code-block:: none
+
 
     True
 
 
 
-
-.. GENERATED FROM PYTHON SOURCE LINES 122-123
+.. GENERATED FROM PYTHON SOURCE LINES 113-114
 
 But the game is still ongoing.
 
-.. GENERATED FROM PYTHON SOURCE LINES 123-127
+.. GENERATED FROM PYTHON SOURCE LINES 114-117
 
 .. code-block:: Python
 
 
-    print(board in CHECKMATE)
-    print(board in DRAW)
+    board in CHECKMATE or board in DRAW
 
 
 
@@ -669,16 +1441,15 @@ But the game is still ongoing.
 
  .. code-block:: none
 
-    False
-    False
 
+    False
 
 
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.332 seconds)
+   **Total running time of the script:** (0 minutes 0.004 seconds)
 
 
 .. _sphx_glr_download_auto_examples_walkthrough.py:

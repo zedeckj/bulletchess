@@ -55,12 +55,12 @@ class PGNTestCase(unittest.TestCase):
         
 
     def assertDraw(self, game : PGNGame):
-        self.assertEqual(game.result.draw, True)
-        self.assertEqual(game.result.unknown, False)
+        self.assertEqual(game.result.is_draw, True)
+        self.assertEqual(game.result.is_unknown, False)
         self.assertEqual(game.result.winner, None)
 
     def assertWinnerIs(self, game : PGNGame, winner : Color):
-        self.assertEqual(game.result.draw, False)
-        self.assertEqual(game.result.unknown, False)
+        self.assertEqual(game.result.is_draw, False)
+        self.assertEqual(game.result.is_unknown, False)
         self.assertEqual(game.result.winner, winner)
 

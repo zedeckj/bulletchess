@@ -1,5 +1,5 @@
 Main Documentation
-----
+--------------------
 
 .. autoapimodule:: bulletchess.main
    :members:

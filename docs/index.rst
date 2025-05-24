@@ -25,9 +25,10 @@ At a high level, ``bulletchess`` includes:
 Glossary
 ---------
 .. toctree::
-  :maxdepth: 1
+  :maxdepth: 3
 
   auto_examples/walkthrough 
+  auto_examples/performance
   main
-
-  performance
+  utils
+  pgn

@@ -11,7 +11,7 @@ class TestPGNResult(PGNTestCase):
 
 
     def test_black(self):
-        res = PGNResult.black()
+        res = BLACK_WON
         self.assertEqual(res.winner, BLACK)
         self.assertFalse(res.is_unknown)
         self.assertFalse(res.is_draw)
@@ -21,7 +21,7 @@ class TestPGNResult(PGNTestCase):
         self.assertEqual(repr(res), '<PGNResult: "0-1">')
 
     def test_white(self):
-        res = PGNResult.white()
+        res = WHITE_WON
         self.assertEqual(res.winner, WHITE)
         self.assertFalse(res.is_unknown)
         self.assertFalse(res.is_draw)
@@ -31,7 +31,7 @@ class TestPGNResult(PGNTestCase):
         self.assertEqual(repr(res), '<PGNResult: "1-0">')
 
     def test_unk(self):
-        res = PGNResult.unknown()
+        res = UNKNOWN_RESULT
         self.assertEqual(res.winner, None)
         self.assertTrue(res.is_unknown)
         self.assertFalse(res.is_draw)
@@ -41,7 +41,7 @@ class TestPGNResult(PGNTestCase):
         self.assertEqual(repr(res), '<PGNResult: "*">')
 
     def test_draw(self):
-        res = PGNResult.draw()
+        res = DRAW_RESULT
         self.assertEqual(res.winner, None)
         self.assertFalse(res.is_unknown)
         self.assertTrue(res.is_draw)

@@ -10,6 +10,8 @@
 #include <wchar.h>
 
 
+square_t fen_index_to_square(u_int8_t index);
+
 // Parses the given FEN into the given board, returns a pointer to an error message,
 // or NULL if no error.
 char *parse_fen(const char *fen, full_board_t * board);

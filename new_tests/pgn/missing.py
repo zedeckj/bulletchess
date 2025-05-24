@@ -28,7 +28,7 @@ class TestPGNMissing(PGNTestCase):
         game = f.next_game()
         self.assertEqual(game.black_player, None)
         game = f.next_game()
-        self.assertTrue(game.result.unknown)
+        self.assertTrue(game.result.is_unknown)
         f.close()
 
 

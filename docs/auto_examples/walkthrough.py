@@ -2,7 +2,7 @@
 Basic Walkthrough
 =================
 
-First, lets import everything from :pkg:`bulletchess`
+First, lets import everything from ``bulletchess``
 """
 
 from bulletchess import *
@@ -15,18 +15,23 @@ board = Board()
 board
 
 # %%
-# Other positions can be specified by either using :func:`Board.from_fen()`.
-#
+# the :class:`Board` class defines :func:`Board._repr_html_()`, which allows positions to be rendered
+# like the above in Jupyter note books, or Sphinx documenation like this page.
+# For displaying a :class:`Board` as plain text, we use :func:`Board.__str__()`
+
+print(str(board))
+
+# %% 
+# Other positions can be specified by either using :func:`Board.from_fen()`. When rendering a :class:`Board` as HTML, the side to move is always oriented on the bottom. 
 
 board = Board.from_fen("rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2")
-print(board)
+board
 
 # %%
 # Or by assigning :class:`Piece` locations manually. We can use :func:`Board.empty()` to start from a clean slate.
-#
 
 board = Board.empty()
-print(board)
+board
 
 # %%
 # And then assign a :class:`Piece` to each :class:`Square`.
@@ -43,7 +48,7 @@ board[D7] = Piece(BLACK, ROOK)
 board[F6] = Piece(BLACK, PAWN)
 board[G7] = Piece(BLACK, PAWN)
 
-print(board)
+board
 
 # %%
 # We can get the FEN of this position with :func:`Board.fen()`. We might want to set the halfmove clock
@@ -53,26 +58,12 @@ board.halfmove_clock = 3
 board.fullmove_number = 43
 board.turn = BLACK
 
-print(board.fen())
+board.fen()
 
 # %%
-# For a nicer view of a position, we can use :func:`Board.pretty()`. 
-# Lets try some different :class:`Board.ColorScheme` options too.
-
-print(board.pretty())
-print(board.pretty(Board.SLATE))
-print(board.pretty(Board.GREEN))
-
-# %%
-# We can also use :class:`Bitboard` objects to highlight difference squares. 
-# This can be used for example in order to show a :class:`Piece`'s possible moves.
-
-print(board.pretty(board.WALNUT, highlighted_squares= G7.bb(), targeted_squares= Bitboard([G6, G5])))
-
-
-# %%
-# A :class:`Bitboard` is an efficient representation of a set of :class:`Square` values. Indexing a :class:`Board`
-# with a :class:`Color`, :class:`PieceType`, or both returns :class:`Bitboard` of squares with the relevant kind of :class:`Piece`.
+# Indexing a :class:`Board` with a :class:`Color`, :class:`PieceType`, or both returns :class:`Bitboard` 
+# of squares with the relevant kind of :class:`Piece`. A :class:`Bitboard` is simply an efficient representation 
+# of a set of squares.
 
 print(board[WHITE])
 print(board[ROOK])
@@ -90,7 +81,7 @@ print(moves)
 
 selected_move = Move(D7, D3)
 board.apply(selected_move)
-print(board.pretty())
+board
 
 
 # %% 
@@ -99,7 +90,7 @@ print(board.pretty())
 # in UCI long algebraic notation.
 
 print("Undoing " + str(board.undo()))
-print(board.pretty())
+board
 
 
 # %% 
@@ -111,16 +102,15 @@ board.apply(Move(G5, H4))
 board.apply(Move(G3, H4))
 board.apply(Move.from_san("Kg7", board))
 board.apply(Move.from_san("Rg3", board))
-print(board.pretty())
+board
 
 # %%
 # Black exposed their king, and is now in check.
 
-print(board in CHECK)
+board in CHECK
 
 # %%
 # But the game is still ongoing.
 
-print(board in CHECKMATE)
-print(board in DRAW)
+board in CHECKMATE or board in DRAW
 

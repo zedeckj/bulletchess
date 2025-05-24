@@ -22,6 +22,14 @@ class TestSquare(unittest.TestCase):
         self.assertEqual(SQUARES[3], D1)
         self.assertEqual(SQUARES[63], H8)
 
+    def test_flipped_list(self):
+        self.assertEqual(len(SQUARES_FLIPPED), 64)
+        self.assertEqual(SQUARES_FLIPPED[0], A8)
+        self.assertEqual(SQUARES_FLIPPED[1], B8)
+        self.assertEqual(SQUARES_FLIPPED[2], C8)
+        self.assertEqual(SQUARES_FLIPPED[3], D8)
+        self.assertEqual(SQUARES_FLIPPED[63], H1)
+
     def test_hash(self):
         hashes = set()
         for square in SQUARES:

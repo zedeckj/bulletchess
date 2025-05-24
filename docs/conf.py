@@ -22,13 +22,14 @@ extensions = [
 sphinx_gallery_conf = {
      'examples_dirs': '../walkthrough',   # path to your example scripts
      'gallery_dirs': 'auto_examples',  # path to where to save gallery generated output
-     'filename_pattern': r'walkthrough\.py',
+     'filename_pattern': r'.+\.py',
 }
 
 # directory (or list) that contains your stub(s)
 autoapi_dirs = ["../bulletchess" ]          # path is relative to conf.py
 autoapi_file_patterns = ["*.pyi"]
 
+autoapi_options = [ 'members', 'undoc-members', 'private-members', 'show-inheritance', 'show-module-summary', 'special-members']
 
 templates = ["_templates"]
 add_module_names=False

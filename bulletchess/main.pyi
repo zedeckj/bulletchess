@@ -738,6 +738,8 @@ The H8 :class:`Square`
 
 
 SQUARES : list[Square] = [A1, B1, C1, D1, E1, F1, G1, H1, A2, B2, ..., H8]
+SQUARES_FLIPPED : list[Square] = [A8, B8, C8, D8, E8, F8, G8, H8, A7, B7, ..., H7]
+
 """
 A list of all Squares
 """

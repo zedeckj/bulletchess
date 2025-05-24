@@ -26,6 +26,23 @@
     </div>
 
 
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="bulletchess&#x27;s creation was motivated by frustration with python-chess&#x27;s slow performance. python-chess is a fantastic, feature-rich library, but is inherently limited in its performance by being implemented by python. bulletchess, however, is implemented as a pure C-extension. To demonstrate how much faster bulletchess is, we can write equivalent functions in both libraries, and compare the runtimes.">
+
+.. only:: html
+
+  .. image:: /auto_examples/images/thumb/sphx_glr_performance_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_auto_examples_performance.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Performance Comparisons</div>
+    </div>
+
+
 .. thumbnail-parent-div-close
 
 .. raw:: html
@@ -37,6 +54,7 @@
    :hidden:
 
    /auto_examples/walkthrough
+   /auto_examples/performance
 
 
 .. only:: html

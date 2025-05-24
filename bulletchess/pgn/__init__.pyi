@@ -3,51 +3,94 @@ from bulletchess.main import *
 
 
 class PGNDate:
+    """
+    Represents a date for PGN. Has a year, month, and day.
+    """
 
     def __init__(self, year : Optional[int], month : Optional[int], day : Optional[int]): ...
 
     @property
-    def year(self) -> Optional[int]: ...
+    def year(self) -> Optional[int]: 
+        """
+        The year of this date, or ``None`` if not specified.
+        """
+        ...
 
     @property
-    def month(self) -> Optional[int]: ...
+    def month(self) -> Optional[int]: 
+        """
+        The month of this date, or ``None`` if not specified.
+        """
+        ...
 
     @property
-    def day(self) -> Optional[int]: ...
+    def day(self) -> Optional[int]: 
+        """
+        The day of this date, or ``None`` if not specified.
+        """
+        ...
 
-    def __str__(self) -> str: ...
+    def __str__(self) -> str: 
+        """
+        Returns a ``str`` of this date in the form of YYYY.MM.DD
+
+        >>> str(PGNDate(1990, 4, 10))
+        '1990.04.10'
+        >>> str(PGNDate(2015, 7, None))
+        '2015.07.??'
+        >>> str(PGNDate(None, None, None))
+        '????.??.??'
+        """
+        ...
 
     def __repr__(self) -> str: ...
 
-    def __eq__(self, other : Any) -> bool: ...
+    def __eq__(self, other : Any) -> bool: 
+        """
+        Returns ``True`` if compared with an identical :class:`PGNDate`
+        """
+        ...
 
-    def __le__(self, other : PGNDate) -> bool: ...
+    def __le__(self, other : PGNDate) -> bool: 
+        """
+        Returns ``True`` if compared with an earlier or equivalent :class:`PGNDate`
+        """
+        ...
 
-    def __ge__(self, other : PGNDate) -> bool: ...
+    def __ge__(self, other : PGNDate) -> bool: 
+        """
+        Returns ``True`` if compared with a later or equivalent :class:`PGNDate`
+        """
+        ...
 
-    def __lt__(self, other : PGNDate) -> bool: ...
+    def __lt__(self, other : PGNDate) -> bool: 
+        """
+        Returns ``True`` if compared with an earlier :class:`PGNDate`
+        """
+        ...
 
-    def __gt__(self, other : PGNDate) -> bool: ...
+    def __gt__(self, other : PGNDate) -> bool: 
+        """
+        Returns ``True`` if compared with a later :class:`PGNDate`
+        """
+        ...
 
     def __hash__(self) -> int: ...
 
 
 class PGNResult:
-    
-    @staticmethod
-    def white() -> "PGNResult": ...
 
     @staticmethod
-    def black() -> "PGNResult": ...
+    def from_str(result_str : str) -> "PGNResult": 
+        """
+        Returns the :class:`PGNResult` corresponding to the given ``str``.
+        Any ``str`` besides "1-0", "0-1", or "1/2-1/2" corresponds to an Unknown Result.
 
-    @staticmethod
-    def draw() -> "PGNResult": ...
+        
+        
 
-    @staticmethod
-    def unknown() -> "PGNResult": ...
-
-    @staticmethod
-    def from_str(result_str : str) -> "PGNResult": ...
+        """
+        ...
 
     @property
     def winner(self) -> Optional[Color]: ...
@@ -68,6 +111,10 @@ class PGNResult:
 
     def __hash__(self) -> int: ...
 
+WHITE_WON : PGNResult
+BLACK_WON : PGNResult
+DRAW_RESULT : PGNResult
+UNKNOWN_RESULT : PGNResult
 
 class PGNGame:
     @property

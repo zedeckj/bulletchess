@@ -3442,10 +3442,10 @@ static PyObject *PyPGNResult_from_str(PyObject *self, PyObject *arg) {
 #define PGN_RES_METHOD(FIELD) {#FIELD, PyPGNResult_make_ ## FIELD, METH_STATIC | METH_NOARGS, NULL}
 
 static PyMethodDef PyPGNResult_methods[] = {
-	PGN_RES_METHOD(draw),
-	PGN_RES_METHOD(white),
-	PGN_RES_METHOD(black),
-	PGN_RES_METHOD(unknown),
+	//PGN_RES_METHOD(draw),
+	//PGN_RES_METHOD(white),
+	//PGN_RES_METHOD(black),
+	//PGN_RES_METHOD(unknown),
 	{"from_str", PyPGNResult_from_str, METH_STATIC | METH_O, NULL},
 	{NULL, NULL, 0, NULL},
 };
@@ -3853,7 +3853,10 @@ PyMODINIT_FUNC PyInit__core(void) {
 		ADD_PGN("PGNDate", &PyPGNDateType);
 		ADD_PGN("PGNFile", &PyPGNFileType);
 		ADD_PGN("PGNResult", &PyPGNResultType);
-
+		ADD_PGN("WHITE_WON", PyPGNResult_make(WHITE_RES));
+		ADD_PGN("BLACK_WON", PyPGNResult_make(BLACK_RES));
+		ADD_PGN("DRAW_RESULT", PyPGNResult_make(DRAW_RES));
+		ADD_PGN("UNKNOWN_RESULT", PyPGNResult_make(UNK_RES));
 		ADD_OBJ("utils", utils);
 		ADD_OBJ("Bitboard", &PyBitboardType);
 		ADD_OBJ("Color", &PyColorType);
@@ -3895,7 +3898,7 @@ PyMODINIT_FUNC PyInit__core(void) {
 		ADD_OBJ("BLACK_KINGSIDE", BlackKingside);		
 		ADD_OBJ("BLACK_QUEENSIDE", BlackQueenside);		
 		
-		
+			
 		PyObject *WHITE = PyColor_make(WHITE_VAL);
 		VALIDATE(WHITE);
 		PyObject *BLACK = PyColor_make(BLACK_VAL);
@@ -3903,16 +3906,22 @@ PyMODINIT_FUNC PyInit__core(void) {
 		ADD_OBJ("WHITE", WHITE);
 		ADD_OBJ("BLACK", BLACK);
 		PyObject *Squares_List = PyList_New(0);
+		VALIDATE(Squares_List);
+		PyObject *FlippedSquares_List = PyList_New(0);
+		VALIDATE(FlippedSquares_List);
 		for (square_t sq = A1; sq <= H8; sq++) {
 			char buffer[3];
 			serialize_sqr_caps(sq, buffer);
 			PyObject *PySquare = PySquare_make(sq);
-			VALIDATE(PySquare);
 			ADD_OBJ(buffer, PySquare);
 			PyList_Append(Squares_List, PySquare);
 		}
+		for (int i = 0; i < 64; i++){
+			PyObject *sq = PySquare_make(fen_index_to_square(i));
+			PyList_Append(FlippedSquares_List, sq);
+		}
 		ADD_OBJ("SQUARES", Squares_List);
-
+		ADD_OBJ("SQUARES_FLIPPED", FlippedSquares_List);
 		PyObject *PAWN = PyPieceType_make(PAWN_VAL);
 		VALIDATE(PAWN);	
 		PyObject *KNIGHT = PyPieceType_make(KNIGHT_VAL);
