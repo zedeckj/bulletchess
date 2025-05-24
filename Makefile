@@ -6,7 +6,7 @@ SHELL := /bin/bash
 all:
 	 source venv/bin/activate && \
 	 python3.13 -X dev setup.py build_ext && \
-	 pip install .
+	 pip install -e .
 
 test:
 	cc -fsanitize=address -fno-omit-frame-pointer -Wno-format-security -static-libsan bulletchess/src/internal/tokenizer/*.c bulletchess/src/internal/date-parsing/*.c  bulletchess/src/internal/dictionary/*.c bulletchess/src/internal/*.c ctest/ctest.c -o ctest

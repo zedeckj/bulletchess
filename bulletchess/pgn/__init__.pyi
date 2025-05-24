@@ -86,26 +86,56 @@ class PGNResult:
         Returns the :class:`PGNResult` corresponding to the given ``str``.
         Any ``str`` besides "1-0", "0-1", or "1/2-1/2" corresponds to an Unknown Result.
 
-        
-        
-
+        >>> PGNResult.from_str("1-0") is WHITE_WON
+        True
+        >>> PGNResult.from_str("0-1") is BLACK_WON
+        True
+        >>> PGNResult.from_str("1/2-1/2") is DRAW_RESULT
+        True
+        >>> PGNResult.from_str("*") is UNKNOWN_RESULT
+        True
+        >>> PGNResult.from_str("or anything else") is UNKNOWN_RESULT
+        True
         """
         ...
 
     @property
-    def winner(self) -> Optional[Color]: ...
+    def winner(self) -> Optional[Color]: 
+        """
+        Returns the :class:`Color` of the winner, if this result indicates one.
+        """
+        ...
 
     @property
-    def is_draw(self) -> bool: ...
+    def is_draw(self) -> bool: 
+        """
+        Returns ``True`` if this result is a draw.
+        """
+        ...
 
     @property
-    def is_unknown(self) -> bool: ...
-
-    def __int__(self) -> int: ...
+    def is_unknown(self) -> bool: 
+        """
+        Returns ``True`` if this result is unknown.
+        """
+        ...
 
     def __eq__(self, other : Any) -> bool: ...
 
-    def __str__(self) -> str: ...
+    def __str__(self) -> str: 
+        """
+        Returns a ``str`` of the PGN format of this result.
+
+        >>> str(WHITE_WON)
+        '1-0'
+        >>> str(BLACK_WON)
+        '0-1'
+        >>> str(DRAW_RESULT)
+        '1/2-1/2'
+        >>> str(UNKNOWN_RESULT)
+        '*'
+        """
+        ...
 
     def __repr__(self) -> str: ...
 
@@ -118,54 +148,125 @@ UNKNOWN_RESULT : PGNResult
 
 class PGNGame:
     @property
-    def event(self) -> str: ...
+    def event(self) -> str: 
+        """
+        The contents of the "Event" tag, as a ``str``.
+        """
+        ...
 
     @property
-    def site(self) -> str: ...
+    def site(self) -> str: 
+        """
+        The contents of the "Site" tag, as a ``str``.
+        """
+        ...
 
     @property
-    def round(self) -> str: ...
+    def round(self) -> str: 
+        """
+        The contents of the "Round" tag, as a ``str``.
+        """
+        ...
 
     @property
-    def date(self) -> PGNDate: ...
+    def date(self) -> PGNDate: 
+        """
+        A :class:`PGNResult` formed from the "Date" tag. Alternatively looks 
+        at "UTCDate" as a fallback. If neither of these are provided, 
+        the year, month, and day are marked as unknown.
+        """
+        ...
 
     @property
-    def white_player(self) -> str: ...
+    def white_player(self) -> str: 
+        """
+        The contents of the "White" tag, as a ``str``.
+        """
+        ...
 
     @property
-    def black_player(self) -> str: ...
+    def black_player(self) -> str: 
+        """
+        The contents of the "Black" tag, as a ``str``.
+        """
+        ...
 
     @property
-    def result(self) -> PGNResult: ...
+    def result(self) -> PGNResult: 
+        """
+        A :class:`PGNResult` formed from the "Result" tag.
+        If this field is malformed or not provided, an unknown
+        result is returned.
+        """
+        ...
 
     @property
-    def move_count(self) -> int: ...
+    def move_count(self) -> int: 
+        """
+        The number of moves played in this game.
+        """
+        ...
     
     @property
-    def moves(self) -> list[Move]: ...
+    def moves(self) -> list[Move]: 
+        """
+        A list of moves played in this game.
+        """
+        ...
     
     @property
-    def starting_board(self) -> Board: ...
+    def starting_board(self) -> Board: 
+        """
+        The starting position of this game. Determined by looking at the
+        "FEN" tag, if it is provided. Otherwise, is the same as the standard starting position.
+        """
+        ...
 
     def __hash__(self) -> int: ...
 
     def __eq__(self, other : Any) -> bool: ... 
 
-    def __getitem__(self, tag : str) -> Optional[str]: ...
+    def __getitem__(self, tag : str) -> Optional[str]: 
+        """
+        Gets the raw ``str`` value of the given tag. If the tag is absent,
+        returns ``None``.
+        """
+        ...
 
 
 class PGNFile:
     
     @staticmethod
-    def open(path : str) -> "PGNFile": ...
+    def open(path : str) -> "PGNFile": 
+        """
+        Opens a PGN file for reading.
+        """
+        ...
 
-    def close(self) -> None: ...
+    def close(self) -> None: 
+        """
+        Closes a PGN file.
+        """
+        ...
 
-    def is_open(self) -> bool: ...
+    def is_open(self) -> bool: 
+        """
+        Returns ``True`` if this file is open.
+        """
+        ...
 
-    def next_game(self) -> PGNGame: ...
+    def next_game(self) -> Optional[PGNGame]: 
+        """
+        Gets the next game from a file as a :class:`PGNGame`
+        If the file is exhausted of games, returns None.
+        """
+        ...
 
-    def skip_game(self) -> None: ...
+    def skip_game(self) -> None: 
+        """
+        Skips over the next game in a file.
+        """
+        ...
 
     def __enter__(self) -> PGNFile: ...
 

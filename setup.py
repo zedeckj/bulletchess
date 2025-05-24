@@ -19,6 +19,8 @@ core = Extension(
     extra_compile_args=["-O3"],     
 )
 
+print(core)
+
 setup(
     ext_modules = [core],
 )

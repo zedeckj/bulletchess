@@ -6,7 +6,7 @@ def count_moves(board : Board) -> int:
     """
     Counts the number of legal moves that could be performed for the given :class:`Board`, without actually
     constructing any :class:`Move` objects. This is much faster than calling 
-    `len(Board.legal_moves())`
+    ``len(Board.legal_moves())``
     """
     ...
 
