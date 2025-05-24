@@ -16,7 +16,7 @@ print(source_files)
 core = Extension(
     name = "bulletchess._core",
     sources = source_files, 
-    extra_compile_args=["-O3"],     
+    extra_compile_args=["-O0", "-g"],     
 )
 
 print(core)
