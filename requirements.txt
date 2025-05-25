@@ -1,0 +1,14 @@
+backoff==2.2.1
+certifi==2025.1.31
+charset-normalizer==3.4.1
+chess==1.11.2
+idna==3.10
+markdown-it-py==3.0.0
+mdurl==0.1.2
+Pygments==2.19.1
+PyYAML==6.0.2
+requests==2.32.3
+rich==13.9.4
+setuptools==80.0.0
+urllib3==2.3.0
+wheel==0.45.1

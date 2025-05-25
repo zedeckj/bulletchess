@@ -1,0 +1,125 @@
+; No event
+[Site "Zagreb"]
+[Date "1955.??.??"]
+[Round "?"]
+[White "Franolic"]
+[Black "Zaradic, A."]
+[Result "1-0"]
+[WhiteElo ""]
+[BlackElo ""]
+[ECO "A42"]
+
+1.c4 g6 2.Nc3 Bg7 3.d4 d6 4.e4 Nc6 5.Nge2 e5 6.Be3 f5 7.exf5 Bxf5 8.dxe5 Nxe5
+9.Nd4 Ne7 10.Be2 O-O 11.O-O N7c6 12.Nxf5 Rxf5 13.h3 Qh4 14.f4 Nf7 15.Bg4 Ra5
+16.Nd5 Bxb2 17.Rb1 Bg7 18.Rxb7 Rxa2 19.Rxc7 Ncd8 20.Bd4 h5 21.Bf3 Ne6 22.Bxg7 Kxg7
+23.Re7 Nc5 24.Qd4+ Kf8 25.Rxf7+ Kxf7 26.Nc3 Ne6 27.Qe3 Rc2 28.Bxa8 Qf6 29.Nb5 Nc5
+30.Bd5+ Kg7 31.f5 gxf5 32.Nd4  1-0
+
+; No site
+[Event "URS-ch sf"]
+[Date "1956.??.??"]
+[Round "9"]
+[White "Chukaev, Egor"]
+[Black "Petrosian, Tigran V"]
+[Result "0-1"]
+[WhiteElo ""]
+[BlackElo ""]
+[ECO "E74"]
+
+1.c4 g6 2.d4 Bg7 3.Nc3 d6 4.e4 Nf6 5.Be2 O-O 6.Bg5 c5 7.d5 Qa5 8.Bd2 e6 9.Nf3 exd5
+10.exd5 a6 11.O-O Qc7 12.h3 Nbd7 13.Qc2 b5 14.cxb5 Nb6 15.bxa6 Bxa6 16.Bxa6 Rxa6
+17.Rac1 Qb7 18.Rfd1 Rb8 19.Bg5 Nbxd5 20.Nxd5 Nxd5 21.Qe4 Nc7 22.Qxb7 Rxb7
+23.b3 h6 24.Bf4 Nb5 25.Rc2 g5 26.Be3 Nc3 27.Rdd2 f5 28.g3 Rf7 29.Rd3 Nxa2
+30.Bd2 Rb7 31.Rc4 Kf7 32.h4 g4 33.Ne1 Nb4 34.Bxb4 Rxb4 35.Rxb4 cxb4 36.Nc2 Bc3
+37.Ne3 Ke6 38.Rd5 Ra3 39.Rxf5 Rxb3 40.Rh5 Rb1+ 41.Kg2 b3 42.Rxh6+ Kd7 43.Nc4 Rd1
+44.Rg6 Rd4 45.Na3 Ra4 46.Nb1 Be5  0-1
+
+; No date
+[Event "Munich olm fin-A"]
+[Site "Munich"]
+[Round "8"]
+[White "Botvinnik, Mikhail"]
+[Black "Alexander, Conel Hughes"]
+[Result "1-0"]
+[WhiteElo ""]
+[BlackElo ""]
+[ECO "A42"]
+
+1.d4 g6 2.e4 Bg7 3.c4 d6 4.Nc3 Nc6 5.Be3 e5 6.d5 Nd4 7.Nge2 Nxe2 8.Bxe2 f5
+9.f3 Nf6 10.Qd2 O-O 11.exf5 Bxf5 12.g4 Bd7 13.h3 a6 14.O-O-O b5 15.c5 b4
+16.Ne4 a5 17.Bd3 Qe7 18.c6 Bc8 19.h4 Ba6 20.Nxf6+ Bxf6 21.g5 Bg7 22.Be4 Bc8 ; here's a random comment
+23.h5 Bf5 24.hxg6 Bxg6 25.Qd3 Rxf3 26.Bxg6 hxg6 27.Qxg6 Kf8 28.Qe4 Qf7 29.g6 Qf5
+30.Qxf5+ Rxf5 31.Rdf1 Rxf1+ 32.Rxf1+ Kg8 33.Rf7 Rc8 34.Kc2 e4 35.b3 Bc3 36.Kd1 Be5
+37.Ke2 Bc3 38.Ba7  1-0
+
+; No round
+[Event "Munich olm fin-A"]
+[Site "Munich"]
+[Date "1958.??.??"]
+[White "Botvinnik, Mikhail"]
+[Black "Alexander, Conel Hughes"]
+[Result "1-0"]
+[WhiteElo ""]
+[BlackElo ""]
+[ECO "A42"]
+
+1.d4 g6 2.e4 Bg7 3.c4 d6 4.Nc3 Nc6 5.Be3 e5 6.d5 Nd4 7.Nge2 Nxe2 8.Bxe2 f5
+9.f3 Nf6 10.Qd2 O-O 11.exf5 Bxf5 12.g4 Bd7 13.h3 a6 14.O-O-O b5 15.c5 b4
+16.Ne4 a5 17.Bd3 Qe7 18.c6 Bc8 19.h4 Ba6 20.Nxf6+ Bxf6 21.g5 Bg7 22.Be4 Bc8
+23.h5 Bf5 24.hxg6 Bxg6 25.Qd3 Rxf3 26.Bxg6 hxg6 27.Qxg6 Kf8 28.Qe4 Qf7 29.g6 Qf5 
+30.Qxf5+ Rxf5 31.Rdf1 Rxf1+ 32.Rxf1+ Kg8 33.Rf7 Rc8 34.Kc2 e4 35.b3 Bc3 36.Kd1 Be5
+37.Ke2 Bc3 38.Ba7  1-0
+
+; No white
+[Event "Munich olm fin-A"]
+[Site "Munich"]
+[Date "1958.??.??"]
+[Round "8"]
+[Black "Alexander, Conel Hughes"]
+[Result "1-0"]
+[WhiteElo ""]
+[BlackElo ""]
+[ECO "A42"]
+
+1.d4 g6 2.e4 Bg7 3.c4 d6 4.Nc3 Nc6 5.Be3 e5 6.d5 Nd4 7.Nge2 Nxe2 8.Bxe2 f5
+9.f3 Nf6 10.Qd2 O-O 11.exf5 Bxf5 12.g4 Bd7 13.h3 a6 14.O-O-O b5 15.c5 b4
+16.Ne4 a5 17.Bd3 Qe7 18.c6 Bc8 19.h4 Ba6 20.Nxf6+ Bxf6 21.g5 Bg7 22.Be4 Bc8
+23.h5 Bf5 24.hxg6 Bxg6 25.Qd3 Rxf3 26.Bxg6 hxg6 27.Qxg6 Kf8 28.Qe4 Qf7 29.g6 Qf5
+30.Qxf5+ Rxf5 31.Rdf1 Rxf1+ 32.Rxf1+ Kg8 33.Rf7 Rc8 34.Kc2 e4 35.b3 Bc3 36.Kd1 Be5
+37.Ke2 Bc3 38.Ba7  1-0
+
+; No black
+[Event "URS-ch25"]
+[Site "Riga"]
+[Date "1958.??.??"]
+[Round "?"]
+[White "Averbakh, Yuri L"]
+[Result "1-0"]
+[WhiteElo ""]
+[BlackElo ""]
+[ECO "A42"]
+
+1.c4 g6 2.d4 Bg7 3.e4 d6 4.Nc3 Nc6 5.Be3 e5 6.d5 Nce7 7.g4 f5 8.gxf5 gxf5
+9.Qh5+ Kf8 10.Bh3 Nf6 11.Qf3 a6 12.exf5 Qe8 13.Nge2 Qh5 14.Qxh5 Nxh5 15.Bg5 Nxf5
+16.Ng3 Nd4 17.Bxc8 Rxc8 18.Nxh5 Nf3+ 19.Ke2 Nxg5 20.Rag1 Bh6 21.h4 Nf7 22.Ne4 c6
+23.Kd3 cxd5 24.cxd5 Bf4 25.Ng7 Ra8 26.Nf5 Rd8 27.Rg4 Rg8 28.Rxg8+ Kxg8 29.Rg1+ Kh8
+30.Rg7  1-0
+
+; No Result
+[Event "URS-ch25"]
+[Site "Riga"]
+[Date "1958.??.??"]
+[Round "?"]
+[White "Averbakh, Yuri L"]
+[Black "Guy"]
+[WhiteElo ""]
+[BlackElo ""]
+[ECO "A42"]
+
+1.c4 g6 2.d4 Bg7 3.e4 d6 4.Nc3 Nc6 5.Be3 e5 6.d5 Nce7 7.g4 f5 8.gxf5 gxf5
+9.Qh5+ Kf8 10.Bh3 Nf6 11.Qf3 a6 12.exf5 Qe8 13.Nge2 Qh5 14.Qxh5 Nxh5 15.Bg5 Nxf5
+16.Ng3 Nd4 17.Bxc8 Rxc8 18.Nxh5 Nf3+ 19.Ke2 Nxg5 20.Rag1 Bh6 21.h4 Nf7 22.Ne4 c6
+23.Kd3 cxd5 24.cxd5 Bf4 25.Ng7 Ra8 26.Nf5 Rd8 27.Rg4 Rg8 28.Rxg8+ Kxg8 29.Rg1+ Kh8
+30.Rg7  1-0
+
+

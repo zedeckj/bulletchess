@@ -1,0 +1,1180 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Utilities &#8212; bulletchess  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'utils';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Portable Game Notation" href="pgn.html" />
+    <link rel="prev" title="Main Documentation" href="main.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">bulletchess  documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="auto_examples/walkthrough.html">
+    Basic Walkthrough
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="auto_examples/performance.html">
+    Performance Comparisons
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="main.html">
+    Main Documentation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Utilities
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="pgn.html">
+    Portable Game Notation
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="auto_examples/walkthrough.html">
+    Basic Walkthrough
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="auto_examples/performance.html">
+    Performance Comparisons
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="main.html">
+    Main Documentation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Utilities
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="pgn.html">
+    Portable Game Notation
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Utilities</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-bulletchess.utils">
+<span id="utilities"></span><h1>Utilities<a class="headerlink" href="#module-bulletchess.utils" title="Link to this heading">#</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="bulletchess.utils.count_moves">
+<span class="sig-name descname"><span class="pre">count_moves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Board" title="bulletchess.main.Board"><span class="pre">Board</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#bulletchess.utils.count_moves" title="Link to this definition">#</a></dt>
+<dd><p>Counts the number of legal moves that could be performed for the given <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code>, without actually
+constructing any <code class="xref py py-class docutils literal notranslate"><span class="pre">Move</span></code> objects. This is much faster than calling 
+<code class="docutils literal notranslate"><span class="pre">len(Board.legal_moves())</span></code></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bulletchess.utils.evaluate">
+<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Board" title="bulletchess.main.Board"><span class="pre">Board</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bulletchess.utils.evaluate" title="Link to this definition">#</a></dt>
+<dd><p>A simple heuristic function for the utility of a <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code>
+based on Claude Shannon’s example evaluation function.
+This implementation differs in using centipawns instead of fractional values,
+and explicitly evaluates positions which can be claimed as a draw as 0.
+The number of Kings is reconsidered as whether or not a player is in Checkmate.</p>
+<p>``
+f(P) = 200(K-K’) + 9(Q-Q’) + 5(R-R’) + 3(B-B’+N-N’) + (P-P’) - 0.5(D-D’+S-S’+I-I’) + 0.1(M-M’)</p>
+<p>in which: -
+(1) K,Q,R,B,B,P are the number of White kings, queens, rooks, bishops, knights
+and pawns on the board.
+(2) D,S,I are doubled, backward and isolated White pawns.
+(3) M= White mobility (measured, say, as the number of legal moves available to
+White).</p>
+<p>Primed letters are the similar quantities for Black.``</p>
+<p>Shannon, C. E. (1950). XXII. Programming a computer for playing chess. The London, 
+Edinburgh, and Dublin Philosophical Magazine and Journal of Science, 41(314), 256–27    
+5. <a class="reference external" href="https://doi.org/10.1080/14786445008521796">https://doi.org/10.1080/14786445008521796</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bulletchess.utils.is_quiescent">
+<span class="sig-name descname"><span class="pre">is_quiescent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Board" title="bulletchess.main.Board"><span class="pre">Board</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#bulletchess.utils.is_quiescent" title="Link to this definition">#</a></dt>
+<dd><p>Determines if the given <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code>’s position is ‘quiescent’, meaning that the position is not Check,
+and that there are  no possible captures that could be made on this turn.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bulletchess.utils.perft">
+<span class="sig-name descname"><span class="pre">perft</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Board" title="bulletchess.main.Board"><span class="pre">Board</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#bulletchess.utils.perft" title="Link to this definition">#</a></dt>
+<dd><p>Performs a tree walk of legal moves starting from the provided <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code>, 
+and returns the number of leaf nodes at the given depth. For more information, 
+see: <a class="reference external" href="https://www.chessprogramming.org/Perft">https://www.chessprogramming.org/Perft</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bulletchess.utils.perft_fen">
+<span class="sig-name descname"><span class="pre">perft_fen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fen</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#bulletchess.utils.perft_fen" title="Link to this definition">#</a></dt>
+<dd><p>Sames as <code class="xref py py-func docutils literal notranslate"><span class="pre">utils.perft()</span></code>, but takes a Forsyth-Edwards Notation <code class="docutils literal notranslate"><span class="pre">str</span></code> description of a position instead of a <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bulletchess.utils.backwards_pawns">
+<span class="sig-name descname"><span class="pre">backwards_pawns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Board" title="bulletchess.main.Board"><span class="pre">Board</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Color" title="bulletchess.main.Color"><span class="pre">Color</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="main.html#bulletchess.main.Bitboard" title="bulletchess.main.Bitboard"><span class="pre">Bitboard</span></a></span></span><a class="headerlink" href="#bulletchess.utils.backwards_pawns" title="Link to this definition">#</a></dt>
+<dd><p>Returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code> containing all <code class="xref py py-class docutils literal notranslate"><span class="pre">Square</span></code> values with a backwards pawn for the given <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code>.</p>
+<p>A backwards pawn is defined as a pawn that:
+- is behind all other friendly pawns in its own and adjacent files.
+- has no enemy pawn directly in front of it
+- can not advance without being attacked by an enemy pawn</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">board</span> <span class="o">=</span> <span class="n">Board</span><span class="o">.</span><span class="n">from_fen</span><span class="p">(</span><span class="s2">&quot;4k3/2p3p1/1p2p2p/1P2P2P/1PP3P1/4P3/8/4K3 w - - 0 1&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+<span class="go">- - - - k - - - </span>
+<span class="go">- - p - - - p - </span>
+<span class="go">- p - - p - - p </span>
+<span class="go">- P - - P - - P </span>
+<span class="go">- P P - - - P - </span>
+<span class="go">- - - - P - - - </span>
+<span class="go">- - - - - - - - </span>
+<span class="go">- - - - K - - - </span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">backwards_pawns</span><span class="p">(</span><span class="n">board</span><span class="p">))</span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 1 0 0 0 1 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 1 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bulletchess.utils.isolated_pawns">
+<span class="sig-name descname"><span class="pre">isolated_pawns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Board" title="bulletchess.main.Board"><span class="pre">Board</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Color" title="bulletchess.main.Color"><span class="pre">Color</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="main.html#bulletchess.main.Bitboard" title="bulletchess.main.Bitboard"><span class="pre">Bitboard</span></a></span></span><a class="headerlink" href="#bulletchess.utils.isolated_pawns" title="Link to this definition">#</a></dt>
+<dd><p>Returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code> containing all <code class="xref py py-class docutils literal notranslate"><span class="pre">Square</span></code> values with an isolated pawn for the given <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code>.</p>
+<p>An isolated pawn is defined as a pawn with no friendly pawns in adjacent files.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">board</span> <span class="o">=</span> <span class="n">Board</span><span class="o">.</span><span class="n">from_fen</span><span class="p">(</span><span class="s2">&quot;4k3/2p3p1/1p2p2p/1P2P2P/1PP3P1/4P3/8/4K3 w - - 0 1&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+<span class="go">- - - - k - - - </span>
+<span class="go">- - p - - - p - </span>
+<span class="go">- p - - p - - p </span>
+<span class="go">- P - - P - - P </span>
+<span class="go">- P P - - - P - </span>
+<span class="go">- - - - P - - - </span>
+<span class="go">- - - - - - - - </span>
+<span class="go">- - - - K - - - </span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">isolated_pawns</span><span class="p">(</span><span class="n">board</span><span class="p">))</span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 1 0 0 0 </span>
+<span class="go">0 0 0 0 1 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 1 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bulletchess.utils.doubled_pawns">
+<span class="sig-name descname"><span class="pre">doubled_pawns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Board" title="bulletchess.main.Board"><span class="pre">Board</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Color" title="bulletchess.main.Color"><span class="pre">Color</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="main.html#bulletchess.main.Bitboard" title="bulletchess.main.Bitboard"><span class="pre">Bitboard</span></a></span></span><a class="headerlink" href="#bulletchess.utils.doubled_pawns" title="Link to this definition">#</a></dt>
+<dd><p>Returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code> containing all <code class="xref py py-class docutils literal notranslate"><span class="pre">Square</span></code> values with a passed pawn for the given <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code>.</p>
+<p>A doubled pawn is defined as a pawn with a friendly pawn in the same file.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">board</span> <span class="o">=</span> <span class="n">Board</span><span class="o">.</span><span class="n">from_fen</span><span class="p">(</span><span class="s2">&quot;4k3/2p3p1/1p2p2p/1P2P2P/1PP3P1/4P3/8/4K3 w - - 0 1&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+<span class="go">- - - - k - - - </span>
+<span class="go">- - p - - - p - </span>
+<span class="go">- p - - p - - p </span>
+<span class="go">- P - - P - - P </span>
+<span class="go">- P P - - - P - </span>
+<span class="go">- - - - P - - - </span>
+<span class="go">- - - - - - - - </span>
+<span class="go">- - - - K - - - </span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">doubled_pawns</span><span class="p">(</span><span class="n">board</span><span class="p">))</span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 1 0 0 1 0 0 0 </span>
+<span class="go">0 1 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 1 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bulletchess.utils.passed_pawns">
+<span class="sig-name descname"><span class="pre">passed_pawns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Board" title="bulletchess.main.Board"><span class="pre">Board</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Color" title="bulletchess.main.Color"><span class="pre">Color</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="main.html#bulletchess.main.Bitboard" title="bulletchess.main.Bitboard"><span class="pre">Bitboard</span></a></span></span><a class="headerlink" href="#bulletchess.utils.passed_pawns" title="Link to this definition">#</a></dt>
+<dd><p>Returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code> containing all <code class="xref py py-class docutils literal notranslate"><span class="pre">Square</span></code> values with a passed pawn for the given <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code>.</p>
+<p>A passed pawn is defined as a pawn with no enemy pawns in its file or adjacent files which can
+block it from advancing forward, ulitmately to promote.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">board</span> <span class="o">=</span> <span class="n">Board</span><span class="o">.</span><span class="n">from_fen</span><span class="p">(</span><span class="s2">&quot;7k/8/7p/1P2Pp1P/2Pp1PP1/8/8/7K w - - 0 1&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+<span class="go">- - - - - - - k </span>
+<span class="go">- - - - - - - - </span>
+<span class="go">- - - - - - - p </span>
+<span class="go">- P - - P p - P </span>
+<span class="go">- - P p - P P - </span>
+<span class="go">- - - - - - - - </span>
+<span class="go">- - - - - - - - </span>
+<span class="go">- - - - - - - K </span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">passed_pawns</span><span class="p">(</span><span class="n">board</span><span class="p">))</span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 1 0 0 1 0 0 0 </span>
+<span class="go">0 0 1 1 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bulletchess.utils.is_pinned">
+<span class="sig-name descname"><span class="pre">is_pinned</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Board" title="bulletchess.main.Board"><span class="pre">Board</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">square</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Square" title="bulletchess.main.Square"><span class="pre">Square</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#bulletchess.utils.is_pinned" title="Link to this definition">#</a></dt>
+<dd><p>Returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if the given <code class="xref py py-class docutils literal notranslate"><span class="pre">Square</span></code> has a piece which is pinned in the given <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code>.</p>
+<p>A piece is considered pinned if it is not allowed to move at all, as doing so would place the moving player’s king in check.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">board</span> <span class="o">=</span> <span class="n">Board</span><span class="o">.</span><span class="n">from_fen</span><span class="p">(</span><span class="s2">&quot;rnbqk1nr/pppp1ppp/8/4p3/1b6/2NP4/PPP1PPPP/R1BQKBNR w KQkq - 1 3&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+<span class="go">r n b q k - n r </span>
+<span class="go">p p p p - p p p </span>
+<span class="go">- - - - - - - - </span>
+<span class="go">- - - - p - - - </span>
+<span class="go">- b - - - - - - </span>
+<span class="go">- - N P - - - - </span>
+<span class="go">P P P - P P P P </span>
+<span class="go">R - B Q K B N R </span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">is_pinned</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">A1</span><span class="p">)</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">is_pinned</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">D3</span><span class="p">)</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">is_pinned</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">C3</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bulletchess.utils.attack_mask">
+<span class="sig-name descname"><span class="pre">attack_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Board" title="bulletchess.main.Board"><span class="pre">Board</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">attacker</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Color" title="bulletchess.main.Color"><span class="pre">Color</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="main.html#bulletchess.main.Bitboard" title="bulletchess.main.Bitboard"><span class="pre">Bitboard</span></a></span></span><a class="headerlink" href="#bulletchess.utils.attack_mask" title="Link to this definition">#</a></dt>
+<dd><p>Returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code> of containing all squares which are being attacked by the specified <code class="xref py py-class docutils literal notranslate"><span class="pre">Color</span></code>.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">board</span> <span class="o">=</span> <span class="n">Board</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">attack_mask</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">WHITE</span><span class="p">))</span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">1 1 1 1 1 1 1 1 </span>
+<span class="go">1 1 1 1 1 1 1 1 </span>
+<span class="go">0 1 1 1 1 1 1 0 </span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">board</span> <span class="o">=</span> <span class="n">Board</span><span class="o">.</span><span class="n">from_fen</span><span class="p">(</span><span class="s2">&quot;7k/8/8/1r6/8/8/8/7K w - - 0 1&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+<span class="go">- - - - - - - k </span>
+<span class="go">- - - - - - - - </span>
+<span class="go">- - - - - - - - </span>
+<span class="go">- r - - - - - - </span>
+<span class="go">- - - - - - - - </span>
+<span class="go">- - - - - - - - </span>
+<span class="go">- - - - - - - - </span>
+<span class="go">- - - - - - - K </span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">attack_mask</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">BLACK</span><span class="p">))</span>
+<span class="go">0 1 0 0 0 0 1 0 </span>
+<span class="go">0 1 0 0 0 0 1 1 </span>
+<span class="go">0 1 0 0 0 0 0 0 </span>
+<span class="go">1 0 1 1 1 1 1 1 </span>
+<span class="go">0 1 0 0 0 0 0 0 </span>
+<span class="go">0 1 0 0 0 0 0 0 </span>
+<span class="go">0 1 0 0 0 0 0 0 </span>
+<span class="go">0 1 0 0 0 0 0 0 </span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bulletchess.utils.material">
+<span class="sig-name descname"><span class="pre">material</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Board" title="bulletchess.main.Board"><span class="pre">Board</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pawn_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">knight_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bishop_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rook_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">queen_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">900</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#bulletchess.utils.material" title="Link to this definition">#</a></dt>
+<dd><p>Calculates the net material value on the provided <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code>. By default,
+uses standard evaluations of each <code class="xref py py-class docutils literal notranslate"><span class="pre">PieceType</span></code> measured in centipawns.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bulletchess.utils.mobility">
+<span class="sig-name descname"><span class="pre">mobility</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Board" title="bulletchess.main.Board"><span class="pre">Board</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#bulletchess.utils.mobility" title="Link to this definition">#</a></dt>
+<dd><p>Returns the number of moves for the <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code> as if it were it the <code class="xref py py-data docutils literal notranslate"><span class="pre">WHITE</span></code>’s turn,
+subtracted by the number of moves as if it were <code class="xref py py-data docutils literal notranslate"><span class="pre">BLACK</span></code>’s turn.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bulletchess.utils.open_files">
+<span class="sig-name descname"><span class="pre">open_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Board" title="bulletchess.main.Board"><span class="pre">Board</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="main.html#bulletchess.main.Bitboard" title="bulletchess.main.Bitboard"><span class="pre">Bitboard</span></a></span></span><a class="headerlink" href="#bulletchess.utils.open_files" title="Link to this definition">#</a></dt>
+<dd><p>Returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code> of all files that have no pawns of either <code class="xref py py-class docutils literal notranslate"><span class="pre">Color</span></code>.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">board</span> <span class="o">=</span> <span class="n">Board</span><span class="o">.</span><span class="n">from_fen</span><span class="p">(</span><span class="s2">&quot;4k3/2p3p1/1p2p2p/1P2P2P/1PP3P1/4P3/8/4K3 w - - 0 1&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+<span class="go">- - - - k - - - </span>
+<span class="go">- - p - - - p - </span>
+<span class="go">- p - - p - - p </span>
+<span class="go">- P - - P - - P </span>
+<span class="go">- P P - - - P - </span>
+<span class="go">- - - - P - - - </span>
+<span class="go">- - - - - - - - </span>
+<span class="go">- - - - K - - - </span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">open_files</span><span class="p">(</span><span class="n">board</span><span class="p">))</span>
+<span class="go">1 0 0 1 0 1 0 0 </span>
+<span class="go">1 0 0 1 0 1 0 0 </span>
+<span class="go">1 0 0 1 0 1 0 0 </span>
+<span class="go">1 0 0 1 0 1 0 0 </span>
+<span class="go">1 0 0 1 0 1 0 0 </span>
+<span class="go">1 0 0 1 0 1 0 0 </span>
+<span class="go">1 0 0 1 0 1 0 0 </span>
+<span class="go">1 0 0 1 0 1 0 0 </span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bulletchess.utils.half_open_files">
+<span class="sig-name descname"><span class="pre">half_open_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Board" title="bulletchess.main.Board"><span class="pre">Board</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">for_color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Color" title="bulletchess.main.Color"><span class="pre">Color</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="main.html#bulletchess.main.Bitboard" title="bulletchess.main.Bitboard"><span class="pre">Bitboard</span></a></span></span><a class="headerlink" href="#bulletchess.utils.half_open_files" title="Link to this definition">#</a></dt>
+<dd><p>Returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code> of all files that have no pawns of the given <code class="xref py py-class docutils literal notranslate"><span class="pre">Color</span></code>, but do 
+have pawns of the opposite <code class="xref py py-class docutils literal notranslate"><span class="pre">Color</span></code>.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">board</span> <span class="o">=</span> <span class="n">Board</span><span class="o">.</span><span class="n">from_fen</span><span class="p">(</span><span class="s2">&quot;3k4/8/4p3/4P3/5PP1/8/8/3K4 w - - 0 1&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+<span class="go">- - - k - - - - </span>
+<span class="go">- - - - - - - - </span>
+<span class="go">- - - - p - - - </span>
+<span class="go">- - - - P - - - </span>
+<span class="go">- - - - - P P - </span>
+<span class="go">- - - - - - - - </span>
+<span class="go">- - - - - - - - </span>
+<span class="go">- - - K - - - - </span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">half_open_files</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">WHITE</span><span class="p">))</span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">half_open_files</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">BLACK</span><span class="p">))</span>
+<span class="go">0 0 0 0 0 1 1 0 </span>
+<span class="go">0 0 0 0 0 1 1 0 </span>
+<span class="go">0 0 0 0 0 1 1 0 </span>
+<span class="go">0 0 0 0 0 1 1 0 </span>
+<span class="go">0 0 0 0 0 1 1 0 </span>
+<span class="go">0 0 0 0 0 1 1 0 </span>
+<span class="go">0 0 0 0 0 1 1 0 </span>
+<span class="go">0 0 0 0 0 1 1 0 </span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bulletchess.utils.random_legal_move">
+<span class="sig-name descname"><span class="pre">random_legal_move</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Board" title="bulletchess.main.Board"><span class="pre">Board</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="main.html#bulletchess.main.Move" title="bulletchess.main.Move"><span class="pre">Move</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#bulletchess.utils.random_legal_move" title="Link to this definition">#</a></dt>
+<dd><p>Returns a random legal <code class="xref py py-class docutils literal notranslate"><span class="pre">Move</span></code> for the given <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code>.</p>
+<p>This is much faster than <code class="docutils literal notranslate"><span class="pre">random.choice(board.legal_moves())</span></code>.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">board</span> <span class="o">=</span> <span class="n">Board</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">random_legal_move</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+<span class="go">&lt;Move: g1h3&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">random_legal_move</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+<span class="go">&lt;Move: d2d3&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bulletchess.utils.random_board">
+<span class="sig-name descname"><span class="pre">random_board</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="main.html#bulletchess.main.Board" title="bulletchess.main.Board"><span class="pre">Board</span></a></span></span><a class="headerlink" href="#bulletchess.utils.random_board" title="Link to this definition">#</a></dt>
+<dd><p>Returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code> with a position determined by appling a random number of randomly selected legal moves.
+The generated <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code> may be checkmate or a draw.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">board</span> <span class="o">=</span> <span class="n">random_board</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+<span class="go">r Q - - k - - r </span>
+<span class="go">- b - p n p p - </span>
+<span class="go">p b - - p - - - </span>
+<span class="go">- - - - - - P - </span>
+<span class="go">- p P - - - p - </span>
+<span class="go">N - - - - N - - </span>
+<span class="go">P - - P P P - - </span>
+<span class="go">R - B - K - - - </span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">board2</span> <span class="o">=</span> <span class="n">random_board</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">board2</span><span class="p">)</span>
+<span class="go">- - K - - - - - </span>
+<span class="go">- - - - - - - - </span>
+<span class="go">- - - - - - - - </span>
+<span class="go">- - - - - - - - </span>
+<span class="go">- - - - - - - - </span>
+<span class="go">- - - - - - - - </span>
+<span class="go">- k - - - - - - </span>
+<span class="go">- - - - - - - - </span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bulletchess.utils.legally_equal">
+<span class="sig-name descname"><span class="pre">legally_equal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Board" title="bulletchess.main.Board"><span class="pre">Board</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">board2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Board" title="bulletchess.main.Board"><span class="pre">Board</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#bulletchess.utils.legally_equal" title="Link to this definition">#</a></dt>
+<dd><p>Returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if given two <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code> instances with the same mapping of <code class="xref py py-class docutils literal notranslate"><span class="pre">Square</span></code> to <code class="xref py py-class docutils literal notranslate"><span class="pre">Piece</span></code> objects,
+equivilant <code class="xref py py-class docutils literal notranslate"><span class="pre">CastlingRights</span></code>, and en-passant <code class="xref py py-class docutils literal notranslate"><span class="pre">Square</span></code> values.</p>
+<p>Unlike <code class="xref py py-func docutils literal notranslate"><span class="pre">Board.__eq__()</span></code>, does not check the halfmove clock and fullmove number.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">board</span> <span class="o">=</span> <span class="n">Board</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">board2</span> <span class="o">=</span> <span class="n">Board</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">board</span><span class="o">.</span><span class="n">halfmove_clock</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">board</span> <span class="o">==</span> <span class="n">board2</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">legally_equal</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">board2</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bulletchess.utils.deeply_equal">
+<span class="sig-name descname"><span class="pre">deeply_equal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Board" title="bulletchess.main.Board"><span class="pre">Board</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">board2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Board" title="bulletchess.main.Board"><span class="pre">Board</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#bulletchess.utils.deeply_equal" title="Link to this definition">#</a></dt>
+<dd><p>Returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if given two <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code> instances have the same move history,
+along with equivalent mappings of <code class="xref py py-class docutils literal notranslate"><span class="pre">Square</span></code> to <code class="xref py py-class docutils literal notranslate"><span class="pre">Piece</span></code> objects,
+equivilant <code class="xref py py-class docutils literal notranslate"><span class="pre">CastlingRights</span></code>, and en-passant <code class="xref py py-class docutils literal notranslate"><span class="pre">Square</span></code> values, halfmove clocks, and fullmove numbers.</p>
+<p>This function has the same behavior as <code class="docutils literal notranslate"><span class="pre">board1</span> <span class="pre">==</span> <span class="pre">board2</span> <span class="pre">and</span> <span class="pre">board1.history</span> <span class="pre">==</span> <span class="pre">board2.history</span></code>, but is much faster.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">board</span> <span class="o">=</span> <span class="n">Board</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">board2</span> <span class="o">=</span> <span class="n">Board</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">board</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">Move</span><span class="p">(</span><span class="n">E2</span><span class="p">,</span> <span class="n">E4</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">board2</span><span class="p">[</span><span class="n">E2</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">board2</span><span class="p">[</span><span class="n">E4</span><span class="p">]</span> <span class="o">=</span> <span class="n">Piece</span><span class="p">(</span><span class="n">WHITE</span><span class="p">,</span> <span class="n">PAWN</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">board2</span><span class="o">.</span><span class="n">turn</span> <span class="o">=</span> <span class="n">BLACK</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">board2</span><span class="o">.</span><span class="n">en_passant_square</span> <span class="o">=</span> <span class="n">E3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">board</span> <span class="o">==</span> <span class="n">board2</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">deeply_equal</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">board2</span><span class="p">)</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bulletchess.utils.piece_bitboard">
+<span class="sig-name descname"><span class="pre">piece_bitboard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Board" title="bulletchess.main.Board"><span class="pre">Board</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">piece</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Piece" title="bulletchess.main.Piece"><span class="pre">Piece</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="main.html#bulletchess.main.Bitboard" title="bulletchess.main.Bitboard"><span class="pre">Bitboard</span></a></span></span><a class="headerlink" href="#bulletchess.utils.piece_bitboard" title="Link to this definition">#</a></dt>
+<dd><p>Gets a <code class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code> of squares with the given <code class="xref py py-class docutils literal notranslate"><span class="pre">Piece</span></code> on the given <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code>.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">bulletchess</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">piece</span> <span class="o">=</span> <span class="n">Piece</span><span class="p">(</span><span class="n">WHITE</span><span class="p">,</span> <span class="n">PAWN</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">board</span> <span class="o">=</span> <span class="n">Board</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bb</span> <span class="o">=</span> <span class="n">piece_bitboard</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">piece</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">bb</span><span class="p">)</span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">1 1 1 1 1 1 1 1 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bb</span> <span class="o">==</span> <span class="n">board</span><span class="p">[</span><span class="n">WHITE</span><span class="p">,</span> <span class="n">PAWN</span><span class="p">]</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bulletchess.utils.unoccupied_bitboard">
+<span class="sig-name descname"><span class="pre">unoccupied_bitboard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Board" title="bulletchess.main.Board"><span class="pre">Board</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="main.html#bulletchess.main.Bitboard" title="bulletchess.main.Bitboard"><span class="pre">Bitboard</span></a></span></span><a class="headerlink" href="#bulletchess.utils.unoccupied_bitboard" title="Link to this definition">#</a></dt>
+<dd><p>An explict alias for indexing a <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code> with <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+<p>Gets a <code class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code> of all empty squares on the given <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code>.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">board</span> <span class="o">=</span> <span class="n">Board</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bb</span> <span class="o">=</span> <span class="n">unoccupied_bitboard</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">bb</span><span class="p">)</span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">1 1 1 1 1 1 1 1 </span>
+<span class="go">1 1 1 1 1 1 1 1 </span>
+<span class="go">1 1 1 1 1 1 1 1 </span>
+<span class="go">1 1 1 1 1 1 1 1 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bb</span> <span class="o">==</span> <span class="n">board</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bulletchess.utils.white_bitboard">
+<span class="sig-name descname"><span class="pre">white_bitboard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Board" title="bulletchess.main.Board"><span class="pre">Board</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="main.html#bulletchess.main.Color" title="bulletchess.main.Color"><span class="pre">Color</span></a></span></span><a class="headerlink" href="#bulletchess.utils.white_bitboard" title="Link to this definition">#</a></dt>
+<dd><p>An explict alias for indexing a <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code> with <code class="xref py py-data docutils literal notranslate"><span class="pre">WHITE</span></code>.</p>
+<p>Gets a <code class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code> of all squares with a white piece on the given <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code>.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">board</span> <span class="o">=</span> <span class="n">Board</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bb</span> <span class="o">=</span> <span class="n">white_bitboard</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">bb</span><span class="p">)</span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">1 1 1 1 1 1 1 1 </span>
+<span class="go">1 1 1 1 1 1 1 1 </span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bb</span> <span class="o">==</span> <span class="n">board</span><span class="p">[</span><span class="n">WHITE</span><span class="p">]</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bulletchess.utils.black_bitboard">
+<span class="sig-name descname"><span class="pre">black_bitboard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Board" title="bulletchess.main.Board"><span class="pre">Board</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="main.html#bulletchess.main.Color" title="bulletchess.main.Color"><span class="pre">Color</span></a></span></span><a class="headerlink" href="#bulletchess.utils.black_bitboard" title="Link to this definition">#</a></dt>
+<dd><p>An explict alias for indexing a <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code> with <code class="xref py py-data docutils literal notranslate"><span class="pre">BLACK</span></code>.</p>
+<p>Gets a <code class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code> of all squares with a black piece on the given <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code>.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">board</span> <span class="o">=</span> <span class="n">Board</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bb</span> <span class="o">=</span> <span class="n">black_bitboard</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">bb</span><span class="p">)</span>
+<span class="go">1 1 1 1 1 1 1 1 </span>
+<span class="go">1 1 1 1 1 1 1 1 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bb</span> <span class="o">==</span> <span class="n">board</span><span class="p">[</span><span class="n">BLACK</span><span class="p">]</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bulletchess.utils.king_bitboard">
+<span class="sig-name descname"><span class="pre">king_bitboard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Board" title="bulletchess.main.Board"><span class="pre">Board</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="main.html#bulletchess.main.Color" title="bulletchess.main.Color"><span class="pre">Color</span></a></span></span><a class="headerlink" href="#bulletchess.utils.king_bitboard" title="Link to this definition">#</a></dt>
+<dd><p>An explict alias for indexing a <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code> with <code class="xref py py-data docutils literal notranslate"><span class="pre">KING</span></code>.</p>
+<p>Gets a <code class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code> of all squares with a king on the given <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code>.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">board</span> <span class="o">=</span> <span class="n">Board</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bb</span> <span class="o">=</span> <span class="n">king_bitboard</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">bb</span><span class="p">)</span>
+<span class="go">0 0 0 0 1 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 1 0 0 0 </span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bb</span> <span class="o">==</span> <span class="n">board</span><span class="p">[</span><span class="n">KING</span><span class="p">]</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bulletchess.utils.queen_bitboard">
+<span class="sig-name descname"><span class="pre">queen_bitboard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Board" title="bulletchess.main.Board"><span class="pre">Board</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="main.html#bulletchess.main.Color" title="bulletchess.main.Color"><span class="pre">Color</span></a></span></span><a class="headerlink" href="#bulletchess.utils.queen_bitboard" title="Link to this definition">#</a></dt>
+<dd><p>An explict alias for indexing a <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code> with <code class="xref py py-data docutils literal notranslate"><span class="pre">QUEEN</span></code>.</p>
+<p>Gets a <code class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code> of all squares with a queen on the given <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code>.</p>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h2>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">board</span> <span class="o">=</span> <span class="n">Board</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bb</span> <span class="o">=</span> <span class="n">queen_bitboard</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">bb</span><span class="p">)</span>
+<span class="go">0 0 0 1 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 1 0 0 0 0 </span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bb</span> <span class="o">==</span> <span class="n">board</span><span class="p">[</span><span class="n">QUEEN</span><span class="p">]</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bulletchess.utils.bishop_bitboard">
+<span class="sig-name descname"><span class="pre">bishop_bitboard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Board" title="bulletchess.main.Board"><span class="pre">Board</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="main.html#bulletchess.main.Color" title="bulletchess.main.Color"><span class="pre">Color</span></a></span></span><a class="headerlink" href="#bulletchess.utils.bishop_bitboard" title="Link to this definition">#</a></dt>
+<dd><p>An explict alias for indexing a <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code> with <code class="xref py py-data docutils literal notranslate"><span class="pre">BISHOP</span></code>.</p>
+<p>Gets a <code class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code> of all squares with a bishop on the given <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code>.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">board</span> <span class="o">=</span> <span class="n">Board</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bb</span> <span class="o">=</span> <span class="n">bishop_bitboard</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">bb</span><span class="p">)</span>
+<span class="go">0 0 1 0 0 1 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 1 0 0 1 0 0 </span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bb</span> <span class="o">==</span> <span class="n">board</span><span class="p">[</span><span class="n">BISHOP</span><span class="p">]</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bulletchess.utils.rook_bitboard">
+<span class="sig-name descname"><span class="pre">rook_bitboard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Board" title="bulletchess.main.Board"><span class="pre">Board</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="main.html#bulletchess.main.Color" title="bulletchess.main.Color"><span class="pre">Color</span></a></span></span><a class="headerlink" href="#bulletchess.utils.rook_bitboard" title="Link to this definition">#</a></dt>
+<dd><p>An explict alias for indexing a <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code> with <code class="xref py py-data docutils literal notranslate"><span class="pre">ROOK</span></code>.</p>
+<p>Gets a <code class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code> of all squares with a rook on the given <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code>.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">board</span> <span class="o">=</span> <span class="n">Board</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bb</span> <span class="o">=</span> <span class="n">rook_bitboard</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">bb</span><span class="p">)</span>
+<span class="go">1 0 0 0 0 0 0 1 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">1 0 0 0 0 0 0 1 </span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bb</span> <span class="o">==</span> <span class="n">board</span><span class="p">[</span><span class="n">ROOK</span><span class="p">]</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bulletchess.utils.pawn_bitboard">
+<span class="sig-name descname"><span class="pre">pawn_bitboard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Board" title="bulletchess.main.Board"><span class="pre">Board</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="main.html#bulletchess.main.Color" title="bulletchess.main.Color"><span class="pre">Color</span></a></span></span><a class="headerlink" href="#bulletchess.utils.pawn_bitboard" title="Link to this definition">#</a></dt>
+<dd><p>An explict alias for indexing a <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code> with <code class="xref py py-data docutils literal notranslate"><span class="pre">PAWN</span></code>.</p>
+<p>Gets a <code class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code> of all squares with a pawn on the given <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code>.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">board</span> <span class="o">=</span> <span class="n">Board</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bb</span> <span class="o">=</span> <span class="n">pawn_bitboard</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">bb</span><span class="p">)</span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">1 1 1 1 1 1 1 1 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">1 1 1 1 1 1 1 1 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bb</span> <span class="o">==</span> <span class="n">board</span><span class="p">[</span><span class="n">PAWN</span><span class="p">]</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bulletchess.utils.knight_bitboard">
+<span class="sig-name descname"><span class="pre">knight_bitboard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Board" title="bulletchess.main.Board"><span class="pre">Board</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="main.html#bulletchess.main.Color" title="bulletchess.main.Color"><span class="pre">Color</span></a></span></span><a class="headerlink" href="#bulletchess.utils.knight_bitboard" title="Link to this definition">#</a></dt>
+<dd><p>An explict alias for indexing a <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code> with <code class="xref py py-data docutils literal notranslate"><span class="pre">KNIGHT</span></code>.</p>
+<p>Gets a <code class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code> of all squares with a knight on the given <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code>.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">board</span> <span class="o">=</span> <span class="n">Board</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bb</span> <span class="o">=</span> <span class="n">knight_bitboard</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">bb</span><span class="p">)</span>
+<span class="go">0 1 0 0 0 0 1 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 0 0 0 0 0 0 0 </span>
+<span class="go">0 1 0 0 0 0 1 0 </span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bb</span> <span class="o">==</span> <span class="n">board</span><span class="p">[</span><span class="n">KNIGHT</span><span class="p">]</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bulletchess.utils.king_square">
+<span class="sig-name descname"><span class="pre">king_square</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Board" title="bulletchess.main.Board"><span class="pre">Board</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Color" title="bulletchess.main.Color"><span class="pre">Color</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="main.html#bulletchess.main.Square" title="bulletchess.main.Square"><span class="pre">Square</span></a></span></span><a class="headerlink" href="#bulletchess.utils.king_square" title="Link to this definition">#</a></dt>
+<dd><p>Gets the <code class="xref py py-class docutils literal notranslate"><span class="pre">Square</span></code> which has the the king of the specified <code class="xref py py-class docutils literal notranslate"><span class="pre">Color</span></code> on the given <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-exc docutils literal notranslate"><span class="pre">AttributeError</span></code> if the given <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code> has multiple kings of the given <code class="xref py py-class docutils literal notranslate"><span class="pre">Color</span></code>.</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">board</span> <span class="o">=</span> <span class="n">Board</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">king_square</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">WHITE</span><span class="p">)</span> <span class="ow">is</span> <span class="n">E1</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">king_square</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">BLACK</span><span class="p">)</span> <span class="ow">is</span> <span class="n">E8</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="main.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Main Documentation</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="pgn.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Portable Game Notation</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.utils.count_moves"><code class="docutils literal notranslate"><span class="pre">count_moves()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.utils.evaluate"><code class="docutils literal notranslate"><span class="pre">evaluate()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.utils.is_quiescent"><code class="docutils literal notranslate"><span class="pre">is_quiescent()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.utils.perft"><code class="docutils literal notranslate"><span class="pre">perft()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.utils.perft_fen"><code class="docutils literal notranslate"><span class="pre">perft_fen()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.utils.backwards_pawns"><code class="docutils literal notranslate"><span class="pre">backwards_pawns()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.utils.isolated_pawns"><code class="docutils literal notranslate"><span class="pre">isolated_pawns()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.utils.doubled_pawns"><code class="docutils literal notranslate"><span class="pre">doubled_pawns()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.utils.passed_pawns"><code class="docutils literal notranslate"><span class="pre">passed_pawns()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.utils.is_pinned"><code class="docutils literal notranslate"><span class="pre">is_pinned()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.utils.attack_mask"><code class="docutils literal notranslate"><span class="pre">attack_mask()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.utils.material"><code class="docutils literal notranslate"><span class="pre">material()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.utils.mobility"><code class="docutils literal notranslate"><span class="pre">mobility()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.utils.open_files"><code class="docutils literal notranslate"><span class="pre">open_files()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.utils.half_open_files"><code class="docutils literal notranslate"><span class="pre">half_open_files()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.utils.random_legal_move"><code class="docutils literal notranslate"><span class="pre">random_legal_move()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.utils.random_board"><code class="docutils literal notranslate"><span class="pre">random_board()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.utils.legally_equal"><code class="docutils literal notranslate"><span class="pre">legally_equal()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.utils.deeply_equal"><code class="docutils literal notranslate"><span class="pre">deeply_equal()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.utils.piece_bitboard"><code class="docutils literal notranslate"><span class="pre">piece_bitboard()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.utils.unoccupied_bitboard"><code class="docutils literal notranslate"><span class="pre">unoccupied_bitboard()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.utils.white_bitboard"><code class="docutils literal notranslate"><span class="pre">white_bitboard()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.utils.black_bitboard"><code class="docutils literal notranslate"><span class="pre">black_bitboard()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.utils.king_bitboard"><code class="docutils literal notranslate"><span class="pre">king_bitboard()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.utils.queen_bitboard"><code class="docutils literal notranslate"><span class="pre">queen_bitboard()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.utils.bishop_bitboard"><code class="docutils literal notranslate"><span class="pre">bishop_bitboard()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.utils.rook_bitboard"><code class="docutils literal notranslate"><span class="pre">rook_bitboard()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.utils.pawn_bitboard"><code class="docutils literal notranslate"><span class="pre">pawn_bitboard()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.utils.knight_bitboard"><code class="docutils literal notranslate"><span class="pre">knight_bitboard()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.utils.king_square"><code class="docutils literal notranslate"><span class="pre">king_square()</span></code></a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/utils.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Jordan Zedeck.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

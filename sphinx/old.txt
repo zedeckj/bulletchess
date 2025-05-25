@@ -1,0 +1,420 @@
+main
+====
+
+Color
+-----
+.. autoapidata:: bulletchess.main.WHITE
+  
+   The white player
+
+
+.. autoapidata:: bulletchess.main.BLACK
+  
+   The black player
+
+
+
+.. autoapiclass:: bulletchess.main.Color
+   :members: 
+   :special-members:
+   :member-order: bysource
+..
+
+
+PieceType
+---------
+
+.. autoapidata:: bulletchess.main.PAWN
+
+   :class:`PieceType` for pawns
+
+.. autoapidata:: bulletchess.main.KNIGHT
+
+   :class:`PieceType` for knights
+
+.. autoapidata:: bulletchess.main.BISHOP
+
+   :class:`PieceType` for bishops
+
+.. autoapidata:: bulletchess.main.ROOK
+
+   :class:`PieceType` for rooks
+
+.. autoapidata:: bulletchess.main.QUEEN
+
+   :class:`PieceType` for queens
+
+.. autoapidata:: bulletchess.main.KING
+ 
+   :class:`PieceType` for kings
+
+.. autoapiclass:: bulletchess.main.PieceType
+   :members: 
+   :special-members:
+   :member-order: bysource
+
+
+Piece
+-----
+
+.. autoapiclass:: bulletchess.main.Piece
+   :members:
+   :special-members:
+   :member-order: bysource
+
+Square
+------
+
+.. autoapidata:: bulletchess.main.A1
+	:no-index:
+
+	The A1 :class:`Square`
+
+.. autoapidata:: bulletchess.main.B1
+	:no-index:
+
+	The B1 :class:`Square`
+
+.. autoapidata:: bulletchess.main.C1
+	:no-index:
+
+	The C1 :class:`Square`
+
+.. autoapidata:: bulletchess.main.D1
+	:no-index:
+
+	The D1 :class:`Square`
+
+.. autoapidata:: bulletchess.main.E1
+	:no-index:
+
+	The E1 :class:`Square`
+
+.. autoapidata:: bulletchess.main.F1
+	:no-index:
+
+	The F1 :class:`Square`
+
+.. autoapidata:: bulletchess.main.G1
+	:no-index:
+
+	The G1 :class:`Square`
+
+.. autoapidata:: bulletchess.main.H1
+	:no-index:
+
+	The H1 :class:`Square`
+
+.. autoapidata:: bulletchess.main.A2
+	:no-index:
+
+	The A2 :class:`Square`
+
+.. autoapidata:: bulletchess.main.B2
+	:no-index:
+
+	The B2 :class:`Square`
+
+.. autoapidata:: bulletchess.main.C2
+	:no-index:
+
+	The C2 :class:`Square`
+
+.. autoapidata:: bulletchess.main.D2
+	:no-index:
+
+	The D2 :class:`Square`
+
+.. autoapidata:: bulletchess.main.E2
+	:no-index:
+
+	The E2 :class:`Square`
+
+.. autoapidata:: bulletchess.main.F2
+	:no-index:
+
+	The F2 :class:`Square`
+
+.. autoapidata:: bulletchess.main.G2
+	:no-index:
+
+	The G2 :class:`Square`
+
+.. autoapidata:: bulletchess.main.H2
+	:no-index:
+
+	The H2 :class:`Square`
+
+.. autoapidata:: bulletchess.main.A3
+	:no-index:
+
+	The A3 :class:`Square`
+
+.. autoapidata:: bulletchess.main.B3
+	:no-index:
+
+	The B3 :class:`Square`
+
+.. autoapidata:: bulletchess.main.C3
+	:no-index:
+
+	The C3 :class:`Square`
+
+.. autoapidata:: bulletchess.main.D3
+	:no-index:
+
+	The D3 :class:`Square`
+
+.. autoapidata:: bulletchess.main.E3
+	:no-index:
+
+	The E3 :class:`Square`
+
+.. autoapidata:: bulletchess.main.F3
+	:no-index:
+
+	The F3 :class:`Square`
+
+.. autoapidata:: bulletchess.main.G3
+	:no-index:
+
+	The G3 :class:`Square`
+
+.. autoapidata:: bulletchess.main.H3
+	:no-index:
+
+	The H3 :class:`Square`
+
+.. autoapidata:: bulletchess.main.A4
+	:no-index:
+
+	The A4 :class:`Square`
+
+.. autoapidata:: bulletchess.main.B4
+	:no-index:
+
+	The B4 :class:`Square`
+
+.. autoapidata:: bulletchess.main.C4
+	:no-index:
+
+	The C4 :class:`Square`
+
+.. autoapidata:: bulletchess.main.D4
+	:no-index:
+
+	The D4 :class:`Square`
+
+.. autoapidata:: bulletchess.main.E4
+	:no-index:
+
+	The E4 :class:`Square`
+
+.. autoapidata:: bulletchess.main.F4
+	:no-index:
+
+	The F4 :class:`Square`
+
+.. autoapidata:: bulletchess.main.G4
+	:no-index:
+
+	The G4 :class:`Square`
+
+.. autoapidata:: bulletchess.main.H4
+	:no-index:
+
+	The H4 :class:`Square`
+
+.. autoapidata:: bulletchess.main.A5
+	:no-index:
+
+	The A5 :class:`Square`
+
+.. autoapidata:: bulletchess.main.B5
+	:no-index:
+
+	The B5 :class:`Square`
+
+.. autoapidata:: bulletchess.main.C5
+	:no-index:
+
+	The C5 :class:`Square`
+
+.. autoapidata:: bulletchess.main.D5
+	:no-index:
+
+	The D5 :class:`Square`
+
+.. autoapidata:: bulletchess.main.E5
+	:no-index:
+
+	The E5 :class:`Square`
+
+.. autoapidata:: bulletchess.main.F5
+	:no-index:
+
+	The F5 :class:`Square`
+
+.. autoapidata:: bulletchess.main.G5
+	:no-index:
+
+	The G5 :class:`Square`
+
+.. autoapidata:: bulletchess.main.H5
+	:no-index:
+
+	The H5 :class:`Square`
+
+.. autoapidata:: bulletchess.main.A6
+	:no-index:
+
+	The A6 :class:`Square`
+
+.. autoapidata:: bulletchess.main.B6
+	:no-index:
+
+	The B6 :class:`Square`
+
+.. autoapidata:: bulletchess.main.C6
+	:no-index:
+
+	The C6 :class:`Square`
+
+.. autoapidata:: bulletchess.main.D6
+	:no-index:
+
+	The D6 :class:`Square`
+
+.. autoapidata:: bulletchess.main.E6
+	:no-index:
+
+	The E6 :class:`Square`
+
+.. autoapidata:: bulletchess.main.F6
+	:no-index:
+
+	The F6 :class:`Square`
+
+.. autoapidata:: bulletchess.main.G6
+	:no-index:
+
+	The G6 :class:`Square`
+
+.. autoapidata:: bulletchess.main.H6
+	:no-index:
+
+	The H6 :class:`Square`
+
+.. autoapidata:: bulletchess.main.A7
+	:no-index:
+
+	The A7 :class:`Square`
+
+.. autoapidata:: bulletchess.main.B7
+	:no-index:
+
+	The B7 :class:`Square`
+
+.. autoapidata:: bulletchess.main.C7
+	:no-index:
+
+	The C7 :class:`Square`
+
+.. autoapidata:: bulletchess.main.D7
+	:no-index:
+
+	The D7 :class:`Square`
+
+.. autoapidata:: bulletchess.main.E7
+	:no-index:
+
+	The E7 :class:`Square`
+
+.. autoapidata:: bulletchess.main.F7
+	:no-index:
+
+	The F7 :class:`Square`
+
+.. autoapidata:: bulletchess.main.G7
+	:no-index:
+
+	The G7 :class:`Square`
+
+.. autoapidata:: bulletchess.main.H7
+	:no-index:
+
+	The H7 :class:`Square`
+
+.. autoapidata:: bulletchess.main.A8
+	:no-index:
+
+	The A8 :class:`Square`
+
+.. autoapidata:: bulletchess.main.B8
+	:no-index:
+
+	The B8 :class:`Square`
+
+.. autoapidata:: bulletchess.main.C8
+	:no-index:
+
+	The C8 :class:`Square`
+
+.. autoapidata:: bulletchess.main.D8
+	:no-index:
+
+	The D8 :class:`Square`
+
+.. autoapidata:: bulletchess.main.E8
+	:no-index:
+
+	The E8 :class:`Square`
+
+.. autoapidata:: bulletchess.main.F8
+	:no-index:
+
+	The F8 :class:`Square`
+
+.. autoapidata:: bulletchess.main.G8
+	:no-index:
+
+	The G8 :class:`Square`
+
+.. autoapidata:: bulletchess.main.H8
+	:no-index:
+
+	The H8 :class:`Square`
+
+
+
+.. autoapiclass:: bulletchess.main.Square
+   :members:
+   :special-members:
+   :member-order: bysource
+
+
+.. autoapiclass:: bulletchess.main.Bitboard
+   :members:
+   :special-members:
+   :member-order: bysource
+
+.. autoapiclass:: bulletchess.main.CastlingType
+  :members:
+  :special-members:
+  :member-order: bysource
+
+.. autoapiclass:: bulletchess.main.Move
+   :members:
+   :special-members:
+   :member-order: bysource
+
+.. autoapiclass:: bulletchess.main.CastlingRights
+  :members:
+  :special-members:
+  :member-order: bysource
+
+
+.. autoapiclass:: bulletchess.main.Board
+  :members:
+  :special-members:
+  :member-order: bysource 

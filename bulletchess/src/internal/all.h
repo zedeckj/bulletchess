@@ -1,0 +1,7 @@
+#include "apply.h"
+#include "fen.h"
+#include "utils.h"
+#include "hash.h"
+#include "rules.h"
+#include "html.h"
+#include "pgn.h"
