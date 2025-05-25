@@ -579,7 +579,7 @@ typedef struct {
 	piece_t piece;
 } PyPieceObject; 
 
-PyPieceObject *PyPieces[12];
+PyPieceObject *PyPieces[13];
 
 static PyObject *PyPiece_new(piece_t piece){
 	if (piece.type == EMPTY_VAL) Py_RETURN_NONE;
@@ -591,15 +591,14 @@ static PyObject *PyPiece_new(piece_t piece){
 
 static bool PyPiece_make_all(){
 	for (int i = 0; i < 13; i++){
-		PyPieceObject *p = 
-			(PyPieceObject *)PyPiece_new(index_to_piece(i));
-		if (!p) {
-			for (int j = 0; j < i; j++){
-				Py_DECREF(PyPieces[j]);
+			PyPieceObject *p = (PyPieceObject *)PyPiece_new(index_to_piece(i));
+			if (!p) {
+				for (int j = 0; j < i; j++){
+					Py_DECREF(PyPieces[j]);
+				}
+				return false;
 			}
-			return false;
-		}
-		else PyPieces[i] = p;
+			else PyPieces[i] = p;
 	}
 	return true;	
 }
