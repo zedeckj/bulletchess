@@ -1,18 +1,19 @@
 #ifndef DATEHEADER
 #define DATEHEADER
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
 typedef struct {
 	bool known_year;
-	u_int16_t year;
+	uint16_t year;
 	
 	bool known_month;
-	u_int8_t month;
+	uint8_t month;
 	
 	bool known_day;
-	u_int8_t day;
+	uint8_t day;
 } date_t;
 
 // Parses a string specifying a date in the format of "YYYY<sep>MM<sep>DD".
