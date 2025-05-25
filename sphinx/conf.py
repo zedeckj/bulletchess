@@ -44,7 +44,7 @@ toc_object_entries = True
 #html_theme = 'alabaster'
 #html_theme = "sphinxawesome_theme"
 html_theme = "pydata_sphinx_theme"
-html_static_path = ['_static']
+html_static_path = ['bulletchess/_static']
 
 # from sphinxawesome_theme.postprocess import Icons
 # html_permalinks_icon = Icons.permalinks_icon
