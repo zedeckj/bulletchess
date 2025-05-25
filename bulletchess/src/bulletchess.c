@@ -3884,8 +3884,7 @@ PyMODINIT_FUNC PyInit__core(void) {
 		PyDict_SetItemString(board_dict, "ROSE", ROSE);
 		PyDict_SetItemString(board_dict, "STEEL", STEEL);
 		PyDict_SetItemString(board_dict, "STEEL", STEEL);
-		PyDict_SetItemString(board_dict, "ColorScheme", 
-				&PyColorSchemeType);
+		PyDict_SetItemString(board_dict, "ColorScheme", (PyObject *)&PyColorSchemeType);
 		PyBoardType.tp_dict = board_dict; 
 		VALIDATE(!(PyType_Ready(&PyBoardType) < 0))
 		ADD_OBJ("Board", &PyBoardType);
