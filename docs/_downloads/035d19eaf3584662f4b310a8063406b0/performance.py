@@ -7,7 +7,7 @@ Performance Comparisons
 To demonstrate how much faster ``bulletchess`` is, we can write equivalent functions in both libraries, and compare the runtimes.
 
 
-Let's start by implementing a `Perft` function. In ``bulletchess``:
+Let's start by implementing a `Perft <https://www.chessprogramming.org/Perft>`_ function. In ``bulletchess``:
 
 """
 import bulletchess
@@ -67,7 +67,7 @@ print(f"bulletchess is {chess_time/bullet_time:.4f}x faster")
 # ``bulletchess`` is also very fast at writing and parsing FEN strings. 
 
 import json
-# JSON file with a list of 100k FENs
+# JSON file with a list of 1 million FENs
 with open("../data/fens.json", "r") as f:
     fens = json.load(f)
 

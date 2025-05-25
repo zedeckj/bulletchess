@@ -26,7 +26,7 @@ Performance Comparisons
 To demonstrate how much faster ``bulletchess`` is, we can write equivalent functions in both libraries, and compare the runtimes.
 
 
-Let's start by implementing a `Perft` function. In ``bulletchess``:
+Let's start by implementing a `Perft <https://www.chessprogramming.org/Perft>`_ function. In ``bulletchess``:
 
 .. GENERATED FROM PYTHON SOURCE LINES 13-30
 
@@ -118,9 +118,9 @@ Notice how the code we write is nearly identical. However, when we test their ru
 
  .. code-block:: none
 
-    `chess_perft` returned 119060324 in 109.4060s
-    `bullet_perft` returned 119060324 in 1.6126s
-    bulletchess is 67.8433x faster
+    `chess_perft` returned 119060324 in 109.3982s
+    `bullet_perft` returned 119060324 in 1.5902s
+    bulletchess is 68.7951x faster
 
 
 
@@ -136,7 +136,7 @@ We see a massive difference in ``bulletchess``'s move generation and application
 
 
     import json
-    # JSON file with a list of 100k FENs
+    # JSON file with a list of 1 million FENs
     with open("../data/fens.json", "r") as f:
         fens = json.load(f)
 
@@ -208,9 +208,9 @@ Similairly to before, we'll compare the runtimes of each version.
 
  .. code-block:: none
 
-    `chess_roundtrip` took 47.5
-    `bullet_roundtrip` took 0.9334
-    bulletchess is 50.8922x faster
+    `chess_roundtrip` took 46.02
+    `bullet_roundtrip` took 0.8996
+    bulletchess is 51.1517x faster
 
 
 
@@ -293,11 +293,11 @@ but the structure is still the same. Running the comparison:
 
  .. code-block:: none
 
-    `chess_statuses` took 114.5
+    `chess_statuses` took 110.9
     {'ongoing': 933861, 'checkmate': 40147, 'draw': 25992}
-    `bullet_statuses` took 0.2821
+    `bullet_statuses` took 0.2755
     {'ongoing': 933861, 'checkmate': 40147, 'draw': 25992}
-    bulletchess is 405.7912x faster
+    bulletchess is 402.6347x faster
 
 
 
@@ -386,11 +386,11 @@ reading through games.
 
  .. code-block:: none
 
-    `chess_check_games` took 18.3
+    `chess_check_games` took 17.81
     python-chess found 824592 positions with a pawn on E4
-    `bullet_check_games` took 1.079
+    `bullet_check_games` took 1.078
     bulletchess found 824592 positions with a pawn on E4
-    bulletchess is 16.9565x faster
+    bulletchess is 16.5241x faster
 
 
 
@@ -398,7 +398,7 @@ reading through games.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (5 minutes 21.953 seconds)
+   **Total running time of the script:** (5 minutes 15.396 seconds)
 
 
 .. _sphx_glr_download_auto_examples_performance.py:
