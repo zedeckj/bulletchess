@@ -1,5 +1,6 @@
 #ifndef DATEHEADER
 #define DATEHEADER
+#include "../compat.h"
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>

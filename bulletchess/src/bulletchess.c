@@ -3832,7 +3832,7 @@ PyMODINIT_FUNC PyInit__core(void) {
 		READY_TYPE(PyColorSchemeType);
 		READY_TYPE(PyBoardStatusType);
 	  	
-		initstate(time(NULL), rand_state, 256);
+		//initstate(time(NULL), rand_state, 256);
 		PyMoves_prep();
 		PyObject *m = PyModule_Create(&bulletchess_definition);
 		if (!m) return NULL;
