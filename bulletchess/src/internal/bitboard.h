@@ -204,7 +204,11 @@ bitboard_t rank_bb_of_square(square_t sq);
 // Counts the number of bits which are 1
 u_int8_t count_bits_func(bitboard_t bb);
 
+#ifdef _MSC_VER  
 #define count_bits(bb) __builtin_popcountll(bb)
+#else
+#define count_bits(bb) count_bits_func(bb)
+#endif
 
 void str_write_bitboard(bitboard_t board, char *buffer);
 

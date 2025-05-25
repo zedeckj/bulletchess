@@ -2843,7 +2843,7 @@ static PyObject *PyUtils_perft_fen(PyObject *self, PyObject *args){
 }
 
 
-
+/*
 static PyObject *PyUtils_srandom(PyObject *self, PyObject *arg){
 	if (Py_IsNone(arg)) {
 		initstate(time(NULL), rand_state, 256);
@@ -2855,6 +2855,7 @@ static PyObject *PyUtils_srandom(PyObject *self, PyObject *arg){
 	initstate(seed, rand_state, 256);
 	Py_RETURN_NONE;
 }
+*/
 
 #define UTIL_FROM_BOARD_TO_BB(func) static PyObject *PyUtils_ ## func \
 	(PyObject *self, PyObject *args){ \
@@ -3052,7 +3053,7 @@ static PyObject *PyUtils_random_board(PyObject *self,
 		PyObject *Py_UNUSED(args)){
 	PyBoardObject *board = PyBoard_alloc();
 	if (!board) return NULL;
-	setstate(rand_state);
+	//setstate(rand_state);
 	PyBoard_setup_starting((PyObject *)board);
 	u_int8_t depth = 4 + (random() % 300);
 	move_t moves[256];
