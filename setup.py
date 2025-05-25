@@ -20,7 +20,7 @@ py_paths = sysconfig.get_paths()
 core = Extension(
     name = "bulletchess._core",
     sources = source_files, 
-    extra_compile_args=["-O3", "-std=c17"],     
+    extra_compile_args=["-O3", "-std=gnu17"],     
 )
 
 print(core)
