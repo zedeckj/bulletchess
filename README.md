@@ -9,6 +9,7 @@ contain the root `toctree` directive. -->
 the core of `bulletchess` is written in C, allowing it to be *much* faster than alternatives.
 
 ## Overview
+
 At a high level, `bulletchess` includes:
 
 * A complete game model with intuitive representations for pieces, moves, and positions.
