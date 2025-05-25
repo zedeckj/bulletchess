@@ -25,16 +25,16 @@ Performance Comparisons
 ``python-chess`` is a fantastic, feature-rich library, but is inherently limited in its performance by being implemented by python. ``bulletchess``, however, is implemented as a pure C-extension.
 To demonstrate how much faster ``bulletchess`` is, we can write equivalent functions in both libraries, and compare the runtimes.
 
-Perft
-------
 
 Let's start by implementing a `Perft` function. In ``bulletchess``:
 
-.. GENERATED FROM PYTHON SOURCE LINES 15-32
+.. GENERATED FROM PYTHON SOURCE LINES 13-32
 
 .. code-block:: Python
 
+    import chess.pgn
     import bulletchess
+    import bulletchess.pgn
     from bulletchess.utils import count_moves
 
     def bullet_perft(board : bulletchess.Board, depth : int) -> int:
@@ -120,9 +120,9 @@ Notice how the code we write is nearly identical. However, when we test their ru
 
  .. code-block:: none
 
-    chess_perft returned 119060324 in 108.5237s
-    bullet_perft returned 119060324 in 1.5831s
-    bulletchess is 68.5524x faster
+    chess_perft returned 119060324 in 108.5076s
+    bullet_perft returned 119060324 in 1.5974s
+    bulletchess is 67.9297x faster
 
 
 
@@ -210,9 +210,9 @@ Similairly to before, we'll compare the runtimes of each version.
 
  .. code-block:: none
 
-    `chess_roundtrip` took 46.08
-    `bullet_roundtrip` took 0.9638
-    bulletchess is 47.8091x faster
+    `chess_roundtrip` took 46.48
+    `bullet_roundtrip` took 0.9731
+    bulletchess is 47.7720x faster
 
 
 
@@ -295,11 +295,100 @@ but the structure is still the same. Running the comparison:
 
  .. code-block:: none
 
-    `chess_statuses` took 110.6
+    `chess_statuses` took 112.8
     {'ongoing': 933861, 'checkmate': 40147, 'draw': 25992}
-    `bullet_statuses` took 0.2974
+    `bullet_statuses` took 0.2935
     {'ongoing': 933861, 'checkmate': 40147, 'draw': 25992}
-    bulletchess is 371.7527x faster
+    bulletchess is 384.3376x faster
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 162-164
+
+Like, ``python-chess``, ``bulletchess`` provides a PGN reader. Let's do a simple task reading a PGN file,
+we'll go through each position in each game, and check how many have a pawn of any color on E4. 
+
+.. GENERATED FROM PYTHON SOURCE LINES 164-196
+
+.. code-block:: Python
+
+
+    # a large PGN file
+    PATH = "../data/modern.pgn"
+
+    def chess_check_games():
+        count = 0
+        with open(PATH, "r") as f:
+            game = chess.pgn.read_game(f)
+            while game:
+                board = chess.Board()
+                for move in game.mainline_moves():
+                    board.push(move)
+                    if board.piece_type_at(chess.E4) == chess.PAWN:
+                        count += 1
+                game = chess.pgn.read_game(f)
+        return count
+
+    def bullet_check_games():
+        count = 0
+        with bulletchess.pgn.PGNFile.open(PATH) as f:
+            game = f.next_game()
+            while game:
+                board = game.starting_board
+                for move in game.moves:
+                    board.apply(move)
+                    piece = board[bulletchess.E4]
+                    if piece and piece.piece_type == bulletchess.PAWN:
+                        count += 1
+                game = f.next_game()
+        return count
+
+
+
+
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 197-199
+
+This is purposefully a very simple operation on every position, so we can more directly compare 
+reading through games.
+
+.. GENERATED FROM PYTHON SOURCE LINES 199-214
+
+.. code-block:: Python
+
+
+    start = time()
+    chess_res = chess_check_games()
+    chess_time = time() - start
+    print(f"`chess_statuses` took {chess_time:.4}")
+    print(f"python-chess found {chess_res} positions with a pawn on E4")
+
+    start = time()
+    bullet_res = bullet_check_games()
+    bullet_time = time() - start
+    print(f"`bullet_statuses` took {bullet_time:.4}")
+    print(f"bulletchess found {bullet_res} positions with a pawn on E4")
+
+    print(f"bulletchess is {chess_time/bullet_time:.4f}x faster")
+
+            
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    `chess_statuses` took 17.84
+    python-chess found 824592 positions with a pawn on E4
+    `bullet_statuses` took 1.346
+    bulletchess found 824592 positions with a pawn on E4
+    bulletchess is 13.2543x faster
 
 
 
@@ -307,7 +396,7 @@ but the structure is still the same. Running the comparison:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (4 minutes 55.463 seconds)
+   **Total running time of the script:** (5 minutes 17.361 seconds)
 
 
 .. _sphx_glr_download_auto_examples_performance.py:

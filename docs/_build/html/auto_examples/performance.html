@@ -363,10 +363,10 @@ to download the full example code.</p>
 <p><code class="docutils literal notranslate"><span class="pre">bulletchess</span></code>’s creation was motivated by frustration with <a class="reference external" href="https://python-chess.readthedocs.io/en/latest/">python-chess</a>’s slow performance.
 <code class="docutils literal notranslate"><span class="pre">python-chess</span></code> is a fantastic, feature-rich library, but is inherently limited in its performance by being implemented by python. <code class="docutils literal notranslate"><span class="pre">bulletchess</span></code>, however, is implemented as a pure C-extension.
 To demonstrate how much faster <code class="docutils literal notranslate"><span class="pre">bulletchess</span></code> is, we can write equivalent functions in both libraries, and compare the runtimes.</p>
-<section id="perft">
-<h2>Perft<a class="headerlink" href="#perft" title="Link to this heading">#</a></h2>
 <p>Let’s start by implementing a <cite>Perft</cite> function. In <code class="docutils literal notranslate"><span class="pre">bulletchess</span></code>:</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">bulletchess</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">chess.pgn</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">bulletchess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">bulletchess.pgn</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">bulletchess.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">count_moves</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">bullet_perft</span><span class="p">(</span><span class="n">board</span> <span class="p">:</span> <span class="n">bulletchess</span><span class="o">.</span><span class="n">Board</span><span class="p">,</span> <span class="n">depth</span> <span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -416,9 +416,9 @@ To demonstrate how much faster <code class="docutils literal notranslate"><span 
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;bulletchess is </span><span class="si">{</span><span class="n">chess_time</span><span class="o">/</span><span class="n">bullet_time</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">x faster&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>chess_perft returned 119060324 in 108.5237s
-bullet_perft returned 119060324 in 1.5831s
-bulletchess is 68.5524x faster
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>chess_perft returned 119060324 in 108.5076s
+bullet_perft returned 119060324 in 1.5974s
+bulletchess is 67.9297x faster
 </pre></div>
 </div>
 <p>We see a massive difference in <code class="docutils literal notranslate"><span class="pre">bulletchess</span></code>’s move generation and application speed.
@@ -460,9 +460,9 @@ so both <code class="docutils literal notranslate"><span class="pre">bulletchess
 <span class="k">assert</span><span class="p">(</span><span class="n">chess_fens</span> <span class="o">==</span> <span class="n">bullet_fens</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>`chess_roundtrip` took 46.08
-`bullet_roundtrip` took 0.9638
-bulletchess is 47.8091x faster
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>`chess_roundtrip` took 46.48
+`bullet_roundtrip` took 0.9731
+bulletchess is 47.7720x faster
 </pre></div>
 </div>
 <p>And again, <code class="docutils literal notranslate"><span class="pre">bulletchess</span></code> is much faster. Using the same dataset of FENs, lets compare checking if positions
@@ -513,14 +513,71 @@ but the structure is still the same. Running the comparison:</p>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;bulletchess is </span><span class="si">{</span><span class="n">chess_time</span><span class="o">/</span><span class="n">bullet_time</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">x faster&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>`chess_statuses` took 110.6
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>`chess_statuses` took 112.8
 {&#39;ongoing&#39;: 933861, &#39;checkmate&#39;: 40147, &#39;draw&#39;: 25992}
-`bullet_statuses` took 0.2974
+`bullet_statuses` took 0.2935
 {&#39;ongoing&#39;: 933861, &#39;checkmate&#39;: 40147, &#39;draw&#39;: 25992}
-bulletchess is 371.7527x faster
+bulletchess is 384.3376x faster
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (4 minutes 55.463 seconds)</p>
+<p>Like, <code class="docutils literal notranslate"><span class="pre">python-chess</span></code>, <code class="docutils literal notranslate"><span class="pre">bulletchess</span></code> provides a PGN reader. Let’s do a simple task reading a PGN file,
+we’ll go through each position in each game, and check how many have a pawn of any color on E4.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># a large PGN file</span>
+<span class="n">PATH</span> <span class="o">=</span> <span class="s2">&quot;../data/modern.pgn&quot;</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">chess_check_games</span><span class="p">():</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">PATH</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">game</span> <span class="o">=</span> <span class="n">chess</span><span class="o">.</span><span class="n">pgn</span><span class="o">.</span><span class="n">read_game</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">while</span> <span class="n">game</span><span class="p">:</span>
+            <span class="n">board</span> <span class="o">=</span> <span class="n">chess</span><span class="o">.</span><span class="n">Board</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">move</span> <span class="ow">in</span> <span class="n">game</span><span class="o">.</span><span class="n">mainline_moves</span><span class="p">():</span>
+                <span class="n">board</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">move</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">board</span><span class="o">.</span><span class="n">piece_type_at</span><span class="p">(</span><span class="n">chess</span><span class="o">.</span><span class="n">E4</span><span class="p">)</span> <span class="o">==</span> <span class="n">chess</span><span class="o">.</span><span class="n">PAWN</span><span class="p">:</span>
+                    <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">game</span> <span class="o">=</span> <span class="n">chess</span><span class="o">.</span><span class="n">pgn</span><span class="o">.</span><span class="n">read_game</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">count</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">bullet_check_games</span><span class="p">():</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">with</span> <span class="n">bulletchess</span><span class="o">.</span><span class="n">pgn</span><span class="o">.</span><span class="n">PGNFile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">PATH</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">game</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">next_game</span><span class="p">()</span>
+        <span class="k">while</span> <span class="n">game</span><span class="p">:</span>
+            <span class="n">board</span> <span class="o">=</span> <span class="n">game</span><span class="o">.</span><span class="n">starting_board</span>
+            <span class="k">for</span> <span class="n">move</span> <span class="ow">in</span> <span class="n">game</span><span class="o">.</span><span class="n">moves</span><span class="p">:</span>
+                <span class="n">board</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">move</span><span class="p">)</span>
+                <span class="n">piece</span> <span class="o">=</span> <span class="n">board</span><span class="p">[</span><span class="n">bulletchess</span><span class="o">.</span><span class="n">E4</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">piece</span> <span class="ow">and</span> <span class="n">piece</span><span class="o">.</span><span class="n">piece_type</span> <span class="o">==</span> <span class="n">bulletchess</span><span class="o">.</span><span class="n">PAWN</span><span class="p">:</span>
+                    <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">game</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">next_game</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">count</span>
+</pre></div>
+</div>
+<p>This is purposefully a very simple operation on every position, so we can more directly compare
+reading through games.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+<span class="n">chess_res</span> <span class="o">=</span> <span class="n">chess_check_games</span><span class="p">()</span>
+<span class="n">chess_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;`chess_statuses` took </span><span class="si">{</span><span class="n">chess_time</span><span class="si">:</span><span class="s2">.4</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;python-chess found </span><span class="si">{</span><span class="n">chess_res</span><span class="si">}</span><span class="s2"> positions with a pawn on E4&quot;</span><span class="p">)</span>
+
+<span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+<span class="n">bullet_res</span> <span class="o">=</span> <span class="n">bullet_check_games</span><span class="p">()</span>
+<span class="n">bullet_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;`bullet_statuses` took </span><span class="si">{</span><span class="n">bullet_time</span><span class="si">:</span><span class="s2">.4</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;bulletchess found </span><span class="si">{</span><span class="n">bullet_res</span><span class="si">}</span><span class="s2"> positions with a pawn on E4&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;bulletchess is </span><span class="si">{</span><span class="n">chess_time</span><span class="o">/</span><span class="n">bullet_time</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">x faster&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>`chess_statuses` took 17.84
+python-chess found 824592 positions with a pawn on E4
+`bullet_statuses` took 1.346
+bulletchess found 824592 positions with a pawn on E4
+bulletchess is 13.2543x faster
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (5 minutes 17.361 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-performance-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/829c4f0e326bec24c1f8be8ba7939034/performance.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">performance.ipynb</span></code></a></p>
@@ -533,7 +590,6 @@ bulletchess is 371.7527x faster
 </div>
 </div>
 <p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
-</section>
 </section>
 
 
@@ -574,18 +630,6 @@ bulletchess is 371.7527x faster
                 <dialog id="pst-secondary-sidebar-modal"></dialog>
                 <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
-
-  <div class="sidebar-secondary-item">
-<div
-    id="pst-page-navigation-heading-2"
-    class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
-  </div>
-  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#perft">Perft</a></li>
-</ul>
-  </nav></div>
 
   <div class="sidebar-secondary-item">
   <div role="note" aria-label="source link">

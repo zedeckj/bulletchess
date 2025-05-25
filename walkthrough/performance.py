@@ -6,13 +6,13 @@ Performance Comparisons
 ``python-chess`` is a fantastic, feature-rich library, but is inherently limited in its performance by being implemented by python. ``bulletchess``, however, is implemented as a pure C-extension.
 To demonstrate how much faster ``bulletchess`` is, we can write equivalent functions in both libraries, and compare the runtimes.
 
-Perft
-------
 
 Let's start by implementing a `Perft` function. In ``bulletchess``:
 
 """
+import chess.pgn
 import bulletchess
+import bulletchess.pgn
 from bulletchess.utils import count_moves
 
 def bullet_perft(board : bulletchess.Board, depth : int) -> int:
@@ -158,3 +158,57 @@ print(bullet_res)
 
 print(f"bulletchess is {chess_time/bullet_time:.4f}x faster")
 
+# %%
+# Like, ``python-chess``, ``bulletchess`` provides a PGN reader. Let's do a simple task reading a PGN file,
+# we'll go through each position in each game, and check how many have a pawn of any color on E4. 
+
+# a large PGN file
+PATH = "../data/pgn/modern.pgn"
+
+def chess_check_games():
+    count = 0
+    with open(PATH, "r") as f:
+        game = chess.pgn.read_game(f)
+        while game:
+            board = chess.Board()
+            for move in game.mainline_moves():
+                board.push(move)
+                if board.piece_type_at(chess.E4) == chess.PAWN:
+                    count += 1
+            game = chess.pgn.read_game(f)
+    return count
+
+def bullet_check_games():
+    count = 0
+    with bulletchess.pgn.PGNFile.open(PATH) as f:
+        game = f.next_game()
+        while game:
+            board = game.starting_board
+            for move in game.moves:
+                board.apply(move)
+                piece = board[bulletchess.E4]
+                if piece and piece.piece_type == bulletchess.PAWN:
+                    count += 1
+            game = f.next_game()
+    return count
+
+
+# %% 
+# This is purposefully a very simple operation on every position, so we can more directly compare 
+# reading through games.
+
+start = time()
+chess_res = chess_check_games()
+chess_time = time() - start
+print(f"`chess_statuses` took {chess_time:.4}")
+print(f"python-chess found {chess_res} positions with a pawn on E4")
+
+start = time()
+bullet_res = bullet_check_games()
+bullet_time = time() - start
+print(f"`bullet_statuses` took {bullet_time:.4}")
+print(f"bulletchess found {bullet_res} positions with a pawn on E4")
+
+print(f"bulletchess is {chess_time/bullet_time:.4f}x faster")
+
+            

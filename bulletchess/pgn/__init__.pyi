@@ -222,16 +222,18 @@ class PGNGame:
         """
         ...
 
-    def __hash__(self) -> int: ...
-
-    def __eq__(self, other : Any) -> bool: ... 
-
     def __getitem__(self, tag : str) -> Optional[str]: 
         """
         Gets the raw ``str`` value of the given tag. If the tag is absent,
         returns ``None``.
         """
         ...
+
+    def __hash__(self) -> int: ...
+
+    def __eq__(self, other : Any) -> bool: ... 
+
+
 
 
 class PGNFile:
@@ -240,12 +242,14 @@ class PGNFile:
     def open(path : str) -> "PGNFile": 
         """
         Opens a PGN file for reading.
+
+        :raises: :exc:`FileNotFoundError` If the given path does not lead to a file.
         """
         ...
 
     def close(self) -> None: 
         """
-        Closes a PGN file.
+        Closes a PGN file. Closing an already closed file has no effect.
         """
         ...
 
@@ -259,6 +263,8 @@ class PGNFile:
         """
         Gets the next game from a file as a :class:`PGNGame`
         If the file is exhausted of games, returns None.
+
+        :raises: :exc:`ValueError` if an error is found while parsing.
         """
         ...
 

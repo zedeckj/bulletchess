@@ -1,4 +1,0 @@
-chess_perft returned 4865609 in 3.863s
-bullet_perft returned 4865609 in 0.3498s
-built-in perft returned 4865609 in 0.04648s
-This is pre refactor results

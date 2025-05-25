@@ -1,10 +1,10 @@
-from typing import Optional, Any, Collection, Iterator, overload
+from typing import Optional, Any, Collection, Iterator, overload, Union
 
 
 class Color:
 
     """
-    Represents either White or Black, used to identity the two players 
+    Represents either White or Black, used to identify the two players 
     and their pieces.
     """
 
@@ -27,7 +27,7 @@ class Color:
     @property
     def opposite(self) -> "Color": 
         """
-        Gets the opposite `Color` to this one. 
+        Gets the opposite :class:`Color` to this one. 
 
         :returns: The opposite :class:`Color` instance.
         :rtype: Color
@@ -41,9 +41,9 @@ class Color:
 
     def __str__(self) -> str:
         """
-        Serializes a :class:`Color` to a `str` of its name in title case.
+        Serializes a :class:`Color` to a ``str`` of its name in title case.
 
-        :returns: A `str` of the :class:`Color`'s name
+        :returns: A ``str`` of the :class:`Color`'s name
         
         >>> str(WHITE)
         "White"
@@ -98,7 +98,7 @@ class PieceType:
 
     def __str__(self) -> str:
         """
-        Serializes a `PieceType` to a `str` of its name in title case.
+        Serializes a :class:`PieceType` to a ``str`` of its name in title case.
 
         >>> str(PAWN)
         "Pawn"
@@ -156,7 +156,7 @@ class Piece:
 
 
     def __init__(self, color : Color, type : PieceType):
-        """Initialise the `Piece` with *color* and *type*.
+        """Initialise the ``Piece`` with *color* and *type*.
 
         :param Color color: The owning side.
         :param PieceType type: The intrinsic kind of the piece.
@@ -184,20 +184,20 @@ class Piece:
     @property
     def piece_type(self) -> PieceType:
         """
-        Gets the `PieceType` of this `Piece`.
+        Gets the :class:`PieceType` of this :class:`Piece`.
         """
         ...
 
     @property
     def color(self) -> Color:
         """
-        Gets the `Color` of this `Piece`.
+        Gets the :class:`Color` of this :class:`Piece`.
         """
         ...
 
     def unicode(self) -> str:
         """
-        Returns Unicode figurine character corresponding to this `Piece`.
+        Returns Unicode figurine character corresponding to this :class:`Piece`.
 
         >>> Piece(WHITE, PAWN).unicode()
         "♙"
@@ -208,13 +208,13 @@ class Piece:
 
     def __eq__(self, other : Any):
         """
-        Evaluates to ``True`` when compared with another `Piece` with the same `PieceType` and `Color`
+        Evaluates to ``True`` when compared with another :class:`Piece` with the same :class:`PieceType` and :class:`Color`
         """
         ...
 
     def __str__(self) -> str:
         """
-        Serializes a `Piece` as a single ASCII character `str`. Uses uppercase for `Piece` that is :data:`WHITE`, and lowercase for any `Piece` that is :data:`BLACK`.
+        Serializes a :class:`Piece` as a single ASCII character ``str``. Uses uppercase for a :class:`Piece` that is :data:`WHITE`, and lowercase for any :class:`Piece` that is :data:`BLACK`.
 
         >>> str(Piece(WHITE, PAWN))
         "P"
@@ -234,7 +234,7 @@ class Square:
     @staticmethod
     def from_str(name : str) -> Square:
         """
-        Return the square encoded by *name* (case‑insensitive).
+        Return the :class:`Square` encoded by *name* (case‑insensitive).
 
         :param str name: The name of the square
         :rtype: Square
@@ -261,7 +261,7 @@ class Square:
 
     def adjacent(self) -> Bitboard: 
         """
-        Creates a `Bitboard` of all neighbors orthogonal or diagonal to this :class:`Square`.
+        Creates a :class:`Bitboard` of all neighbors orthogonal or diagonal to this :class:`Square`.
 
         >>> A1.adjacent() == Bitboard([A2, B1, B2])
         True
@@ -274,7 +274,7 @@ class Square:
         """
         Return the square *distance* ranks above this square.
 
-        :param int distance: how many ranks to move north.
+        :param distance: how many ranks to move north.
         :returns: the target square, or ``None`` if it would be off the board.
         :rtype:   Square | None
 
@@ -291,7 +291,8 @@ class Square:
         """
         Return the square *distance* ranks below this square.
 
-        :param int distance: how many ranks to move south.
+        :param distance: how many ranks to move south.
+        :type  distance: int, default = 1
         :returns: the target square, or ``None`` if it would be off the board.
         :rtype:   Square | None
 
@@ -363,7 +364,7 @@ class Square:
         Return the square *distance* files east and ranks north of this square.
 
         :param distance: number of steps to move north-east.
-        :type  distance: int, default 1
+        :type  distance: int, default = 1
         :returns: the target square, or ``None`` if it would be off the board.
         :rtype:   Square | None
 
@@ -381,7 +382,7 @@ class Square:
         Return the square *distance* files west and ranks south of this square.
 
         :param distance: number of steps to move south-west.
-        :type  distance: int, default 1
+        :type  distance: int, default = 1
         :returns: the target square, or ``None`` if it would be off the board.
         :rtype:   Square | None
 
@@ -399,7 +400,7 @@ class Square:
         Return the square *distance* files east and ranks south of this square.
 
         :param distance: number of steps to move south-east.
-        :type  distance: int, default 1
+        :type  distance: int, default = 1
         :returns: the target square, or ``None`` if it would be off the board.
         :rtype:   Square | None
 
@@ -751,7 +752,7 @@ class Bitboard:
 
     def __init__(self, squares: Collection[Square]):
         """
-        Initialise a bitboard that contains *squares*.
+        Initialise a :class:`Bitboard` that contains *squares*.
 
         :param squares: squares to include in the new bitboard.
         :type  squares: Collection[Square]
@@ -760,7 +761,7 @@ class Bitboard:
 
     def __str__(self) -> str:
         """
-        Return a string in which included squares are shown as ``1`` and
+        Return a ``str`` in which included squares are shown as ``1`` and
         excluded squares as ``0``.
 
         :returns: an 8×8 grid row-major from A8 to H1.
@@ -781,13 +782,13 @@ class Bitboard:
     @staticmethod
     def from_int(value: int) -> "Bitboard":
         """
-        Construct a bitboard from its integer encoding (see :py:meth:`__int__`).
+        Construct a :class:`Bitboard` from its integer encoding (see :py:meth:`__int__`).
 
         :param value: 64-bit integer to convert.
         :type  value: int
         :returns: new bitboard corresponding to *value*.
         :rtype:   Bitboard
-        :raises OverflowError: if `value < 0` or `value >= 2 ** 64`
+        :raises OverflowError: if ``value < 0`` or ``value >= 2 ** 64``
 
         >>> Bitboard.from_int(0) == Bitboard([])
         True
@@ -802,7 +803,7 @@ class Bitboard:
 
     def __int__(self) -> int:
         """
-        Return the integer encoding of this bitboard.
+        Return the integer encoding of this :class:`Bitboard`.
 
         :returns: 64-bit integer with one bit per square.
         :rtype:   int
@@ -820,7 +821,7 @@ class Bitboard:
 
     def __getitem__(self, square: Square) -> bool:
         """
-        Return ``True`` if *square* is in this bitboard.
+        Return ``True`` if *square* is in this :class:`Bitboard`.
 
         :param square: square to query.
         :type  square: Square
@@ -858,7 +859,7 @@ class Bitboard:
 
     def __delitem__(self, square: Square):
         """
-        Remove *square* from the bitboard.
+        Remove *square* from the :class:`Bitboard`.
 
         :param square: square to delete.
         :type  square: Square
@@ -892,7 +893,7 @@ class Bitboard:
 
     def __contains__(self, square: Square) -> bool:
         """
-        Test whether *square* is in this bitboard.
+        Test whether *square* is in this :class:`Bitboard`.
 
         :param square: square to test.
         :type  square: Square
@@ -926,7 +927,7 @@ class Bitboard:
 
     def __invert__(self) -> "Bitboard":
         """
-        Return the complement of this bitboard.
+        Return the complement of this :class:`Bitboard`.
 
         :returns: new bitboard with opposite membership.
         :rtype:   Bitboard
@@ -988,7 +989,7 @@ class Bitboard:
 
     def __bool__(self) -> bool:
         """
-        Return ``True`` if the bitboard is non-empty.
+        Return ``True`` if the :class:`Bitboard` is non-empty.
 
         :returns: truth value.
         :rtype:   bool
@@ -1252,7 +1253,9 @@ class Move:
     @staticmethod
     def from_uci(uci: str) -> Optional["Move"]:
         """
-        Parse a UCI long-algebraic string and build a move.
+        Parse a UCI long-algebraic ``str`` and build a move. 
+
+        Null moves are supported as "0000", and are represented as ``None``.
 
         :param uci: UCI string such as ``"e2e4"`` or ``"b7b8q"``.
         :type  uci: str
@@ -1266,13 +1269,15 @@ class Move:
         True
         >>> Move.from_uci("b7b8q") == Move(B7, B8, promote_to=QUEEN)
         True
+        >>> Move.from_uci("0000") is None
+        True
         """
         ...
 
     @staticmethod
     def from_san(san: str, board: "Board") -> "Move":
         """
-        Parse a SAN string in the context of *board*.
+        Parse a SAN ``str`` in the context of *board*.
 
         :param str san: SAN text (e.g. ``"Nf6"``, ``"O-O"``, ``"e4"``).
         :param Board board: position used to disambiguate the SAN.
@@ -1308,7 +1313,7 @@ class Move:
 
     def uci(self) -> str:
         """
-        Return the move in UCI long-algebraic form.
+        Return a ``str`` of the UCI long algebraic notation representation of this move.
 
         :returns: UCI string.
         :rtype:   str
@@ -1490,7 +1495,7 @@ class CastlingRights:
     def fen(self) -> str:
         """
         
-        Returns the Forsyth-Edwards Notation `str` represetnation of this :class:`CastlingRights`.
+        Returns the Forsyth-Edwards Notation ``str`` represetnation of this :class:`CastlingRights`.
 
         :returns: ``"KQkq"``, ``"-"`` or similar.
         :rtype:   str
@@ -1621,7 +1626,7 @@ class CastlingRights:
         """
         Return ``True`` if **all** relevant rights are present.
 
-        :param Color | None color: restrict the check to :
+        :param Color | None color: optionally restrict the check to :data:`WHITE` or :data:`BLACK`.
         :returns: completeness flag.
         :rtype:   bool
 
@@ -1720,9 +1725,9 @@ class Board:
     """
     A mutable chess position.
 
-    A `Board` represents a configuration of chess pieces as a mapping of each :class:`Square` to optional an :class:`Piece`. 
-    The `Board` class includes attributes for :class:`CastlingRights`, the existance of an en-passant :class:`Square`, and the :class:`Color` for the turn of the current player.
-    Also holds the halfmove clock and fullmove number each as an `int`. 
+    A :class:`Board` represents a configuration of chess pieces as a mapping of each :class:`Square` to optional an :class:`Piece`. 
+    The :class:`Board` class includes attributes for :class:`CastlingRights`, the existance of an en-passant :class:`Square`, and the :class:`Color` for the turn of the current player.
+    Also holds the halfmove clock and fullmove number each as an ``int``. 
 
     The :class:`Board` class provides an interface for generating :class:`Move` objects representing legal actions for a turn, 
     as well as applying and undoing these moves. 
@@ -1731,14 +1736,14 @@ class Board:
 
     def __init__(self):
         """
-        Initializes a `Board` representing the starting position.
+        Initializes a :class:`Board` representing the starting position.
         """
         ...
 
     @staticmethod
     def from_fen(fen : str) -> "Board":
         """
-        Build a board from a `str` of a Forsyth-Edwards Notation (FEN) representation of a position.
+        Build a board from a ``str`` of a Forsyth-Edwards Notation (FEN) representation of a position.
 
         The FEN is not required to include a halfmove clock or fullmove number. The default values for these are 0 and 1.
    
@@ -1765,9 +1770,10 @@ class Board:
     @staticmethod
     def empty() -> "Board":
         """
-        Creates a completely empty `Board`, with no pieces on it.
+        Creates a completely empty :class:`Board`, with no pieces on it.
 
-
+        :returns: An empty position
+        :rtype: :class:``Board``
         """
         ...
 
@@ -1782,7 +1788,7 @@ class Board:
     @property
     def halfmove_clock(self) -> int:
         """
-        Gets the current halfmove clock as an `int`. This represents the number of ply that have passed since a
+        Gets the current halfmove clock as an ``int``. This represents the number of ply that have passed since a
         capture or pawn advance.
         """
         ...
@@ -1790,7 +1796,7 @@ class Board:
     @property
     def fullmove_number(self) -> int:
         """
-        Gets the current fullmove number as an `int`. This represents the total number of turns each player has taken
+        Gets the current fullmove number as an ``int``. This represents the total number of turns each player has taken
         since the start of a game.
         """
         ...
@@ -1821,24 +1827,24 @@ class Board:
     @turn.setter
     def turn(self, new_turn : Color) -> None:
         """
-        Sets this `Board`'s turn to the specified `Color.
+        Sets this :class:`Board`'s turn to the specified :class:`Color`.
         """
 
     @halfmove_clock.setter
     def halfmove_clock(self, new_halfmove_clock : int) -> None:
         """
-        Sets this `Board`'s halfmove clock to the provided `int`.
+        Sets this :class:`Board`'s halfmove clock to the provided ``int``.
 
-        :raises: :exc:`OverflowError` if the provided `int` value is greater or equal to `2 ** 64`
+        :raises: :exc:`OverflowError` if the provided ``int`` value is greater or equal to ``2 ** 64``
         """
         ...
 
     @fullmove_number.setter
     def fullmove_number(self, new_fullmove_number : int) -> None:
         """
-        Sets this `Board`'s fullmove number to the provided `int`.
+        Sets this :class:`Board`'s fullmove number to the provided ``int``.
 
-        :raises: :exc:`OverflowError` if the provided `int` value is greater or equal to `2 ** 64`
+        :raises: :exc:`OverflowError` if the provided ``int`` value is greater or equal to ``2 ** 64``
         """
         ...
 
@@ -1847,20 +1853,31 @@ class Board:
         """
         Sets this :class:`Board`'s en passant :class:`Square` to the provided value. Cleares the en passant :class:`Square` if given ``None``
 
-        :raises: :exc:`ValueError` If the specified `Square` could not be one that a Pawn has just passed over in an intial two square advance.
+        :raises: :exc:`ValueError` If the specified :class:`Square` could not be one that a Pawn has just passed over in an intial two square advance.
         """
         ...
 
     def legal_moves(self) -> list[Move]:
         """
-        Generates a `list` of legal :class:`Move` objects for this :class:`Board`'s position. 
+        Generates a ``list`` of legal :class:`Move` objects for this :class:`Board`'s position. 
+
+        :returns: A list of legal moves for this position.
+        :rtype: `list[Move]`
+
+        >>> Board().legal_moves()
+        [<Move: b1a3>, <Move: b1c3>, <Move: g1f3>, <Move: g1h3>, <Move: a2a3>, <Move: a2a4>, <Move: b2b3>, <Move: b2b4>, <Move: c2c3>, <Move: c2c4>, <Move: d2d3>, <Move: d2d4>, <Move: e2e3>, <Move: e2e4>, <Move: f2f3>, <Move: f2f4>, <Move: g2g3>, <Move: g2g4>, <Move: h2h3>, <Move: h2h4>]
         """
         ...
 
     def apply(self, move : Optional[Move]) -> None:
         """
-        Applies the given :class:`Move` to this :class:`Board`, updating its state. The :class:`Move` argument is not checked
-        to be legal outside of checking if the origin has a Piece. ``None`` can be passed as the argument to skip a turn.   
+        Applies the given :class:`Move` to this :class:`Board`.
+         
+        The :class:`Move` argument is not checked to be legal outside of checking if the origin has a Piece. ``None`` can be passed as the argument to skip a turn.   
+
+        :param move: The move to apply, or ``None`` for a null move.
+        :type  move: Move | None
+        :raises ValueError: if the origin of *move* does not have a piece.
 
         >>> board = Board()
         >>> board.apply(Move(E2, E4))
@@ -1878,9 +1895,13 @@ class Board:
         """
         ...
 
-    def undo(self) -> Move: 
+    def undo(self) -> Optional[Move]: 
         """
-        Undoes the last :class:`Move` applied to this :class:`Board`, and returns the :class:`Move` that was played.
+        Undoes the last :class:`Move` applied to this :class:`Board`.
+
+        :returns: The last move applied to this board.
+        :rtype: Move | None
+        :raises: :exc:`AttributeError` if there are no moves to undo. This is true when :attr:`Board.history` has a `len()` of `0`
 
         >>> board = Board()
         >>> board.apply(Move(E2, E4))
@@ -1903,7 +1924,11 @@ class Board:
 
     def fen(self) -> str:
         """
-        Gets the Forsyth-Edwards Notation representation as a `str` of this `Board`.
+        Gets the Forsyth-Edwards Notation representation as a ``str`` of this :class:`Board`.
+
+        :returns: A FEN representing the position
+        :rtype: ``str``
+
 
         >>> board = Board()
         >>> board.fen()
@@ -1913,49 +1938,102 @@ class Board:
 
     def copy(self) -> "Board":
         """
-        Returns a new `Board` which is an exact copy of this `Board`, including its `Move` history.
+        Returns a new :class:`Board` which is an exact copy of this :class:``Board`, including its :class:`Move` history.
+
+        :returns: A deep copy of this position and its state.
+        :rtype: :class:`Board`
         """
         ...
 
-    @overload
-    def __getitem__(self, none : None) -> Bitboard:
-        """
-        Returns a :class:`Bitboard` of all empty squares.
-        """
 
     @overload
-    def __getitem__(self, square : Square) -> Optional[Piece]:
-        """
-        Returns the `Piece` at the specified `Square` on this `Board`. Evaluates to ``None`` if no `Piece` is placed
-        on the given `Square`.
-        """
-        ...
+    def __getitem__(self, index): ...
 
     @overload
-    def __getitem__(self, piece_type : PieceType) -> Bitboard:
-        """
-        Returns a :class:`Bitboard` of all squares which have the given :class:`PieceType`
-        """
-        ...
+    def __getitem__(self, none : None) -> Bitboard: ...
 
     @overload
-    def __getitem__(self, color : Color) -> Bitboard:
-        """
-        Returns a :class:`Bitboard` of all squares which have a piece with the given :class:`Color`.
-        """
-        ...
+    def __getitem__(self, square : Square) -> Optional[Piece]: ...
 
     @overload
-    def __getitem__(self, piece : Piece) -> Bitboard:
-        """
-        Returns a :class:`Bitboard` of all squares which have the given :class:`Piece`.
-        """
-        ...
+    def __getitem__(self, piece_type : PieceType) -> Bitboard: ...
 
     @overload
-    def __getitem__(self, piece_tuple : tuple[Color, PieceType]) -> Bitboard:
+    def __getitem__(self, color : Color) -> Bitboard: ...
+
+    @overload
+    def __getitem__(self, piece : Piece) -> Bitboard: ...
+
+    @overload
+    def __getitem__(self, piece_tuple : tuple[Color, PieceType]) -> Bitboard: ...
+            
+
+    def __getitem__(self, index):
         """
-        Returns a :class:`Bitboard` of all squares which have the given :class:`Color` and :class:`PieceType`.
+        Index a :class:`Board` with a value. Can either index with a :class:`Square`, ``None``, a :class:`PieceType`, a :class:`Color`, a ``tuple[Color, PieceType]``, or a :class:`Piece`,
+
+        If given a :class:`Square`, returns the :class:`Piece` at the square, or ``None`` if the square is unoccupied.
+        
+        >>> board = Board()
+        >>> board[E2] is Piece(WHITE, PAWN)
+        True
+        >>> board[E4] is None
+        True
+        
+
+        If given ``None``, returns a :class:`Bitboard` of all empty squares.
+
+        >>> board = Board()
+        >>> print(board[None])
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        1 1 1 1 1 1 1 1 
+        1 1 1 1 1 1 1 1 
+        1 1 1 1 1 1 1 1 
+        1 1 1 1 1 1 1 1 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+
+        If given a :class:``Color``, returns a :class:`Bitboard` of all squares with a piece of that color
+        
+        >>> board = Board()
+        >>> print(board[WHITE])
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        1 1 1 1 1 1 1 1 
+        1 1 1 1 1 1 1 1 
+
+        If given a :class:``PieceType``, returns a :class:`Bitboard` of all squares with a piece of that type.
+        
+        >>> board = Board()
+        >>> print(board[PAWN])
+        0 0 0 0 0 0 0 0 
+        1 1 1 1 1 1 1 1 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        1 1 1 1 1 1 1 1 
+        0 0 0 0 0 0 0 0 
+
+        If given a :class:`Piece` or a tuple of a :class:`Color` and a :class:`PieceType`, returns a :class:`Bitboard` of all squares with matching pieces.
+        
+        >>> board = Board()
+        >>> board[WHITE, PAWN] == board[Piece(WHITE, PAWN)]
+        True
+        >>> print(board[WHITE, PAWN])
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        1 1 1 1 1 1 1 1 
+        0 0 0 0 0 0 0 0 
         """
         ...
 
@@ -1963,12 +2041,37 @@ class Board:
         """
         Sets this :class:`Board` to have the given :class:`Piece` and the indexed :class:`Square` . 
         If set to ``None``, the :class:`Square` becomes empty.
+
+        >>> board = Board()
+        >>> board[E2] = None
+        >>> board[E4] = Piece(WHITE, PAWN)
+        >>> print(board)
+        r n b q k b n r 
+        p p p p p p p p 
+        - - - - - - - - 
+        - - - - - - - - 
+        - - - - P - - - 
+        - - - - - - - - 
+        P P P P - P P P 
+        R N B Q K B N R 
         """
         ...
 
     def __delitem__(self, square : Square):
         """
         Deletes any :class:`Piece` at the specified :class:`Square`, leaving the :class:`Square` empty.
+
+        >>> board = Board()
+        >>> del board[E2]
+        >>> print(board)
+        r n b q k b n r 
+        p p p p p p p p 
+        - - - - - - - - 
+        - - - - - - - - 
+        - - - - - - - - 
+        - - - - - - - - 
+        P P P P - P P P 
+        R N B Q K B N R 
         """
         ...
 
@@ -1986,7 +2089,7 @@ class Board:
 
     def __hash__(self) -> int:
         """
-        Performs a Zobrist hash of this Board.
+        Performs a `Zobrist hash <https://www.chessprogramming.org/Zobrist_Hashing>`_ of this Board.
         """
         ...
     
@@ -2014,7 +2117,7 @@ class Board:
 
     def __str__(self):
         """
-        Returns an ASCII `str` representation of this :class:`Board`.
+        Returns an ASCII ``str`` representation of this :class:`Board`.
 
         >>> print(str(Board()))
         r n b q k b n r 
@@ -2040,6 +2143,9 @@ class Board:
         """
 
     def _repr_html_(self):
+        """
+        Creates an HTML representation of this :class:`Board`.
+        """
         ...
 
     def pretty(self, 
@@ -2047,9 +2153,16 @@ class Board:
                highlighted_squares : Bitboard = EMPTY_BB,
                targeted_squares : Bitboard = EMPTY_BB) -> str:
         """
-        Creates a `str` representation of this :class:`Board` using Unicode chess figurines and the provided :class:`Board.ColorScheme` as a palette
+        A pretty to-string method for terminal outputs.
+
+        Creates a ``str`` representation of this :class:`Board` using Unicode chess figurines and the provided :class:`Board.ColorScheme` as a palette
         for the background and highlights. :class:`Bitboard`'s can be specified for highlighting particular squares, as for example a :class:`Move`'s origin, 
         as well as for targetting certain squares, as for possible :class:`Move` destinations.
+
+        :returns: A rendering of this position as a UTF-8 string with ``ANSI`` color codes
+        :rtype: ``str``
+
+
         """
         ...
 
@@ -2085,7 +2198,6 @@ class Board:
     """
     A familiar green and white color pallete
     """
-
 
 
     ROSE : ColorScheme
@@ -2126,7 +2238,18 @@ class BoardStatus:
         >>> Board() in DRAW
         False
         >>> FEN = "r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4"
-        >>> Board.from_fen(FEN) in CHECKMATE
+        >>> board = Board.from_fen(FEN)
+        >>> print(board)
+        r - b q k b - r 
+        p p p p - Q p p 
+        - - n - - n - - 
+        - - - - p - - - 
+        - - B - P - - - 
+        - - - - - - - - 
+        P P P P - P P P 
+        R N B - K - N R 
+
+        >>> board in CHECKMATE
         True
         """
         ...
@@ -2136,26 +2259,62 @@ class BoardStatus:
     def __eq__(self, other : Any) -> bool: ...
 
 
-#: The side to move is currently in check.
+
 CHECK: BoardStatus
-#: The side to move has no legal moves.
+"""
+The side to move is in check
+"""
+
+
 MATE: BoardStatus
-#: Side to move has no legal moves, and is in check.
+"""
+The side to move has no legal moves.
+"""
+
+
 CHECKMATE: BoardStatus
-#: Side to move has no legal moves, and is **not** in check.
+"""
+The side to move is in checkmate. The player is in check and has no legal moves.
+"""
+
 STALEMATE: BoardStatus
-#: Not enough material remains for either side to mate.
+"""
+The side to move is in stalemate. The player has no legal moves but is *not* in check.
+"""
+
 INSUFFICIENT_MATERIAL: BoardStatus
-#: Fifty moves (plies) have passed without a pawn move or capture.
+"""
+There is not enough material for either player to be placed in checkmate.
+"""
+
+
 FIFTY_MOVE_TIMEOUT: BoardStatus
-#: Seventy-five moves (plies) have passed without a pawn move or capture.
+"""
+Fifty full-moves have passed without a pawn move or capture.
+"""
+
 SEVENTY_FIVE_MOVE_TIMEOUT: BoardStatus
-#: Same position has occurred three times with the same side to move.
+"""
+Seventy five full-moves have passed without a pawn move or capture.
+"""
+
 THREEFOLD_REPETITION: BoardStatus
-#: Same position has occurred five times with the same side to move.
+"""
+The same position has occured at least three times.
+"""
+
 FIVEFOLD_REPETITION: BoardStatus
-#: Any condition that entitles a player to claim a draw.
+"""
+The same position has occured at least five times.
+"""
+
 DRAW: BoardStatus
-#: Draw that the rules enforce automatically (e.g. 75-move, 5-fold, or
-#: insufficient material) even if the player does not claim it.
+"""
+Any position in which a player may claim a draw. 
+This includes stalemate, insufficient material, a fifty move timeout, or threefold repetition.
+"""
+
 FORCED_DRAW: BoardStatus
+"""
+A forced draw. This includes stalemate, insufficient material, a seventy five move timeout, or fivefold repetition.
+"""

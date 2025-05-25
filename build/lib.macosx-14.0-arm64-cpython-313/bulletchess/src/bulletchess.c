@@ -3691,10 +3691,10 @@ static PyObject *PyPGNFile_open(PyObject *unused, PyObject *args) {
 	if (!PyTypeCheck("str", args, &PyUnicode_Type)) return NULL;
 	const char *path = PyUnicode_AsUTF8(args);
 	if (!path) return NULL;
-	FILE *file = fopen(path, "r");
+	FILE *file = fopen(path, "r+");
 	if (!file) {
 		PyErr_Format(PyExc_FileNotFoundError, 
-				"Could not find PGN file with path %s", path);
+				"Could not find PGN file with path `%s`", path);
 		return NULL;
 	}
 	PyPGNFileObject *self = PyObject_New(PyPGNFileObject, &PyPGNFileType);
