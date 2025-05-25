@@ -1,32 +1,20 @@
 #include "pgn.h"
 
-
-#define DEBUG_ON 0
-#define debug_print(...) (DEBUG_ON && fprintf(stderr, __VA_ARGS__))
-#define untoken(tok,ctx)\
-(debug_print("untoken %s at %d in %s\n", tok->string, tok->location->line, tok->location->source_name), untoken(tok,ctx))
 char *alloc_err(tok_context_t *ctx, const char *msg, token_t *tok) {
 	char loc_str[500];
 	char *err;
 	if (tok) {
-		debug_print("tok\n");
-		debug_print("location is %p\n", tok->location); 
-		debug_print("location line is %ld\n", tok->location->line);
 		write_loc(tok->location, loc_str);
-		debug_print("loc written\n");
 		err = malloc(strlen(loc_str) + strlen(msg) + 100);
-		debug_print("%p err\n", err);
-		sprintf(err, "<%s>: Error When Parsing PGN: %s, got `%s`", 
+		sprintf(err, "<%s>: Error When Parsing PGN: %s, got %s", 
 			loc_str, msg, tok->string);
 		free_token(tok);
 	}
 	else {
-		debug_print("no tok\n");
 		write_loc(&ctx->loc, loc_str);
 		err = malloc(strlen(loc_str) + strlen(msg) + 100);
 		sprintf(err, "<%s>: Error When Parsing PGN: %s", loc_str, msg);
 	}
-	debug_print("alloc error made\n");
 	return err;
 }
 
@@ -53,7 +41,7 @@ dict_t *make_dst_dict(pgn_tag_section_t *tags,
 	return dict;
 }
 
-// Wraps around ftoken to skip over commentary lines
+// Wraps around pgntoken to skip over commentary lines
 token_t *pgntoken(FILE *stream, tok_context_t *ctx) {
 	token_t *tok = ftoken(stream, ctx);
 	if (tok) {
@@ -79,13 +67,12 @@ char *add_tag_pair(token_t *name, token_t *val,
 		return alloc_err(ctx, 
 				"Tag value is too long, must be at most 255 characters", val);
 	char *ptr = dict_remove(dest_dict, name->string);
-	if (ptr) { // Just ignore unknown tags
-	  dict_add(tok_dict, name->string, val);
-	  char scratch[255];
-	  strncpy(scratch, val->string + 1, 255);
-	  scratch[strlen(scratch) - 1] = 0;
-	  strncpy(ptr, scratch, 255);
-  }
+	if (!ptr) return 0; // Just ignore unknown tags
+	dict_add(tok_dict, name->string, val);
+	char scratch[255];
+	strncpy(scratch, val->string + 1, 255);
+	scratch[strlen(scratch) - 1] = 0;
+	strncpy(ptr, scratch, 255);
 	free_token(name);
 	return 0;
 }
@@ -96,6 +83,7 @@ char *read_tag_pair(FILE *stream,
 										dict_t* dest_dict, token_t *first,
 										dict_t* tok_dict) {
 		token_t *name = pgntoken(stream, ctx);
+		
 		if (name) {
 			free_token(first);
 			token_t *val = pgntoken(stream, ctx);
@@ -271,10 +259,9 @@ char *read_tags_old(FILE *stream,
 }
 
 #define TAG_ERR(MSG, TOKEN){\
-	debug_print("making tag err " MSG "\n");\
+	CLEANUP_TAGS();\
 	dict_free_toks(token_dict);\
 	dict_free(token_dict);\
-	debug_print("about to alloc err \n");\
 	return alloc_err(ctx, MSG, TOKEN);\
 }
 
@@ -289,7 +276,8 @@ char *read_tags(FILE *stream, tok_context_t *ctx, dict_t *token_dict) {
 		token_t *name = NULL;
 		token_t *value = NULL;
 		token_t *rbracket = NULL;
-		if (!lbracket) TAG_ERR_EOF("tag pair or the beginning of a Movetext block"); 	
+		if (!lbracket) TAG_ERR_EOF("tag pair or the beginning of a Movetext block"); 
+		
 		if (!token_is(lbracket, "[")) {
 			if (first) TAG_ERR("Expected a tag pair begninning with [", lbracket)				
 			else {
@@ -320,8 +308,9 @@ char *read_tags(FILE *stream, tok_context_t *ctx, dict_t *token_dict) {
 			return alloc_err(ctx, msg, value);	
 		}
 		*/
-		// this function can fail if realloc fails, but we'd rather miss a tag then throw an error right now.
-		dict_add(token_dict, name->string, value);
+		// this one is my fault for shitty implementation of dictionaries im using
+		if (!dict_add(token_dict, name->string, value)) 
+			TAG_ERR("Too many tag pairs, can save at most 100 per Game", value); 
 		VALID_CLEANUP_TAGS();
 	} while(true);
 	return 0;	
@@ -547,7 +536,7 @@ char *read_pgn_inner(FILE *stream, tok_context_t *ctx, pgn_game_t *dst) {
 	dict_add(res_dict, "\"1-0\"", res_vals + 1); 
 	dict_add(res_dict, "\"0-1\"", res_vals + 2); 
 	dict_add(res_dict, "\"*\"", res_vals + 3); 
-	dict_t *token_dict = new_dict(20);
+	dict_t *token_dict = new_dict(100);
 	char *out = read_tags(stream, ctx, token_dict);	
 	if (out) return out; 
 	use_token_dict(dst, token_dict, ctx, res_dict);
@@ -583,8 +572,7 @@ int next_pgn(pgn_file_t *pf, pgn_game_t *dst, char *err) {
 	if (tmp) {
 		strncpy(err, tmp, 300);
 		free(tmp);
-		// errors are non recoverable from
-		//skip_to_next(pf);
+		skip_to_next(pf);
 		return 1;	
 	}
 	return 0;

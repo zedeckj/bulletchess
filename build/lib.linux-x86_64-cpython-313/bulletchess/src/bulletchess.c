@@ -2105,7 +2105,7 @@ PyBoard_repr(PyObject *self){
 
 
 static PyObject *PyBoard_html(PyObject *self, PyObject *Py_UNUSED(args)){
-	char html_buffer[7000];
+	char html_buffer[20000];
 	board_html(PyBoard_board(self), html_buffer);
 	return PyUnicode_FromString(html_buffer);	
 }
@@ -3692,10 +3692,10 @@ static PyObject *PyPGNFile_open(PyObject *unused, PyObject *args) {
 	if (!PyTypeCheck("str", args, &PyUnicode_Type)) return NULL;
 	const char *path = PyUnicode_AsUTF8(args);
 	if (!path) return NULL;
-	FILE *file = fopen(path, "r+");
+	FILE *file = fopen(path, "r");
 	if (!file) {
 		PyErr_Format(PyExc_FileNotFoundError, 
-				"Could not find PGN file with path `%s`", path);
+				"Could not find PGN file with path %s", path);
 		return NULL;
 	}
 	PyPGNFileObject *self = PyObject_New(PyPGNFileObject, &PyPGNFileType);
@@ -3845,9 +3845,7 @@ PyMODINIT_FUNC PyInit__core(void) {
 			Py_DECREF(utils);
 			Py_DECREF(m);
 			return NULL;
-		}
-
-		ADD_OBJ("pgn", pgn);
+		}	
 		VALIDATE(PySquares_init());
 		VALIDATE(PyPieceTypes_init());
 		VALIDATE(PyColors_init());
