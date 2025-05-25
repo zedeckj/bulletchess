@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <errno.h> 
 #include <ctype.h>
+
 typedef uint8_t piece_type_t;
 typedef uint8_t piece_color_t;
 
