@@ -21,6 +21,8 @@ At a high level, ``bulletchess`` includes:
 * A `Portable Game Notation <https://thechessworld.com/articles/general-information/portable-chess-game-notation-pgn-complete-guide/>`_ (PGN) file reader
 * Utility functions for writing engines. 
 
+`Github Repository <https://github.com/zedeckj/bulletchess>`_
+
 
 Glossary
 ---------

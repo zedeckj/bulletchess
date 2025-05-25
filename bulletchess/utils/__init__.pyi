@@ -65,7 +65,7 @@ def backwards_pawns(board : Board, color : Optional[Color] = None) -> Bitboard:
     - has no enemy pawn directly in front of it
     - can not advance without being attacked by an enemy pawn
 
-    board = Board.from_fen("4k3/2p3p1/1p2p2p/1P2P2P/1PP3P1/4P3/8/4K3 w - - 0 1")
+    >>> board = Board.from_fen("4k3/2p3p1/1p2p2p/1P2P2P/1PP3P1/4P3/8/4K3 w - - 0 1")
     >>> print(board)
     - - - - k - - - 
     - - p - - - p - 
@@ -94,7 +94,7 @@ def isolated_pawns(board : Board, color : Optional[Color] = None) -> Bitboard:
 
     An isolated pawn is defined as a pawn with no friendly pawns in adjacent files.  
 
-    board = Board.from_fen("4k3/2p3p1/1p2p2p/1P2P2P/1PP3P1/4P3/8/4K3 w - - 0 1")
+    >>> board = Board.from_fen("4k3/2p3p1/1p2p2p/1P2P2P/1PP3P1/4P3/8/4K3 w - - 0 1")
     >>> print(board)
     - - - - k - - - 
     - - p - - - p - 
@@ -123,7 +123,7 @@ def doubled_pawns(board : Board, color : Optional[Color] = None) -> Bitboard:
 
     A doubled pawn is defined as a pawn with a friendly pawn in the same file.  
 
-    board = Board.from_fen("4k3/2p3p1/1p2p2p/1P2P2P/1PP3P1/4P3/8/4K3 w - - 0 1")
+    >>> board = Board.from_fen("4k3/2p3p1/1p2p2p/1P2P2P/1PP3P1/4P3/8/4K3 w - - 0 1")
     >>> print(board)
     - - - - k - - - 
     - - p - - - p - 
