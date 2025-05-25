@@ -414,16 +414,18 @@ see: <a class="reference external" href="https://www.chessprogramming.org/Perft"
 - is behind all other friendly pawns in its own and adjacent files.
 - has no enemy pawn directly in front of it
 - can not advance without being attacked by an enemy pawn</p>
-<p>board = Board.from_fen(“4k3/2p3p1/1p2p2p/1P2P2P/1PP3P1/4P3/8/4K3 w - - 0 1”)
-&gt;&gt;&gt; print(board)
-- - - - k - - - 
-- - p - - - p - 
-- p - - p - - p 
-- P - - P - - P 
-- P P - - - P - 
-- - - - P - - - 
-- - - - - - - - 
-- - - - K - - -</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">board</span> <span class="o">=</span> <span class="n">Board</span><span class="o">.</span><span class="n">from_fen</span><span class="p">(</span><span class="s2">&quot;4k3/2p3p1/1p2p2p/1P2P2P/1PP3P1/4P3/8/4K3 w - - 0 1&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+<span class="go">- - - - k - - - </span>
+<span class="go">- - p - - - p - </span>
+<span class="go">- p - - p - - p </span>
+<span class="go">- P - - P - - P </span>
+<span class="go">- P P - - - P - </span>
+<span class="go">- - - - P - - - </span>
+<span class="go">- - - - - - - - </span>
+<span class="go">- - - - K - - - </span>
+</pre></div>
+</div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">backwards_pawns</span><span class="p">(</span><span class="n">board</span><span class="p">))</span>
 <span class="go">0 0 0 0 0 0 0 0 </span>
 <span class="go">0 0 1 0 0 0 1 0 </span>
@@ -442,16 +444,18 @@ see: <a class="reference external" href="https://www.chessprogramming.org/Perft"
 <span class="sig-name descname"><span class="pre">isolated_pawns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Board" title="bulletchess.main.Board"><span class="pre">Board</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Color" title="bulletchess.main.Color"><span class="pre">Color</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="main.html#bulletchess.main.Bitboard" title="bulletchess.main.Bitboard"><span class="pre">Bitboard</span></a></span></span><a class="headerlink" href="#bulletchess.utils.isolated_pawns" title="Link to this definition">#</a></dt>
 <dd><p>Returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code> containing all <code class="xref py py-class docutils literal notranslate"><span class="pre">Square</span></code> values with an isolated pawn for the given <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code>.</p>
 <p>An isolated pawn is defined as a pawn with no friendly pawns in adjacent files.</p>
-<p>board = Board.from_fen(“4k3/2p3p1/1p2p2p/1P2P2P/1PP3P1/4P3/8/4K3 w - - 0 1”)
-&gt;&gt;&gt; print(board)
-- - - - k - - - 
-- - p - - - p - 
-- p - - p - - p 
-- P - - P - - P 
-- P P - - - P - 
-- - - - P - - - 
-- - - - - - - - 
-- - - - K - - -</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">board</span> <span class="o">=</span> <span class="n">Board</span><span class="o">.</span><span class="n">from_fen</span><span class="p">(</span><span class="s2">&quot;4k3/2p3p1/1p2p2p/1P2P2P/1PP3P1/4P3/8/4K3 w - - 0 1&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+<span class="go">- - - - k - - - </span>
+<span class="go">- - p - - - p - </span>
+<span class="go">- p - - p - - p </span>
+<span class="go">- P - - P - - P </span>
+<span class="go">- P P - - - P - </span>
+<span class="go">- - - - P - - - </span>
+<span class="go">- - - - - - - - </span>
+<span class="go">- - - - K - - - </span>
+</pre></div>
+</div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">isolated_pawns</span><span class="p">(</span><span class="n">board</span><span class="p">))</span>
 <span class="go">0 0 0 0 0 0 0 0 </span>
 <span class="go">0 0 0 0 0 0 0 0 </span>
@@ -470,16 +474,18 @@ see: <a class="reference external" href="https://www.chessprogramming.org/Perft"
 <span class="sig-name descname"><span class="pre">doubled_pawns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Board" title="bulletchess.main.Board"><span class="pre">Board</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main.html#bulletchess.main.Color" title="bulletchess.main.Color"><span class="pre">Color</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="main.html#bulletchess.main.Bitboard" title="bulletchess.main.Bitboard"><span class="pre">Bitboard</span></a></span></span><a class="headerlink" href="#bulletchess.utils.doubled_pawns" title="Link to this definition">#</a></dt>
 <dd><p>Returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code> containing all <code class="xref py py-class docutils literal notranslate"><span class="pre">Square</span></code> values with a passed pawn for the given <code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code>.</p>
 <p>A doubled pawn is defined as a pawn with a friendly pawn in the same file.</p>
-<p>board = Board.from_fen(“4k3/2p3p1/1p2p2p/1P2P2P/1PP3P1/4P3/8/4K3 w - - 0 1”)
-&gt;&gt;&gt; print(board)
-- - - - k - - - 
-- - p - - - p - 
-- p - - p - - p 
-- P - - P - - P 
-- P P - - - P - 
-- - - - P - - - 
-- - - - - - - - 
-- - - - K - - -</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">board</span> <span class="o">=</span> <span class="n">Board</span><span class="o">.</span><span class="n">from_fen</span><span class="p">(</span><span class="s2">&quot;4k3/2p3p1/1p2p2p/1P2P2P/1PP3P1/4P3/8/4K3 w - - 0 1&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+<span class="go">- - - - k - - - </span>
+<span class="go">- - p - - - p - </span>
+<span class="go">- p - - p - - p </span>
+<span class="go">- P - - P - - P </span>
+<span class="go">- P P - - - P - </span>
+<span class="go">- - - - P - - - </span>
+<span class="go">- - - - - - - - </span>
+<span class="go">- - - - K - - - </span>
+</pre></div>
+</div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">doubled_pawns</span><span class="p">(</span><span class="n">board</span><span class="p">))</span>
 <span class="go">0 0 0 0 0 0 0 0 </span>
 <span class="go">0 0 0 0 0 0 0 0 </span>
@@ -1139,7 +1145,7 @@ equivilant <code class="xref py py-class docutils literal notranslate"><span cla
 
   <p class="copyright">
     
-      © Copyright 2025, Jordan Zedeeck.
+      © Copyright 2025, Jordan Zedeck.
       <br/>
     
   </p>
