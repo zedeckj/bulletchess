@@ -18,5 +18,9 @@ license-files = ["LICEN[CS]E*"]
 Homepage = "https://zedeckj.github.io/bulletchess/index.html"
 Issues = "https://github.com/zedeckj/bulletchess/issues"
 
+[tool.cibuildwheel]
+manylinux-i686-image = "quay.io/pypa/manylinux2010_i686:latest"
+
+
 [tool.setuptools.packages.find]
 include = ["bulletchess"]
