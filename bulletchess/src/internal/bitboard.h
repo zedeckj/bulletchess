@@ -5,6 +5,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 typedef u_int8_t square_t;
 typedef u_int64_t bitboard_t;
