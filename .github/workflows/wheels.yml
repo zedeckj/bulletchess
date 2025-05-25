@@ -45,7 +45,7 @@ jobs:
         env:
           CIBW_PLATFORM: ${{ matrix.platform }}
           CIBW_ARCHS: ${{ matrix.archs }}
-          CIBW_MANYLINUX_I686_IMAGE: manylinux_2_24
+          CIBW_MANYLINUX_I686_IMAGE: manylinux2014
           # Can also be configured directly, using `with:`
         # with:
         #   package-dir: .
