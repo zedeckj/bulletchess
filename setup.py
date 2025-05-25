@@ -1,7 +1,7 @@
 from setuptools import Extension, setup
 from pathlib import Path
 import os
-
+import sys
 ROOT = Path(__file__).parent / "bulletchess"
 print(ROOT)
 SRC = ROOT / "src"
