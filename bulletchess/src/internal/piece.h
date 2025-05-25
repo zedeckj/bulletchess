@@ -1,11 +1,16 @@
 #ifndef PIECEHEADER
 #define PIECEHEADER 0 
-#include <inttypes.h>
+#include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h> 
 #include <ctype.h>
+
+#define u_int8_t uint8_t
+#define u_int16_t uint16_t
+#define u_int32_t uint32_t
+#define u_int64_t uint64_t
 
 typedef uint8_t piece_type_t;
 typedef uint8_t piece_color_t;
