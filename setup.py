@@ -16,11 +16,14 @@ print(source_files)
 
 py_paths = sysconfig.get_paths()
 
+if sys.platform.startswith("win"):
+    extra_compile_args=["O2", "/std:c17"]
+else:
+    extra_compile_args=["-O3", "-std=gnu17"],     
 
 core = Extension(
     name = "bulletchess._core",
     sources = source_files, 
-    extra_compile_args=["-O3", "-std=gnu17"],     
 )
 
 print(core)
