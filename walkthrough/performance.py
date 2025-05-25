@@ -7,12 +7,10 @@ Performance Comparisons
 To demonstrate how much faster ``bulletchess`` is, we can write equivalent functions in both libraries, and compare the runtimes.
 
 
-Let's start by implementing a `Perft` function. In ``bulletchess``:
+Let's start by implementing a `Perft <https://www.chessprogramming.org/Perft>`_ function. In ``bulletchess``:
 
 """
-import chess.pgn
 import bulletchess
-import bulletchess.pgn
 from bulletchess.utils import count_moves
 
 def bullet_perft(board : bulletchess.Board, depth : int) -> int:
@@ -55,12 +53,12 @@ from time import time
 start = time()
 result = chess_perft(chess.Board(), 6)
 chess_time = time() - start
-print(f"chess_perft returned {result} in {chess_time:.4f}s")
+print(f"`chess_perft` returned {result} in {chess_time:.4f}s")
 
 start = time()
 bullet_perft(bulletchess.Board(), 6)
 bullet_time = time() - start
-print(f"bullet_perft returned {result} in {bullet_time:.4f}s")
+print(f"`bullet_perft` returned {result} in {bullet_time:.4f}s")
 
 print(f"bulletchess is {chess_time/bullet_time:.4f}x faster")
 
@@ -163,6 +161,9 @@ print(f"bulletchess is {chess_time/bullet_time:.4f}x faster")
 # we'll go through each position in each game, and check how many have a pawn of any color on E4. 
 
 # a large PGN file
+
+import chess.pgn
+import bulletchess.pgn
 PATH = "../data/pgn/modern.pgn"
 
 def chess_check_games():
@@ -200,13 +201,13 @@ def bullet_check_games():
 start = time()
 chess_res = chess_check_games()
 chess_time = time() - start
-print(f"`chess_statuses` took {chess_time:.4}")
+print(f"`chess_check_games` took {chess_time:.4}")
 print(f"python-chess found {chess_res} positions with a pawn on E4")
 
 start = time()
 bullet_res = bullet_check_games()
 bullet_time = time() - start
-print(f"`bullet_statuses` took {bullet_time:.4}")
+print(f"`bullet_check_games` took {bullet_time:.4}")
 print(f"bulletchess found {bullet_res} positions with a pawn on E4")
 
 print(f"bulletchess is {chess_time/bullet_time:.4f}x faster")

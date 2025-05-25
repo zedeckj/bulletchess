@@ -4023,9 +4023,7 @@ PyMODINIT_FUNC PyInit__core(void) {
 		ADD_OBJ("NO_CASTLING", MT_CASTLING);
 		zobrist_table = create_zobrist_table();
 		fill_zobrist_table(zobrist_table);
-    printf("returning module\n");
 		return m;
-
 }
 
 

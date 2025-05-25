@@ -53,7 +53,7 @@ dict_t *make_dst_dict(pgn_tag_section_t *tags,
 	return dict;
 }
 
-// Wraps around pgntoken to skip over commentary lines
+// Wraps around ftoken to skip over commentary lines
 token_t *pgntoken(FILE *stream, tok_context_t *ctx) {
 	token_t *tok = ftoken(stream, ctx);
 	if (tok) {
@@ -79,12 +79,13 @@ char *add_tag_pair(token_t *name, token_t *val,
 		return alloc_err(ctx, 
 				"Tag value is too long, must be at most 255 characters", val);
 	char *ptr = dict_remove(dest_dict, name->string);
-	if (!ptr) return 0; // Just ignore unknown tags
-	dict_add(tok_dict, name->string, val);
-	char scratch[255];
-	strncpy(scratch, val->string + 1, 255);
-	scratch[strlen(scratch) - 1] = 0;
-	strncpy(ptr, scratch, 255);
+	if (ptr) { // Just ignore unknown tags
+	  dict_add(tok_dict, name->string, val);
+	  char scratch[255];
+	  strncpy(scratch, val->string + 1, 255);
+	  scratch[strlen(scratch) - 1] = 0;
+	  strncpy(ptr, scratch, 255);
+  }
 	free_token(name);
 	return 0;
 }

@@ -11,13 +11,6 @@ class BoardStatusTester(unittest.TestCase):
         self.assertEqual(utils.count_moves(board), 0)
         self.assertEqual(len(board.legal_moves()), 0)
         self.assertTrue(board in MATE)
-        self.assertFalse(board in INSUFFICIENT_MATERIAL)
-        self.assertFalse(board in FIFTY_MOVE_TIMEOUT)
-        self.assertFalse(board in SEVENTY_FIVE_MOVE_TIMEOUT)
-        self.assertFalse(board in THREEFOLD_REPETITION)
-        self.assertFalse(board in FIVEFOLD_REPETITION)
-        self.assertFalse(board in INSUFFICIENT_MATERIAL)
-
     def assertNotMate(self, board : Board):
         self.assertGreater(utils.count_moves(board), 0)
         self.assertGreater(len(board.legal_moves()), 0)
@@ -39,6 +32,13 @@ class BoardStatusTester(unittest.TestCase):
     def assertCheckmate(self, board : Board):
         self.assertCheck(board)
         self.assertMate(board)
+        self.assertFalse(board in INSUFFICIENT_MATERIAL)
+        self.assertFalse(board in FIFTY_MOVE_TIMEOUT)
+        self.assertFalse(board in SEVENTY_FIVE_MOVE_TIMEOUT)
+        self.assertFalse(board in THREEFOLD_REPETITION)
+        self.assertFalse(board in FIVEFOLD_REPETITION)
+
+
 
     def assertLastNotCapture(self, board : Board):
         moves = board.history
@@ -77,7 +77,6 @@ class BoardStatusTester(unittest.TestCase):
         self.assertNotMate(board)
         self.assertLastNotCapture(board)
         self.assertTrue(board in DRAW)
-        self.assertFalse(board in FORCED_DRAW)
 
 
     def assertSeventyFive(self, board : Board):

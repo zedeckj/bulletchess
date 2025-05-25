@@ -84,6 +84,5 @@ class TestPawnBitboardUtils(unittest.TestCase):
         self.assertBitboardEqual(utils.half_open_files(board2, BLACK), [])
 
 if __name__ == "__main__":
-    print_boards()
     unittest.main()
     

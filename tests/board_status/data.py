@@ -15,6 +15,7 @@ class TestBoardStatusFromJson(BoardStatusTester):
             data = json.load(f)
         for fen in data:
             board = Board.from_fen(fen)
+            self.assertEqual(len(board[KING]), 2)
             match data[fen]:
                 case "check":
                     self.assertOnlyCheck(board)
