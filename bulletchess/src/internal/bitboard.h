@@ -1,6 +1,6 @@
 #ifndef BITBOARDHEADER
 #define BITBOARDHEADER 0
-
+#include "piece.h"
 #include <stdbool.h>
 #include <ctype.h>
 #include <stdio.h>
