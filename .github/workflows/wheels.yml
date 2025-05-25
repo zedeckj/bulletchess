@@ -93,4 +93,4 @@ jobs:
           repository-url: https://test.pypi.org/legacy/
           username: __token__
           password: ${{ secrets.TEST_PYPI_API_TOKEN }}
-          existing: true
+          skip-existing: true
