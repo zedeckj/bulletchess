@@ -1,5 +1,4 @@
 
-from bulletchess.main import *
 from typing import Optional
 
 def count_moves(board : Board) -> int: 
@@ -18,7 +17,8 @@ def evaluate(board : Board):
     and explicitly evaluates positions which can be claimed as a draw as 0.
     The number of Kings is reconsidered as whether or not a player is in Checkmate. 
     
-    "f(P) = 200(K-K') + 9(Q-Q') + 5(R-R') + 3(B-B'+N-N') + (P-P') - 0.5(D-D'+S-S'+I-I') + 0.1(M-M')
+    ``
+    f(P) = 200(K-K') + 9(Q-Q') + 5(R-R') + 3(B-B'+N-N') + (P-P') - 0.5(D-D'+S-S'+I-I') + 0.1(M-M')
 
     in which: -
     (1) K,Q,R,B,B,P are the number of White kings, queens, rooks, bishops, knights
@@ -27,7 +27,7 @@ def evaluate(board : Board):
     (3) M= White mobility (measured, say, as the number of legal moves available to
     White).
     
-    Primed letters are the similar quantities for Black."
+    Primed letters are the similar quantities for Black.``
 
     Shannon, C. E. (1950). XXII. Programming a computer for playing chess. The London, 
     Edinburgh, and Dublin Philosophical Magazine and Journal of Science, 41(314), 256–27    
@@ -52,21 +52,19 @@ def perft(board : Board, depth: int) -> int:
 
 def perft_fen(fen : str, depth : int) -> int: 
     """
-    Sames as `utils.perft()`, but takes a Forsyth-Edwards Notation `str` description of a position instead of a :class:`Board`. 
+    Sames as :func:`utils.perft()`, but takes a Forsyth-Edwards Notation ``str`` description of a position instead of a :class:`Board`. 
     """
     ...
 
 def backwards_pawns(board : Board, color : Optional[Color] = None) -> Bitboard: 
     """
-    Returns a :class:`Bitboard` containing all :class:`Square` values with a backwards pawn for the given `Board`.
+    Returns a :class:`Bitboard` containing all :class:`Square` values with a backwards pawn for the given :class:`Board`.
 
     A backwards pawn is defined as a pawn that:
     - is behind all other friendly pawns in its own and adjacent files.
     - has no enemy pawn directly in front of it
     - can not advance without being attacked by an enemy pawn
 
-    Examples
-    --------
     board = Board.from_fen("4k3/2p3p1/1p2p2p/1P2P2P/1PP3P1/4P3/8/4K3 w - - 0 1")
     >>> print(board)
     - - - - k - - - 
@@ -92,11 +90,10 @@ def backwards_pawns(board : Board, color : Optional[Color] = None) -> Bitboard:
 
 def isolated_pawns(board : Board, color : Optional[Color] = None) -> Bitboard: 
     """
-    Returns a :class:`Bitboard` containing all :class:`Square` values with an isolated pawn for the given `Board`.
+    Returns a :class:`Bitboard` containing all :class:`Square` values with an isolated pawn for the given :class:`Board`.
 
     An isolated pawn is defined as a pawn with no friendly pawns in adjacent files.  
-    Examples
-    --------
+
     board = Board.from_fen("4k3/2p3p1/1p2p2p/1P2P2P/1PP3P1/4P3/8/4K3 w - - 0 1")
     >>> print(board)
     - - - - k - - - 
@@ -122,11 +119,10 @@ def isolated_pawns(board : Board, color : Optional[Color] = None) -> Bitboard:
 
 def doubled_pawns(board : Board, color : Optional[Color] = None) -> Bitboard: 
     """
-    Returns a :class:`Bitboard` containing all :class:`Square` values with a passed pawn for the given `Board`.
+    Returns a :class:`Bitboard` containing all :class:`Square` values with a passed pawn for the given :class:`Board`.
 
     A doubled pawn is defined as a pawn with a friendly pawn in the same file.  
-    Examples
-    --------
+
     board = Board.from_fen("4k3/2p3p1/1p2p2p/1P2P2P/1PP3P1/4P3/8/4K3 w - - 0 1")
     >>> print(board)
     - - - - k - - - 
@@ -152,12 +148,11 @@ def doubled_pawns(board : Board, color : Optional[Color] = None) -> Bitboard:
 
 def passed_pawns(board : Board, color : Optional[Color] = None) -> Bitboard:
     """
-    Returns a :class:`Bitboard` containing all :class:`Square` values with a passed pawn for the given `Board`.
+    Returns a :class:`Bitboard` containing all :class:`Square` values with a passed pawn for the given :class:`Board`.
 
     A passed pawn is defined as a pawn with no enemy pawns in its file or adjacent files which can
     block it from advancing forward, ulitmately to promote.
-    Examples
-    --------
+
     >>> board = Board.from_fen("7k/8/7p/1P2Pp1P/2Pp1PP1/8/8/7K w - - 0 1")
     >>> print(board)
     - - - - - - - k 
@@ -183,12 +178,10 @@ def passed_pawns(board : Board, color : Optional[Color] = None) -> Bitboard:
 
 def is_pinned(board : Board, square : Square) -> bool:
     """
-    Returns `True` if the given :class:`Square` has a piece which is pinned in the given :class:`Board`.
+    Returns ``True`` if the given :class:`Square` has a piece which is pinned in the given :class:`Board`.
 
     A piece is considered pinned if it is not allowed to move at all, as doing so would place the moving player's king in check.
 
-    Examples
-    ---------
     >>> board = Board.from_fen("rnbqk1nr/pppp1ppp/8/4p3/1b6/2NP4/PPP1PPPP/R1BQKBNR w KQkq - 1 3")
     >>> print(board)
     r n b q k - n r 
@@ -211,10 +204,9 @@ def is_pinned(board : Board, square : Square) -> bool:
 
 def attack_mask(board : Board, attacker : Color) -> Bitboard: 
     """
-    Returns a :class:`Bitboard` of containing all :class:`Square` which are being attacked by the specified :class:`Color`. 
+    Returns a :class:`Bitboard` of containing all squares which are being attacked by the specified :class:`Color`. 
 
-    Examples
-    --------
+
     >>> board = Board()
     >>> print(attack_mask(board, WHITE))
     0 0 0 0 0 0 0 0 
@@ -264,8 +256,8 @@ def material(board : Board,
 
 def mobility(board : Board) -> int: 
     """
-    Returns the number of moves for the `Board` as if it were it the `WHITE`'s turn,
-    subtracted by the number of moves as if it were `BLACK`'s turn.  
+    Returns the number of moves for the :class:`Board` as if it were it the :data:`WHITE`'s turn,
+    subtracted by the number of moves as if it were :data:`BLACK`'s turn.  
     """
     ...
 
@@ -273,8 +265,6 @@ def open_files(board : Board) -> Bitboard:
     """
     Returns a :class:`Bitboard` of all files that have no pawns of either :class:`Color`.
     
-    Examples
-    --------
     >>> board = Board.from_fen("4k3/2p3p1/1p2p2p/1P2P2P/1PP3P1/4P3/8/4K3 w - - 0 1")
     >>> print(board)
     - - - - k - - - 
@@ -303,8 +293,6 @@ def half_open_files(board : Board, for_color : Color) -> Bitboard:
     Returns a :class:`Bitboard` of all files that have no pawns of the given :class:`Color`, but do 
     have pawns of the opposite :class:`Color.
     
-    Examples
-    --------
     >>> board = Board.from_fen("3k4/8/4p3/4P3/5PP1/8/8/3K4 w - - 0 1")
     >>> print(board)
     - - - k - - - - 
@@ -342,10 +330,8 @@ def random_legal_move(board : Board) -> Optional[Move]:
     """
     Returns a random legal :class:`Move` for the given :class:`Board`.
 
-    This is much faster than `random.choice(board.legal_moves())`.
+    This is much faster than ``random.choice(board.legal_moves())``.
 
-    Examples
-    ---------
     >>> board = Board()
     >>> random_legal_move(board)
     <Move: g1h3>
@@ -360,8 +346,6 @@ def random_board() -> Board:
     Returns a :class:`Board` with a position determined by appling a random number of randomly selected legal moves.
     The generated :class:`Board` may be checkmate or a draw. 
 
-    Examples
-    --------
     >>> board = random_board()
     >>> print(board)
     r Q - - k - - r 
@@ -389,12 +373,11 @@ def random_board() -> Board:
 
 def legally_equal(board1 : Board, board2 : Board) -> bool:
     """
-    Returns `True` if given two :class:`Board` instances with the same mapping of `Square` to `Piece` objects,
-    equivilant `CastlingRights`, and en-passant `Square` values.
+    Returns ``True`` if given two :class:`Board` instances with the same mapping of :class:`Square` to :class:`Piece` objects,
+    equivilant :class:`CastlingRights`, and en-passant :class:`Square` values.
 
     Unlike :func:`Board.__eq__`, does not check the halfmove clock and fullmove number. 
-    Examples
-    --------
+
     >>> board = Board()
     >>> board2 = Board()
     >>> board.halfmove_clock = 10
@@ -407,14 +390,12 @@ def legally_equal(board1 : Board, board2 : Board) -> bool:
 
 def deeply_equal(board1 : Board, board2 : Board) -> bool:
     """
-    Returns `True` if given two :class:`Board` instances have the same move history,
-    along with equivalent mappings of `Square` to `Piece` objects,
-    equivilant `CastlingRights`, and en-passant `Square` values, halfmove clocks, and fullmove numbers.
+    Returns ``True`` if given two :class:`Board` instances have the same move history,
+    along with equivalent mappings of :class:`Square` to :class:`Piece` objects,
+    equivilant :class:`CastlingRights`, and en-passant :class:`Square` values, halfmove clocks, and fullmove numbers.
 
-    This function has the same behavior as `board1 == board2 and board1.history == board2.history`, but is much faster.
+    This function has the same behavior as ``board1 == board2 and board1.history == board2.history``, but is much faster.
     
-    Examples
-    ---------
     >>> board = Board()
     >>> board2 = Board()
     >>> board.apply(Move(E2, E4))
@@ -433,8 +414,6 @@ def piece_bitboard(board : Board, piece : Piece) -> Bitboard:
     """
     Gets a :class:`Bitboard` of squares with the given :class:`Piece` on the given :class:`Board`.
 
-    Examples
-    --------
     >>> from bulletchess import *
     >>> piece = Piece(WHITE, PAWN)
     >>> board = Board()
@@ -456,12 +435,10 @@ def piece_bitboard(board : Board, piece : Piece) -> Bitboard:
 
 def unoccupied_bitboard(board : Board) -> Bitboard:
     """
-    An explict alias for indexing a :class:`Board` with `None`.
+    An explict alias for indexing a :class:`Board` with ``None``.
 
     Gets a :class:`Bitboard` of all empty squares on the given :class:`Board`. 
 
-    Examples
-    --------
     >>> board = Board()
     >>> bb = unoccupied_bitboard(board)
     >>> print(bb)
@@ -481,12 +458,10 @@ def unoccupied_bitboard(board : Board) -> Bitboard:
 
 def white_bitboard(board : Board) -> Color:
     """
-    An explict alias for indexing a :class:`Board` with `WHITE`.
+    An explict alias for indexing a :class:`Board` with :data:`WHITE`.
 
     Gets a :class:`Bitboard` of all squares with a white piece on the given :class:`Board`. 
 
-    Examples
-    --------
     >>> board = Board()
     >>> bb = white_bitboard(board)
     >>> print(bb)
@@ -506,12 +481,10 @@ def white_bitboard(board : Board) -> Color:
 
 def black_bitboard(board : Board) -> Color:
     """
-    An explict alias for indexing a :class:`Board` with `BLACK`.
+    An explict alias for indexing a :class:`Board` with :data:`BLACK`.
 
     Gets a :class:`Bitboard` of all squares with a black piece on the given :class:`Board`. 
 
-    Examples
-    --------
     >>> board = Board()
     >>> bb = black_bitboard(board)
     >>> print(bb)
@@ -531,12 +504,10 @@ def black_bitboard(board : Board) -> Color:
 
 def king_bitboard(board : Board) -> Color:
     """
-    An explict alias for indexing a :class:`Board` with `KING`.
+    An explict alias for indexing a :class:`Board` with :data:`KING`.
 
     Gets a :class:`Bitboard` of all squares with a king on the given :class:`Board`. 
 
-    Examples
-    --------
     >>> board = Board()
     >>> bb = king_bitboard(board)
     >>> print(bb)
@@ -556,7 +527,7 @@ def king_bitboard(board : Board) -> Color:
 
 def queen_bitboard(board : Board) -> Color:
     """
-    An explict alias for indexing a :class:`Board` with `QUEEN`.
+    An explict alias for indexing a :class:`Board` with :data:`QUEEN`.
 
     Gets a :class:`Bitboard` of all squares with a queen on the given :class:`Board`. 
 
@@ -581,12 +552,10 @@ def queen_bitboard(board : Board) -> Color:
 
 def bishop_bitboard(board : Board) -> Color:
     """
-    An explict alias for indexing a :class:`Board` with `BISHOP`.
+    An explict alias for indexing a :class:`Board` with :data:`BISHOP`.
 
     Gets a :class:`Bitboard` of all squares with a bishop on the given :class:`Board`. 
 
-    Examples
-    --------
     >>> board = Board()
     >>> bb = bishop_bitboard(board)
     >>> print(bb)
@@ -606,12 +575,10 @@ def bishop_bitboard(board : Board) -> Color:
 
 def rook_bitboard(board : Board) -> Color:
     """
-    An explict alias for indexing a :class:`Board` with `ROOK`.
+    An explict alias for indexing a :class:`Board` with :data:`ROOK`.
 
     Gets a :class:`Bitboard` of all squares with a rook on the given :class:`Board`. 
 
-    Examples
-    --------
     >>> board = Board()
     >>> bb = rook_bitboard(board)
     >>> print(bb)
@@ -631,12 +598,10 @@ def rook_bitboard(board : Board) -> Color:
 
 def pawn_bitboard(board : Board) -> Color:
     """
-    An explict alias for indexing a :class:`Board` with `PAWN`.
+    An explict alias for indexing a :class:`Board` with :data:`PAWN`.
 
     Gets a :class:`Bitboard` of all squares with a pawn on the given :class:`Board`. 
 
-    Examples
-    --------
     >>> board = Board()
     >>> bb = pawn_bitboard(board)
     >>> print(bb)
@@ -656,12 +621,11 @@ def pawn_bitboard(board : Board) -> Color:
 
 def knight_bitboard(board : Board) -> Color:
     """
-    An explict alias for indexing a :class:`Board` with `KNIGHT`.
+    An explict alias for indexing a :class:`Board` with :data:`KNIGHT`.
 
     Gets a :class:`Bitboard` of all squares with a knight on the given :class:`Board`. 
 
-    Examples
-    --------
+
     >>> board = Board()
     >>> bb = knight_bitboard(board)
     >>> print(bb)
@@ -684,10 +648,9 @@ def king_square(board : Board, color : Color) -> Square:
     """
     Gets the :class:`Square` which has the the king of the specified :class:`Color` on the given :class:`Board`. 
 
-    :raises: :exc: `AttributeError` if the given :class:`Board` has multiple kings of the given :class:`Color`.
+    :raises: :exc:`AttributeError` if the given :class:`Board` has multiple kings of the given :class:`Color`.
 
-    Examples
-    --------
+    
     >>> board = Board()
     >>> king_square(board, WHITE) is E1
     True

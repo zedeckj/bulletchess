@@ -4,7 +4,7 @@ import bulletchess
 with open("../scripts/html_template.c") as f:
     c_template = f.read()
 
-with open("../scripts/test.html") as f:
+with open("../scripts/compressed.html") as f:
     html_template = f.read()
 
 html_template = html_template.replace('"', '\\"')

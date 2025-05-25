@@ -1,2 +1,0 @@
-all:
-	source venv/bin/activate && python3.13 -X dev bulletchess/setup.py build_ext --inplace

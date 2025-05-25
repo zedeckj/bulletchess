@@ -25,12 +25,10 @@ Performance Comparisons
 ``python-chess`` is a fantastic, feature-rich library, but is inherently limited in its performance by being implemented by python. ``bulletchess``, however, is implemented as a pure C-extension.
 To demonstrate how much faster ``bulletchess`` is, we can write equivalent functions in both libraries, and compare the runtimes.
 
-Perft
-------
 
 Let's start by implementing a `Perft` function. In ``bulletchess``:
 
-.. GENERATED FROM PYTHON SOURCE LINES 15-32
+.. GENERATED FROM PYTHON SOURCE LINES 13-30
 
 .. code-block:: Python
 
@@ -58,11 +56,11 @@ Let's start by implementing a `Perft` function. In ``bulletchess``:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 33-34
+.. GENERATED FROM PYTHON SOURCE LINES 31-32
 
 And in ``python-chess``
 
-.. GENERATED FROM PYTHON SOURCE LINES 34-49
+.. GENERATED FROM PYTHON SOURCE LINES 32-47
 
 .. code-block:: Python
 
@@ -88,11 +86,11 @@ And in ``python-chess``
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 50-51
+.. GENERATED FROM PYTHON SOURCE LINES 48-49
 
 Notice how the code we write is nearly identical. However, when we test their run times:
 
-.. GENERATED FROM PYTHON SOURCE LINES 51-67
+.. GENERATED FROM PYTHON SOURCE LINES 49-65
 
 .. code-block:: Python
 
@@ -103,12 +101,12 @@ Notice how the code we write is nearly identical. However, when we test their ru
     start = time()
     result = chess_perft(chess.Board(), 6)
     chess_time = time() - start
-    print(f"chess_perft returned {result} in {chess_time:.4f}s")
+    print(f"`chess_perft` returned {result} in {chess_time:.4f}s")
 
     start = time()
     bullet_perft(bulletchess.Board(), 6)
     bullet_time = time() - start
-    print(f"bullet_perft returned {result} in {bullet_time:.4f}s")
+    print(f"`bullet_perft` returned {result} in {bullet_time:.4f}s")
 
     print(f"bulletchess is {chess_time/bullet_time:.4f}x faster")
 
@@ -120,19 +118,19 @@ Notice how the code we write is nearly identical. However, when we test their ru
 
  .. code-block:: none
 
-    chess_perft returned 119060324 in 108.5237s
-    bullet_perft returned 119060324 in 1.5831s
-    bulletchess is 68.5524x faster
+    `chess_perft` returned 119060324 in 109.4060s
+    `bullet_perft` returned 119060324 in 1.6126s
+    bulletchess is 67.8433x faster
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 68-70
+.. GENERATED FROM PYTHON SOURCE LINES 66-68
 
 We see a massive difference in ``bulletchess``'s move generation and application speed. 
 ``bulletchess`` is also very fast at writing and parsing FEN strings. 
 
-.. GENERATED FROM PYTHON SOURCE LINES 70-76
+.. GENERATED FROM PYTHON SOURCE LINES 68-74
 
 .. code-block:: Python
 
@@ -149,14 +147,14 @@ We see a massive difference in ``bulletchess``'s move generation and application
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 77-81
+.. GENERATED FROM PYTHON SOURCE LINES 75-79
 
 We can define FEN "roundtrip" functions in ``bulletchess`` and ``python-chess``,
 which will make an object representing a position, then use that object to create a new FEN string,
 which should match the original. Neither library stores the given FEN when a board object is created,
 so both ``bulletchess`` and ``python-chess`` will fully parse and rewrite the input FENs.
 
-.. GENERATED FROM PYTHON SOURCE LINES 81-93
+.. GENERATED FROM PYTHON SOURCE LINES 79-91
 
 .. code-block:: Python
 
@@ -179,11 +177,11 @@ so both ``bulletchess`` and ``python-chess`` will fully parse and rewrite the in
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 94-95
+.. GENERATED FROM PYTHON SOURCE LINES 92-93
 
 Similairly to before, we'll compare the runtimes of each version.
 
-.. GENERATED FROM PYTHON SOURCE LINES 95-110
+.. GENERATED FROM PYTHON SOURCE LINES 93-108
 
 .. code-block:: Python
 
@@ -210,19 +208,19 @@ Similairly to before, we'll compare the runtimes of each version.
 
  .. code-block:: none
 
-    `chess_roundtrip` took 46.08
-    `bullet_roundtrip` took 0.9638
-    bulletchess is 47.8091x faster
+    `chess_roundtrip` took 47.5
+    `bullet_roundtrip` took 0.9334
+    bulletchess is 50.8922x faster
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 111-113
+.. GENERATED FROM PYTHON SOURCE LINES 109-111
 
 And again, ``bulletchess`` is much faster. Using the same dataset of FENs, lets compare checking if positions
 are checkmate, a draw, or ongoing. 
 
-.. GENERATED FROM PYTHON SOURCE LINES 113-140
+.. GENERATED FROM PYTHON SOURCE LINES 111-138
 
 .. code-block:: Python
 
@@ -260,12 +258,12 @@ are checkmate, a draw, or ongoing.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 141-143
+.. GENERATED FROM PYTHON SOURCE LINES 139-141
 
 The syntax of ``bulletchess`` and ``python-chess`` diverges more here,
 but the structure is still the same. Running the comparison:
 
-.. GENERATED FROM PYTHON SOURCE LINES 143-161
+.. GENERATED FROM PYTHON SOURCE LINES 141-159
 
 .. code-block:: Python
 
@@ -295,11 +293,104 @@ but the structure is still the same. Running the comparison:
 
  .. code-block:: none
 
-    `chess_statuses` took 110.6
+    `chess_statuses` took 114.5
     {'ongoing': 933861, 'checkmate': 40147, 'draw': 25992}
-    `bullet_statuses` took 0.2974
+    `bullet_statuses` took 0.2821
     {'ongoing': 933861, 'checkmate': 40147, 'draw': 25992}
-    bulletchess is 371.7527x faster
+    bulletchess is 405.7912x faster
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 160-162
+
+Like, ``python-chess``, ``bulletchess`` provides a PGN reader. Let's do a simple task reading a PGN file,
+we'll go through each position in each game, and check how many have a pawn of any color on E4. 
+
+.. GENERATED FROM PYTHON SOURCE LINES 162-197
+
+.. code-block:: Python
+
+
+    # a large PGN file
+
+    import chess.pgn
+    import bulletchess.pgn
+    PATH = "../data/pgn/modern.pgn"
+
+    def chess_check_games():
+        count = 0
+        with open(PATH, "r") as f:
+            game = chess.pgn.read_game(f)
+            while game:
+                board = chess.Board()
+                for move in game.mainline_moves():
+                    board.push(move)
+                    if board.piece_type_at(chess.E4) == chess.PAWN:
+                        count += 1
+                game = chess.pgn.read_game(f)
+        return count
+
+    def bullet_check_games():
+        count = 0
+        with bulletchess.pgn.PGNFile.open(PATH) as f:
+            game = f.next_game()
+            while game:
+                board = game.starting_board
+                for move in game.moves:
+                    board.apply(move)
+                    piece = board[bulletchess.E4]
+                    if piece and piece.piece_type == bulletchess.PAWN:
+                        count += 1
+                game = f.next_game()
+        return count
+
+
+
+
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 198-200
+
+This is purposefully a very simple operation on every position, so we can more directly compare 
+reading through games.
+
+.. GENERATED FROM PYTHON SOURCE LINES 200-216
+
+.. code-block:: Python
+
+
+    start = time()
+    chess_res = chess_check_games()
+    chess_time = time() - start
+    print(f"`chess_check_games` took {chess_time:.4}")
+    print(f"python-chess found {chess_res} positions with a pawn on E4")
+
+    start = time()
+    bullet_res = bullet_check_games()
+    bullet_time = time() - start
+    print(f"`bullet_check_games` took {bullet_time:.4}")
+    print(f"bulletchess found {bullet_res} positions with a pawn on E4")
+
+    print(f"bulletchess is {chess_time/bullet_time:.4f}x faster")
+
+            
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    `chess_check_games` took 18.3
+    python-chess found 824592 positions with a pawn on E4
+    `bullet_check_games` took 1.079
+    bulletchess found 824592 positions with a pawn on E4
+    bulletchess is 16.9565x faster
 
 
 
@@ -307,7 +398,7 @@ but the structure is still the same. Running the comparison:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (4 minutes 55.463 seconds)
+   **Total running time of the script:** (5 minutes 21.953 seconds)
 
 
 .. _sphx_glr_download_auto_examples_performance.py:

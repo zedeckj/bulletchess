@@ -1903,6 +1903,7 @@ static PyGetSetDef PyColorSchemeGetDefs[] = {
 	CS_GET_OBJ(dark_square_color),	
 	CS_GET_OBJ(highlight_color),	
 	CS_GET_OBJ(text_color),	
+  NULL
 };
 
 static PyTypeObject PyColorSchemeType = {
@@ -2104,7 +2105,7 @@ PyBoard_repr(PyObject *self){
 
 
 static PyObject *PyBoard_html(PyObject *self, PyObject *Py_UNUSED(args)){
-	char html_buffer[20000];
+	char html_buffer[7000];
 	board_html(PyBoard_board(self), html_buffer);
 	return PyUnicode_FromString(html_buffer);	
 }
@@ -3691,10 +3692,10 @@ static PyObject *PyPGNFile_open(PyObject *unused, PyObject *args) {
 	if (!PyTypeCheck("str", args, &PyUnicode_Type)) return NULL;
 	const char *path = PyUnicode_AsUTF8(args);
 	if (!path) return NULL;
-	FILE *file = fopen(path, "r");
+	FILE *file = fopen(path, "r+");
 	if (!file) {
 		PyErr_Format(PyExc_FileNotFoundError, 
-				"Could not find PGN file with path %s", path);
+				"Could not find PGN file with path `%s`", path);
 		return NULL;
 	}
 	PyPGNFileObject *self = PyObject_New(PyPGNFileObject, &PyPGNFileType);
@@ -3790,7 +3791,10 @@ static struct PyModuleDef bulletchess_definition = {
 };
 
 
-#define VALIDATE(pt) if (!pt) {Py_DECREF(m); Py_DECREF(utils); Py_DECREF(pgn); return NULL;} 
+#define DEBUG_INIT 0
+#define DEBUG_INIT_PRINT(msg) (DEBUG_INIT && printf(msg))
+
+#define VALIDATE(pt) if (!pt) {DEBUG_INIT_PRINT("Validating " #pt "\n"); Py_DECREF(m); Py_DECREF(utils); Py_DECREF(pgn); return NULL;} 
 #define ADD_OBJ(name, obj) if (PyModule_AddObjectRef(m, name, \
 			(PyObject *)obj) < 0) { Py_DECREF(m); Py_DECREF(utils); Py_DECREF(pgn); return NULL; }
 
@@ -3809,25 +3813,24 @@ static struct PyModuleDef bulletchess_definition = {
 
 
 
-
+#define READY_TYPE(TYPE) if (PyType_Ready(&TYPE) < 0){ fprintf(stderr, "Could not ready " #TYPE "\n"); return NULL;} else DEBUG_INIT_PRINT(#TYPE " ready\n")
 
 PyMODINIT_FUNC PyInit__core(void) {
-		if (PyType_Ready(&PyColorType) < 0) return NULL;
-		if (PyType_Ready(&PySquareType) < 0) return NULL;
-		if (PyType_Ready(&PyPieceTypeType) < 0) return NULL;
-		if (PyType_Ready(&PyPieceType) < 0) return NULL;
-		if (PyType_Ready(&PyMoveType) < 0) return NULL;
-		if (PyType_Ready(&PyBitboardType) < 0) return NULL;
-		if (PyType_Ready(&PyPGNFileType) < 0) return NULL;
-		if (PyType_Ready(&PyPGNGameType) < 0) return NULL;
-		if (PyType_Ready(&PyPGNResultType) < 0) return NULL;
-		if (PyType_Ready(&PyPGNDateType) < 0) return NULL;
-		if (PyType_Ready(&PyCastlingTypeType) < 0) return NULL;
-		if (PyType_Ready(&PyCastlingRightsType) < 0) return NULL;
-		if (PyType_Ready(&PyColorSchemeType) < 0) return NULL;
-		if (PyType_Ready(&PyBoardStatusType) < 0) return NULL;
-	
-		
+    READY_TYPE(PyColorType);
+    READY_TYPE(PySquareType);
+		READY_TYPE(PyPieceTypeType);
+		READY_TYPE(PyPieceType);
+		READY_TYPE(PyMoveType);
+		READY_TYPE(PyBitboardType);
+		READY_TYPE(PyPGNFileType);
+		READY_TYPE(PyPGNGameType);
+		READY_TYPE(PyPGNResultType);
+		READY_TYPE(PyPGNDateType);
+		READY_TYPE(PyCastlingTypeType);
+		READY_TYPE(PyCastlingRightsType);
+		READY_TYPE(PyColorSchemeType);
+		READY_TYPE(PyBoardStatusType);
+	  	
 		initstate(time(NULL), rand_state, 256);
 		PyMoves_prep();
 		PyObject *m = PyModule_Create(&bulletchess_definition);
@@ -3842,7 +3845,9 @@ PyMODINIT_FUNC PyInit__core(void) {
 			Py_DECREF(utils);
 			Py_DECREF(m);
 			return NULL;
-		}	
+		}
+
+		ADD_OBJ("pgn", pgn);
 		VALIDATE(PySquares_init());
 		VALIDATE(PyPieceTypes_init());
 		VALIDATE(PyColors_init());

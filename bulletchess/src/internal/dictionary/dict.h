@@ -23,7 +23,7 @@ typedef struct {
 
 
 
-#define dict_with(capacity, ...) new_dict_with_func(capacity, __VA_ARGS__, 0)
+#define new_dict_with(capacity, ...) new_dict_with_func(capacity, __VA_ARGS__, 0)
 
 // Construct a dict with preset key value pairs. Call with `dict_with` macro
 dict_t *new_dict_with_func(size_t capacity, ...);
