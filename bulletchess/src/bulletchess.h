@@ -1,7 +1,7 @@
 #ifndef BULLETCHESSHEADER
 #define BULLETCHESSHEADER
-#include "include/Python.h"
 #include "internal/all.h"
+#include <Python.h>
 #include <limits.h>
 
 static void PyTypeErr(char * expected, PyObject *obj);
