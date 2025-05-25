@@ -291,7 +291,7 @@ def open_files(board : Board) -> Bitboard:
 def half_open_files(board : Board, for_color : Color) -> Bitboard:
     """
     Returns a :class:`Bitboard` of all files that have no pawns of the given :class:`Color`, but do 
-    have pawns of the opposite :class:`Color.
+    have pawns of the opposite :class:`Color`.
     
     >>> board = Board.from_fen("3k4/8/4p3/4P3/5PP1/8/8/3K4 w - - 0 1")
     >>> print(board)

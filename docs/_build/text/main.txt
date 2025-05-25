@@ -1,0 +1,2149 @@
+Main Documentation
+******************
+
+class Color
+
+   Represents either White or Black, used to identify the two players
+   and their pieces.
+
+   static from_str(name: str) -> Color
+
+      Return the colour corresponding to *name* (case‑insensitive).
+
+      Parameters:
+         **name** (*str*) – The string ""white"" or ""black"" in any
+         case.
+
+      Returns:
+         The matching "Color" instance.
+
+      Return type:
+         Color
+
+      Raises:
+         **ValueError** – If *name* is not recognised.
+
+      >>> Color.from_str("White") is WHITE
+      True
+      >>> Color.from_str("BLACK") is BLACK
+      True
+
+   property opposite: Color
+
+      Gets the opposite *Color* to this one.
+
+      Returns:
+         The opposite "Color" instance.
+
+      Return type:
+         Color
+
+      >>> WHITE.opposite is BLACK
+      True
+      >>> BLACK.opposite is WHITE
+      True
+
+   __str__() -> str
+
+      Serializes a "Color" to a "str" of its name in title case.
+
+      Returns:
+         A "str" of the "Color"’s name
+
+      >>> str(WHITE)
+      "White"
+      >>> str(BLACK)
+      "Black"
+
+   __invert__() -> Color
+
+      Alias for "Color.opposite",  Allows "~WHITE" syntax.
+
+   __hash__() -> int
+
+   __repr__() -> str
+
+   __eq__(other: Any) -> bool
+
+WHITE: Color
+
+   The white player
+
+BLACK: Color
+
+   The black player
+
+class PieceType
+
+   Represents one of the 6 types of pieces in chess, either a Pawn,
+   Knight, Bishop, Rook, Queen, or King.
+
+   static from_str(piece_type: str) -> PieceType
+
+      Return the piece type corresponding to *name*
+      (case‑insensitive).
+
+      Parameters:
+         **name** (*str*) – One of ""pawn"", ""knight"", ""bishop"",
+         ""rook"", ""queen"" or ""king"" (any case).
+
+      Return type:
+         PieceType
+
+      Returns:
+         The matching "PieceType".
+
+      Raises:
+         **ValueError** – If *name* is not recognised.
+
+      >>> PieceType.from_str("pawn") is PAWN
+      True
+      >>> PieceType.from_str("kNiGhT") is KNIGHT
+      True
+
+   __str__() -> str
+
+      Serializes a *PieceType* to a *str* of its name in title case.
+
+      >>> str(PAWN)
+      "Pawn"
+      >>> str(BISHOP)
+      "Bishop"
+      ```
+
+   __repr__() -> str
+
+   __eq__(other: Any) -> bool
+
+   __hash__() -> int
+
+PAWN: PieceType
+
+   The "PieceType" for pawns
+
+KNIGHT: PieceType
+
+   The "PieceType" for knights
+
+BISHOP: PieceType
+
+   The "PieceType" for bishops
+
+ROOK: PieceType
+
+   The "PieceType" for rooks
+
+QUEEN: PieceType
+
+   The "PieceType" for queens
+
+KING: PieceType
+
+   The "PieceType" for kings
+
+PIECE_TYPES: list[PieceType]
+
+   A list of all "PieceType" values. In order of "[PAWN, KNIGHT,
+   BISHOP, ROOK, QUEEN, KING]"
+
+class Piece(color: Color, type: PieceType)
+
+   Represents a piece with both a Color and a PieceType, such as a
+   White Pawn, or a Black Rook.
+
+   __init__(color: Color, type: PieceType)
+
+      Initialise the "Piece" with *color* and *type*.
+
+      Parameters:
+         * **color** (*Color*) – The owning side.
+
+         * **type** (*PieceType*) – The intrinsic kind of the piece.
+
+   static from_chr(char: str) -> Piece
+
+      Return the piece encoded by *char* (ASCII piece letter).
+
+      Upper‑case letters encode "WHITE" pieces, lower‑case letters
+      encode "BLACK".
+
+      Parameters:
+         **char** (*str*) – One of "PRNBQKprnbqk".
+
+      Return type:
+         Piece
+
+      Returns:
+         The corresponding "Piece".
+
+      Raises:
+         **ValueError** – If *char* is not a valid piece letter.
+
+      >>> Piece.from_chr("P")
+      <Piece: (White, Pawn)>
+      >>> Piece.from_chr("n")
+      <Piece: (Black, Knight)>
+
+   property piece_type: PieceType
+
+      Gets the "PieceType" of this "Piece".
+
+   property color: Color
+
+      Gets the "Color" of this "Piece".
+
+   unicode() -> str
+
+      Returns Unicode figurine character corresponding to this
+      "Piece".
+
+      >>> Piece(WHITE, PAWN).unicode()
+      "♙"
+      >>> Piece(BLACK, KNIGHT).unicode()
+      "♞"
+
+   __eq__(other: Any)
+
+      Evaluates to "True" when compared with another "Piece" with the
+      same "PieceType" and "Color"
+
+   __str__() -> str
+
+      Serializes a "Piece" as a single ASCII character "str". Uses
+      uppercase for a "Piece" that is "WHITE", and lowercase for any
+      *Piece* that is "BLACK".
+
+      >>> str(Piece(WHITE, PAWN))
+      "P"
+      >>> str(Piece(BLACK, KNIGHT))
+      "n"
+
+   __hash__() -> int
+
+class Square
+
+   Represents one of the 64 squares on a chess board.
+
+   static from_str(name: str) -> Square
+
+      Return the "Square" encoded by *name* (case‑insensitive).
+
+      Parameters:
+         **name** (*str*) – The name of the square
+
+      Return type:
+         Square
+
+      Returns:
+         The corresponding "Square"
+
+      Raises:
+         "ValueError" if given a string which does not represent a
+         Square
+
+      >>> Square.from_string("E1") == E1
+      True
+      >>> Square.from_string("a2") == A2
+      Tru
+
+   bb() -> Bitboard
+
+      Creates a "Bitboard" containing **only** this "Square".
+
+      >>> A1.bb() == Bitboard([A1])
+      True
+      >>> H3.bb() == Bitboard([H3])
+      True
+
+   adjacent() -> Bitboard
+
+      Creates a "Bitboard" of all neighbors orthogonal or diagonal to
+      this "Square".
+
+      >>> A1.adjacent() == Bitboard([A2, B1, B2])
+      True
+      >>> E5.adjacent() == Bitboard([D4, D5, D6, E4, E6, F4, F5, F6])
+      True
+
+   north(distance: int = 1) -> Square | None
+
+      Return the square *distance* ranks above this square.
+
+      Parameters:
+         **distance** – how many ranks to move north.
+
+      Returns:
+         the target square, or "None" if it would be off the board.
+
+      Return type:
+         Square | None
+
+      >>> B6.north() is B7
+      True
+      >>> A1.north(distance=3) is A4
+      True
+      >>> B8.north(distance=2)
+      None
+
+   south(distance: int = 1) -> Square | None
+
+      Return the square *distance* ranks below this square.
+
+      Parameters:
+         **distance** (*int**, **default = 1*) – how many ranks to
+         move south.
+
+      Returns:
+         the target square, or "None" if it would be off the board.
+
+      Return type:
+         Square | None
+
+      >>> B6.south() is B5
+      True
+      >>> B8.south(distance=2) is B6
+      True
+      >>> A1.south(distance=3)
+      None
+
+   east(distance: int = 1) -> Square | None
+
+      Return the square *distance* files to the east of this square.
+
+      Parameters:
+         **distance** (*int**, **default = 1*) – how many files to
+         move east (toward the H-file).
+
+      Returns:
+         the target square, or "None" if it would be off the board.
+
+      Return type:
+         Square | None
+
+      >>> B6.east() is C6
+      True
+      >>> A1.east(distance=3) is D1
+      True
+      >>> H8.east(distance=2)
+      None
+
+   west(distance: int = 1) -> Square | None
+
+      Return the square *distance* files to the west of this square.
+
+      Parameters:
+         **distance** (*int**, **default = 1*) – how many files to
+         move west (toward the A-file).
+
+      Returns:
+         the target square, or "None" if it would be off the board.
+
+      Return type:
+         Square | None
+
+      >>> B6.west() == A6
+      True
+      >>> H8.west(distance=2) == E8
+      True
+      >>> A1.west(distance=3)
+      None
+
+   nw(distance: int = 1) -> Square | None
+
+      Return the square *distance* files west and ranks north of this
+      square.
+
+      Parameters:
+         **distance** (*int**, **default = 1*) – number of steps to
+         move north-west.
+
+      Returns:
+         the target square, or "None" if it would be off the board.
+
+      Return type:
+         Square | None
+
+      >>> C3.nw() == B4
+      True
+      >>> A1.nw()
+      None
+      >>> D4.nw(distance=2) == B6
+      True
+
+   ne(distance: int = 1) -> Square | None
+
+      Return the square *distance* files east and ranks north of this
+      square.
+
+      Parameters:
+         **distance** (*int**, **default = 1*) – number of steps to
+         move north-east.
+
+      Returns:
+         the target square, or "None" if it would be off the board.
+
+      Return type:
+         Square | None
+
+      >>> C3.ne() is D4
+      True
+      >>> E4.ne(distance = 2) is G2
+      True
+      >>> H8.ne()
+      None
+
+   sw(distance: int = 1) -> Square | None
+
+      Return the square *distance* files west and ranks south of this
+      square.
+
+      Parameters:
+         **distance** (*int**, **default = 1*) – number of steps to
+         move south-west.
+
+      Returns:
+         the target square, or "None" if it would be off the board.
+
+      Return type:
+         Square | None
+
+      >>> C3.sw() is B2
+      True
+      >>> E4.sw(distance = 2) is C6
+      True
+      >>> A1.sw()
+      None
+
+   se(distance: int = 1) -> Square | None
+
+      Return the square *distance* files east and ranks south of this
+      square.
+
+      Parameters:
+         **distance** (*int**, **default = 1*) – number of steps to
+         move south-east.
+
+      Returns:
+         the target square, or "None" if it would be off the board.
+
+      Return type:
+         Square | None
+
+      >>> C3.se() is D2
+      True
+      >>> E4.se(distance = 2) is G6
+      True
+      >>> H1.se()
+      None
+
+   __eq__(other: Any) -> bool
+
+   __hash__() -> int
+
+   __str__() -> str
+
+A1: Square
+
+   The A1 "Square"
+
+B1: Square
+
+   The B1 "Square"
+
+C1: Square
+
+   The C1 "Square"
+
+D1: Square
+
+   The D1 "Square"
+
+E1: Square
+
+   The E1 "Square"
+
+F1: Square
+
+   The F1 "Square"
+
+G1: Square
+
+   The G1 "Square"
+
+H1: Square
+
+   The H1 "Square"
+
+A2: Square
+
+   The A2 "Square"
+
+B2: Square
+
+   The B2 "Square"
+
+C2: Square
+
+   The C2 "Square"
+
+D2: Square
+
+   The D2 "Square"
+
+E2: Square
+
+   The E2 "Square"
+
+F2: Square
+
+   The F2 "Square"
+
+G2: Square
+
+   The G2 "Square"
+
+H2: Square
+
+   The H2 "Square"
+
+A3: Square
+
+   The A3 "Square"
+
+B3: Square
+
+   The B3 "Square"
+
+C3: Square
+
+   The C3 "Square"
+
+D3: Square
+
+   The D3 "Square"
+
+E3: Square
+
+   The E3 "Square"
+
+F3: Square
+
+   The F3 "Square"
+
+G3: Square
+
+   The G3 "Square"
+
+H3: Square
+
+   The H3 "Square"
+
+A4: Square
+
+   The A4 "Square"
+
+B4: Square
+
+   The B4 "Square"
+
+C4: Square
+
+   The C4 "Square"
+
+D4: Square
+
+   The D4 "Square"
+
+E4: Square
+
+   The E4 "Square"
+
+F4: Square
+
+   The F4 "Square"
+
+G4: Square
+
+   The G4 "Square"
+
+H4: Square
+
+   The H4 "Square"
+
+A5: Square
+
+   The A5 "Square"
+
+B5: Square
+
+   The B5 "Square"
+
+C5: Square
+
+   The C5 "Square"
+
+D5: Square
+
+   The D5 "Square"
+
+E5: Square
+
+   The E5 "Square"
+
+F5: Square
+
+   The F5 "Square"
+
+G5: Square
+
+   The G5 "Square"
+
+H5: Square
+
+   The H5 "Square"
+
+A6: Square
+
+   The A6 "Square"
+
+B6: Square
+
+   The B6 "Square"
+
+C6: Square
+
+   The C6 "Square"
+
+D6: Square
+
+   The D6 "Square"
+
+E6: Square
+
+   The E6 "Square"
+
+F6: Square
+
+   The F6 "Square"
+
+G6: Square
+
+   The G6 "Square"
+
+H6: Square
+
+   The H6 "Square"
+
+A7: Square
+
+   The A7 "Square"
+
+B7: Square
+
+   The B7 "Square"
+
+C7: Square
+
+   The C7 "Square"
+
+D7: Square
+
+   The D7 "Square"
+
+E7: Square
+
+   The E7 "Square"
+
+F7: Square
+
+   The F7 "Square"
+
+G7: Square
+
+   The G7 "Square"
+
+H7: Square
+
+   The H7 "Square"
+
+A8: Square
+
+   The A8 "Square"
+
+B8: Square
+
+   The B8 "Square"
+
+C8: Square
+
+   The C8 "Square"
+
+D8: Square
+
+   The D8 "Square"
+
+E8: Square
+
+   The E8 "Square"
+
+F8: Square
+
+   The F8 "Square"
+
+G8: Square
+
+   The G8 "Square"
+
+H8: Square
+
+   The H8 "Square"
+
+SQUARES: list[Square]
+
+SQUARES_FLIPPED: list[Square]
+
+   A list of all Squares
+
+class Bitboard(squares: Collection[Square])
+
+   A set of squares represented as a 64-bit integer, where each bit
+   indicates whether a "Square" is included.
+
+   __init__(squares: Collection[Square])
+
+      Initialise a "Bitboard" that contains *squares*.
+
+      Parameters:
+         **squares** (*Collection**[**Square**]*) – squares to include
+         in the new bitboard.
+
+   __str__() -> str
+
+      Return a "str" in which included squares are shown as "1" and
+      excluded squares as "0".
+
+      Returns:
+         an 8×8 grid row-major from A8 to H1.
+
+      Return type:
+         str
+
+      >>> print(str(RANK_5))
+      0 0 0 0 0 0 0 0 
+      0 0 0 0 0 0 0 0 
+      0 0 0 0 0 0 0 0 
+      1 1 1 1 1 1 1 1 
+      0 0 0 0 0 0 0 0 
+      0 0 0 0 0 0 0 0 
+      0 0 0 0 0 0 0 0 
+      0 0 0 0 0 0 0 0
+
+   static from_int(value: int) -> Bitboard
+
+      Construct a "Bitboard" from its integer encoding (see
+      "__int__()").
+
+      Parameters:
+         **value** (*int*) – 64-bit integer to convert.
+
+      Returns:
+         new bitboard corresponding to *value*.
+
+      Return type:
+         Bitboard
+
+      Raises:
+         **OverflowError** – if *value < 0* or *value >= 2 ** 64*
+
+      >>> Bitboard.from_int(0) == Bitboard([])
+      True
+      >>> Bitboard.from_int(1) == Bitboard([A1])
+      True
+      >>> Bitboard.from_int(269498368) == Bitboard([E2, E3, E4, D2, F2])
+      True
+      >>> Bitboard.from_int(0xFFFF_FFFF_FFFF_FFFF) == FULL_BB
+      True
+
+   __int__() -> int
+
+      Return the integer encoding of this "Bitboard".
+
+      Returns:
+         64-bit integer with one bit per square.
+
+      Return type:
+         int
+
+      >>> int(EMPTY_BB)
+      0
+      >>> int(Bitboard([A1]))
+      1
+      >>> int(Bitboard([E2, E3, E4, D2, F2]))
+      269498368
+      >>> Bitboard.from_int(int(DARK_SQUARE_BB)) == DARK_SQUARE_BB
+      True
+
+   __getitem__(square: Square) -> bool
+
+      Return "True" if *square* is in this "Bitboard".
+
+      Parameters:
+         **square** (*Square*) – square to query.
+
+      Returns:
+         membership flag.
+
+      Return type:
+         bool
+
+      >>> bb = Bitboard([A1, B2, C3])
+      >>> bb[A1]
+      True
+      >>> bb[A2]
+      False
+
+   __setitem__(square: Square, value: bool)
+
+      Add or remove *square* depending on *value*.
+
+      Parameters:
+         * **square** (*Square*) – square to modify.
+
+         * **value** (*bool*) – "True" → add, "False" → remove.
+
+      >>> bb = Bitboard([A1, B2, C3])
+      >>> bb2 = Bitboard([B2, C3])
+      >>> bb3 = Bitboard([B2, C3, C4])
+      >>> bb[A1] = False
+      >>> bb == bb2
+      True
+      >>> bb[C4] = True
+      >>> bb == bb3
+      True
+
+   __delitem__(square: Square)
+
+      Remove *square* from the "Bitboard".
+
+      Parameters:
+         **square** (*Square*) – square to delete.
+
+      >>> bb = Bitboard([A1, B2, C3])
+      >>> bb2 = Bitboard([B2, C3])
+      >>> del bb[A1]
+      >>> bb == bb2
+      True
+
+   __len__() -> int
+
+      Return the number of squares contained in this bitboard.
+
+      Returns:
+         population count.
+
+      Return type:
+         int
+
+      >>> len(Bitboard([]))
+      0
+      >>> len(Bitboard([A1, A2]))
+      2
+      >>> len(RANK_1)
+      8
+      >>> len(FULL_BB)
+      64
+
+   __contains__(square: Square) -> bool
+
+      Test whether *square* is in this "Bitboard".
+
+      Parameters:
+         **square** (*Square*) – square to test.
+
+      Returns:
+         membership flag.
+
+      Return type:
+         bool
+
+      >>> A1 in Bitboard([A1, A2])
+      True
+      >>> H3 in FULL_BB
+      True
+      >>> C6 in RANK_1
+      False
+
+   __eq__(other: Any) -> bool
+
+      Return "True" if *other* is a "Bitboard" with the same squares.
+
+      Parameters:
+         **other** (*Any*) – bitboard to compare.
+
+      Returns:
+         equality flag.
+
+      Return type:
+         bool
+
+      >>> Bitboard([A1, A2, A3, A4, A5, A6, A7, A8]) == A_FILE
+      True
+      >>> Bitboard([C4]) == Bitboard([C3])
+      False
+
+   __invert__() -> Bitboard
+
+      Return the complement of this "Bitboard".
+
+      Returns:
+         new bitboard with opposite membership.
+
+      Return type:
+         Bitboard
+
+      >>> FULL_BB == ~EMPTY_BB
+      True
+      >>> LIGHT_SQUARE_BB == ~DARK_SQUARE_BB
+      True
+
+   __and__(other: Bitboard) -> Bitboard
+
+      Return the intersection of two bitboards.
+
+      Parameters:
+         **other** (*Bitboard*) – bitboard to intersect with.
+
+      Returns:
+         squares common to both operands.
+
+      Return type:
+         Bitboard
+
+      >>> Bitboard([A1]) & Bitboard([A1, A2]) == Bitboard([A1])
+      True
+      >>> LIGHT_SQUARE_BB & DARK_SQUARE_BB == EMPTY_BB
+      True
+
+   __or__(other: Bitboard) -> Bitboard
+
+      Return the union of two bitboards.
+
+      Parameters:
+         **other** (*Bitboard*) – bitboard to union with.
+
+      Returns:
+         squares contained in either operand.
+
+      Return type:
+         Bitboard
+
+      >>> Bitboard([A1]) | Bitboard([A1, A2]) == Bitboard([A1, A2])
+      True
+      >>> LIGHT_SQUARE_BB | DARK_SQUARE_BB == FULL_BB
+      True
+
+   __xor__(other: Bitboard) -> Bitboard
+
+      Return the symmetric difference of two bitboards.
+
+      Parameters:
+         **other** (*Bitboard*) – bitboard to XOR with.
+
+      Returns:
+         squares in exactly one operand.
+
+      Return type:
+         Bitboard
+
+      >>> Bitboard([A1]) ^ Bitboard([A1, A2]) == Bitboard([A2])
+      True
+      >>> LIGHT_SQUARE_BB ^ DARK_SQUARE_BB == FULL_BB
+      True
+
+   __bool__() -> bool
+
+      Return "True" if the "Bitboard" is non-empty.
+
+      Returns:
+         truth value.
+
+      Return type:
+         bool
+
+      >>> bool(Bitboard([]))
+      False
+      >>> bool(EMPTY_BB)
+      False
+      >>> bool(Bitboard([A1]))
+      True
+
+   __iter__() -> Iterator[Square]
+
+      Iterate over included squares from A1 upward.
+
+   __repr__() -> str
+
+   __hash__() -> int
+
+RANK_1: Bitboard
+
+   "Bitboard" containing every square on Rank 1
+
+RANK_2: Bitboard
+
+   "Bitboard" containing every square on Rank 2
+
+RANK_3: Bitboard
+
+   "Bitboard" containing every square on Rank 3
+
+RANK_4: Bitboard
+
+   "Bitboard" containing every square on Rank 4
+
+RANK_5: Bitboard
+
+   "Bitboard" containing every square on Rank 5
+
+RANK_6: Bitboard
+
+   "Bitboard" containing every square on Rank 6
+
+RANK_7: Bitboard
+
+   "Bitboard" containing every square on Rank 7
+
+RANK_8: Bitboard
+
+   "Bitboard" containing every square on Rank 8
+
+RANKS: list[Bitboard]
+
+   List of the eight rank "Bitboard" values in order, from "RANK_1" to
+   "RANK_8".
+
+A_FILE: Bitboard
+
+   "Bitboard" containing every square on the A-file.
+
+B_FILE: Bitboard
+
+   "Bitboard" containing every square on the B-file.
+
+C_FILE: Bitboard
+
+   "Bitboard" containing every square on the C-file.
+
+D_FILE: Bitboard
+
+   "Bitboard" containing every square on the D-file.
+
+E_FILE: Bitboard
+
+   "Bitboard" containing every square on the E-file.
+
+F_FILE: Bitboard
+
+   "Bitboard" containg every square on the F-file
+
+G_FILE: Bitboard
+
+   "Bitboard" containing every square on the G-file.
+
+H_FILE: Bitboard
+
+   "Bitboard" containing every square on the H-file.
+
+FILES: list[Bitboard]
+
+   List of the eight file "Bitboard" values in order, from "A_FILE" to
+   "H_FILE".
+
+FULL_BB: Bitboard
+
+   "Bitboard" containing all 64 squares
+
+EMPTY_BB: Bitboard
+
+   "Bitboard" containing no squares
+
+LIGHT_SQUARE_BB: Bitboard
+
+   "Bitboard" of all light colored squares (B1, D1, etc.)
+
+DARK_SQUARE_BB: Bitboard
+
+   "Bitboard" of all dark colored squares (A1, C1, etc.)
+
+class CastlingType
+
+   One of four legal castling options: the king moves either kingside
+   or queenside for "WHITE" or "BLACK".
+
+   static from_chr(castling_type: str) -> CastlingType
+
+      Return the castling type corresponding to a single-character
+      code.
+
+      Parameters:
+         **castling_type** (*str*) – one of ""K"", ""Q"", ""k"",
+         ""q"".
+
+      Returns:
+         the matching "CastlingType".
+
+      Return type:
+         CastlingType
+
+      Raises:
+         **ValueError** – if *castling_type* is not a valid code.
+
+      >>> CastlingType.from_chr("K") is WHITE_KINGSIDE
+      True
+      >>> CastlingType.from_chr("Q") is WHITE_QUEENSIDE
+      True
+      >>> CastlingType.from_chr("k") is BLACK_KINGSIDE
+      True
+      >>> CastlingType.from_chr("q") is BLACK_QUEENSIDE
+      True
+
+   __str__() -> str
+
+      Return the one-character code for this castling type.
+
+      Returns:
+         ""K"", ""Q"", ""k"", or ""q"".
+
+      Return type:
+         str
+
+      >>> str(WHITE_KINGSIDE)
+      'K'
+      >>> str(WHITE_QUEENSIDE)
+      'Q'
+      >>> str(BLACK_KINGSIDE)
+      'k'
+      >>> str(BLACK_QUEENSIDE)
+      'q'
+
+   __eq__(other: Any) -> bool
+
+      Return "True" if *other* is the same castling type.
+
+      Parameters:
+         **other** (*Any*) – object to compare.
+
+      Returns:
+         equality flag.
+
+      Return type:
+         bool
+
+   __repr__() -> str
+
+   __hash__() -> int
+
+WHITE_KINGSIDE: CastlingType
+
+   Castling type representing "WHITE" kingside castling
+
+WHITE_QUEENSIDE: CastlingType
+
+   Castling type representing "WHITE" queenside castling
+
+BLACK_KINGSIDE: CastlingType
+
+   Castling type representing "BLACK" kingside castling
+
+BLACK_QUEENSIDE: CastlingType
+
+   Castling type representing "BLACK" queenside castling
+
+class Move(origin: Square, destination: Square, promote_to: PieceType | None = None)
+
+   A chess move, defined by its origin and destination squares and an
+   optional promotion piece type.
+
+   __init__(origin: Square, destination: Square, promote_to: PieceType | None = None)
+
+      Create a move from *origin* to *destination*.
+
+      Parameters:
+         * **origin** (*Square*) – square the piece starts on.
+
+         * **destination** (*Square*) – square the piece ends on.
+
+         * **promote_to** (*PieceType** | **None*) – piece type to
+           promote to, if any.
+
+      Raises:
+         "ValueError" if the specified origin, destination, and
+         promtion is illegal for every piece for every position.
+
+   static castle(castling_type: CastlingType) -> Move
+
+      Return the move corresponding to *castling_type*.
+
+      Parameters:
+         **castling_type** (*CastlingType*) – one of the four castling
+         constants.
+
+      Returns:
+         appropriate king move for that castling.
+
+      Return type:
+         Move
+
+      >>> Move.castle(WHITE_KINGSIDE) == Move(E1, G1)
+      True
+      >>> Move.castle(WHITE_QUEENSIDE) == Move(E1, C1)
+      True
+      >>> Move.castle(BLACK_KINGSIDE) == Move(E8, G8)
+      True
+      >>> Move.castle(BLACK_QUEENSIDE) == Move(E8, C8)
+      True
+
+   static from_uci(uci: str) -> Move | None
+
+      Parse a UCI long-algebraic "str" and build a move.
+
+      Null moves are supported as “0000”, and are represented as
+      "None".
+
+      Parameters:
+         **uci** (*str*) – UCI string such as ""e2e4"" or ""b7b8q"".
+
+      Returns:
+         move instance, or "None" for a null move.
+
+      Return type:
+         Move | None
+
+      Raises:
+         **ValueError** – if *uci* is malformed or illegal.
+
+      >>> Move.from_uci("e2e4") == Move(E2, E4)
+      True
+      >>> Move.from_uci("a1d4") == Move(A1, D4)
+      True
+      >>> Move.from_uci("b7b8q") == Move(B7, B8, promote_to=QUEEN)
+      True
+      >>> Move.from_uci("0000") is None
+      True
+
+   static from_san(san: str, board: Board) -> Move
+
+      Parse a SAN "str" in the context of *board*.
+
+      Parameters:
+         * **san** (*str*) – SAN text (e.g. ""Nf6"", ""O-O"", ""e4"").
+
+         * **board** (*Board*) – position used to disambiguate the
+           SAN.
+
+      Returns:
+         the corresponding move.
+
+      Return type:
+         Move
+
+      Raises:
+         **ValueError** – if *san* is invalid for *board*.
+
+      >>> Move.from_san("e4", Board()) == Move(E2, E4)
+      True
+      >>> FEN = "r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3"
+      >>> board = Board.from_fen(FEN)
+      >>> Move.from_san("Nf6", board) == Move(G8, F6)
+      True
+
+   san(board: Board) -> str
+
+      Return this move in SAN notation relative to *board*.
+
+      Parameters:
+         **board** (*Board*) – position that provides context.
+
+      Returns:
+         SAN string.
+
+      Return type:
+         str
+
+      Raises:
+         **ValueError** – if the move is illegal for *board*.
+
+      >>> Move(E2, E4).san(Board())
+      'e4'
+      >>> FEN = "r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4"
+      >>> Move(E1, G1).san(Board.from_fen(FEN))
+      'O-O'
+
+   uci() -> str
+
+      Return a "str" of the UCI long algebraic notation representation
+      of this move.
+
+      Returns:
+         UCI string.
+
+      Return type:
+         str
+
+      >>> Move(E2, E4).uci()
+      'e2e4'
+      >>> Move(A1, D4).uci()
+      'a1d4'
+      >>> Move(B7, B8, promote_to=QUEEN).uci()
+      'b7b8q'
+
+   __str__() -> str
+
+      Alias for "Move.uci()".
+
+      >>> str(Move(E2, E4))
+      'e2e4'
+      >>> str(Move(A1, D4))
+      'a1d4'
+      >>> str(Move(B7, B8, promote_to=QUEEN))
+      'b7b8q'
+
+   property origin: Square
+
+      The "Square" the piece moves from.
+
+      >>> Move(E2, E4).origin is E2
+      True
+      >>> Move.from_uci("a1d4").origin is A1
+      True
+
+   property destination: Square
+
+      The "Square" the piece moves to.
+
+      >>> Move(E2, E4).destination is E4
+      True
+      >>> Move.from_uci("a1d4").destination is D4
+      True
+
+   property promotion: PieceType | None
+
+      Promotion "PieceType", or "None" for a non-promotion.
+
+      >>> Move.from_uci("b7b8q").promotion is QUEEN
+      True
+      >>> Move(E2, E4).promotion is None
+      True
+
+   is_promotion() -> bool
+
+      Return "True" if the move is a promotion.
+
+      >>> Move.from_uci("b7b8q").is_promotion()
+      True
+      >>> Move(E2, E4).is_promotion()
+      False
+
+   is_capture(board: Board) -> bool
+
+      Return "True" if the move captures a piece on *board*.
+
+      Parameters:
+         **board** (*Board*) – position to check if this is a capture.
+
+      Returns:
+         capture flag.
+
+      Return type:
+         bool
+
+      >>> FEN = "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3"
+      >>> board = Board.from_fen(FEN)
+      >>> Move(F3, E5).is_capture(board)
+      True
+
+   is_castling(board: Board) -> bool
+
+      Return "True" if the move is a legal castling move on *board*.
+
+      Parameters:
+         **board** (*Board*) – position to check if this is a castling
+         move.
+
+      Returns:
+         castling flag.
+
+      Return type:
+         bool
+
+      >>> FEN = "r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4"
+      >>> board = Board.from_fen(FEN)
+      >>> Move(E1, G1).is_castling(board)
+      True
+      >>> Move(E1, G1).is_castling(Board.empty())
+      False
+
+   castling_type(board: Board) -> CastlingType | None
+
+      If the move is castling, return its type; otherwise "None".
+
+      Parameters:
+         **board** (*Board*) – position used for classification.
+
+      Returns:
+         corresponding castling type or "None".
+
+      Return type:
+         CastlingType | None
+
+      >>> FEN = "r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4"
+      >>> board = Board.from_fen(FEN)
+      >>> Move(E1, G1).castling_type(board) is WHITE_KINGSIDE
+      True
+      >>> Move(E1, G1).castling_type(Board.empty()) is None
+      True
+
+   __eq__(other: Any) -> bool
+
+      Return "True" if *other* has the same origin, destination and
+      promotion value.
+
+      Parameters:
+         **other** (*Any*) – object to compare.
+
+      Returns:
+         equality flag.
+
+      Return type:
+         bool
+
+      >>> Move(E2, E4) == Move.from_uci("e2e4")
+      True
+      >>> Move(A7, A8) == Move.from_uci("a7a8q")
+      False
+
+   __hash__() -> int
+
+   __repr__() -> str
+
+class CastlingRights(castling_types: Collection[CastlingType])
+
+   A set of "CastlingType" values that encodes a "Board"’s castling
+   permissions.
+
+   __init__(castling_types: Collection[CastlingType]) -> None
+
+      Initialise the object with *castling_types*.
+
+      Parameters:
+         **castling_types** (*Collection**[**CastlingType**]*) –
+         iterable of castling constants to include.
+
+   static from_fen(castling_fen: str) -> CastlingRights
+
+      Build a "CastlingRights" object from a FEN castling field.
+
+      Parameters:
+         **castling_fen** (*str*) – ""KQkq"", ""KQ"", ""-"" …
+
+      Returns:
+         rights object matching *castling_fen*.
+
+      Return type:
+         CastlingRights
+
+      Raises:
+         **ValueError** – if *castling_fen* is not valid FEN.
+
+      >>> CastlingRights.from_fen("KQkq") == ALL_CASTLING
+      True
+      >>> CastlingRights.from_fen("Qk") == CastlingRights([WHITE_QUEENSIDE, BLACK_KINGSIDE])
+      True
+      >>> CastlingRights.from_fen("-") == NO_CASTLING
+      True
+
+   fen() -> str
+
+      Returns the Forsyth-Edwards Notation *str* represetnation of
+      this "CastlingRights".
+
+      Returns:
+         ""KQkq"", ""-"" or similar.
+
+      Return type:
+         str
+
+      >>> NO_CASTLING.fen()
+      '-'
+      >>> CastlingRights([WHITE_KINGSIDE, WHITE_QUEENSIDE]).fen()
+      'KQ'
+      >>> ALL_CASTLING.fen()
+      'KQkq'
+
+   __contains__(castling_type: CastlingType) -> bool
+
+      Return "True" if *castling_type* is present.
+
+      Parameters:
+         **castling_type** (*CastlingType*) – entry to test.
+
+      Returns:
+         membership flag.
+
+      Return type:
+         bool
+
+      >>> WHITE_KINGSIDE in ALL_CASTLING
+      True
+      >>> BLACK_KINGSIDE in CastlingRights([WHITE_QUEENSIDE])
+      False
+
+   __iter__() -> Iterator[CastlingType]
+
+      Iteratator over included "CastlingType" values
+
+   __len__() -> int
+
+      The number of castling types included
+
+   __bool__() -> CastlingRights
+
+      Returns "True" if **any** castling rights are present, alias for
+      "CastlingRights.any()"
+
+   __add__(other: CastlingRights) -> CastlingRights
+
+      Return the union of two castling-rights sets.
+
+      Parameters:
+         **other** (*CastlingRights*) – rights to add.
+
+      Returns:
+         combined rights.
+
+      Return type:
+         CastlingRights
+
+      >>> CastlingRights.from_fen("KQ") + CastlingRights.from_fen("kq") == ALL_CASTLING
+      True
+
+   __eq__(other: Any) -> bool
+
+      Return "True" if *other* has the identical rights set.
+
+   __le__(other: CastlingRights) -> bool
+
+      Return "True" if this set is a subset of *other*.
+
+      >>> CastlingRights.from_fen("KQ") <= CastlingRights.from_fen("KQkq")
+      True
+      >>> CastlingRights.from_fen("KQkq") <= CastlingRights.from_fen("KQkq")
+      True
+
+   __lt__(other: CastlingRights) -> bool
+
+      Return "True" if this set is a **strict** subset of *other*.
+
+      >>> CastlingRights.from_fen("KQ") < CastlingRights.from_fen("KQkq")
+      True
+      >>> CastlingRights.from_fen("KQkq") < CastlingRights.from_fen("KQkq")
+      False
+
+   __gt__(other: CastlingRights) -> bool
+
+      Return "True" if this set is a **strict** superset of *other*.
+
+      >>> CastlingRights.from_fen("KQkq") > CastlingRights.from_fen("KQ")
+      True
+      >>> CastlingRights.from_fen("KQkq") > CastlingRights.from_fen("KQkq")
+      False
+
+   __ge__(other: CastlingRights) -> bool
+
+      Return "True" if this set is a superset of, or equal to,
+      *other*.
+
+      >>> CastlingRights.from_fen("KQkq") >= CastlingRights.from_fen("KQ")
+      True
+      >>> CastlingRights.from_fen("KQkq") >= CastlingRights.from_fen("KQkq")
+      True
+
+   __str__() -> str
+
+      Alias for "CastlingRights.fen()"
+
+      Returns:
+         ""KQkq"", ""-"" or similar.
+
+      Return type:
+         str
+
+      >>> str(NO_CASTLING)
+      '-'
+      >>> str(CastlingRights([WHITE_KINGSIDE, WHITE_QUEENSIDE]))
+      'KQ'
+      >>> str(ALL_CASTLING)
+      'KQkq'
+
+   full(color: Color | None = None) -> bool
+
+      Return "True" if **all** relevant rights are present.
+
+      Parameters:
+         **color** (*Color** | **None*) – restrict the check to :
+
+      Returns:
+         completeness flag.
+
+      Return type:
+         bool
+
+      >>> ALL_CASTLING.full()
+      True
+      >>> CastlingRights.from_fen("KQk").full()
+      False
+      >>> CastlingRights.from_fen("KQk").full(WHITE)
+      True
+      >>> NO_CASTLING.full()
+      False
+
+   any(color: Color | None = None) -> bool
+
+      Return "True" if any castling right is present.
+
+      Parameters:
+         **color** (*Color** | **None*) – optionally restrict the
+         check to "WHITE" or "BLACK".
+
+      Returns:
+         presence flag.
+
+      Return type:
+         bool
+
+      >>> ALL_CASTLING.any()
+      True
+      >>> CastlingRights.from_fen("KQk").any()
+      True
+      >>> CastlingRights.from_fen("K").any()
+      True
+      >>> CastlingRights.from_fen("K").any(BLACK)
+      False
+      >>> NO_CASTLING.any()
+      False
+
+   kingside(color: Color | None = None) -> bool
+
+      Return "True" if any kingside right is present.
+
+      Parameters:
+         **color** (*Color** | **None*) – optionally restrict the
+         check to "WHITE" or "BLACK".
+
+      Returns:
+         kingside flag.
+
+      Return type:
+         bool
+
+      >>> ALL_CASTLING.kingside()
+      True
+      >>> CastlingRights.from_fen("Q").kingside()
+      False
+      >>> CastlingRights.from_fen("K").kingside()
+      True
+      >>> CastlingRights.from_fen("K").kingside(BLACK)
+      False
+      >>> NO_CASTLING.kingside()
+      False
+
+   queenside(color: Color | None = None) -> bool
+
+      Return "True" if any queenside right is present.
+
+      Parameters:
+         **color** (*Color** | **None*) – optionally restrict the
+         check to "WHITE" or "BLACK".
+
+      Returns:
+         queenside flag.
+
+      Return type:
+         bool
+
+      >>> ALL_CASTLING.queenside()
+      True
+      >>> CastlingRights.from_fen("Q").queenside()
+      True
+      >>> CastlingRights.from_fen("K").queenside()
+      False
+      >>> CastlingRights.from_fen("Q").queenside(BLACK)
+      False
+      >>> NO_CASTLING.queenside()
+      False
+
+   __repr__() -> str
+
+   __hash__() -> int
+
+ALL_CASTLING: CastlingRights
+
+   Castling rights which include all types of castling
+
+NO_CASTLING: CastlingRights
+
+   Castling rights which include no types of castling
+
+class Board
+
+   A mutable chess position.
+
+   A *Board* represents a configuration of chess pieces as a mapping
+   of each "Square" to optional an "Piece".  The *Board* class
+   includes attributes for "CastlingRights", the existance of an en-
+   passant "Square", and the "Color" for the turn of the current
+   player. Also holds the halfmove clock and fullmove number each as
+   an *int*.
+
+   The "Board" class provides an interface for generating "Move"
+   objects representing legal actions for a turn,  as well as applying
+   and undoing these moves.
+
+   __init__()
+
+      Initializes a *Board* representing the starting position.
+
+   static from_fen(fen: str) -> Board
+
+      Build a board from a *str* of a Forsyth-Edwards Notation (FEN)
+      representation of a position.
+
+      The FEN is not required to include a halfmove clock or fullmove
+      number. The default values for these are 0 and 1.
+
+      Parameters:
+         **fen** (*str*) – full FEN record.
+
+      Returns:
+         board represented by *fen*.
+
+      Return type:
+         Board
+
+      Raises:
+         **ValueError** – if *fen* is malformed.
+
+      >>> board = Board.from_fen("rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2")
+      >>> print(board)
+      r n b q k b n r 
+      p p - p p p p p 
+      - - - - - - - - 
+      - - p - - - - - 
+      - - - - P - - - 
+      - - - - - N - - 
+      P P P P - P P P 
+      R N B Q K B - R 
+
+   static empty() -> Board
+
+      Creates a completely empty *Board*, with no pieces on it.
+
+   property turn: Color
+
+      Side to move, either "WHITE" or "BLACK".
+
+   property halfmove_clock: int
+
+      Gets the current halfmove clock as an *int*. This represents the
+      number of ply that have passed since a capture or pawn advance.
+
+   property fullmove_number: int
+
+      Gets the current fullmove number as an *int*. This represents
+      the total number of turns each player has taken since the start
+      of a game.
+
+   property en_passant_square: Square | None
+
+      Gets the current en passant "Square", if it exists. Otherwise
+      returns "None".
+
+   property castling_rights: CastlingRights
+
+      Gets the current "CastlingRights" of this "Board".
+
+   legal_moves() -> list[Move]
+
+      Generates a *list* of legal "Move" objects for this "Board"’s
+      position.
+
+      >>> Board().legal_moves()
+      [<Move: b1a3>, <Move: b1c3>, <Move: g1f3>, <Move: g1h3>, <Move: a2a3>, <Move: a2a4>, <Move: b2b3>, <Move: b2b4>, <Move: c2c3>, <Move: c2c4>, <Move: d2d3>, <Move: d2d4>, <Move: e2e3>, <Move: e2e4>, <Move: f2f3>, <Move: f2f4>, <Move: g2g3>, <Move: g2g4>, <Move: h2h3>, <Move: h2h4>]
+
+   apply(move: Move | None) -> None
+
+      Applies the given "Move" to this "Board", updating its state.
+      The "Move" argument is not checked to be legal outside of
+      checking if the origin has a Piece. "None" can be passed as the
+      argument to skip a turn.
+
+      >>> board = Board()
+      >>> board.apply(Move(E2, E4))
+      >>> print(board)
+      r n b q k b n r 
+      p p p p p p p p 
+      - - - - - - - - 
+      - - - - - - - - 
+      - - - - P - - - 
+      - - - - - - - - 
+      P P P P - P P P 
+      R N B Q K B N R 
+
+      Raises:
+         "ValueError" if the given "Move"’s origin is an empty square.
+
+   undo() -> Move
+
+      Undoes the last "Move" applied to this "Board", and returns the
+      "Move" that was played.
+
+      >>> board = Board()
+      >>> board.apply(Move(E2, E4))
+      >>> board.apply(Move(E7, E5))
+      >>> board.undo() == Move(E7, E5)
+      True
+      >>> print(board)
+      r n b q k b n r 
+      p p p p p p p p 
+      - - - - - - - - 
+      - - - - - - - - 
+      - - - - P - - - 
+      - - - - - - - - 
+      P P P P - P P P 
+      R N B Q K B N R 
+
+      Raises:
+         "AttributeError" if there are no moves to undo.
+
+   fen() -> str
+
+      Gets the Forsyth-Edwards Notation representation as a *str* of
+      this *Board*.
+
+      >>> board = Board()
+      >>> board.fen()
+      'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+
+   copy() -> Board
+
+      Returns a new *Board* which is an exact copy of this *Board*,
+      including its *Move* history.
+
+   __getitem__(index)
+
+      Index a "Board" with a value. Can either index with a "Square",
+      "None", a "PieceType", a "Color", a "tuple[Color, PieceType]",
+      or a "Piece",
+
+      If given a "Square", returns the "Piece" at the square, or
+      "None" if the square is unoccupied.
+
+      >>> board = Board()
+      >>> board[E2] is Piece(WHITE, PAWN)
+      True
+      >>> board[E4] is None
+      True
+
+      If given "None", returns a "Bitboard" of all empty squares.
+
+      >>> board = Board()
+      >>> print(board[None])
+      0 0 0 0 0 0 0 0 
+      0 0 0 0 0 0 0 0 
+      1 1 1 1 1 1 1 1 
+      1 1 1 1 1 1 1 1 
+      1 1 1 1 1 1 1 1 
+      1 1 1 1 1 1 1 1 
+      0 0 0 0 0 0 0 0 
+      0 0 0 0 0 0 0 0 
+
+      If given a :class:"Color", returns a "Bitboard" of all squares
+      with a piece of that color
+
+      >>> board = Board()
+      >>> print(board[WHITE])
+      0 0 0 0 0 0 0 0 
+      0 0 0 0 0 0 0 0 
+      0 0 0 0 0 0 0 0 
+      0 0 0 0 0 0 0 0 
+      0 0 0 0 0 0 0 0 
+      0 0 0 0 0 0 0 0 
+      1 1 1 1 1 1 1 1 
+      1 1 1 1 1 1 1 1 
+
+      If given a :class:"PieceType", returns a "Bitboard" of all
+      squares with a piece of that type.
+
+      >>> board = Board()
+      >>> print(board[PAWN])
+      0 0 0 0 0 0 0 0 
+      1 1 1 1 1 1 1 1 
+      0 0 0 0 0 0 0 0 
+      0 0 0 0 0 0 0 0 
+      0 0 0 0 0 0 0 0 
+      0 0 0 0 0 0 0 0 
+      1 1 1 1 1 1 1 1 
+      0 0 0 0 0 0 0 0 
+
+      If given a "Piece" or a tuple of a "Color" and a "PieceType",
+      returns a "Bitboard" of all squares with matching pieces.
+
+      >>> board = Board()
+      >>> board[WHITE, PAWN] == board[Piece(WHITE, PAWN)]
+      True
+      >>> print(board[WHITE, PAWN])
+      0 0 0 0 0 0 0 0 
+      0 0 0 0 0 0 0 0 
+      0 0 0 0 0 0 0 0 
+      0 0 0 0 0 0 0 0 
+      0 0 0 0 0 0 0 0 
+      0 0 0 0 0 0 0 0 
+      1 1 1 1 1 1 1 1 
+      0 0 0 0 0 0 0 0 
+
+   __setitem__(square: Square, piece: Piece | None)
+
+      Sets this "Board" to have the given "Piece" and the indexed
+      "Square" .  If set to "None", the "Square" becomes empty.
+
+      >>> board = Board()
+      >>> board[E2] = None
+      >>> board[E4] = Piece(WHITE, PAWN)
+      >>> print(board)
+      r n b q k b n r 
+      p p p p p p p p 
+      - - - - - - - - 
+      - - - - - - - - 
+      - - - - P - - - 
+      - - - - - - - - 
+      P P P P - P P P 
+      R N B Q K B N R 
+
+   __delitem__(square: Square)
+
+      Deletes any "Piece" at the specified "Square", leaving the
+      "Square" empty.
+
+      >>> board = Board()
+      >>> del board[E2]
+      >>> print(board)
+      r n b q k b n r 
+      p p p p p p p p 
+      - - - - - - - - 
+      - - - - - - - - 
+      - - - - - - - - 
+      - - - - - - - - 
+      P P P P - P P P 
+      R N B Q K B N R 
+
+   __eq__(other: Any) -> bool
+
+      Returns "True" if compared with another "Board" with the same
+      mapping of "Square" to "Piece" objects, equvilent
+      "CastlingRights", en-passant "Square" values, and halfmove and
+      fullmove clocks.
+
+      To check if two "Board" instances are “legally” equal, as in in
+      terms of all of the above besides the halfmove and fullmove
+      clocks, use "utils.legally_equal()"
+
+      Two boards may be considered equal despite having different move
+      histories.
+
+   __hash__() -> int
+
+      Performs a Zobrist hash of this Board.
+
+   __contains__(piece: Piece | None) -> bool
+
+      Returns "True" if this "Board" has the specified "Piece". When
+      given "None", returns "True" if there are any empy squares.
+
+   property history: list[Move]
+
+      Gets a "list" of "Move" objects of every "Move" which have been
+      used with "Board.apply()" and have not  been undone with
+      "Board.undo()" for this "Board"
+
+      >>> board = Board()
+      >>> board.apply(Move(E2, E4))
+      >>> board.apply(Move(E7, E5))
+      >>> board.apply(Move(G1, F3))
+      >>> board.history
+      [<Move: e2e4>, <Move: e7e5>, <Move: g1f3>]
+
+   __str__()
+
+      Returns an ASCII "str" representation of this "Board".
+
+      >>> print(str(Board()))
+      r n b q k b n r 
+      p p p p p p p p 
+      - - - - - - - - 
+      - - - - - - - - 
+      - - - - - - - - 
+      - - - - - - - - 
+      P P P P P P P P 
+      R N B Q K B N R 
+
+      >>> FEN = "rnb3r1/R3Q3/2p5/1p1k1p1r/1n1P4/8/4P3/2K2B1r b - - 3 69"
+      >>> board = Board.from_fen(FEN)
+      >>> print(str(board))
+      r n b - - - r - 
+      R - - - Q - - - 
+      - - p - - - - - 
+      - p - k - p - r 
+      - n - P - - - - 
+      - - - - - - - - 
+      - - - - P - - - 
+      - - K - - B - r 
+
+   pretty(color_scheme: Board = Board.OAK, highlighted_squares: Bitboard = EMPTY_BB, targeted_squares: Bitboard = EMPTY_BB) -> str
+
+      Creates a "str" representation of this "Board" using Unicode
+      chess figurines and the provided "Board.ColorScheme" as a
+      palette for the background and highlights. "Bitboard"’s can be
+      specified for highlighting particular squares, as for example a
+      "Move"’s origin,  as well as for targetting certain squares, as
+      for possible "Move" destinations.
+
+   class ColorScheme
+
+      A pallete of colors to be used with "Board.pretty()" to stylize
+      printed  boards.
+
+   LAGOON: Board.ColorScheme
+
+      A light blue color pallete
+
+   SLATE: Board.ColorScheme
+
+      A slightly purplish, grey color pallete
+
+   OAK: Board.ColorScheme
+
+      A classical, wood styled color pallete
+
+   WALNUT: Board.ColorScheme
+
+      A less saturated wood styled color pallete
+
+   GREEN: Board.ColorScheme
+
+      A familiar green and white color pallete
+
+   ROSE: Board.ColorScheme
+
+      A pinkish red color pallete
+
+   CLAY: Board.ColorScheme
+
+      A dulled, rosy brown and grey color pallete
+
+   STEEL: Board.ColorScheme
+
+      A monochromatic grey color pallete
+
+class BoardStatus
+
+   A predicate-like object that answers the question *“is this board
+   in status X?”*  Examples of statuses include check, check-mate,
+   stalemate, and repetition or 50-move draw claims.
+
+   __contains__(board: Board) -> bool
+
+      Return "True" if *board* satisfies this status.
+
+      Parameters:
+         **board** (*Board*) – position to test.
+
+      Returns:
+         membership flag.
+
+      Return type:
+         bool
+
+
+      Examples
+      ========
+
+      >>> Board() in DRAW
+      False
+      >>> FEN = "r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4"
+      >>> board = Board.from_fen(FEN)
+      >>> print(board)
+      r - b q k b - r 
+      p p p p - Q p p 
+      - - n - - n - - 
+      - - - - p - - - 
+      - - B - P - - - 
+      - - - - - - - - 
+      P P P P - P P P 
+      R N B - K - N R 
+
+      >>> board in CHECKMATE
+      True
+
+   __repr__() -> str
+
+   __eq__(other: Any) -> bool
+
+CHECK: BoardStatus
+
+   The side to move is in check
+
+MATE: BoardStatus
+
+   The side to move has no legal moves.
+
+CHECKMATE: BoardStatus
+
+   The side to move is in checkmate. The player is in check and has no
+   legal moves.
+
+STALEMATE: BoardStatus
+
+   The side to move is in stalemate. The player has no legal moves but
+   is *not* in check.
+
+INSUFFICIENT_MATERIAL: BoardStatus
+
+   There is not enough material for either player to be placed in
+   checkmate.
+
+FIFTY_MOVE_TIMEOUT: BoardStatus
+
+   Fifty full-moves have passed without a pawn move or capture.
+
+SEVENTY_FIVE_MOVE_TIMEOUT: BoardStatus
+
+   Seventy five full-moves have passed without a pawn move or capture.
+
+THREEFOLD_REPETITION: BoardStatus
+
+   The same position has occured at least three times.
+
+FIVEFOLD_REPETITION: BoardStatus
+
+   The same position has occured at least five times.
+
+DRAW: BoardStatus
+
+   Any position in which a player may claim a draw.  This includes
+   stalemate, insufficient material, a fifty move timeout, or
+   threefold repetition.
+
+FORCED_DRAW: BoardStatus
+
+   A forced draw. This includes stalemate, insufficient material, a
+   seventy five move timeout, or fivefold repetition.

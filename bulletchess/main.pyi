@@ -1938,7 +1938,7 @@ class Board:
 
     def copy(self) -> "Board":
         """
-        Returns a new :class:`Board` which is an exact copy of this :class:``Board`, including its :class:`Move` history.
+        Returns a new :class:`Board` which is an exact copy of this :class:`Board`, including its :class:`Move` history.
 
         :returns: A deep copy of this position and its state.
         :rtype: :class:`Board`

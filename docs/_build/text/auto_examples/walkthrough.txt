@@ -1,0 +1,152 @@
+Basic Walkthrough
+*****************
+
+First, lets import everything from "bulletchess"
+
+   from bulletchess import *
+
+The "Board()" constructor returns a "Board" representing the starting
+position.
+
+   board = Board()
+   board
+
+the "Board" class defines "Board._repr_html_()", which allows
+positions to be rendered like the above in Jupyter note books, or
+Sphinx documenation like this page. For displaying a "Board" as plain
+text, we use "Board.__str__()"
+
+   print(str(board))
+
+   r n b q k b n r
+   p p p p p p p p
+   - - - - - - - -
+   - - - - - - - -
+   - - - - - - - -
+   - - - - - - - -
+   P P P P P P P P
+   R N B Q K B N R
+
+Other positions can be specified by either using "Board.from_fen()".
+When rendering a "Board" as HTML, the side to move is always oriented
+on the bottom.
+
+   board = Board.from_fen("rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2")
+   board
+
+Or by assigning "Piece" locations manually. We can use "Board.empty()"
+to start from a clean slate.
+
+   board = Board.empty()
+   board
+
+And then assign a "Piece" to each "Square".
+
+   board[G2] = Piece(WHITE, KING)
+   board[F2] = Piece(WHITE, PAWN)
+   board[G3] = Piece(WHITE, PAWN)
+   board[H2] = Piece(WHITE, PAWN)
+   board[B3] = Piece(WHITE, ROOK)
+
+   board[F7] = Piece(BLACK, KING)
+   board[D7] = Piece(BLACK, ROOK)
+   board[F6] = Piece(BLACK, PAWN)
+   board[G7] = Piece(BLACK, PAWN)
+
+   board
+
+We can get the FEN of this position with "Board.fen()". We might want
+to set the halfmove clock and fullmove number for this endgame
+position. Let’s also make it black’s turn.
+
+   board.halfmove_clock = 3
+   board.fullmove_number = 43
+   board.turn = BLACK
+
+   board.fen()
+
+   '8/3r1kp1/5p2/8/8/1R4P1/5PKP/8 b - - 3 43'
+
+Indexing a "Board" with a "Color", "PieceType", or both returns
+"Bitboard" of squares with the relevant kind of "Piece". A "Bitboard"
+is simply an efficient representation of a set of squares.
+
+   print(board[WHITE])
+   print(board[ROOK])
+   print(board[BLACK, PAWN])
+
+   0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0
+   0 1 0 0 0 0 1 0
+   0 0 0 0 0 1 1 1
+   0 0 0 0 0 0 0 0
+
+   0 0 0 0 0 0 0 0
+   0 0 0 1 0 0 0 0
+   0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0
+   0 1 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0
+
+   0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 1 0
+   0 0 0 0 0 1 0 0
+   0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0
+
+We can generate legal "Move" objects for this position with
+"Board.legal_moves()"
+
+   moves = board.legal_moves()
+   print(moves)
+
+   [<Move: f6f5>, <Move: d7d1>, <Move: d7d2>, <Move: d7d3>, <Move: d7d4>, <Move: d7d5>, <Move: d7d6>, <Move: d7a7>, <Move: d7b7>, <Move: d7c7>, <Move: d7e7>, <Move: d7d8>, <Move: f7e6>, <Move: f7g6>, <Move: f7e7>, <Move: f7e8>, <Move: f7f8>, <Move: f7g8>, <Move: g7g5>, <Move: g7g6>]
+
+Lets move our rook. To perform a move, we use "Board.apply()". Moves
+can be created manually with the "Move()" constructor.
+
+   selected_move = Move(D7, D3)
+   board.apply(selected_move)
+   board
+
+Oh, but that was a blunder. moves can be undone with *Board.undo()*,
+which returns the last "Move" applied. Getting the *str* of a "Move"
+renders the move in UCI long algebraic notation.
+
+   print("Undoing " + str(board.undo()))
+   board
+
+   Undoing d7d3
+
+Lets run the game through for a bit. Moves can also be constructed
+from UCI or standard algebraic notation.
+
+   board.apply(Move.from_san("g5", board))
+   board.apply(Move.from_uci("h2h4"))
+   board.apply(Move(G5, H4))
+   board.apply(Move(G3, H4))
+   board.apply(Move.from_san("Kg7", board))
+   board.apply(Move.from_san("Rg3", board))
+   board
+
+Black exposed their king, and is now in check.
+
+   board in CHECK
+
+   True
+
+But the game is still ongoing.
+
+   board in CHECKMATE or board in DRAW
+
+   False
+
+**Total running time of the script:** (0 minutes 0.004 seconds)

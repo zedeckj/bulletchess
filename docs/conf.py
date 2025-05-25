@@ -16,7 +16,8 @@ release = '0.2.0'
 extensions = [
         'sphinx.ext.autodoc',
         'sphinx_gallery.gen_gallery',
-        'autoapi.extension'
+        'autoapi.extension',
+        'sphinx_markdown_builder'
 ]
 
 sphinx_gallery_conf = {
