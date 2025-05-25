@@ -11,7 +11,7 @@ import matplotlib
 project = 'bulletchess'
 copyright = '2025, Jordan Zedeeck'
 author = 'Jordan Zedeeck'
-release = '0.2.0'
+# release = '0.2.0'
 
 extensions = [
         'sphinx.ext.autodoc',
