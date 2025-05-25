@@ -1,0 +1,828 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>bulletchess &#8212; bulletchess 0.2.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="_static/documentation_options.js?v=938c9ccc"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'index';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Basic Walkthrough" href="auto_examples/walkthrough.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="#">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">bulletchess 0.2.0 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="auto_examples/walkthrough.html">
+    Basic Walkthrough
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="auto_examples/performance.html">
+    Performance Comparisons
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="main.html">
+    Main Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="utils.html">
+    Utilities
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="pgn.html">
+    Portable Game Notation
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="auto_examples/walkthrough.html">
+    Basic Walkthrough
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="auto_examples/performance.html">
+    Performance Comparisons
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="main.html">
+    Main Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="utils.html">
+    Utilities
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="pgn.html">
+    Portable Game Notation
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none"></div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="bulletchess">
+<h1><code class="docutils literal notranslate"><span class="pre">bulletchess</span></code><a class="headerlink" href="#bulletchess" title="Link to this heading">#</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">bulletchess</span></code> is a Python module for playing, analyzing, and building engines for chess. Unlike other chess libraries in Python,
+the core of <code class="docutils literal notranslate"><span class="pre">bulletchess</span></code> is written in C, allowing it to be <em>much</em> faster than alternatives.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<p>At a high level, <code class="docutils literal notranslate"><span class="pre">bulletchess</span></code> includes:</p>
+<ul class="simple">
+<li><p>A complete game model with intuitive representations for pieces, moves, and positions.</p></li>
+<li><p>Extensively tested legal move generation, application, and undoing.</p></li>
+<li><p>Parsing and writing of positions specified in <a class="reference external" href="https://www.chessprogramming.org/Forsyth-Edwards_Notation">Forsyth-Edwards Notation</a> (FEN), and moves specified in both <a class="reference external" href="https://www.chessprogramming.org/Algebraic_Chess_Notation#Long_Algebraic_Notation_.28LAN.29">Long Algebraic Notation</a> and <a class="reference external" href="https://www.chessprogramming.org/Algebraic_Chess_Notation#Standard_Algebraic_Notation_.28SAN.29">Standard Algebraic Notation</a>.</p></li>
+<li><p>Methods to determine if a position is check, checkmate, stalemate, and each specific type of draw.</p></li>
+<li><p>Efficient hashing of positions using <a class="reference external" href="https://en.wikipedia.org/wiki/Zobrist_hashing">Zobrist Keys</a>.</p></li>
+<li><p>A <a class="reference external" href="https://thechessworld.com/articles/general-information/portable-chess-game-notation-pgn-complete-guide/">Portable Game Notation</a> (PGN) file reader</p></li>
+<li><p>Utility functions for writing engines.</p></li>
+</ul>
+</section>
+<section id="glossary">
+<h2>Glossary<a class="headerlink" href="#glossary" title="Link to this heading">#</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="auto_examples/walkthrough.html">Basic Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="auto_examples/performance.html">Performance Comparisons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="main.html">Main Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.Color"><code class="docutils literal notranslate"><span class="pre">Color</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Color.from_str"><code class="docutils literal notranslate"><span class="pre">from_str()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Color.opposite"><code class="docutils literal notranslate"><span class="pre">opposite</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Color.__str__"><code class="docutils literal notranslate"><span class="pre">__str__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Color.__invert__"><code class="docutils literal notranslate"><span class="pre">__invert__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Color.__hash__"><code class="docutils literal notranslate"><span class="pre">__hash__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Color.__repr__"><code class="docutils literal notranslate"><span class="pre">__repr__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Color.__eq__"><code class="docutils literal notranslate"><span class="pre">__eq__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.WHITE"><code class="docutils literal notranslate"><span class="pre">WHITE</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.BLACK"><code class="docutils literal notranslate"><span class="pre">BLACK</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.PieceType"><code class="docutils literal notranslate"><span class="pre">PieceType</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.PieceType.from_str"><code class="docutils literal notranslate"><span class="pre">from_str()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.PieceType.__str__"><code class="docutils literal notranslate"><span class="pre">__str__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.PieceType.__repr__"><code class="docutils literal notranslate"><span class="pre">__repr__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.PieceType.__eq__"><code class="docutils literal notranslate"><span class="pre">__eq__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.PieceType.__hash__"><code class="docutils literal notranslate"><span class="pre">__hash__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.PAWN"><code class="docutils literal notranslate"><span class="pre">PAWN</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.KNIGHT"><code class="docutils literal notranslate"><span class="pre">KNIGHT</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.BISHOP"><code class="docutils literal notranslate"><span class="pre">BISHOP</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.ROOK"><code class="docutils literal notranslate"><span class="pre">ROOK</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.QUEEN"><code class="docutils literal notranslate"><span class="pre">QUEEN</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.KING"><code class="docutils literal notranslate"><span class="pre">KING</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.PIECE_TYPES"><code class="docutils literal notranslate"><span class="pre">PIECE_TYPES</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.Piece"><code class="docutils literal notranslate"><span class="pre">Piece</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Piece.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Piece.from_chr"><code class="docutils literal notranslate"><span class="pre">from_chr()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Piece.piece_type"><code class="docutils literal notranslate"><span class="pre">piece_type</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Piece.color"><code class="docutils literal notranslate"><span class="pre">color</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Piece.unicode"><code class="docutils literal notranslate"><span class="pre">unicode()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Piece.__eq__"><code class="docutils literal notranslate"><span class="pre">__eq__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Piece.__str__"><code class="docutils literal notranslate"><span class="pre">__str__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Piece.__hash__"><code class="docutils literal notranslate"><span class="pre">__hash__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.Square"><code class="docutils literal notranslate"><span class="pre">Square</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Square.from_str"><code class="docutils literal notranslate"><span class="pre">from_str()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Square.bb"><code class="docutils literal notranslate"><span class="pre">bb()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Square.adjacent"><code class="docutils literal notranslate"><span class="pre">adjacent()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Square.north"><code class="docutils literal notranslate"><span class="pre">north()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Square.south"><code class="docutils literal notranslate"><span class="pre">south()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Square.east"><code class="docutils literal notranslate"><span class="pre">east()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Square.west"><code class="docutils literal notranslate"><span class="pre">west()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Square.nw"><code class="docutils literal notranslate"><span class="pre">nw()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Square.ne"><code class="docutils literal notranslate"><span class="pre">ne()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Square.sw"><code class="docutils literal notranslate"><span class="pre">sw()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Square.se"><code class="docutils literal notranslate"><span class="pre">se()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Square.__eq__"><code class="docutils literal notranslate"><span class="pre">__eq__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Square.__hash__"><code class="docutils literal notranslate"><span class="pre">__hash__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Square.__str__"><code class="docutils literal notranslate"><span class="pre">__str__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.A1"><code class="docutils literal notranslate"><span class="pre">A1</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.B1"><code class="docutils literal notranslate"><span class="pre">B1</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.C1"><code class="docutils literal notranslate"><span class="pre">C1</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.D1"><code class="docutils literal notranslate"><span class="pre">D1</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.E1"><code class="docutils literal notranslate"><span class="pre">E1</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.F1"><code class="docutils literal notranslate"><span class="pre">F1</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.G1"><code class="docutils literal notranslate"><span class="pre">G1</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.H1"><code class="docutils literal notranslate"><span class="pre">H1</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.A2"><code class="docutils literal notranslate"><span class="pre">A2</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.B2"><code class="docutils literal notranslate"><span class="pre">B2</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.C2"><code class="docutils literal notranslate"><span class="pre">C2</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.D2"><code class="docutils literal notranslate"><span class="pre">D2</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.E2"><code class="docutils literal notranslate"><span class="pre">E2</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.F2"><code class="docutils literal notranslate"><span class="pre">F2</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.G2"><code class="docutils literal notranslate"><span class="pre">G2</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.H2"><code class="docutils literal notranslate"><span class="pre">H2</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.A3"><code class="docutils literal notranslate"><span class="pre">A3</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.B3"><code class="docutils literal notranslate"><span class="pre">B3</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.C3"><code class="docutils literal notranslate"><span class="pre">C3</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.D3"><code class="docutils literal notranslate"><span class="pre">D3</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.E3"><code class="docutils literal notranslate"><span class="pre">E3</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.F3"><code class="docutils literal notranslate"><span class="pre">F3</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.G3"><code class="docutils literal notranslate"><span class="pre">G3</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.H3"><code class="docutils literal notranslate"><span class="pre">H3</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.A4"><code class="docutils literal notranslate"><span class="pre">A4</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.B4"><code class="docutils literal notranslate"><span class="pre">B4</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.C4"><code class="docutils literal notranslate"><span class="pre">C4</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.D4"><code class="docutils literal notranslate"><span class="pre">D4</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.E4"><code class="docutils literal notranslate"><span class="pre">E4</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.F4"><code class="docutils literal notranslate"><span class="pre">F4</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.G4"><code class="docutils literal notranslate"><span class="pre">G4</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.H4"><code class="docutils literal notranslate"><span class="pre">H4</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.A5"><code class="docutils literal notranslate"><span class="pre">A5</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.B5"><code class="docutils literal notranslate"><span class="pre">B5</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.C5"><code class="docutils literal notranslate"><span class="pre">C5</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.D5"><code class="docutils literal notranslate"><span class="pre">D5</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.E5"><code class="docutils literal notranslate"><span class="pre">E5</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.F5"><code class="docutils literal notranslate"><span class="pre">F5</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.G5"><code class="docutils literal notranslate"><span class="pre">G5</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.H5"><code class="docutils literal notranslate"><span class="pre">H5</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.A6"><code class="docutils literal notranslate"><span class="pre">A6</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.B6"><code class="docutils literal notranslate"><span class="pre">B6</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.C6"><code class="docutils literal notranslate"><span class="pre">C6</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.D6"><code class="docutils literal notranslate"><span class="pre">D6</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.E6"><code class="docutils literal notranslate"><span class="pre">E6</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.F6"><code class="docutils literal notranslate"><span class="pre">F6</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.G6"><code class="docutils literal notranslate"><span class="pre">G6</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.H6"><code class="docutils literal notranslate"><span class="pre">H6</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.A7"><code class="docutils literal notranslate"><span class="pre">A7</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.B7"><code class="docutils literal notranslate"><span class="pre">B7</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.C7"><code class="docutils literal notranslate"><span class="pre">C7</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.D7"><code class="docutils literal notranslate"><span class="pre">D7</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.E7"><code class="docutils literal notranslate"><span class="pre">E7</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.F7"><code class="docutils literal notranslate"><span class="pre">F7</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.G7"><code class="docutils literal notranslate"><span class="pre">G7</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.H7"><code class="docutils literal notranslate"><span class="pre">H7</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.A8"><code class="docutils literal notranslate"><span class="pre">A8</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.B8"><code class="docutils literal notranslate"><span class="pre">B8</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.C8"><code class="docutils literal notranslate"><span class="pre">C8</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.D8"><code class="docutils literal notranslate"><span class="pre">D8</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.E8"><code class="docutils literal notranslate"><span class="pre">E8</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.F8"><code class="docutils literal notranslate"><span class="pre">F8</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.G8"><code class="docutils literal notranslate"><span class="pre">G8</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.H8"><code class="docutils literal notranslate"><span class="pre">H8</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.SQUARES"><code class="docutils literal notranslate"><span class="pre">SQUARES</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.SQUARES_FLIPPED"><code class="docutils literal notranslate"><span class="pre">SQUARES_FLIPPED</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.Bitboard"><code class="docutils literal notranslate"><span class="pre">Bitboard</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Bitboard.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Bitboard.__str__"><code class="docutils literal notranslate"><span class="pre">__str__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Bitboard.from_int"><code class="docutils literal notranslate"><span class="pre">from_int()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Bitboard.__int__"><code class="docutils literal notranslate"><span class="pre">__int__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Bitboard.__getitem__"><code class="docutils literal notranslate"><span class="pre">__getitem__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Bitboard.__setitem__"><code class="docutils literal notranslate"><span class="pre">__setitem__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Bitboard.__delitem__"><code class="docutils literal notranslate"><span class="pre">__delitem__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Bitboard.__len__"><code class="docutils literal notranslate"><span class="pre">__len__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Bitboard.__contains__"><code class="docutils literal notranslate"><span class="pre">__contains__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Bitboard.__eq__"><code class="docutils literal notranslate"><span class="pre">__eq__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Bitboard.__invert__"><code class="docutils literal notranslate"><span class="pre">__invert__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Bitboard.__and__"><code class="docutils literal notranslate"><span class="pre">__and__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Bitboard.__or__"><code class="docutils literal notranslate"><span class="pre">__or__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Bitboard.__xor__"><code class="docutils literal notranslate"><span class="pre">__xor__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Bitboard.__bool__"><code class="docutils literal notranslate"><span class="pre">__bool__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Bitboard.__iter__"><code class="docutils literal notranslate"><span class="pre">__iter__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Bitboard.__repr__"><code class="docutils literal notranslate"><span class="pre">__repr__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Bitboard.__hash__"><code class="docutils literal notranslate"><span class="pre">__hash__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.RANK_1"><code class="docutils literal notranslate"><span class="pre">RANK_1</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.RANK_2"><code class="docutils literal notranslate"><span class="pre">RANK_2</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.RANK_3"><code class="docutils literal notranslate"><span class="pre">RANK_3</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.RANK_4"><code class="docutils literal notranslate"><span class="pre">RANK_4</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.RANK_5"><code class="docutils literal notranslate"><span class="pre">RANK_5</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.RANK_6"><code class="docutils literal notranslate"><span class="pre">RANK_6</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.RANK_7"><code class="docutils literal notranslate"><span class="pre">RANK_7</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.RANK_8"><code class="docutils literal notranslate"><span class="pre">RANK_8</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.RANKS"><code class="docutils literal notranslate"><span class="pre">RANKS</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.A_FILE"><code class="docutils literal notranslate"><span class="pre">A_FILE</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.B_FILE"><code class="docutils literal notranslate"><span class="pre">B_FILE</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.C_FILE"><code class="docutils literal notranslate"><span class="pre">C_FILE</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.D_FILE"><code class="docutils literal notranslate"><span class="pre">D_FILE</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.E_FILE"><code class="docutils literal notranslate"><span class="pre">E_FILE</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.F_FILE"><code class="docutils literal notranslate"><span class="pre">F_FILE</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.G_FILE"><code class="docutils literal notranslate"><span class="pre">G_FILE</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.H_FILE"><code class="docutils literal notranslate"><span class="pre">H_FILE</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.FILES"><code class="docutils literal notranslate"><span class="pre">FILES</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.FULL_BB"><code class="docutils literal notranslate"><span class="pre">FULL_BB</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.EMPTY_BB"><code class="docutils literal notranslate"><span class="pre">EMPTY_BB</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.LIGHT_SQUARE_BB"><code class="docutils literal notranslate"><span class="pre">LIGHT_SQUARE_BB</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.DARK_SQUARE_BB"><code class="docutils literal notranslate"><span class="pre">DARK_SQUARE_BB</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.CastlingType"><code class="docutils literal notranslate"><span class="pre">CastlingType</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.CastlingType.from_chr"><code class="docutils literal notranslate"><span class="pre">from_chr()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.CastlingType.__str__"><code class="docutils literal notranslate"><span class="pre">__str__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.CastlingType.__eq__"><code class="docutils literal notranslate"><span class="pre">__eq__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.CastlingType.__repr__"><code class="docutils literal notranslate"><span class="pre">__repr__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.CastlingType.__hash__"><code class="docutils literal notranslate"><span class="pre">__hash__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.WHITE_KINGSIDE"><code class="docutils literal notranslate"><span class="pre">WHITE_KINGSIDE</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.WHITE_QUEENSIDE"><code class="docutils literal notranslate"><span class="pre">WHITE_QUEENSIDE</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.BLACK_KINGSIDE"><code class="docutils literal notranslate"><span class="pre">BLACK_KINGSIDE</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.BLACK_QUEENSIDE"><code class="docutils literal notranslate"><span class="pre">BLACK_QUEENSIDE</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.Move"><code class="docutils literal notranslate"><span class="pre">Move</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Move.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Move.castle"><code class="docutils literal notranslate"><span class="pre">castle()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Move.from_uci"><code class="docutils literal notranslate"><span class="pre">from_uci()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Move.from_san"><code class="docutils literal notranslate"><span class="pre">from_san()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Move.san"><code class="docutils literal notranslate"><span class="pre">san()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Move.uci"><code class="docutils literal notranslate"><span class="pre">uci()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Move.__str__"><code class="docutils literal notranslate"><span class="pre">__str__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Move.origin"><code class="docutils literal notranslate"><span class="pre">origin</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Move.destination"><code class="docutils literal notranslate"><span class="pre">destination</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Move.promotion"><code class="docutils literal notranslate"><span class="pre">promotion</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Move.is_promotion"><code class="docutils literal notranslate"><span class="pre">is_promotion()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Move.is_capture"><code class="docutils literal notranslate"><span class="pre">is_capture()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Move.is_castling"><code class="docutils literal notranslate"><span class="pre">is_castling()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Move.castling_type"><code class="docutils literal notranslate"><span class="pre">castling_type()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Move.__eq__"><code class="docutils literal notranslate"><span class="pre">__eq__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Move.__hash__"><code class="docutils literal notranslate"><span class="pre">__hash__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Move.__repr__"><code class="docutils literal notranslate"><span class="pre">__repr__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.CastlingRights"><code class="docutils literal notranslate"><span class="pre">CastlingRights</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.CastlingRights.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.CastlingRights.from_fen"><code class="docutils literal notranslate"><span class="pre">from_fen()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.CastlingRights.fen"><code class="docutils literal notranslate"><span class="pre">fen()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.CastlingRights.__contains__"><code class="docutils literal notranslate"><span class="pre">__contains__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.CastlingRights.__iter__"><code class="docutils literal notranslate"><span class="pre">__iter__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.CastlingRights.__len__"><code class="docutils literal notranslate"><span class="pre">__len__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.CastlingRights.__bool__"><code class="docutils literal notranslate"><span class="pre">__bool__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.CastlingRights.__add__"><code class="docutils literal notranslate"><span class="pre">__add__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.CastlingRights.__eq__"><code class="docutils literal notranslate"><span class="pre">__eq__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.CastlingRights.__le__"><code class="docutils literal notranslate"><span class="pre">__le__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.CastlingRights.__lt__"><code class="docutils literal notranslate"><span class="pre">__lt__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.CastlingRights.__gt__"><code class="docutils literal notranslate"><span class="pre">__gt__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.CastlingRights.__ge__"><code class="docutils literal notranslate"><span class="pre">__ge__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.CastlingRights.__str__"><code class="docutils literal notranslate"><span class="pre">__str__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.CastlingRights.full"><code class="docutils literal notranslate"><span class="pre">full()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.CastlingRights.any"><code class="docutils literal notranslate"><span class="pre">any()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.CastlingRights.kingside"><code class="docutils literal notranslate"><span class="pre">kingside()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.CastlingRights.queenside"><code class="docutils literal notranslate"><span class="pre">queenside()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.CastlingRights.__repr__"><code class="docutils literal notranslate"><span class="pre">__repr__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.CastlingRights.__hash__"><code class="docutils literal notranslate"><span class="pre">__hash__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.ALL_CASTLING"><code class="docutils literal notranslate"><span class="pre">ALL_CASTLING</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.NO_CASTLING"><code class="docutils literal notranslate"><span class="pre">NO_CASTLING</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.Board"><code class="docutils literal notranslate"><span class="pre">Board</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Board.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Board.from_fen"><code class="docutils literal notranslate"><span class="pre">from_fen()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Board.empty"><code class="docutils literal notranslate"><span class="pre">empty()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Board.turn"><code class="docutils literal notranslate"><span class="pre">turn</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Board.halfmove_clock"><code class="docutils literal notranslate"><span class="pre">halfmove_clock</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Board.fullmove_number"><code class="docutils literal notranslate"><span class="pre">fullmove_number</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Board.en_passant_square"><code class="docutils literal notranslate"><span class="pre">en_passant_square</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Board.castling_rights"><code class="docutils literal notranslate"><span class="pre">castling_rights</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Board.legal_moves"><code class="docutils literal notranslate"><span class="pre">legal_moves()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Board.apply"><code class="docutils literal notranslate"><span class="pre">apply()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Board.undo"><code class="docutils literal notranslate"><span class="pre">undo()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Board.fen"><code class="docutils literal notranslate"><span class="pre">fen()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Board.copy"><code class="docutils literal notranslate"><span class="pre">copy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Board.__getitem__"><code class="docutils literal notranslate"><span class="pre">__getitem__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Board.__setitem__"><code class="docutils literal notranslate"><span class="pre">__setitem__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Board.__delitem__"><code class="docutils literal notranslate"><span class="pre">__delitem__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Board.__eq__"><code class="docutils literal notranslate"><span class="pre">__eq__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Board.__hash__"><code class="docutils literal notranslate"><span class="pre">__hash__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Board.__contains__"><code class="docutils literal notranslate"><span class="pre">__contains__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Board.history"><code class="docutils literal notranslate"><span class="pre">history</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Board.__str__"><code class="docutils literal notranslate"><span class="pre">__str__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Board.pretty"><code class="docutils literal notranslate"><span class="pre">pretty()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Board.ColorScheme"><code class="docutils literal notranslate"><span class="pre">ColorScheme</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Board.LAGOON"><code class="docutils literal notranslate"><span class="pre">LAGOON</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Board.SLATE"><code class="docutils literal notranslate"><span class="pre">SLATE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Board.OAK"><code class="docutils literal notranslate"><span class="pre">OAK</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Board.WALNUT"><code class="docutils literal notranslate"><span class="pre">WALNUT</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Board.GREEN"><code class="docutils literal notranslate"><span class="pre">GREEN</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Board.ROSE"><code class="docutils literal notranslate"><span class="pre">ROSE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Board.CLAY"><code class="docutils literal notranslate"><span class="pre">CLAY</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.Board.STEEL"><code class="docutils literal notranslate"><span class="pre">STEEL</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.BoardStatus"><code class="docutils literal notranslate"><span class="pre">BoardStatus</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.BoardStatus.__contains__"><code class="docutils literal notranslate"><span class="pre">__contains__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.BoardStatus.__repr__"><code class="docutils literal notranslate"><span class="pre">__repr__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#bulletchess.main.BoardStatus.__eq__"><code class="docutils literal notranslate"><span class="pre">__eq__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.CHECK"><code class="docutils literal notranslate"><span class="pre">CHECK</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.MATE"><code class="docutils literal notranslate"><span class="pre">MATE</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.CHECKMATE"><code class="docutils literal notranslate"><span class="pre">CHECKMATE</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.STALEMATE"><code class="docutils literal notranslate"><span class="pre">STALEMATE</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.INSUFFICIENT_MATERIAL"><code class="docutils literal notranslate"><span class="pre">INSUFFICIENT_MATERIAL</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.FIFTY_MOVE_TIMEOUT"><code class="docutils literal notranslate"><span class="pre">FIFTY_MOVE_TIMEOUT</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.SEVENTY_FIVE_MOVE_TIMEOUT"><code class="docutils literal notranslate"><span class="pre">SEVENTY_FIVE_MOVE_TIMEOUT</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.THREEFOLD_REPETITION"><code class="docutils literal notranslate"><span class="pre">THREEFOLD_REPETITION</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.FIVEFOLD_REPETITION"><code class="docutils literal notranslate"><span class="pre">FIVEFOLD_REPETITION</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.DRAW"><code class="docutils literal notranslate"><span class="pre">DRAW</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#bulletchess.main.FORCED_DRAW"><code class="docutils literal notranslate"><span class="pre">FORCED_DRAW</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#bulletchess.utils.count_moves"><code class="docutils literal notranslate"><span class="pre">count_moves()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#bulletchess.utils.evaluate"><code class="docutils literal notranslate"><span class="pre">evaluate()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#bulletchess.utils.is_quiescent"><code class="docutils literal notranslate"><span class="pre">is_quiescent()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#bulletchess.utils.perft"><code class="docutils literal notranslate"><span class="pre">perft()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#bulletchess.utils.perft_fen"><code class="docutils literal notranslate"><span class="pre">perft_fen()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#bulletchess.utils.backwards_pawns"><code class="docutils literal notranslate"><span class="pre">backwards_pawns()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#bulletchess.utils.isolated_pawns"><code class="docutils literal notranslate"><span class="pre">isolated_pawns()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#bulletchess.utils.doubled_pawns"><code class="docutils literal notranslate"><span class="pre">doubled_pawns()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#bulletchess.utils.passed_pawns"><code class="docutils literal notranslate"><span class="pre">passed_pawns()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#bulletchess.utils.is_pinned"><code class="docutils literal notranslate"><span class="pre">is_pinned()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#bulletchess.utils.attack_mask"><code class="docutils literal notranslate"><span class="pre">attack_mask()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#bulletchess.utils.material"><code class="docutils literal notranslate"><span class="pre">material()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#bulletchess.utils.mobility"><code class="docutils literal notranslate"><span class="pre">mobility()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#bulletchess.utils.open_files"><code class="docutils literal notranslate"><span class="pre">open_files()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#bulletchess.utils.half_open_files"><code class="docutils literal notranslate"><span class="pre">half_open_files()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#bulletchess.utils.random_legal_move"><code class="docutils literal notranslate"><span class="pre">random_legal_move()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#bulletchess.utils.random_board"><code class="docutils literal notranslate"><span class="pre">random_board()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#bulletchess.utils.legally_equal"><code class="docutils literal notranslate"><span class="pre">legally_equal()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#bulletchess.utils.deeply_equal"><code class="docutils literal notranslate"><span class="pre">deeply_equal()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#bulletchess.utils.piece_bitboard"><code class="docutils literal notranslate"><span class="pre">piece_bitboard()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#bulletchess.utils.unoccupied_bitboard"><code class="docutils literal notranslate"><span class="pre">unoccupied_bitboard()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#bulletchess.utils.white_bitboard"><code class="docutils literal notranslate"><span class="pre">white_bitboard()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#bulletchess.utils.black_bitboard"><code class="docutils literal notranslate"><span class="pre">black_bitboard()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#bulletchess.utils.king_bitboard"><code class="docutils literal notranslate"><span class="pre">king_bitboard()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#bulletchess.utils.queen_bitboard"><code class="docutils literal notranslate"><span class="pre">queen_bitboard()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#bulletchess.utils.bishop_bitboard"><code class="docutils literal notranslate"><span class="pre">bishop_bitboard()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#bulletchess.utils.rook_bitboard"><code class="docutils literal notranslate"><span class="pre">rook_bitboard()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#bulletchess.utils.pawn_bitboard"><code class="docutils literal notranslate"><span class="pre">pawn_bitboard()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#bulletchess.utils.knight_bitboard"><code class="docutils literal notranslate"><span class="pre">knight_bitboard()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#bulletchess.utils.king_square"><code class="docutils literal notranslate"><span class="pre">king_square()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pgn.html">Portable Game Notation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNDate"><code class="docutils literal notranslate"><span class="pre">PGNDate</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNDate.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNDate.year"><code class="docutils literal notranslate"><span class="pre">year</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNDate.month"><code class="docutils literal notranslate"><span class="pre">month</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNDate.day"><code class="docutils literal notranslate"><span class="pre">day</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNDate.__str__"><code class="docutils literal notranslate"><span class="pre">__str__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNDate.__repr__"><code class="docutils literal notranslate"><span class="pre">__repr__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNDate.__eq__"><code class="docutils literal notranslate"><span class="pre">__eq__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNDate.__le__"><code class="docutils literal notranslate"><span class="pre">__le__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNDate.__ge__"><code class="docutils literal notranslate"><span class="pre">__ge__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNDate.__lt__"><code class="docutils literal notranslate"><span class="pre">__lt__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNDate.__gt__"><code class="docutils literal notranslate"><span class="pre">__gt__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNDate.__hash__"><code class="docutils literal notranslate"><span class="pre">__hash__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNResult"><code class="docutils literal notranslate"><span class="pre">PGNResult</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNResult.from_str"><code class="docutils literal notranslate"><span class="pre">from_str()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNResult.winner"><code class="docutils literal notranslate"><span class="pre">winner</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNResult.is_draw"><code class="docutils literal notranslate"><span class="pre">is_draw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNResult.is_unknown"><code class="docutils literal notranslate"><span class="pre">is_unknown</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNResult.__eq__"><code class="docutils literal notranslate"><span class="pre">__eq__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNResult.__str__"><code class="docutils literal notranslate"><span class="pre">__str__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNResult.__repr__"><code class="docutils literal notranslate"><span class="pre">__repr__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNResult.__hash__"><code class="docutils literal notranslate"><span class="pre">__hash__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pgn.html#bulletchess.pgn.WHITE_WON"><code class="docutils literal notranslate"><span class="pre">WHITE_WON</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pgn.html#bulletchess.pgn.BLACK_WON"><code class="docutils literal notranslate"><span class="pre">BLACK_WON</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pgn.html#bulletchess.pgn.DRAW_RESULT"><code class="docutils literal notranslate"><span class="pre">DRAW_RESULT</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pgn.html#bulletchess.pgn.UNKNOWN_RESULT"><code class="docutils literal notranslate"><span class="pre">UNKNOWN_RESULT</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNGame"><code class="docutils literal notranslate"><span class="pre">PGNGame</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNGame.event"><code class="docutils literal notranslate"><span class="pre">event</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNGame.site"><code class="docutils literal notranslate"><span class="pre">site</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNGame.round"><code class="docutils literal notranslate"><span class="pre">round</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNGame.date"><code class="docutils literal notranslate"><span class="pre">date</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNGame.white_player"><code class="docutils literal notranslate"><span class="pre">white_player</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNGame.black_player"><code class="docutils literal notranslate"><span class="pre">black_player</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNGame.result"><code class="docutils literal notranslate"><span class="pre">result</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNGame.move_count"><code class="docutils literal notranslate"><span class="pre">move_count</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNGame.moves"><code class="docutils literal notranslate"><span class="pre">moves</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNGame.starting_board"><code class="docutils literal notranslate"><span class="pre">starting_board</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNGame.__hash__"><code class="docutils literal notranslate"><span class="pre">__hash__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNGame.__eq__"><code class="docutils literal notranslate"><span class="pre">__eq__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNGame.__getitem__"><code class="docutils literal notranslate"><span class="pre">__getitem__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNFile"><code class="docutils literal notranslate"><span class="pre">PGNFile</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNFile.open"><code class="docutils literal notranslate"><span class="pre">open()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNFile.close"><code class="docutils literal notranslate"><span class="pre">close()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNFile.is_open"><code class="docutils literal notranslate"><span class="pre">is_open()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNFile.next_game"><code class="docutils literal notranslate"><span class="pre">next_game()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNFile.skip_game"><code class="docutils literal notranslate"><span class="pre">skip_game()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNFile.__enter__"><code class="docutils literal notranslate"><span class="pre">__enter__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pgn.html#bulletchess.pgn.PGNFile.__exit__"><code class="docutils literal notranslate"><span class="pre">__exit__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="right-next"
+       href="auto_examples/walkthrough.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Basic Walkthrough</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#glossary">Glossary</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Jordan Zedeeck.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
