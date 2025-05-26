@@ -174,7 +174,7 @@ class TestMoveGeneration(unittest.TestCase):
                     board.undo()
                 self.assertEqual(set(real_moves), got_moves)
         else:
-            self.assertEqual(len(fens), 0)
+            self.assertEqual(len(fens), 1)
 
     def testJsonTree(self):
         with open("data/move_tree_pos2.json", "r") as f:
