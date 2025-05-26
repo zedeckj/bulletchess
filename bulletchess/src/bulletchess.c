@@ -3214,11 +3214,10 @@ static int PyObject_ToPositiveIntInRange(PyObject *obj, const char *field_name, 
 	}\
 	
 #define MAKE_DATE_ARG(FIELD)\
-	bool known_##FIELD;\
-	int int_##FIELD;\
-	0 && printf("foo\n");\
+	bool known_##FIELD = false;\
+	int int_##FIELD = 0;\
 	if (!FIELD || Py_IsNone(FIELD)){\
-		known_##FIELD = false;\
+    known_##FIELD = false;\
 	}\
 	else {\
 		int_##FIELD = PyLong_AsInt(FIELD);\
@@ -3231,7 +3230,7 @@ static int PyPGNDate_init(PyObject *self, PyObject *args, PyObject *kwds){
 	PyObject *year = NULL;
 	PyObject *month = NULL;
 	PyObject *day = NULL;
-  static char *kwlist[] = {"year", "month", "day", NULL};
+  static char *const kwlist[] = {"year", "month", "day", NULL};
 	if (!PyArg_ParseTupleAndKeywords(args, kwds, "|OOO", kwlist, &year, &month, &day)) 
 		return -1;
 	MAKE_DATE_ARG(year)

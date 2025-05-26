@@ -52,12 +52,11 @@ class TestPGNDate(PGNTestCase):
         self.assertEqual(str(PGNDate(None, 2, 2)), "????.02.02")
 
     def test_err(self):
-        with self.assertRaisesRegex(ValueError, re.escape("The given year value -1 is out of range, must be between or equal to 0 and 9999")):
+        with self.assertRaisesRegex(ValueError, re.escape("Year must be positive")):
             PGNDate(-1, -1, -1)
-        #
-        # with self.assertRaisesRegex(ValueError, re.escape("The given month value 13 is out of range, must be between or equal to 0 and 9999")):
-        #    PGNDate(1999, 13, 20)
-        with self.assertRaisesRegex(ValueError, re.escape("The given day value 33 is out of range, must be between or equal to 1 and 12")):
+        with self.assertRaisesRegex(ValueError, re.escape("Month cannot be greater than 12")):
+            PGNDate(1999, 13, 20)
+        with self.assertRaisesRegex(ValueError, re.escape("Day is invalid for May")):
             PGNDate(1999, 5, 33)
 
 if __name__ == "__main__":
