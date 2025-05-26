@@ -21,6 +21,8 @@ typedef struct {
 // Returns 0 if properly parsed, else an error message 
 const char *parse_date(date_t *dst, char *str); 
 
+const char *make_date(date_t *dst, int year, int month, int day, bool known_y, bool known_m, bool known_d);
+
 date_t unknown_date();
 
 #endif

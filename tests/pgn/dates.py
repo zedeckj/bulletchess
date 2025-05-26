@@ -4,7 +4,7 @@ from bulletchess import *
 import unittest
 from bulletchess.pgn import *
 from tests.pgn.pgn_test import PGNTestCase
-
+import re
 FILEPATH = "data/pgn/example.pgn"
 
 class TestPGNDate(PGNTestCase):
@@ -50,6 +50,15 @@ class TestPGNDate(PGNTestCase):
         self.assertEqual(str(PGNDate(900, None, None)), "0900.??.??")
         self.assertEqual(str(PGNDate(1988, None, 2)), "1988.??.02")
         self.assertEqual(str(PGNDate(None, 2, 2)), "????.02.02")
+
+    def test_err(self):
+        with self.assertRaisesRegex(ValueError, re.escape("The given year value -1 is out of range, must be between or equal to 0 and 9999")):
+            PGNDate(-1, -1, -1)
+        #
+        # with self.assertRaisesRegex(ValueError, re.escape("The given month value 13 is out of range, must be between or equal to 0 and 9999")):
+        #    PGNDate(1999, 13, 20)
+        with self.assertRaisesRegex(ValueError, re.escape("The given day value 33 is out of range, must be between or equal to 1 and 12")):
+            PGNDate(1999, 5, 33)
 
 if __name__ == "__main__":
     unittest.main()

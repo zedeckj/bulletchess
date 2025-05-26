@@ -1,12 +1,23 @@
 from typing import Optional, Any
-
+from bulletchess.main import *
 
 class PGNDate:
     """
     Represents a date for PGN. Has a year, month, and day.
     """
 
-    def __init__(self, year : Optional[int], month : Optional[int], day : Optional[int]): ...
+    def __init__(self, year : Optional[int], month : Optional[int], day : Optional[int]): 
+        """
+        Initializes a :class:`PGNDate` with the given *year*, *month*, and *day*. Providing ``None`` for any of these fields 
+        indicates the term is unknown.
+
+        :param int | None year: The year field of this date.
+        :param int | None month: The month field of this date.
+        :param int | None day: The day field of this date.
+
+        :raise: :exc:`ValueError`
+        """
+        ...
 
     @property
     def year(self) -> Optional[int]: 

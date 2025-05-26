@@ -3213,18 +3213,44 @@ static int PyObject_ToPositiveIntInRange(PyObject *obj, const char *field_name, 
 		else return -1;\
 	}\
 	
+#define MAKE_DATE_ARG(FIELD)\
+	bool known_##FIELD;\
+	int int_##FIELD;\
+	0 && printf("foo\n");\
+	if (!FIELD || Py_IsNone(FIELD)){\
+		known_##FIELD = false;\
+	}\
+	else {\
+		int_##FIELD = PyLong_AsInt(FIELD);\
+		known_##FIELD = true;\
+		if (int_##FIELD == -1 && PyErr_Occurred())\
+			return -1;\
+	}\
+
 static int PyPGNDate_init(PyObject *self, PyObject *args, PyObject *kwds){
-	PyObject *year;
-	PyObject *month;
-	PyObject *day;
+	PyObject *year = NULL;
+	PyObject *month = NULL;
+	PyObject *day = NULL;
   static char *kwlist[] = {"year", "month", "day", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOO", kwlist, &year, &month, &day)) 
+	if (!PyArg_ParseTupleAndKeywords(args, kwds, "|OOO", kwlist, &year, &month, &day)) 
 		return -1;
+	MAKE_DATE_ARG(year)
+	MAKE_DATE_ARG(month)
+	MAKE_DATE_ARG(day)	
 	date_t date;
-	//date_t *date = &(((PyPGNDateObject *)self)->date);
-	INIT_DATE_FIELD(year)
-	INIT_DATE_FIELD(month)
-	INIT_DATE_FIELD(day)
+	const char *err = make_date(
+			&date,
+		 	int_year, 
+			int_month, 
+			int_day, 
+			known_year, 
+			known_month, 
+			known_day
+	);	
+	if (err){
+		PyErr_Format(PyExc_ValueError, "%s", err); 
+		return -1;
+	}	
 	((PyPGNDateObject *)self)->date = date;	
 	return 0;
 }
@@ -3315,12 +3341,6 @@ static PyObject *PyPGNDate_compare(PyObject *self, PyObject *other, int op){
 
 
 
-static PyObject* PyPGNDate_new() {
-	PyPGNDateObject *self = PyObject_New(PyPGNDateObject, &PyPGNDateType);
-	return (PyObject *)self;
-}
-
-
 
 static PyTypeObject PyPGNDateType = {
 	.ob_base = PyVarObject_HEAD_INIT(NULL, 0)
@@ -3331,7 +3351,7 @@ static PyTypeObject PyPGNDateType = {
 	.tp_str = PyPGNDate_to_str,	
 	.tp_repr = PyPGNDate_repr,	
 	.tp_getset = PyPGNDate_getset,
-	.tp_new = PyPGNDate_new,
+	.tp_new = PyType_GenericNew,
 	.tp_init = PyPGNDate_init,
 	.tp_richcompare = PyPGNDate_compare
 };

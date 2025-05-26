@@ -17,7 +17,7 @@
     December: 31 days
 */
 
-const char *validate(int year, int month, int day, bool known_y, bool known_m, bool known_d) {
+static const char *validate(int year, int month, int day, bool known_y, bool known_m, bool known_d) {
 	if (known_y && year < 1) return "Year must be positive";
 	if (known_m && month < 1) return "Month must be positive";
 	if (known_d && day < 1) return "Day must be positive";
@@ -66,6 +66,17 @@ const char *validate(int year, int month, int day, bool known_y, bool known_m, b
 	return 0;
 }
 
+const char *make_date(date_t *dst, int year, int month, int day, bool known_y, bool known_m, bool known_d) {
+	const char *err = validate(year, month, day, known_y, known_m, known_d);
+	if (err) return err;
+	dst->year = year;
+	dst->month = month;
+	dst->day = day;
+	dst->known_year = known_y;
+	dst->known_month = known_m;
+	dst->known_day = known_d;
+	return 0;
+}
 const char *parse_split(date_t *dst, char *ystr, char *mstr, char *dstr) {
 	int year = 0;
 	int month = 0; 
@@ -79,15 +90,7 @@ const char *parse_split(date_t *dst, char *ystr, char *mstr, char *dstr) {
 	else if (!sscanf(mstr, "%d", &month)) return "Month is not a number";
 	if (!strcmp(dstr, "??")) known_d = false;
 	else if (!sscanf(dstr, "%d", &day)) return "Day is not a number";
-	const char *err = validate(year, month, day, known_y, known_m, known_d);
-	if (err) return err;
-	dst->year = year;
-	dst->month = month;
-	dst->day = day;
-	dst->known_year = known_y;
-	dst->known_month = known_m;
-	dst->known_day = known_d;
-	return 0;
+	return make_date(dst, year, month, day, known_y, known_m, known_d);
 }
 
 

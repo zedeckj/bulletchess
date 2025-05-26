@@ -1,5 +1,6 @@
 
 from typing import Optional
+from bulletchess.main import *
 
 def count_moves(board : Board) -> int: 
     """

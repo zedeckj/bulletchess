@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: bulletchess
-Version: 0.2.0
+Version: 0.2.1
 Summary: A high performance C Extension for chess
 Author-email: Jordan Zedeck <mail@jordanzedeck.com>
 License-Expression: GPL-3.0-only
