@@ -10,12 +10,12 @@ class Color:
 
     @staticmethod
     def from_str(name: str) -> "Color":
-        """Return the colour corresponding to *name* (case‑insensitive).
+        """Return the color corresponding to *name* (case‑insensitive).
        
         :param str name: The string ``"white"`` or ``"black"`` in any case.
         :returns: The matching :class:`Color` instance.
         :rtype: Color
-        :raises ValueError: If *name* is not recognised.
+        :raises ValueError: If *name* is not recognized.
         
         >>> Color.from_str("White") is WHITE
         True
@@ -74,7 +74,7 @@ The black player
 class PieceType:
 
     """
-    Represents one of the 6 types of pieces in chess, either a Pawn, Knight, Bishop, Rook, Queen, or King.
+    Represents one of the 6 types of pieces in chess, either a pawn, knight, bishop, rook, queen, or king.
     """
 
 
@@ -86,7 +86,7 @@ class PieceType:
                      ``"rook"``, ``"queen"`` or ``"king"`` (any case).
         :rtype: PieceType
         :returns: The matching :class:`PieceType`.
-        :raises ValueError: If *name* is not recognised.
+        :raises ValueError: If *name* is not recognized.
 
         >>> PieceType.from_str("pawn") is PAWN
         True
@@ -145,7 +145,7 @@ The :class:`PieceType` for kings
 
 PIECE_TYPES : list[PieceType] = [PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING]
 """
-A list of all :class:`PieceType` values. In order of ``[PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING]``
+A list of all :class:`PieceType` values. In the order of ``[PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING]``
 """
 
 class Piece:
@@ -156,7 +156,7 @@ class Piece:
 
 
     def __init__(self, color : Color, type : PieceType):
-        """Initialise the ``Piece`` with *color* and *type*.
+        """Initialize the ``Piece`` with *color* and *type*.
 
         :param Color color: The owning side.
         :param PieceType type: The intrinsic kind of the piece.
@@ -167,7 +167,7 @@ class Piece:
     def from_chr(char : str) -> Piece:
         """Return the piece encoded by *char* (ASCII piece letter).
 
-        Upper‑case letters encode :data:`WHITE` pieces, lower‑case letters encode :data:`BLACK`.
+        Uppercase letters encode :data:`WHITE` pieces, lowercase letters encode :data:`BLACK`.
 
         :param str char: One of ``PRNBQKprnbqk``.
         :rtype: Piece
@@ -214,7 +214,7 @@ class Piece:
 
     def __str__(self) -> str:
         """
-        Serializes a :class:`Piece` as a single ASCII character ``str``. Uses uppercase for a :class:`Piece` that is :data:`WHITE`, and lowercase for any :class:`Piece` that is :data:`BLACK`.
+        Serializes a :class:`Piece` as a single ASCII character ``str``. Uses uppercase for any :class:`Piece` that is :data:`WHITE`, and lowercase for any :class:`Piece` that is :data:`BLACK`.
 
         >>> str(Piece(WHITE, PAWN))
         "P"
@@ -272,7 +272,7 @@ class Square:
 
     def north(self, distance: int = 1) -> Optional["Square"]:
         """
-        Return the square *distance* ranks above this square.
+        Return the square that is the given *distance* number of ranks above this square.
 
         :param distance: how many ranks to move north.
         :returns: the target square, or ``None`` if it would be off the board.
@@ -289,7 +289,7 @@ class Square:
 
     def south(self, distance: int = 1) -> Optional["Square"]:
         """
-        Return the square *distance* ranks below this square.
+        Return the square that is the given *distance* number of ranks below this square.
 
         :param distance: how many ranks to move south.
         :type  distance: int, default = 1
@@ -307,7 +307,7 @@ class Square:
 
     def east(self, distance: int = 1) -> Optional["Square"]:
         """
-        Return the square *distance* files to the east of this square.
+        Return the square that is the given *distance* number of files to the east of this square.
 
         :param distance: how many files to move east (toward the H-file).
         :type  distance: int, default = 1
@@ -325,7 +325,7 @@ class Square:
 
     def west(self, distance: int = 1) -> Optional["Square"]:
         """
-        Return the square *distance* files to the west of this square.
+        Return the square that is the given *distance* number of files to the west of this square.
 
         :param distance: how many files to move west (toward the A-file).
         :type  distance: int, default = 1
@@ -343,7 +343,7 @@ class Square:
 
     def nw(self, distance: int = 1) -> Optional["Square"]:
         """
-        Return the square *distance* files west and ranks north of this square.
+        Return the square that is the given *distance* number of files west and ranks north of this square.
 
         :param distance: number of steps to move north-west.
         :type  distance: int, default = 1
@@ -361,7 +361,7 @@ class Square:
 
     def ne(self, distance: int = 1) -> Optional["Square"]:
         """
-        Return the square *distance* files east and ranks north of this square.
+        Return the square that is the given *distance* number of files east and ranks north of this square.
 
         :param distance: number of steps to move north-east.
         :type  distance: int, default = 1
@@ -379,7 +379,7 @@ class Square:
 
     def sw(self, distance: int = 1) -> Optional["Square"]:
         """
-        Return the square *distance* files west and ranks south of this square.
+        Return the square that is the given *distance* number of files west and ranks south of this square.
 
         :param distance: number of steps to move south-west.
         :type  distance: int, default = 1
@@ -397,7 +397,7 @@ class Square:
 
     def se(self, distance: int = 1) -> Optional["Square"]:
         """
-        Return the square *distance* files east and ranks south of this square.
+        Return the square that is the given *distance* number of files east and ranks south of this square.
 
         :param distance: number of steps to move south-east.
         :type  distance: int, default = 1
@@ -752,7 +752,7 @@ class Bitboard:
 
     def __init__(self, squares: Collection[Square]):
         """
-        Initialise a :class:`Bitboard` that contains *squares*.
+        Initialize a :class:`Bitboard` that contains *squares*.
 
         :param squares: squares to include in the new bitboard.
         :type  squares: Collection[Square]
@@ -1189,22 +1189,22 @@ class CastlingType:
 
 WHITE_KINGSIDE: CastlingType
 """
-Castling type representing :data:`WHITE` kingside castling
+Castling type representing :data:`WHITE` kingside castling.
 """
 
 WHITE_QUEENSIDE: CastlingType
 """
-Castling type representing :data:`WHITE` queenside castling
+Castling type representing :data:`WHITE` queenside castling.
 """
 
 BLACK_KINGSIDE: CastlingType
 """
-Castling type representing :data:`BLACK` kingside castling
+Castling type representing :data:`BLACK` kingside castling.
 """
 
 BLACK_QUEENSIDE: CastlingType
 """
-Castling type representing :data:`BLACK` queenside castling
+Castling type representing :data:`BLACK` queenside castling.
 """
 class Move:
     """
@@ -1466,7 +1466,7 @@ class CastlingRights:
 
     def __init__(self, castling_types: Collection[CastlingType]) -> None:
         """
-        Initialise the object with *castling_types*.
+        Initialize the object with *castling_types*.
 
         :param Collection[CastlingType] castling_types: iterable of castling constants to include.
         """

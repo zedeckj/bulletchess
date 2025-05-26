@@ -1,5 +1,5 @@
 from typing import Optional, Any
-from bulletchess.main import *
+#from bulletchess.main import *
 
 class PGNDate:
     """
@@ -15,7 +15,7 @@ class PGNDate:
         :param int | None month: The month field of this date.
         :param int | None day: The day field of this date.
 
-        :raise: :exc:`ValueError`
+        :raise: :exc:`ValueError` if the given year, month, or day cannot represent a valid date.
         """
         ...
 
