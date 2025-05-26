@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 run_py() {
-			if [[ "$pys" ==  *.py ]]; then
+	  if [[ "$pys" ==  *.py ]]; then
         echo "running $pys..."
         venv/bin/python "$pys"
       fi 

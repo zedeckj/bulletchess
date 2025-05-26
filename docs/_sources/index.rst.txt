@@ -29,8 +29,8 @@ Glossary
 .. toctree::
   :maxdepth: 1
 
-  auto_examples/walkthrough 
-  auto_examples/performance
+  auto-examples/walkthrough 
+  auto-examples/performance
   main
   utils
   pgn

@@ -50,7 +50,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Utilities" href="utils.html" />
-    <link rel="prev" title="Performance Comparisons" href="auto_examples/performance.html" />
+    <link rel="prev" title="Performance Comparisons" href="performance.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -130,14 +130,14 @@
   <ul class="bd-navbar-elements navbar-nav">
     
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="auto_examples/walkthrough.html">
+  <a class="nav-link nav-internal" href="walkthrough.html">
     Basic Walkthrough
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="auto_examples/performance.html">
+  <a class="nav-link nav-internal" href="performance.html">
     Performance Comparisons
   </a>
 </li>
@@ -237,14 +237,14 @@
   <ul class="bd-navbar-elements navbar-nav">
     
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="auto_examples/walkthrough.html">
+  <a class="nav-link nav-internal" href="walkthrough.html">
     Basic Walkthrough
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="auto_examples/performance.html">
+  <a class="nav-link nav-internal" href="performance.html">
     Performance Comparisons
   </a>
 </li>
@@ -363,7 +363,7 @@ and their pieces.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bulletchess.main.Color.from_str">
 <em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bulletchess.main.Color" title="bulletchess.main.Color"><span class="pre">Color</span></a></span></span><a class="headerlink" href="#bulletchess.main.Color.from_str" title="Link to this definition">#</a></dt>
-<dd><p>Return the colour corresponding to <em>name</em> (case‑insensitive).</p>
+<dd><p>Return the color corresponding to <em>name</em> (case‑insensitive).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – The string <code class="docutils literal notranslate"><span class="pre">&quot;white&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;black&quot;</span></code> in any case.</p>
@@ -375,7 +375,7 @@ and their pieces.</p>
 <dd class="field-odd"><p><a class="reference internal" href="#bulletchess.main.Color" title="bulletchess.main.Color">Color</a></p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ValueError</strong> – If <em>name</em> is not recognised.</p>
+<dd class="field-even"><p><strong>ValueError</strong> – If <em>name</em> is not recognized.</p>
 </dd>
 </dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Color</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;White&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="n">WHITE</span>
@@ -461,7 +461,7 @@ and their pieces.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="bulletchess.main.PieceType">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PieceType</span></span><a class="headerlink" href="#bulletchess.main.PieceType" title="Link to this definition">#</a></dt>
-<dd><p>Represents one of the 6 types of pieces in chess, either a Pawn, Knight, Bishop, Rook, Queen, or King.</p>
+<dd><p>Represents one of the 6 types of pieces in chess, either a pawn, knight, bishop, rook, queen, or king.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bulletchess.main.PieceType.from_str">
 <em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">piece_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bulletchess.main.PieceType" title="bulletchess.main.PieceType"><span class="pre">PieceType</span></a></span></span><a class="headerlink" href="#bulletchess.main.PieceType.from_str" title="Link to this definition">#</a></dt>
@@ -478,7 +478,7 @@ and their pieces.</p>
 <dd class="field-odd"><p>The matching <a class="reference internal" href="#bulletchess.main.PieceType" title="bulletchess.main.PieceType"><code class="xref py py-class docutils literal notranslate"><span class="pre">PieceType</span></code></a>.</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ValueError</strong> – If <em>name</em> is not recognised.</p>
+<dd class="field-even"><p><strong>ValueError</strong> – If <em>name</em> is not recognized.</p>
 </dd>
 </dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">PieceType</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="s2">&quot;pawn&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="n">PAWN</span>
@@ -558,7 +558,7 @@ and their pieces.</p>
 <dl class="py data">
 <dt class="sig sig-object py" id="bulletchess.main.PIECE_TYPES">
 <span class="sig-name descname"><span class="pre">PIECE_TYPES</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bulletchess.main.PieceType" title="bulletchess.main.PieceType"><span class="pre">PieceType</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#bulletchess.main.PIECE_TYPES" title="Link to this definition">#</a></dt>
-<dd><p>A list of all <a class="reference internal" href="#bulletchess.main.PieceType" title="bulletchess.main.PieceType"><code class="xref py py-class docutils literal notranslate"><span class="pre">PieceType</span></code></a> values. In order of <code class="docutils literal notranslate"><span class="pre">[PAWN,</span> <span class="pre">KNIGHT,</span> <span class="pre">BISHOP,</span> <span class="pre">ROOK,</span> <span class="pre">QUEEN,</span> <span class="pre">KING]</span></code></p>
+<dd><p>A list of all <a class="reference internal" href="#bulletchess.main.PieceType" title="bulletchess.main.PieceType"><code class="xref py py-class docutils literal notranslate"><span class="pre">PieceType</span></code></a> values. In the order of <code class="docutils literal notranslate"><span class="pre">[PAWN,</span> <span class="pre">KNIGHT,</span> <span class="pre">BISHOP,</span> <span class="pre">ROOK,</span> <span class="pre">QUEEN,</span> <span class="pre">KING]</span></code></p>
 </dd></dl>
 
 <dl class="py class">
@@ -568,7 +568,7 @@ and their pieces.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bulletchess.main.Piece.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#bulletchess.main.Color" title="bulletchess.main.Color"><span class="pre">Color</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#bulletchess.main.PieceType" title="bulletchess.main.PieceType"><span class="pre">PieceType</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bulletchess.main.Piece.__init__" title="Link to this definition">#</a></dt>
-<dd><p>Initialise the <code class="docutils literal notranslate"><span class="pre">Piece</span></code> with <em>color</em> and <em>type</em>.</p>
+<dd><p>Initialize the <code class="docutils literal notranslate"><span class="pre">Piece</span></code> with <em>color</em> and <em>type</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -583,7 +583,7 @@ and their pieces.</p>
 <dt class="sig sig-object py" id="bulletchess.main.Piece.from_chr">
 <em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_chr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">char</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bulletchess.main.Piece" title="bulletchess.main.Piece"><span class="pre">Piece</span></a></span></span><a class="headerlink" href="#bulletchess.main.Piece.from_chr" title="Link to this definition">#</a></dt>
 <dd><p>Return the piece encoded by <em>char</em> (ASCII piece letter).</p>
-<p>Upper‑case letters encode <a class="reference internal" href="#bulletchess.main.WHITE" title="bulletchess.main.WHITE"><code class="xref py py-data docutils literal notranslate"><span class="pre">WHITE</span></code></a> pieces, lower‑case letters encode <a class="reference internal" href="#bulletchess.main.BLACK" title="bulletchess.main.BLACK"><code class="xref py py-data docutils literal notranslate"><span class="pre">BLACK</span></code></a>.</p>
+<p>Uppercase letters encode <a class="reference internal" href="#bulletchess.main.WHITE" title="bulletchess.main.WHITE"><code class="xref py py-data docutils literal notranslate"><span class="pre">WHITE</span></code></a> pieces, lowercase letters encode <a class="reference internal" href="#bulletchess.main.BLACK" title="bulletchess.main.BLACK"><code class="xref py py-data docutils literal notranslate"><span class="pre">BLACK</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>char</strong> (<em>str</em>) – One of <code class="docutils literal notranslate"><span class="pre">PRNBQKprnbqk</span></code>.</p>
@@ -639,7 +639,7 @@ and their pieces.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bulletchess.main.Piece.__str__">
 <span class="sig-name descname"><span class="pre">__str__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#bulletchess.main.Piece.__str__" title="Link to this definition">#</a></dt>
-<dd><p>Serializes a <a class="reference internal" href="#bulletchess.main.Piece" title="bulletchess.main.Piece"><code class="xref py py-class docutils literal notranslate"><span class="pre">Piece</span></code></a> as a single ASCII character <code class="docutils literal notranslate"><span class="pre">str</span></code>. Uses uppercase for a <a class="reference internal" href="#bulletchess.main.Piece" title="bulletchess.main.Piece"><code class="xref py py-class docutils literal notranslate"><span class="pre">Piece</span></code></a> that is <a class="reference internal" href="#bulletchess.main.WHITE" title="bulletchess.main.WHITE"><code class="xref py py-data docutils literal notranslate"><span class="pre">WHITE</span></code></a>, and lowercase for any <a class="reference internal" href="#bulletchess.main.Piece" title="bulletchess.main.Piece"><code class="xref py py-class docutils literal notranslate"><span class="pre">Piece</span></code></a> that is <a class="reference internal" href="#bulletchess.main.BLACK" title="bulletchess.main.BLACK"><code class="xref py py-data docutils literal notranslate"><span class="pre">BLACK</span></code></a>.</p>
+<dd><p>Serializes a <a class="reference internal" href="#bulletchess.main.Piece" title="bulletchess.main.Piece"><code class="xref py py-class docutils literal notranslate"><span class="pre">Piece</span></code></a> as a single ASCII character <code class="docutils literal notranslate"><span class="pre">str</span></code>. Uses uppercase for any <a class="reference internal" href="#bulletchess.main.Piece" title="bulletchess.main.Piece"><code class="xref py py-class docutils literal notranslate"><span class="pre">Piece</span></code></a> that is <a class="reference internal" href="#bulletchess.main.WHITE" title="bulletchess.main.WHITE"><code class="xref py py-data docutils literal notranslate"><span class="pre">WHITE</span></code></a>, and lowercase for any <a class="reference internal" href="#bulletchess.main.Piece" title="bulletchess.main.Piece"><code class="xref py py-class docutils literal notranslate"><span class="pre">Piece</span></code></a> that is <a class="reference internal" href="#bulletchess.main.BLACK" title="bulletchess.main.BLACK"><code class="xref py py-data docutils literal notranslate"><span class="pre">BLACK</span></code></a>.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">str</span><span class="p">(</span><span class="n">Piece</span><span class="p">(</span><span class="n">WHITE</span><span class="p">,</span> <span class="n">PAWN</span><span class="p">))</span>
 <span class="go">&quot;P&quot;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">str</span><span class="p">(</span><span class="n">Piece</span><span class="p">(</span><span class="n">BLACK</span><span class="p">,</span> <span class="n">KNIGHT</span><span class="p">))</span>
@@ -712,7 +712,7 @@ and their pieces.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bulletchess.main.Square.north">
 <span class="sig-name descname"><span class="pre">north</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bulletchess.main.Square" title="bulletchess.main.Square"><span class="pre">Square</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#bulletchess.main.Square.north" title="Link to this definition">#</a></dt>
-<dd><p>Return the square <em>distance</em> ranks above this square.</p>
+<dd><p>Return the square that is the given <em>distance</em> number of ranks above this square.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>distance</strong> – how many ranks to move north.</p>
@@ -737,7 +737,7 @@ and their pieces.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bulletchess.main.Square.south">
 <span class="sig-name descname"><span class="pre">south</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bulletchess.main.Square" title="bulletchess.main.Square"><span class="pre">Square</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#bulletchess.main.Square.south" title="Link to this definition">#</a></dt>
-<dd><p>Return the square <em>distance</em> ranks below this square.</p>
+<dd><p>Return the square that is the given <em>distance</em> number of ranks below this square.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>distance</strong> (<em>int</em><em>, </em><em>default = 1</em>) – how many ranks to move south.</p>
@@ -762,7 +762,7 @@ and their pieces.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bulletchess.main.Square.east">
 <span class="sig-name descname"><span class="pre">east</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bulletchess.main.Square" title="bulletchess.main.Square"><span class="pre">Square</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#bulletchess.main.Square.east" title="Link to this definition">#</a></dt>
-<dd><p>Return the square <em>distance</em> files to the east of this square.</p>
+<dd><p>Return the square that is the given <em>distance</em> number of files to the east of this square.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>distance</strong> (<em>int</em><em>, </em><em>default = 1</em>) – how many files to move east (toward the H-file).</p>
@@ -787,7 +787,7 @@ and their pieces.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bulletchess.main.Square.west">
 <span class="sig-name descname"><span class="pre">west</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bulletchess.main.Square" title="bulletchess.main.Square"><span class="pre">Square</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#bulletchess.main.Square.west" title="Link to this definition">#</a></dt>
-<dd><p>Return the square <em>distance</em> files to the west of this square.</p>
+<dd><p>Return the square that is the given <em>distance</em> number of files to the west of this square.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>distance</strong> (<em>int</em><em>, </em><em>default = 1</em>) – how many files to move west (toward the A-file).</p>
@@ -812,7 +812,7 @@ and their pieces.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bulletchess.main.Square.nw">
 <span class="sig-name descname"><span class="pre">nw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bulletchess.main.Square" title="bulletchess.main.Square"><span class="pre">Square</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#bulletchess.main.Square.nw" title="Link to this definition">#</a></dt>
-<dd><p>Return the square <em>distance</em> files west and ranks north of this square.</p>
+<dd><p>Return the square that is the given <em>distance</em> number of files west and ranks north of this square.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>distance</strong> (<em>int</em><em>, </em><em>default = 1</em>) – number of steps to move north-west.</p>
@@ -837,7 +837,7 @@ and their pieces.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bulletchess.main.Square.ne">
 <span class="sig-name descname"><span class="pre">ne</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bulletchess.main.Square" title="bulletchess.main.Square"><span class="pre">Square</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#bulletchess.main.Square.ne" title="Link to this definition">#</a></dt>
-<dd><p>Return the square <em>distance</em> files east and ranks north of this square.</p>
+<dd><p>Return the square that is the given <em>distance</em> number of files east and ranks north of this square.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>distance</strong> (<em>int</em><em>, </em><em>default = 1</em>) – number of steps to move north-east.</p>
@@ -862,7 +862,7 @@ and their pieces.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bulletchess.main.Square.sw">
 <span class="sig-name descname"><span class="pre">sw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bulletchess.main.Square" title="bulletchess.main.Square"><span class="pre">Square</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#bulletchess.main.Square.sw" title="Link to this definition">#</a></dt>
-<dd><p>Return the square <em>distance</em> files west and ranks south of this square.</p>
+<dd><p>Return the square that is the given <em>distance</em> number of files west and ranks south of this square.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>distance</strong> (<em>int</em><em>, </em><em>default = 1</em>) – number of steps to move south-west.</p>
@@ -887,7 +887,7 @@ and their pieces.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bulletchess.main.Square.se">
 <span class="sig-name descname"><span class="pre">se</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bulletchess.main.Square" title="bulletchess.main.Square"><span class="pre">Square</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#bulletchess.main.Square.se" title="Link to this definition">#</a></dt>
-<dd><p>Return the square <em>distance</em> files east and ranks south of this square.</p>
+<dd><p>Return the square that is the given <em>distance</em> number of files east and ranks south of this square.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>distance</strong> (<em>int</em><em>, </em><em>default = 1</em>) – number of steps to move south-east.</p>
@@ -1329,7 +1329,7 @@ indicates whether a <a class="reference internal" href="#bulletchess.main.Square
 <dl class="py method">
 <dt class="sig sig-object py" id="bulletchess.main.Bitboard.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">squares</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Collection</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bulletchess.main.Square" title="bulletchess.main.Square"><span class="pre">Square</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bulletchess.main.Bitboard.__init__" title="Link to this definition">#</a></dt>
-<dd><p>Initialise a <a class="reference internal" href="#bulletchess.main.Bitboard" title="bulletchess.main.Bitboard"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code></a> that contains <em>squares</em>.</p>
+<dd><p>Initialize a <a class="reference internal" href="#bulletchess.main.Bitboard" title="bulletchess.main.Bitboard"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code></a> that contains <em>squares</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>squares</strong> (<em>Collection</em><em>[</em><a class="reference internal" href="#bulletchess.main.Square" title="bulletchess.main.Square"><em>Square</em></a><em>]</em>) – squares to include in the new bitboard.</p>
@@ -1908,25 +1908,25 @@ queenside for <a class="reference internal" href="#bulletchess.main.WHITE" title
 <dl class="py data">
 <dt class="sig sig-object py" id="bulletchess.main.WHITE_KINGSIDE">
 <span class="sig-name descname"><span class="pre">WHITE_KINGSIDE</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#bulletchess.main.CastlingType" title="bulletchess.main.CastlingType"><span class="pre">CastlingType</span></a></em><a class="headerlink" href="#bulletchess.main.WHITE_KINGSIDE" title="Link to this definition">#</a></dt>
-<dd><p>Castling type representing <a class="reference internal" href="#bulletchess.main.WHITE" title="bulletchess.main.WHITE"><code class="xref py py-data docutils literal notranslate"><span class="pre">WHITE</span></code></a> kingside castling</p>
+<dd><p>Castling type representing <a class="reference internal" href="#bulletchess.main.WHITE" title="bulletchess.main.WHITE"><code class="xref py py-data docutils literal notranslate"><span class="pre">WHITE</span></code></a> kingside castling.</p>
 </dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="bulletchess.main.WHITE_QUEENSIDE">
 <span class="sig-name descname"><span class="pre">WHITE_QUEENSIDE</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#bulletchess.main.CastlingType" title="bulletchess.main.CastlingType"><span class="pre">CastlingType</span></a></em><a class="headerlink" href="#bulletchess.main.WHITE_QUEENSIDE" title="Link to this definition">#</a></dt>
-<dd><p>Castling type representing <a class="reference internal" href="#bulletchess.main.WHITE" title="bulletchess.main.WHITE"><code class="xref py py-data docutils literal notranslate"><span class="pre">WHITE</span></code></a> queenside castling</p>
+<dd><p>Castling type representing <a class="reference internal" href="#bulletchess.main.WHITE" title="bulletchess.main.WHITE"><code class="xref py py-data docutils literal notranslate"><span class="pre">WHITE</span></code></a> queenside castling.</p>
 </dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="bulletchess.main.BLACK_KINGSIDE">
 <span class="sig-name descname"><span class="pre">BLACK_KINGSIDE</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#bulletchess.main.CastlingType" title="bulletchess.main.CastlingType"><span class="pre">CastlingType</span></a></em><a class="headerlink" href="#bulletchess.main.BLACK_KINGSIDE" title="Link to this definition">#</a></dt>
-<dd><p>Castling type representing <a class="reference internal" href="#bulletchess.main.BLACK" title="bulletchess.main.BLACK"><code class="xref py py-data docutils literal notranslate"><span class="pre">BLACK</span></code></a> kingside castling</p>
+<dd><p>Castling type representing <a class="reference internal" href="#bulletchess.main.BLACK" title="bulletchess.main.BLACK"><code class="xref py py-data docutils literal notranslate"><span class="pre">BLACK</span></code></a> kingside castling.</p>
 </dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="bulletchess.main.BLACK_QUEENSIDE">
 <span class="sig-name descname"><span class="pre">BLACK_QUEENSIDE</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#bulletchess.main.CastlingType" title="bulletchess.main.CastlingType"><span class="pre">CastlingType</span></a></em><a class="headerlink" href="#bulletchess.main.BLACK_QUEENSIDE" title="Link to this definition">#</a></dt>
-<dd><p>Castling type representing <a class="reference internal" href="#bulletchess.main.BLACK" title="bulletchess.main.BLACK"><code class="xref py py-data docutils literal notranslate"><span class="pre">BLACK</span></code></a> queenside castling</p>
+<dd><p>Castling type representing <a class="reference internal" href="#bulletchess.main.BLACK" title="bulletchess.main.BLACK"><code class="xref py py-data docutils literal notranslate"><span class="pre">BLACK</span></code></a> queenside castling.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -2269,7 +2269,7 @@ permissions.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bulletchess.main.CastlingRights.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">castling_types</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Collection</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bulletchess.main.CastlingType" title="bulletchess.main.CastlingType"><span class="pre">CastlingType</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#bulletchess.main.CastlingRights.__init__" title="Link to this definition">#</a></dt>
-<dd><p>Initialise the object with <em>castling_types</em>.</p>
+<dd><p>Initialize the object with <em>castling_types</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>castling_types</strong> (<em>Collection</em><em>[</em><a class="reference internal" href="#bulletchess.main.CastlingType" title="bulletchess.main.CastlingType"><em>CastlingType</em></a><em>]</em>) – iterable of castling constants to include.</p>
@@ -3206,7 +3206,7 @@ This includes stalemate, insufficient material, a fifty move timeout, or threefo
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="auto_examples/performance.html"
+       href="performance.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
