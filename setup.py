@@ -12,7 +12,7 @@ def relative_path(path) -> str:
     return "bulletchess/" + str(path.relative_to(ROOT))
 
 source_files = [relative_path(p) for p in SRC.rglob("*.c")]
-print(source_files)
+#print(source_files)
 
 py_paths = sysconfig.get_paths()
 
@@ -24,11 +24,11 @@ else:
 core = Extension(
     name = "bulletchess._core",
     sources = source_files, 
+    include_dirs=["bulletchess"]    
 )
 
-print(core)
+#print(core)
 
 setup(
     ext_modules = [core],
 )
-
