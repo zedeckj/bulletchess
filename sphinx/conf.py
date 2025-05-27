@@ -9,7 +9,7 @@
 import matplotlib
 
 project = 'bulletchess'
-copyright = '2025, Jordan Zedeck'
+copyright = '2025, Jordan Zedeck. Licensed under GPL v3.'
 author = 'Jordan Zedeeck'
 # release = '0.2.0'
 
@@ -21,13 +21,12 @@ extensions = [
 ]
 
 sphinx_gallery_conf = {
-     'examples_dirs': '../walkthrough',   # path to your example scripts
-     'gallery_dirs': 'auto-examples',  # path to where to save gallery generated output
+     'examples_dirs': '../walkthrough',   
+     'gallery_dirs': 'auto-examples',  
      'filename_pattern': r'.+\.py',
 }
 
-# directory (or list) that contains your stub(s)
-autoapi_dirs = ["../bulletchess" ]          # path is relative to conf.py
+autoapi_dirs = ["../bulletchess" ]          
 autoapi_file_patterns = ["*.pyi"]
 
 autoapi_options = [ 'members', 'undoc-members', 'private-members', 'show-inheritance', 'show-module-summary', 'special-members']
@@ -39,7 +38,6 @@ autoapi_member_order = "bysource"
 toc_object_entries_show_parents = "hide"
 toc_object_entries = True
 
-# -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 #html_theme = 'alabaster'
 #html_theme = "sphinxawesome_theme"

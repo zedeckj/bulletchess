@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "bulletchess"
-version = "0.2.1"
+version = "0.3"
 authors = [
   { name="Jordan Zedeck", email="mail@jordanzedeck.com" },
 ]

@@ -3765,7 +3765,6 @@ static PyObject *PyPGNFile_read_next_game(PyObject *self, PyObject *Py_UNUSED(ar
 		}
 		case 1: {
 			Py_DECREF(game);
-			fprintf(stderr, "%s TEST!\n", err);
 			PyErr_SetString(PyExc_ValueError, err);
 			return NULL;
 		}
