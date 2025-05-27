@@ -2,4 +2,5 @@
 build/
 __pycache__
 **/__pycache__
+bulletchess.egg-info/*
 bulletchess/src/python-headers

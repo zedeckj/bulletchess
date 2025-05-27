@@ -28,8 +28,9 @@ else:
 
 core = Extension(
     name = "bulletchess._core",
-    sources = source_files + header_files, 
+    sources = source_files, 
     include_dirs=["bulletchess"],
+    depends= header_files
     
 )
 
