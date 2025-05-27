@@ -67,15 +67,28 @@ jobs:
           name: cibw-sdist
           path: dist/*.tar.gz
 
-  # ---------- Test every built distribution ----------
+  # ---------- Test every built distribution on its native runner ----------
   test_dists:
-    name: Test wheels & sdist (Python ${{ matrix.python-version }})
+    name: Test wheel & sdist on ${{ matrix.os }} (Python ${{ matrix.python-version }})
     needs: [ build_wheels, build_sdist ]
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runs-on }}
     strategy:
       fail-fast: false
       matrix:
         python-version: [ "3.13" ]
+        include:
+          - os: linux-intel
+            runs-on: ubuntu-latest
+          - os: linux-arm
+            runs-on: ubuntu-24.04-arm
+          - os: windows
+            runs-on: windows-latest
+          - os: macos-intel
+            runs-on: macos-13
+          - os: macos-arm
+            runs-on: macos-latest
+          # NOTE: iOS wheels cannot be executed on GitHub-hosted runners; consider
+          #  adding device/simulator CI separately if you need runtime tests.
 
     steps:
       - uses: actions/checkout@v4
@@ -85,23 +98,24 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Download wheel & sdist artifacts
+      - name: Download artifacts for this OS
         uses: actions/download-artifact@v4
         with:
-          pattern: cibw-*
+          pattern: |
+            cibw-wheels-${{ matrix.os }}-*
+            cibw-sdist
           path: dist
           merge-multiple: true
 
       - name: List downloaded artifacts (debug)
         run: ls -R dist
 
-      - name: Run unit tests against each artifact
+      - name: Run unit tests against all artifacts
         shell: bash
         run: |
           set -euo pipefail
-
           for pkg in dist/*.{whl,tar.gz}; do
-            echo "\n=== Testing $pkg ==="
+            echo "=== Testing $pkg ==="
             python -m venv .venv
             source .venv/bin/activate
             python -m pip install --upgrade pip
