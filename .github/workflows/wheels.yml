@@ -113,7 +113,9 @@ jobs:
       - name: Download artifacts for this OS
         uses: actions/download-artifact@v4
         with:
-          pattern: "cibw-wheels-${{ matrix.os }}-*\ncibw-sdist"
+          pattern: |
+            cibw-wheels-${{ matrix.os }}-*
+            cibw-sdist
           path: dist
           merge-multiple: true
 
