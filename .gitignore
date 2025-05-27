@@ -4,3 +4,4 @@ __pycache__
 **/__pycache__
 bulletchess.egg-info/*
 bulletchess/src/python-headers
+bulletchess/src/bulletchess.h

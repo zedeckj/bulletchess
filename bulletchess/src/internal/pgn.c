@@ -581,7 +581,7 @@ int next_pgn(pgn_file_t *pf, pgn_game_t *dst, char *err) {
 	untoken(tok, pf->ctx);	
 	char *tmp = read_pgn_inner(pf->file, pf->ctx, dst);
 	if (tmp) {
-		strncpy(err, tmp, 300);
+		strncpy(err, tmp, 500);
 		free(tmp);
 		// errors are non recoverable from
 		//skip_to_next(pf);

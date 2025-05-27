@@ -3757,7 +3757,7 @@ static PyObject *PyPGNFile_read_next_game(PyObject *self, PyObject *Py_UNUSED(ar
 	PyPGNFileObject *obj = (PyPGNFileObject *)self; 
 	PyPGNGameObject *game = (PyPGNGameObject *)PyPGNGame_Alloc();
 	if (!game) return NULL;
-	char err[500];
+	char err[500] = {0};
 	int res = next_pgn(&obj->pgnf, game->game, err);
 	switch (res) {
 		case 0: {
