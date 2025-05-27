@@ -55,6 +55,8 @@ jobs:
           python -m pip install --upgrade pip
           # Install the first wheel found (each build produces exactly one arch‑appropriate wheel)
           python -m pip install $(ls ./wheelhouse/*.whl | head -n 1)
+          chmod +x tests/test
+          mv bulletchess bulletchess_src           # prevent shadowing
           cd tests
           ./test
 
