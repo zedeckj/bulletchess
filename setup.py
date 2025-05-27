@@ -38,5 +38,6 @@ core = Extension(
 
 setup(
     ext_modules = [core],
+    packages=["bulletchess"],
     include_dirs=["bulletchess"],
 )
