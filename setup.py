@@ -7,7 +7,6 @@ ROOT = Path(__file__).parent / "bulletchess"      # bulletchess/
 SRC  = ROOT / "src"                               # bulletchess/src/
 
 def rel(p: Path) -> str:
-    # turn bulletchess/src/bitboard.c → bulletchess/src/bitboard.c
     return "bulletchess/" + str(p.relative_to(ROOT))
 
 # All C & H sources for the build_ext step

@@ -6,7 +6,7 @@
 ``bulletchess``
 ==============================
 ``bulletchess`` is a Python module for playing, analyzing, and building engines for chess. Unlike other chess libraries in Python, 
-the core of ``bulletchess`` is written in C, allowing it to be *much* faster than alternatives.
+the core of ``bulletchess`` is written in C, allowing it to be :doc:`much <auto-examples/performance>` faster than alternatives.
 
 
 Overview
@@ -22,6 +22,10 @@ At a high level, ``bulletchess`` includes:
 * Utility functions for writing engines. 
 
 `Github Repository <https://github.com/zedeckj/bulletchess>`_
+
+.. code-block:: bash
+
+   pip install bulletchess
 
 
 Glossary

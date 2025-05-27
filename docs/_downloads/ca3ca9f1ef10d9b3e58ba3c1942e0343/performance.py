@@ -161,10 +161,9 @@ print(f"bulletchess is {chess_time/bullet_time:.4f}x faster")
 # The speed up is even larger. Like ``python-chess``, ``bulletchess`` provides a PGN reader. Let's do a simple task reading a PGN file,
 # we'll go through every position in each game, and check how many have a pawn of any color on E4. 
 
-# a large PGN file
-
 import chess.pgn
 import bulletchess.pgn
+# a large PGN file
 PATH = "../data/pgn/modern.pgn"
 
 def chess_check_games():

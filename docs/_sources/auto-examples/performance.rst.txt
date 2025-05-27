@@ -118,9 +118,9 @@ Notice how the code we write is nearly identical. However, when we test their ru
 
  .. code-block:: none
 
-    `chess_perft` returned 119060324 in 111.1050s
-    `bullet_perft` returned 119060324 in 1.7389s
-    bulletchess is 63.8936x faster
+    `chess_perft` returned 119060324 in 113.5341s
+    `bullet_perft` returned 119060324 in 1.7237s
+    bulletchess is 65.8676x faster
 
 
 
@@ -209,9 +209,9 @@ Like before, we'll compare the runtimes of each version.
 
  .. code-block:: none
 
-    `chess_roundtrip` took 47.3
-    `bullet_roundtrip` took 0.9728
-    bulletchess is 48.6200x faster
+    `chess_roundtrip` took 47.75
+    `bullet_roundtrip` took 1.016
+    bulletchess is 47.0131x faster
 
 
 
@@ -294,11 +294,11 @@ but the structure is still the same. Running the comparison:
 
  .. code-block:: none
 
-    `chess_statuses` took 114.3
+    `chess_statuses` took 118.3
     {'ongoing': 933861, 'checkmate': 40147, 'draw': 25992}
-    `bullet_statuses` took 0.3081
+    `bullet_statuses` took 0.3075
     {'ongoing': 933861, 'checkmate': 40147, 'draw': 25992}
-    bulletchess is 371.0375x faster
+    bulletchess is 384.7634x faster
 
 
 
@@ -308,15 +308,14 @@ but the structure is still the same. Running the comparison:
 The speed up is even larger. Like ``python-chess``, ``bulletchess`` provides a PGN reader. Let's do a simple task reading a PGN file,
 we'll go through every position in each game, and check how many have a pawn of any color on E4. 
 
-.. GENERATED FROM PYTHON SOURCE LINES 163-198
+.. GENERATED FROM PYTHON SOURCE LINES 163-197
 
 .. code-block:: Python
 
 
-    # a large PGN file
-
     import chess.pgn
     import bulletchess.pgn
+    # a large PGN file
     PATH = "../data/pgn/modern.pgn"
 
     def chess_check_games():
@@ -354,12 +353,12 @@ we'll go through every position in each game, and check how many have a pawn of 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 199-201
+.. GENERATED FROM PYTHON SOURCE LINES 198-200
 
 We've kept the operation on each position simple on purpose, so we can more directly compare 
 reading through games.
 
-.. GENERATED FROM PYTHON SOURCE LINES 201-217
+.. GENERATED FROM PYTHON SOURCE LINES 200-216
 
 .. code-block:: Python
 
@@ -387,11 +386,11 @@ reading through games.
 
  .. code-block:: none
 
-    `chess_check_games` took 19.0
+    `chess_check_games` took 19.27
     python-chess found 824592 positions with a pawn on E4
-    `bullet_check_games` took 1.388
+    `bullet_check_games` took 1.423
     bulletchess found 824592 positions with a pawn on E4
-    bulletchess is 13.6853x faster
+    bulletchess is 13.5375x faster
 
 
 
@@ -399,7 +398,7 @@ reading through games.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (5 minutes 24.417 seconds)
+   **Total running time of the script:** (5 minutes 32.635 seconds)
 
 
 .. _sphx_glr_download_auto-examples_performance.py:

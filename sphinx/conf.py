@@ -11,7 +11,7 @@ import matplotlib
 project = 'bulletchess'
 copyright = '2025, Jordan Zedeck. Licensed under GPL v3.'
 author = 'Jordan Zedeeck'
-# release = '0.2.0'
+# release = '0.3.0'
 
 extensions = [
         'sphinx.ext.autodoc',
@@ -43,6 +43,24 @@ toc_object_entries = True
 #html_theme = "sphinxawesome_theme"
 html_theme = "pydata_sphinx_theme"
 html_static_path = ['_static']
+
+html_theme_options = {
+    "navbar_align": "left",
+    "icon_links": [
+        {
+            "name": "GitHub",
+            "url": "https://github.com/zedeckj/bulletchess",
+            "icon": "fa-brands fa-square-github",
+            "type": "fontawesome",
+        },
+    ],
+}
+  
+
+html_sidebars = {
+    "**": [
+    ],
+}
 
 # from sphinxawesome_theme.postprocess import Icons
 # html_permalinks_icon = Icons.permalinks_icon
