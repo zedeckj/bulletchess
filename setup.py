@@ -12,6 +12,7 @@ def relative_path(path) -> str:
     return "bulletchess/" + str(path.relative_to(ROOT))
 
 source_files = [relative_path(p) for p in SRC.rglob("*.c")]
+header_files = [relative_path(p) for p in SRC.rglob("*.h")]
 #print(source_files)
 
 std_args = ["-03", "-std=gnu17"]
@@ -37,5 +38,5 @@ setup(
     ext_modules = [core],
     include_dirs=["bulletchess"],
     include_package_data=True,
-    package_data={"bulletchess": ["*.c", "*.h"]}
+    package_data={"bulletchess": source_files + header_files}
 )
