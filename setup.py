@@ -1,47 +1,40 @@
-from setuptools import Extension, setup
 from pathlib import Path
-import os
+from setuptools import Extension, setup, find_namespace_packages
 import sys
-ROOT = Path(__file__).parent / "bulletchess"
-print(ROOT)
-SRC = ROOT / "src"
-print(SRC)
 import sysconfig
 
-def relative_path(path) -> str:
-    return "bulletchess/" + str(path.relative_to(ROOT))
+ROOT = Path(__file__).parent / "bulletchess"      # bulletchess/
+SRC  = ROOT / "src"                               # bulletchess/src/
 
-source_files = [relative_path(p) for p in SRC.rglob("*.c")]
-header_files = [relative_path(p) for p in SRC.rglob("*.h")]
-#print(source_files)
+def rel(p: Path) -> str:
+    # turn bulletchess/src/bitboard.c → bulletchess/src/bitboard.c
+    return "bulletchess/" + str(p.relative_to(ROOT))
 
-std_args = ["-03", "-std=gnu17"]
-debug_args = ["-O0", "-g", "-std=gun17"]
+# All C & H sources for the build_ext step
+c_sources  = [rel(p) for p in SRC.rglob("*.c")]
+h_headers  = [rel(p) for p in SRC.rglob("*.h")]
 
-py_paths = sysconfig.get_paths()
-
-if sys.platform.startswith("win"):
-    extra_compile_args=["O2", "/std:c17"]
-else:
-    #extra_compile_args=["-O3", "-std=gnu17", "-gdwarf-4"],     
-    extra_compile_args = debug_args
-
-core = Extension(
-    name = "bulletchess._core",
-    sources = source_files, 
-    include_dirs=["bulletchess"],
-    depends= header_files
-    
+extra_compile_args = (
+    ["/O2", "/std:c17"] if sys.platform.startswith("win") else ["-O3", "-std=gnu17"]
 )
 
-#print(core)
+core = Extension(
+    name="bulletchess._core",
+    sources=c_sources,
+    include_dirs=["bulletchess"],
+    depends=h_headers,
+    extra_compile_args=extra_compile_args,
+)
+
+packages = find_namespace_packages(
+    include=["bulletchess"],             
+    exclude=["bulletchess.src*",],        
+)
 
 setup(
     ext_modules=[core],
-    packages=["bulletchess"],      
+    packages=packages,
     package_dir={"bulletchess": "bulletchess"},
-    exclude_package_data={
-        "bulletchess": ["src*", "src/**"],
-    },
-    package_data={"bulletchess": ["src/**/*.c", "_csrc/**/*.h"]},
+    package_data={"bulletchess": ["*.pyi", "py.typed"]},
 )
+
