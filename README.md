@@ -20,4 +20,8 @@ At a high level, `bulletchess` includes:
 * A [Portable Game Notation](https://thechessworld.com/articles/general-information/portable-chess-game-notation-pgn-complete-guide/) (PGN) file reader
 * Utility functions for writing engines.
 
+```
+pip install bulletchess
+```
+
 [Read the docs](https://zedeckj.github.io/bulletchess/index.html)

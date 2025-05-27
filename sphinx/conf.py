@@ -9,7 +9,7 @@
 import matplotlib
 
 project = 'bulletchess'
-copyright = '2025, Jordan Zedeck. Licensed under GPL v3.'
+copyright = '2025, Jordan Zedeck. Licensed under GPL v3'
 author = 'Jordan Zedeeck'
 # release = '0.3.0'
 
