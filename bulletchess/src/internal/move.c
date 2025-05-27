@@ -59,8 +59,8 @@ char * ext_construct_move(square_t origin,
 }
 
 u_int64_t hash_move(move_t move) {
-  u_int64_t origin;
-  u_int64_t destination;
+  u_int64_t origin = 0;
+  u_int64_t destination = 0;
   u_int64_t promotion = 0;
   if (move.type == PROMOTION_MOVE) {
     promotion_move_t prm = move.promotion;

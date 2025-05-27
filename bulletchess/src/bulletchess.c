@@ -1481,7 +1481,7 @@ PyMove_newfunc(PyTypeObject *self, PyObject *args, PyObject *kwargs){
 		}
 		square_t origin_v = PySquare_get(origin);
 		square_t dest_v = PySquare_get(destination);
-		piece_type_t type_v = promote_to ? PyPieceType_get(promote_to) : EMPTY_VAL;
+		piece_type_t type_v = promote_to && !Py_IsNone(promote_to) ? PyPieceType_get(promote_to) : EMPTY_VAL;
 		move_t move = make_move_from_parts(origin_v, dest_v, type_v); 
 		if (PyMove_validate_val(move)){
 			return PyMove_make(move);
