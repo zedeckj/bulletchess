@@ -54,7 +54,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           # Install the first wheel found (each build produces exactly one arch‑appropriate wheel)
-          python -m pip install $(ls ./wheelhouse/*.whl | head -n 1)
+          python -m pip install -e $(ls ./wheelhouse/*.whl | head -n 1)
           python -m unittest discover -s ./tests -p "*.py"
 
       - uses: actions/upload-artifact@v4
@@ -80,7 +80,7 @@ jobs:
       - name: Test sdist
         run: |
           python -m pip install --upgrade pip
-          python -m pip install dist/*.tar.gz
+          python -m pip install -e dist/*.tar.gz
           python -m unittest discover -s ./tests -p "*.py"
 
       - uses: actions/upload-artifact@v4
