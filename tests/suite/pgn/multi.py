@@ -7,7 +7,7 @@ from suite.pgn.pgn_test import PGNTestCase
 
 from suite import data_file
 
-FILEPATH = data_file("pgn/Modern.pgn")
+FILEPATH = data_file("pgn/modern.pgn")
 
 class TestPGN(PGNTestCase):
 
