@@ -6,6 +6,7 @@ from bulletchess import *
 import json
 
 def print_moves_from(board : Board, origin : Square, color_scheme : Board.ColorScheme, name : str):
+    sys.stdout.reconfigure(encoding='utf-8') # type: ignore # dont know why this isnt found
     moves = board.legal_moves()
     dest = EMPTY_BB
     for move in moves:

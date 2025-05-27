@@ -3510,6 +3510,7 @@ static PyObject *PyPGNGame_Alloc() {
 	obj->game->moves = PyMem_RawMalloc(600 * sizeof(move_t));
 	pgn_validate(obj->game->moves);
 	obj->game->raw_tags = NULL;
+	obj->game->date = unknown_date();
 	/*
 	pgn_tag_section_t *tags = PyMem_RawMalloc(sizeof(pgn_tag_section_t));
 	pgn_validate(tags);
@@ -3835,7 +3836,7 @@ static struct PyModuleDef bulletchess_definition = {
 #define READY_TYPE(TYPE) if (PyType_Ready(&TYPE) < 0){ fprintf(stderr, "Could not ready " #TYPE "\n"); return NULL;} else DEBUG_INIT_PRINT(#TYPE " ready\n")
 
 PyMODINIT_FUNC PyInit__core(void) {
-    READY_TYPE(PyColorType);
+		READY_TYPE(PyColorType);
     READY_TYPE(PySquareType);
 		READY_TYPE(PyPieceTypeType);
 		READY_TYPE(PyPieceType);

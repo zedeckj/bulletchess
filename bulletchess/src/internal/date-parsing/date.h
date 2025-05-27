@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
+
 typedef struct {
 	bool known_year;
 	uint16_t year;
