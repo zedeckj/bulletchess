@@ -10,9 +10,9 @@ on:
     types: [ published ]
 
 jobs:
-  # ---------------- Build wheels ----------------
+  # ---------------- Build wheels *and test them immediately* ----------------
   build_wheels:
-    name: Build wheels for ${{ matrix.os }}
+    name: Build & test wheels for ${{ matrix.os }}
     runs-on: ${{ matrix.runs-on }}
     strategy:
       fail-fast: false
@@ -52,6 +52,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up Python (3.13)
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.0.0b1
         env:
@@ -59,93 +64,61 @@ jobs:
           CIBW_ARCHS: ${{ matrix.archs }}
           CIBW_MANYLINUX_I686_IMAGE: manylinux2014
 
+      # ---- Run unit tests against the freshly‑built wheels (skip iOS) ----
+      - name: Run unit tests
+        if: matrix.os != 'ios'
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          for pkg in wheelhouse/*.whl; do
+            echo "=============================="
+            echo "Testing $pkg"
+            python -m pip install --force-reinstall "$pkg"
+            python -m unittest discover -s ./tests -p "*.py"
+            python -m pip uninstall -y $(python - <<'PY'
+import sys, importlib.metadata as md
+# Extract top‑level package name(s) from the installed distribution
+print(" ".join(dist.metadata['Name'] for dist in md.distributions()))
+PY
+) || true
+          done
+
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
           name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
           path: ./wheelhouse/*.whl
 
-  # ---------------- Build sdist ----------------
+  # ---------------- Build sdist and test it ----------------
   build_sdist:
-    name: Build source distribution
+    name: Build & test sdist
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up Python (3.13)
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
       - name: Build sdist
         run: pipx run build --sdist
+
+      - name: Test sdist
+        shell: bash
+        run: |
+          set -euo pipefail
+          pkg=$(ls dist/*.tar.gz)
+          echo "Testing $pkg"
+          python -m pip install --upgrade pip
+          python -m pip install "$pkg"
+          python -m unittest discover -s ./tests -p "*.py"
 
       - uses: actions/upload-artifact@v4
         with:
           name: cibw-sdist
           path: dist/*.tar.gz
-
-  # ---------------- Test distributions ----------------
-  test_dists:
-    name: Test distributions on ${{ matrix.os }} (Python ${{ matrix.python-version }})
-    needs: [ build_wheels, build_sdist ]
-    runs-on: ${{ matrix.runs-on }}
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: [ "3.13" ]
-        include:
-          - os: linux-intel
-            runs-on: ubuntu-latest
-          - os: linux-arm
-            runs-on: ubuntu-24.04-arm
-          - os: windows
-            runs-on: windows-latest
-          - os: macos-intel
-            runs-on: macos-13
-          - os: macos-arm
-            runs-on: macos-latest
-          # iOS wheels cannot be executed in CI – skipped
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Download artifacts for this OS
-        uses: actions/download-artifact@v4
-        with:
-          pattern: |
-            cibw-wheels-${{ matrix.os }}-*
-            cibw-sdist
-          path: dist
-          merge-multiple: true
-
-      - name: Show downloaded artifacts
-        shell: bash
-        run: |
-          echo "Artifacts on runner $RUNNER_OS for ${{ matrix.os }}:"
-          if [ -d dist ]; then
-            find dist -maxdepth 1 -type f -print
-          else
-            echo "(none)"
-          fi
-
-      - name: Run unit tests
-        if: hashFiles('dist/**') != ''
-        shell: bash
-        run: |
-          set -euo pipefail
-          shopt -s nullglob
-          for pkg in dist/*.{whl,tar.gz}; do
-            echo "=============================="
-            echo "Testing $pkg"
-            python -m venv .venv
-            source .venv/bin/activate
-            python -m pip install --upgrade pip
-            python -m pip install "$pkg"
-            python -m unittest discover -s ./tests -p "*.py"
-            deactivate
-            rm -rf .venv
-          done
 
   # ---------------- Publish to TestPyPI ----------------
   upload_pypi:
@@ -163,7 +136,7 @@ jobs:
           pattern: cibw-*
           path: dist
           merge-multiple: true
-      
+
       - name: Publish to TestPyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
