@@ -71,8 +71,8 @@ piece_t get_piece_at_bb(position_t * board, bitboard_t square_bb);
 
 
 #define DOT "\u2022"
-#define TEXT_COLOR "\e[38;5;%dm"
-#define BKG_COLOR "\e[48;5;%dm"
+#define TEXT_COLOR "\x1B[38;5;%dm"
+#define BKG_COLOR "\x1B[48;5;%dm"
 
 void unicode_write_board(full_board_t *board, char *buffer, 
 		u_int8_t text_color,
@@ -94,8 +94,8 @@ void unicode_write_board(full_board_t *board, char *buffer,
 					else color = sq_bb & LIGHT_SQ_BB ? light_color : dark_color;
 					str_i += sprintf(buffer + str_i, BKG_COLOR, color); 
 					
-					if (sq_bb & select_bb) str_i += sprintf(buffer + str_i, "\e[5;23m");
-					else str_i += sprintf(buffer + str_i, "\e[25m"); 
+					if (sq_bb & select_bb) str_i += sprintf(buffer + str_i, "\x1B[5;23m");
+					else str_i += sprintf(buffer + str_i, "\x1B[25m"); 
 					
 					str_i += sprintf(buffer + str_i, "%s", piece_unicode(p));
 					
@@ -106,11 +106,11 @@ void unicode_write_board(full_board_t *board, char *buffer,
 
 					file = SAFE_RIGHT_BB(file);
 				}
-				str_i += sprintf(buffer + str_i, "\e[49m"); 
+				str_i += sprintf(buffer + str_i, "\x1B[49m"); 
 				buffer[str_i++] = '\n';
         rank = BELOW_BB(rank);
     }
-		str_i += sprintf(buffer + str_i, "\e[0m");
+		str_i += sprintf(buffer + str_i, "\x1B[0m");
 		buffer[str_i] = 0;
 }
 

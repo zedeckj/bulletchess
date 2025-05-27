@@ -1648,7 +1648,7 @@ static int PyBitboard_contains(PyObject *self, PyObject *value) {
 
 static PyObject *PyBitboard_to_int(PyObject *self) {
 	bitboard_t bb = PyBitboard_get(self);
-	return PyLong_FromUnsignedLong(bb);
+	return PyLong_FromUnsignedLongLong(bb);
 }
 
 static Py_ssize_t PyBitboard_len(PyObject *self) {

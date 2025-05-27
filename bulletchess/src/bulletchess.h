@@ -1,8 +1,8 @@
 #ifndef BULLETCHESSHEADER
 #define BULLETCHESSHEADER
 #include "internal/all.h"
-#include <Python.h>
-//#include "python-headers/Python.h"
+//#include <Python.h>
+#include "python-headers/Python.h"
 #include <limits.h>
 
 static void PyTypeErr(char * expected, PyObject *obj);
