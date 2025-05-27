@@ -49,6 +49,11 @@ jobs:
       - name: List built wheels (debug)
         run: ls -l ./wheelhouse
 
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
       - name: Install and test
         if: ${{ matrix.os != 'ios' }}
         run: |
@@ -58,7 +63,7 @@ jobs:
           chmod +x tests/test
           mv bulletchess bulletchess_src           # prevent shadowing
           cd tests
-          ./test
+          test
 
       - uses: actions/upload-artifact@v4
         with:
