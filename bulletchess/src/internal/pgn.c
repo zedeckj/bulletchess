@@ -607,7 +607,7 @@ bool read_pgn_file(char *filename, pgn_game_t *dst, char *err) {
 
 pgn_file_t *open_pgn(char *filepath){
 	pgn_file_t *pf = malloc(sizeof(pgn_file_t));
-	pf->file = fopen(filepath, "r");
+	pf->file = fopen(filepath, "rb");
 	pf->ctx = start_context(filepath, ";[].*()<>", "\"\"{}", '\\');
 	return pf;
 }
