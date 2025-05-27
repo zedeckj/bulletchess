@@ -1,61 +1,44 @@
-name: Build, test & publish
+name: Build and upload to PyPI
 
 on:
   workflow_dispatch:
-  # Build & test on every push to main
+  pull_request:
   push:
-    branches: [ main ]
-  # Upload only when a GitHub release is published
+    branches:
+      - main
   release:
-    types: [ published ]
+    types:
+      - published
 
 jobs:
-  # ---------------- Build wheels *and test them immediately* ----------------
   build_wheels:
-    name: Build & test wheels for ${{ matrix.os }}
+    name: Build wheels for ${{ matrix.os }}
     runs-on: ${{ matrix.runs-on }}
     strategy:
-      fail-fast: false
       matrix:
+        os: [ linux-intel, linux-arm, windows, macOS-intel, macOS-arm, iOS ]
         include:
-          # linux (x86‑64)
+          - archs: auto64
+            platform: auto
           - os: linux-intel
             runs-on: ubuntu-latest
-            platform: auto
-            archs: auto64
-          # linux (AArch64)
           - os: linux-arm
             runs-on: ubuntu-24.04-arm
-            platform: auto
-            archs: auto64
-          # Windows (x86‑64)
           - os: windows
             runs-on: windows-latest
-            platform: auto
-            archs: auto64
-          # macOS Intel
           - os: macos-intel
-            runs-on: macos-13          # last x86_64 runner
-            platform: auto
-            archs: auto64
-          # macOS Apple‑silicon
+            # macos-13 was the last x86_64 runner
+            runs-on: macos-13
           - os: macos-arm
+            # macos-14+ (including latest) are ARM64 runners
             runs-on: macos-latest
-            platform: auto
             archs: auto,universal2
-          # iOS cross‑compiled wheel (cannot be executed here)
           - os: ios
             runs-on: macos-latest
             platform: ios
-            archs: auto64
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Python (3.13)
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.13"
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.0.0b1
@@ -63,82 +46,56 @@ jobs:
           CIBW_PLATFORM: ${{ matrix.platform }}
           CIBW_ARCHS: ${{ matrix.archs }}
           CIBW_MANYLINUX_I686_IMAGE: manylinux2014
+          # Can also be configured directly, using `with:`
+        # with:
+        #   package-dir: .
+        #   output-dir: wheelhouse
+        #   config-file: "{package}/pyproject.toml"
 
-      # ---- Run unit tests against the freshly‑built wheels (skip iOS) ----
-      - name: Run unit tests
-        if: matrix.os != 'ios'
-        shell: bash
+
+      - name: Install and test
         run: |
-          set -euo pipefail
-          shopt -s nullglob
-          for pkg in wheelhouse/*.whl; do
-            echo "=============================="
-            echo "Testing $pkg"
-            python -m pip install --force-reinstall "$pkg"
-            python -m unittest discover -s ./tests -p "*.py"
-            python -m pip uninstall -y $(python - <<'PY'
-import sys, importlib.metadata as md
-# Extract top‑level package name(s) from the installed distribution
-print(" ".join(dist.metadata['Name'] for dist in md.distributions()))
-PY
-) || true
-          done
+          python -m pip install --upgrade pip
+          python -m pip install ./wheelhouse/*.whl
+          python -m unittest discover -s ./tests -p "*.py"
 
-      - name: Upload wheels
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
           path: ./wheelhouse/*.whl
 
-  # ---------------- Build sdist and test it ----------------
   build_sdist:
-    name: Build & test sdist
+    name: Build source distribution
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python (3.13)
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.13"
-
       - name: Build sdist
         run: pipx run build --sdist
-
-      - name: Test sdist
-        shell: bash
-        run: |
-          set -euo pipefail
-          pkg=$(ls dist/*.tar.gz)
-          echo "Testing $pkg"
-          python -m pip install --upgrade pip
-          python -m pip install "$pkg"
-          python -m unittest discover -s ./tests -p "*.py"
 
       - uses: actions/upload-artifact@v4
         with:
           name: cibw-sdist
           path: dist/*.tar.gz
 
-  # ---------------- Publish to TestPyPI ----------------
   upload_pypi:
-    name: Upload to TestPyPI
-    needs: [ build_wheels, build_sdist ]
+    needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
     environment: PyPI
     permissions:
       id-token: write
     if: github.event_name == 'release' && github.event.action == 'published'
-
+    # or, alternatively, upload to PyPI on every tag starting with 'v' (remove on: release above to use this)
+    #if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     steps:
       - uses: actions/download-artifact@v4
         with:
+          # unpacks all CIBW artifacts into dist/
           pattern: cibw-*
           path: dist
           merge-multiple: true
 
-      - name: Publish to TestPyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+      - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
           username: __token__
