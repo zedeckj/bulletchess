@@ -291,7 +291,9 @@ char *read_tags(FILE *stream, tok_context_t *ctx, dict_t *token_dict) {
 		token_t *rbracket = NULL;
 		if (!lbracket) TAG_ERR_EOF("tag pair or the beginning of a Movetext block"); 	
 		if (!token_is(lbracket, "[")) {
-			if (first) TAG_ERR("Expected a tag pair begninning with [", lbracket)				
+			if (first){
+				TAG_ERR("Expected a tag pair begninning with [", lbracket)				
+			}
 			else {
 				untoken(lbracket, ctx);
 				return 0;
