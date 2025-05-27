@@ -30,7 +30,7 @@ jobs:
             runs-on: macos-13  # last x86_64 runner
           - os: macos-arm
             runs-on: macOS-latest  # ARM64 runner
-            archs: auto,universal2
+            archs: x86_64
           - os: ios
             runs-on: macOS-latest
             platform: ios
