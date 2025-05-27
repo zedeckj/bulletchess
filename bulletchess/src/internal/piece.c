@@ -246,8 +246,11 @@ static inline char *black_piece_unicode(piece_type_t piece_type){
 			return "\u265B";
 		case KING_VAL:
 			return "\u265A";
-		default:
-			return "?";
+		default: {
+			char *temp = malloc(20);
+			sprintf(temp, "%d", piece_type);
+			return temp;
+		}
 	}
 }
 

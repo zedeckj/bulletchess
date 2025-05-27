@@ -15,7 +15,7 @@ c_sources  = [rel(p) for p in SRC.rglob("*.c")]
 h_headers  = [rel(p) for p in SRC.rglob("*.h")]
 
 extra_compile_args = (
-    ["/O2", "/std:c17"] if sys.platform.startswith("win") else ["-O3", "-std=gnu17"]
+    ["/O2", "/std:c17", "/utf-8"] if sys.platform.startswith("win") else ["-O3", "-std=gnu17"]
 )
 
 core = Extension(
