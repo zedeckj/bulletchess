@@ -12,6 +12,9 @@ on:
 
 jobs:
   build_wheels:
+    defaults:
+      run:
+        shell: bash
     name: Build wheels for ${{ matrix.os }}
     runs-on: ${{ matrix.runs-on }}
     strategy:
