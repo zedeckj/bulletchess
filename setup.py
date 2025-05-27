@@ -28,8 +28,9 @@ else:
 
 core = Extension(
     name = "bulletchess._core",
-    sources = source_files, 
+    sources = source_files + header_files, 
     include_dirs=["bulletchess"],
+    
 )
 
 #print(core)
@@ -37,6 +38,4 @@ core = Extension(
 setup(
     ext_modules = [core],
     include_dirs=["bulletchess"],
-    include_package_data=True,
-    package_data={"bulletchess": source_files + header_files}
 )
