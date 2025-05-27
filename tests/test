@@ -1,0 +1,2 @@
+#! /usr/bin/env bash
+python3.13 -m unittest discover -s ./suite -p "*.py"
