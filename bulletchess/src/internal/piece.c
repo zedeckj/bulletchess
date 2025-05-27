@@ -267,8 +267,11 @@ static inline char *white_piece_unicode(piece_type_t piece_type){
 			return "\u2655";
 		case KING_VAL:
 			return "\u2654";
-		default:
-			return "?";
+		default: {
+			char *temp = malloc(20);
+			sprintf(temp, "%d", piece_type);
+			return temp;
+		}
 	}
 }
 
