@@ -19,7 +19,8 @@ license-files = ["LICEN[CS]E*"]
 Homepage = "https://zedeckj.github.io/bulletchess/index.html"
 Issues = "https://github.com/zedeckj/bulletchess/issues"
 
-
+[tool.setuptools]
+packages = ["bulletchess"]
 
 [tool.setuptools.packages.find]
 include = ["bulletchess"]
