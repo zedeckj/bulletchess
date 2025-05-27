@@ -410,7 +410,7 @@ struct read_move_res read_move_tok(token_t *token,
 	char err[100];
 	move_t move = san_to_move(board, san, err);
 	if (move.type == ERROR_MOVE) {
-		 	char msg[200];
+		 	char msg[500];
 			char fen[100];
 		 	make_fen(board, fen); 
 			print_board(board);
