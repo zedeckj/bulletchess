@@ -56,7 +56,7 @@ jobs:
           # Install the first wheel found (each build produces exactly one arch‑appropriate wheel)
           python -m pip install $(ls ./wheelhouse/*.whl | head -n 1)
           cd tests
-          python -m unittest discover -s ./suite -p "*.py"
+          ./test
 
       - uses: actions/upload-artifact@v4
         with:
@@ -83,7 +83,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install dist/*.tar.gz
           cd tests
-          python -m unittest discover -s ./suite -p "*.py"
+          ./test
 
       - uses: actions/upload-artifact@v4
         with:
