@@ -63,7 +63,7 @@ jobs:
           chmod +x tests/test
           mv bulletchess bulletchess_src           # prevent shadowing
           cd tests
-          test
+          ./test
 
       - uses: actions/upload-artifact@v4
         with:
