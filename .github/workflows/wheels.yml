@@ -2,40 +2,52 @@ name: Build, test & publish
 
 on:
   workflow_dispatch:
-  # Build & test every push to main
+  # Build & test on every push to main
   push:
     branches: [ main ]
-  # Only publish when a GitHub release is created ("Publish release" button)
+  # Upload only when a GitHub release is published
   release:
     types: [ published ]
 
 jobs:
-  # ---------- Build wheels for all platforms ----------
+  # ---------------- Build wheels ----------------
   build_wheels:
     name: Build wheels for ${{ matrix.os }}
     runs-on: ${{ matrix.runs-on }}
     strategy:
+      fail-fast: false
       matrix:
-        os: [ linux-intel, linux-arm, windows, macOS-intel, macOS-arm, iOS ]
         include:
-          # Common cibuildwheel defaults
-          - archs: auto64
-            platform: auto
-          # Concrete runner selection per OS
+          # linux (x86‑64)
           - os: linux-intel
             runs-on: ubuntu-latest
+            platform: auto
+            archs: auto64
+          # linux (AArch64)
           - os: linux-arm
             runs-on: ubuntu-24.04-arm
+            platform: auto
+            archs: auto64
+          # Windows (x86‑64)
           - os: windows
             runs-on: windows-latest
+            platform: auto
+            archs: auto64
+          # macOS Intel
           - os: macos-intel
-            runs-on: macos-13  # last x86_64 mac runner
+            runs-on: macos-13          # last x86_64 runner
+            platform: auto
+            archs: auto64
+          # macOS Apple‑silicon
           - os: macos-arm
             runs-on: macos-latest
+            platform: auto
             archs: auto,universal2
+          # iOS cross‑compiled wheel (cannot be executed here)
           - os: ios
             runs-on: macos-latest
             platform: ios
+            archs: auto64
 
     steps:
       - uses: actions/checkout@v4
@@ -44,15 +56,16 @@ jobs:
         uses: pypa/cibuildwheel@v3.0.0b1
         env:
           CIBW_PLATFORM: ${{ matrix.platform }}
-          CIBW_ARCHS:    ${{ matrix.archs }}
+          CIBW_ARCHS: ${{ matrix.archs }}
           CIBW_MANYLINUX_I686_IMAGE: manylinux2014
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
         with:
           name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
           path: ./wheelhouse/*.whl
 
-  # ---------- Build sdist ----------
+  # ---------------- Build sdist ----------------
   build_sdist:
     name: Build source distribution
     runs-on: ubuntu-latest
@@ -67,9 +80,9 @@ jobs:
           name: cibw-sdist
           path: dist/*.tar.gz
 
-  # ---------- Test every built distribution on its native runner ----------
+  # ---------------- Test distributions ----------------
   test_dists:
-    name: Test wheel & sdist on ${{ matrix.os }} (Python ${{ matrix.python-version }})
+    name: Test distributions on ${{ matrix.os }} (Python ${{ matrix.python-version }})
     needs: [ build_wheels, build_sdist ]
     runs-on: ${{ matrix.runs-on }}
     strategy:
@@ -87,8 +100,7 @@ jobs:
             runs-on: macos-13
           - os: macos-arm
             runs-on: macos-latest
-          # NOTE: iOS wheels cannot be executed on GitHub-hosted runners; consider
-          #  adding device/simulator CI separately if you need runtime tests.
+          # iOS wheels cannot be executed in CI – skipped
 
     steps:
       - uses: actions/checkout@v4
@@ -101,21 +113,29 @@ jobs:
       - name: Download artifacts for this OS
         uses: actions/download-artifact@v4
         with:
-          pattern: |
-            cibw-wheels-${{ matrix.os }}-*
-            cibw-sdist
+          pattern: "cibw-wheels-${{ matrix.os }}-*\ncibw-sdist"
           path: dist
           merge-multiple: true
 
-      - name: List downloaded artifacts (debug)
-        run: ls -R dist
+      - name: Show downloaded artifacts
+        shell: bash
+        run: |
+          echo "Artifacts on runner ${RUNNER_OS} for ${matrix.os}:"
+          if [ -d dist ]; then
+            find dist -maxdepth 1 -type f -print
+          else
+            echo "(none)"
+          fi
 
-      - name: Run unit tests against all artifacts
+      - name: Run unit tests
+        if: hashFiles('dist/**') != ''
         shell: bash
         run: |
           set -euo pipefail
+          shopt -s nullglob
           for pkg in dist/*.{whl,tar.gz}; do
-            echo "=== Testing $pkg ==="
+            echo "=============================="
+            echo "Testing $pkg"
             python -m venv .venv
             source .venv/bin/activate
             python -m pip install --upgrade pip
@@ -125,7 +145,7 @@ jobs:
             rm -rf .venv
           done
 
-  # ---------- Publish to TestPyPI ----------
+  # ---------------- Publish to TestPyPI ----------------
   upload_pypi:
     name: Upload to TestPyPI
     needs: [ build_wheels, build_sdist ]
@@ -133,7 +153,6 @@ jobs:
     environment: PyPI
     permissions:
       id-token: write
-    # Only run when the event is a published GitHub release
     if: github.event_name == 'release' && github.event.action == 'published'
 
     steps:
@@ -142,8 +161,9 @@ jobs:
           pattern: cibw-*
           path: dist
           merge-multiple: true
-
-      - uses: pypa/gh-action-pypi-publish@release/v1
+      
+      - name: Publish to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
           username: __token__
