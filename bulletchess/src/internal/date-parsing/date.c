@@ -120,6 +120,9 @@ const char *parse_date(date_t *dst, char *in_str) {
 
 date_t unknown_date(){
 	return (date_t){
+		.year = 0,
+		.month = 0,
+		.day = 0,
 		.known_year = false,
 		.known_month = false,
 		.known_day = false,

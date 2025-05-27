@@ -1725,7 +1725,7 @@ static PyObject *PyBitboard_squares_iter(PyObject *self) {
 
 static PyObject *PyBitboard_repr(PyObject *self){
 	bitboard_t bb = PyBitboard_get(self);
-	return PyUnicode_FromFormat("<Bitboard: 0x%lX>", bb);
+	return PyUnicode_FromFormat("<Bitboard: 0x%llX>", bb);
 }
 
 static PyObject *PyBitboard_to_str(PyObject *self){
