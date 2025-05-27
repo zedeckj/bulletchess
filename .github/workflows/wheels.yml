@@ -27,11 +27,9 @@ jobs:
           - os: windows
             runs-on: windows-latest
           - os: macos-intel
-            # macos-13 was the last x86_64 runner
-            runs-on: macos-13
+            runs-on: macos-13  # last x86_64 runner
           - os: macos-arm
-            # macos-14+ (including latest) are ARM64 runners
-            runs-on: macos-latest
+            runs-on: macos-latest  # ARM64 runner
             archs: auto,universal2
           - os: ios
             runs-on: macos-latest
@@ -46,24 +44,19 @@ jobs:
           CIBW_PLATFORM: ${{ matrix.platform }}
           CIBW_ARCHS: ${{ matrix.archs }}
           CIBW_MANYLINUX_I686_IMAGE: manylinux2014
-          # Can also be configured directly, using `with:`
-        # with:
-        #   package-dir: .
-        #   output-dir: wheelhouse
-        #   config-file: "{package}/pyproject.toml"
-
 
       - name: Install and test
         if: ${{ matrix.os != 'ios' }}
         run: |
           python -m pip install --upgrade pip
-          # Pick the wheel matching this runner's CPU arch (fallback to universal2)
-          if [[ $(uname -m) == "arm64" ]]; then
-            python -m pip install ./wheelhouse/*arm64*.whl || python -m pip install ./wheelhouse/*universal2*.whl
+          # Install the wheel compatible with this runner
+          if [[ "${{ matrix.os }}" == macos-* ]]; then
+            python -m pip install ./wheelhouse/*universal2*.whl
           else
-            python -m pip install ./wheelhouse/*x86_64*.whl || python -m pip install ./wheelhouse/*universal2*.whl
+            python -m pip install $(ls ./wheelhouse/*.whl | head -n 1)
           fi
-          python -m unittest discover -s ./tests -p "*.py"
+          python -m unittest discover -s ./tests -p "*.py" discover -s ./tests -p "*.py"
+
       - uses: actions/upload-artifact@v4
         with:
           name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
@@ -90,12 +83,9 @@ jobs:
     permissions:
       id-token: write
     if: github.event_name == 'release' && github.event.action == 'published'
-    # or, alternatively, upload to PyPI on every tag starting with 'v' (remove on: release above to use this)
-    #if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     steps:
       - uses: actions/download-artifact@v4
         with:
-          # unpacks all CIBW artifacts into dist/
           pattern: cibw-*
           path: dist
           merge-multiple: true
