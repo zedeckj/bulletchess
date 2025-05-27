@@ -83,7 +83,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install dist/*.tar.gz
           cd tests
-          python -m unittest discover -s ./tests -p "*.py"
+          python -m unittest discover -s ./suite -p "*.py"
 
       - uses: actions/upload-artifact@v4
         with:
