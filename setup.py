@@ -37,9 +37,11 @@ core = Extension(
 #print(core)
 
 setup(
-    ext_modules = [core],
-    packages=["bulletchess"],
-    include_dirs=["bulletchess"],
-    package_data={"": ["*.c", "*.h"]},
-    include_package_data=True
+    ext_modules=[core],
+    packages=["bulletchess"],      
+    package_dir={"bulletchess": "bulletchess"},
+    exclude_package_data={
+        "bulletchess": ["src*", "src/**"],
+    },
+    package_data={"bulletchess": ["src/**/*.c", "_csrc/**/*.h"]},
 )
