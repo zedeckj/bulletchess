@@ -81,8 +81,8 @@ char *add_tag_pair(token_t *name, token_t *val,
 	char *ptr = dict_remove(dest_dict, name->string);
 	if (ptr) { // Just ignore unknown tags
 	  dict_add(tok_dict, name->string, val);
-	  char scratch[255];
-	  strncpy(scratch, val->string + 1, 255);
+	  char scratch[255] = {0};
+	  strncpy(scratch, val->string + 1, 254);
 	  scratch[strlen(scratch) - 1] = 0;
 	  strncpy(ptr, scratch, 255);
   }
