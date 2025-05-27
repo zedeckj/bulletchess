@@ -40,4 +40,6 @@ setup(
     ext_modules = [core],
     packages=["bulletchess"],
     include_dirs=["bulletchess"],
+    package_data={"": ["*.c", "*.h"]},
+    include_package_data=True
 )
