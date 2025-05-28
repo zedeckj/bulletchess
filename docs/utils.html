@@ -394,18 +394,22 @@ based on Claude Shannon’s example evaluation function.
 This implementation differs in using centipawns instead of fractional values,
 and explicitly evaluates positions which can be claimed as a draw as 0.
 The number of Kings is reconsidered as whether or not a player is in Checkmate.</p>
-<p>``
-f(P) = 200(K-K’) + 9(Q-Q’) + 5(R-R’) + 3(B-B’+N-N’) + (P-P’) - 0.5(D-D’+S-S’+I-I’) + 0.1(M-M’)</p>
-<p>in which: -
-(1) K,Q,R,B,B,P are the number of White kings, queens, rooks, bishops, knights
-and pawns on the board.
-(2) D,S,I are doubled, backward and isolated White pawns.
-(3) M= White mobility (measured, say, as the number of legal moves available to
+<blockquote>
+<div><p>f(P) = 200(K-K’) + 9(Q-Q’) + 5(R-R’) + 3(B-B’+N-N’) + (P-P’) - 0.5(D-D’+S-S’+I-I’) + 0.1(M-M’)</p>
+<p>in which:</p>
+<p>1) 
+K,Q,R,B,B,P are the number of White kings, queens, rooks, bishops, knights
+and pawns on the board.</p>
+<p>2)
+D,S,I are doubled, backward and isolated White pawns.</p>
+<p>3)
+M= White mobility (measured, say, as the number of legal moves available to
 White).</p>
-<p>Primed letters are the similar quantities for Black.``</p>
+<p>Primed letters are the similar quantities for Black.</p>
 <p>Shannon, C. E. (1950). XXII. Programming a computer for playing chess. The London, 
 Edinburgh, and Dublin Philosophical Magazine and Journal of Science, 41(314), 256–27    
 5. <a class="reference external" href="https://doi.org/10.1080/14786445008521796">https://doi.org/10.1080/14786445008521796</a></p>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py function">

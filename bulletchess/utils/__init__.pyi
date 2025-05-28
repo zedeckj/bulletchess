@@ -17,22 +17,30 @@ def evaluate(board : Board):
     This implementation differs in using centipawns instead of fractional values,
     and explicitly evaluates positions which can be claimed as a draw as 0.
     The number of Kings is reconsidered as whether or not a player is in Checkmate. 
-    
-    ``
-    f(P) = 200(K-K') + 9(Q-Q') + 5(R-R') + 3(B-B'+N-N') + (P-P') - 0.5(D-D'+S-S'+I-I') + 0.1(M-M')
+        
 
-    in which: -
-    (1) K,Q,R,B,B,P are the number of White kings, queens, rooks, bishops, knights
-    and pawns on the board.
-    (2) D,S,I are doubled, backward and isolated White pawns.
-    (3) M= White mobility (measured, say, as the number of legal moves available to
-    White).
-    
-    Primed letters are the similar quantities for Black.``
+        f(P) = 200(K-K') + 9(Q-Q') + 5(R-R') + 3(B-B'+N-N') + (P-P') - 0.5(D-D'+S-S'+I-I') + 0.1(M-M')
 
-    Shannon, C. E. (1950). XXII. Programming a computer for playing chess. The London, 
-    Edinburgh, and Dublin Philosophical Magazine and Journal of Science, 41(314), 256–27    
-    5. https://doi.org/10.1080/14786445008521796
+        in which:
+
+        1) 
+        K,Q,R,B,B,P are the number of White kings, queens, rooks, bishops, knights
+        and pawns on the board.
+
+
+        2)
+        D,S,I are doubled, backward and isolated White pawns.
+
+
+        3)
+        M= White mobility (measured, say, as the number of legal moves available to
+        White).
+
+        Primed letters are the similar quantities for Black.
+
+        Shannon, C. E. (1950). XXII. Programming a computer for playing chess. The London, 
+        Edinburgh, and Dublin Philosophical Magazine and Journal of Science, 41(314), 256–27    
+        5. https://doi.org/10.1080/14786445008521796
     """
     ...
 

@@ -7,7 +7,8 @@ Performance Comparisons
 allowing it to be significantly faster. To demonstrate this, we can write equivalent functions in both libraries, and compare the runtimes.
 
 
-    NOTE: ``bulletchess`` is neither an extension nor a port of ``python-chess``, and has a distinct and indpendent implemenetation. 
+.. note::
+     ``bulletchess`` is neither an extension nor a port of ``python-chess``, and has a distinct and indpendent implemenetation. 
 
 Let's start by implementing a `Perft <https://www.chessprogramming.org/Perft>`_ function. In ``bulletchess``:
 
