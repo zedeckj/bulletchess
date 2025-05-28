@@ -2,14 +2,17 @@
 Performance Comparisons
 ========================
 
-``bulletchess``'s creation was motivated by frustration with `python-chess <https://python-chess.readthedocs.io/en/latest/>`_'s slow performance.
-``python-chess`` is a fantastic, feature-rich library, but is inherently limited in its performance by being implemented by python. ``bulletchess``, however, is implemented as a pure C-extension.
-To demonstrate how much faster ``bulletchess`` is, we can write equivalent functions in both libraries, and compare the runtimes.
+``bulletchess``'s creation was motivated by my frustration with `python-chess <https://python-chess.readthedocs.io/en/latest/>`_'s slow performance, especially for areas such as machine learning and engine development. 
+``python-chess`` is a fantastic, feature-rich library, but is inherently limited in its speed by being implemented in python. ``bulletchess``, however, is implemented as a pure C-extension, 
+allowing it to be significantly faster. To demonstrate this, we can write equivalent functions in both libraries, and compare the runtimes.
 
+
+    NOTE: ``bulletchess`` is neither an extension nor a port of ``python-chess``, and has a distinct and indpendent implemenetation. 
 
 Let's start by implementing a `Perft <https://www.chessprogramming.org/Perft>`_ function. In ``bulletchess``:
 
 """
+
 import bulletchess
 from bulletchess.utils import count_moves
 

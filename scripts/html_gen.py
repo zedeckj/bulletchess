@@ -12,8 +12,9 @@ html_template = "\n".join([f'"{line.rstrip()}\\n"' for line in html_template.spl
 
 
 declarations = "\n".join([
-    f"\tchar {sq}_str[40];\n\timg_for_piece(get_piece_at(pos, {sq}), {sq}_str);" for sq in bulletchess.SQUARES_FLIPPED
+    f"\tchar {sq}_str[100];\n\timg_for_piece(get_piece_at(pos, {sq}), {sq}_str);" for sq in bulletchess.SQUARES_FLIPPED
 ])
+
 
 
 args = ",".join([f" {sq}_str" for sq in bulletchess.SQUARES_FLIPPED])
@@ -21,4 +22,7 @@ args2 = ",".join([f" {sq}_str" for sq in bulletchess.SQUARES])
 
 
 with open("../bulletchess/src/internal/html.c", "w") as f:
-    f.write(c_template.format(template = html_template, declarations = declarations, args = args, args2 = args2))
+    out = c_template.format(template = html_template, declarations = declarations, args = args, args2 = args2)
+    print(out)
+    f.write(out)
+

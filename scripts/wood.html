@@ -1,0 +1,167 @@
+<meta http-equiv="refresh" content="1">
+<style>
+	.bulletchess-board {
+		
+		all: unset;
+	}
+	.bulletchess-board *,
+	.bulletchess-board *::before,
+	.bulletchess-board *::after {
+		
+  		all: unset;           
+	}
+	.bulletchess-board .lt {
+  		height: 60px; width: 60px;
+  		background-image: url("./light_square.png");
+		background-size: 60px; 
+		text-align: center;
+		vertical-align: middle;
+	}
+
+	.bulletchess-board .dk {
+  		height: 60px; width: 60px;
+  		background-image: url("./dark_square.png");
+		background-size: 60px; 
+  		background-blend-mode: multiply;
+	}
+
+	.bulletchess-board .row {
+		display: flex;
+		
+	}
+	.bulletchess-board .wP {
+		content:url("./pieces/wP.svg");
+		scale: 100%;
+		
+	}
+	.bulletchess-board .wN {
+		content:url("./pieces/wN.svg");
+		scale: 100%;
+	}
+	.bulletchess-board .wB {
+		content:url("./pieces/wB.svg");
+		scale: 100%;
+		align-content: center;
+	}
+	.bulletchess-board .wR {
+		content:url("./pieces/wR.svg");
+		scale: 100%;
+	}
+	.bulletchess-board .wQ {
+		content:url("./pieces/wQ.svg");
+		scale: 100%;
+	}
+	.bulletchess-board .wK {
+		content:url("./pieces/wK.svg");
+		scale: 100%;
+	}
+	.bulletchess-board .bP {
+		content:url("./pieces/bP.svg");
+		scale: 100%;
+	}
+	.bulletchess-board .bN {
+		content:url("./pieces/bN.svg");
+		scale: 100%;
+	}
+	.bulletchess-board .bB {
+		content:url("./pieces/bB.svg");
+		scale: 100%;
+	}
+	.bulletchess-board .bR {
+		content:url("./pieces/bR.svg");
+		scale: 100%;
+	}
+	.bulletchess-board .bQ {
+		content:url("./pieces/bQ.svg");
+		scale: 100%;
+	}
+	.bulletchess-board .bK {
+		content:url("./pieces/bK.svg");
+		scale: 100%;
+	}
+	
+</style>
+<div class ="bulletchess-board">
+	<div class = "row">
+		<div class = "lt"></div>		
+		<div class = "dk"></div>		
+		<div class = "lt"><div class = "bR"></div></div>		
+		<div class = "dk"></div>		
+		<div class = "lt"><div class = "bR"></div></div>		
+		<div class = "dk"></div>		
+		<div class = "lt"></div>		
+		<div class = "dk"></div>		
+	</div>
+	<div class = "row">
+		<div class = "dk"></div>		
+		<div class = "lt"><div class = "bR"></div></div>		
+		<div class = "dk"></div>		
+		<div class = "lt"></div>	
+		<div class = "dk"></div>		
+		<div class = "lt"></div>		
+		<div class = "dk"><div class = "bR"></div></div>		
+		<div class = "lt"></div>		
+	</div>
+	<div class = "row">
+		<div class = "lt"><div class = "wQ"></div></div>		
+		<div class = "dk"></div>		
+		<div class = "lt"><div class = "wB"></div></div>		
+		<div class = "dk"><div class = "wK"></div></div>		
+		<div class = "lt"></div>		
+		<div class = "dk"><div class = "bK"></div></div>		
+		<div class = "lt"></div>		
+		<div class = "dk"></div>		
+	</div>
+	<div class = "row">
+		<div class = "dk"><div class = "wK"></div></div>		
+		<div class = "lt"></div>		
+		<div class = "dk"><div class = "bP"></div></div>		
+		<div class = "lt"></div>	
+		<div class = "dk"></div>		
+		<div class = "lt"></div>		
+		<div class = "dk"></div>		
+		<div class = "lt"><div class = "bP"></div></div>		
+	</div>
+
+<div class = "row">
+		<div class = "lt"></div>		
+		<div class = "dk"></div>		
+		<div class = "lt"></div>		
+		<div class = "dk"><div class = "wB"></div></div>		
+		<div class = "lt"><div class = "bK"></div></div>		
+		<div class = "dk"><div class = "wB"></div></div>		
+		<div class = "lt"><div class = "wB"></div></div>		
+		<div class = "dk"><div class = "wK"></div></div>		
+	</div>
+	<div class = "row">
+		<div class = "dk"></div>		
+		<div class = "lt"><div class = "bP"></div></div>		
+		<div class = "dk"><div class = "wB"></div></div>		
+		<div class = "lt"><div class = "bR"></div></div>	
+		<div class = "dk"></div>		
+		<div class = "lt"></div>		
+		<div class = "dk"><div class = "wQ"></div></div>		
+		<div class = "lt"><div class = "bP"></div></div>		
+	</div>
+
+<div class = "row">
+		<div class = "lt"></div>		
+		<div class = "dk"></div>		
+		<div class = "lt"></div>		
+		<div class = "dk"></div>		
+		<div class = "lt"></div>		
+		<div class = "dk"><div class = "wB"></div></div>		
+		<div class = "lt"><div class = "wQ"></div></div>		
+		<div class = "dk"></div>		
+	</div>
+	<div class = "row">
+		<div class = "dk"></div>		
+		<div class = "lt"></div>		
+		<div class = "dk"></div>		
+		<div class = "lt"><div class = "bK"></div></div>	
+		<div class = "dk"></div>		
+		<div class = "lt"></div>		
+		<div class = "dk"></div>		
+		<div class = "lt"></div>		
+	</div>
+</div>

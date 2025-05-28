@@ -1,7 +1,7 @@
 Main Documentation
 --------------------
 
-.. autoapimodule:: bulletchess.main
+.. autoapimodule:: bulletchess
    :members:
    :special-members:
    :member-order: bysource

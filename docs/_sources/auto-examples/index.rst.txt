@@ -28,7 +28,7 @@
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="bulletchess&#x27;s creation was motivated by frustration with python-chess&#x27;s slow performance. python-chess is a fantastic, feature-rich library, but is inherently limited in its performance by being implemented by python. bulletchess, however, is implemented as a pure C-extension. To demonstrate how much faster bulletchess is, we can write equivalent functions in both libraries, and compare the runtimes.">
+    <div class="sphx-glr-thumbcontainer" tooltip="bulletchess&#x27;s creation was motivated by my frustration with python-chess&#x27;s slow performance, especially for areas such as machine learning and engine development.  python-chess is a fantastic, feature-rich library, but is inherently limited in its speed by being implemented in python. bulletchess, however, is implemented as a pure C-extension,  allowing it to be significantly faster. To demonstrate this, we can write equivalent functions in both libraries, and compare the runtimes.">
 
 .. only:: html
 

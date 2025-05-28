@@ -13,4 +13,5 @@ test:
 
 clean:
 	 rm -rf build *.so **/*.so
+	 rm -rf build dist *.egg-info
 

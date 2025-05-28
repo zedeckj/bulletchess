@@ -2104,7 +2104,7 @@ PyBoard_repr(PyObject *self){
 
 
 static PyObject *PyBoard_html(PyObject *self, PyObject *Py_UNUSED(args)){
-	char html_buffer[7000];
+	char html_buffer[20000];
 	board_html(PyBoard_board(self), html_buffer);
 	return PyUnicode_FromString(html_buffer);	
 }

@@ -1,0 +1,165 @@
+<meta http-equiv="refresh" content="1">
+<style>
+	.bulletchess-board {
+		
+		all: unset;
+	}
+	.bulletchess-board *,
+	.bulletchess-board *::before,
+	.bulletchess-board *::after {
+		
+  		all: unset;           
+	}
+	.bulletchess-board .lt {
+  		height: 60px; width: 60px;
+		background-color: #9aa8b4;
+		text-align: center;
+		vertical-align: middle;
+	}
+
+	.bulletchess-board .dk {
+  		height: 60px; width: 60px;
+  		background-color: #444f61;
+  		background-blend-mode: multiply;
+	}
+
+	.bulletchess-board .row {
+		display: flex;
+		
+	}
+	.bulletchess-board .wP {
+		content:url("https://raw.githubusercontent.com/zedeckj/bulletchess/2291e1984fe64ee7b136987ce6366ae3b6355008/gfx/pieces/wP.svg");
+		scale: 100%;
+		
+	}
+	.bulletchess-board .wN {
+		content:url("https://raw.githubusercontent.com/zedeckj/bulletchess/2291e1984fe64ee7b136987ce6366ae3b6355008/gfx/pieces/wN.svg");
+		scale: 100%;
+	}
+	.bulletchess-board .wB {
+		content:url("https://raw.githubusercontent.com/zedeckj/bulletchess/2291e1984fe64ee7b136987ce6366ae3b6355008/gfx/pieces/wB.svg");
+		scale: 100%;
+		align-content: center;
+	}
+	.bulletchess-board .wR {
+		content:url("https://raw.githubusercontent.com/zedeckj/bulletchess/2291e1984fe64ee7b136987ce6366ae3b6355008/gfx/wR.svg");
+		scale: 100%;
+	}
+	.bulletchess-board .wQ {
+		content:url("https://raw.githubusercontent.com/zedeckj/bulletchess/2291e1984fe64ee7b136987ce6366ae3b6355008/gfx/pieces/wQ.svg");
+		scale: 100%;
+	}
+	.bulletchess-board .wK {
+		content:url("https://raw.githubusercontent.com/zedeckj/bulletchess/2291e1984fe64ee7b136987ce6366ae3b6355008/gfx/pieces/wK.svg");
+		scale: 100%;
+	}
+	.bulletchess-board .bP {
+		content:url("https://raw.githubusercontent.com/zedeckj/bulletchess/2291e1984fe64ee7b136987ce6366ae3b6355008/gfx/pieces/bP.svg");
+		scale: 100%;
+	}
+	.bulletchess-board .bN {
+		content:url("https://raw.githubusercontent.com/zedeckj/bulletchess/2291e1984fe64ee7b136987ce6366ae3b6355008/gfx/pieces/bN.svg");
+		scale: 100%;
+	}
+	.bulletchess-board .bB {
+		content:url("https://raw.githubusercontent.com/zedeckj/bulletchess/2291e1984fe64ee7b136987ce6366ae3b6355008/gfx/pieces/bB.svg");
+		scale: 100%;
+	}
+	.bulletchess-board .bR {
+		content:url("https://raw.githubusercontent.com/zedeckj/bulletchess/2291e1984fe64ee7b136987ce6366ae3b6355008/gfx/pieces/bR.svg");
+		scale: 100%;
+	}
+	.bulletchess-board .bQ {
+		content:url("https://raw.githubusercontent.com/zedeckj/bulletchess/2291e1984fe64ee7b136987ce6366ae3b6355008/gfx/pieces/bQ.svg");
+		scale: 100%;
+	}
+	.bulletchess-board .bK {
+		content:url("https://raw.githubusercontent.com/zedeckj/bulletchess/2291e1984fe64ee7b136987ce6366ae3b6355008/gfx/pieces/bK.svg");
+		scale: 100%;
+	}
+	
+</style>
+<div class ="bulletchess-board">
+	<div class = "row">
+		<div class = "lt"><div class = "wB"></div></div>		
+		<div class = "dk"></div>		
+		<div class = "lt"></div>		
+		<div class = "dk"></div>		
+		<div class = "lt"><div class = "wQ"></div></div>		
+		<div class = "dk"></div>		
+		<div class = "lt"><div class = "wK"></div></div>		
+		<div class = "dk"><div class = "bK"></div></div>		
+	</div>
+	<div class = "row">
+		<div class = "dk"></div>		
+		<div class = "lt"></div>		
+		<div class = "dk"><div class = "bK"></div></div>		
+		<div class = "lt"><div class = "wK"></div></div>	
+		<div class = "dk"><div class = "bK"></div></div>		
+		<div class = "lt"></div>		
+		<div class = "dk"><div class = "bP"></div></div>		
+		<div class = "lt"></div>		
+	</div>
+	<div class = "row">
+		<div class = "lt"><div class = "wB"></div></div>		
+		<div class = "dk"></div>		
+		<div class = "lt"></div>		
+		<div class = "dk"><div class = "wB"></div></div>		
+		<div class = "lt"><div class = "wB"></div></div>		
+		<div class = "dk"></div>		
+		<div class = "lt"><div class = "bP"></div></div>		
+		<div class = "dk"><div class = "wQ"></div></div>		
+	</div>
+	<div class = "row">
+		<div class = "dk"></div>		
+		<div class = "lt"><div class = "bK"></div></div>		
+		<div class = "dk"></div>		
+		<div class = "lt"></div>	
+		<div class = "dk"></div>		
+		<div class = "lt"><div class = "bR"></div></div>		
+		<div class = "dk"></div>		
+		<div class = "lt"><div class = "wB"></div></div>		
+	</div>
+
+<div class = "row">
+		<div class = "lt"><div class = "wQ"></div></div>		
+		<div class = "dk"></div>		
+		<div class = "lt"></div>		
+		<div class = "dk"></div>		
+		<div class = "lt"><div class = "bK"></div></div>		
+		<div class = "dk"></div>		
+		<div class = "lt"></div>		
+		<div class = "dk"><div class = "wQ"></div></div>		
+	</div>
+	<div class = "row">
+		<div class = "dk"></div>		
+		<div class = "lt"><div class = "wK"></div></div>		
+		<div class = "dk"></div>		
+		<div class = "lt"><div class = "bR"></div></div>	
+		<div class = "dk"></div>		
+		<div class = "lt"><div class = "bR"></div></div>		
+		<div class = "dk"></div>		
+		<div class = "lt"></div>		
+	</div>
+
+<div class = "row">
+		<div class = "lt"><div class = "wB"></div></div>		
+		<div class = "dk"></div>		
+		<div class = "lt"></div>		
+		<div class = "dk"><div class = "bP"></div></div>		
+		<div class = "lt"><div class = "bK"></div></div>		
+		<div class = "dk"></div>		
+		<div class = "lt"></div>		
+		<div class = "dk"><div class = "bR"></div></div>		
+	</div>
+	<div class = "row">
+		<div class = "dk"></div>		
+		<div class = "lt"><div class = "bR"></div></div>		
+		<div class = "dk"><div class = "bK"></div></div>		
+		<div class = "lt"><div class = "wQ"></div></div>	
+		<div class = "dk"></div>		
+		<div class = "lt"><div class = "wB"></div></div>		
+		<div class = "dk"></div>		
+		<div class = "lt"></div>		
+	</div>
+</div>
