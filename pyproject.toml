@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "bulletchess"
-version = "0.3"
+version = "0.3.1"
 authors = [
   { name="Jordan Zedeck", email="mail@jordanzedeck.com" },
 ]
@@ -12,7 +12,7 @@ authors = [
 description = "A high performance C Extension for chess"
 readme = "README.md"
 requires-python = ">=3.13"
-license = "GPL-3.0-only"
+license = "GPL-3.0-or-later"
 license-files = ["LICEN[CS]E*"]
 
 [project.urls]
