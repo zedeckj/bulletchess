@@ -1,5 +1,5 @@
 from typing import Optional, Any
-#from bulletchess import *
+from bulletchess import *
 
 class PGNDate:
     """

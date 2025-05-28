@@ -2151,7 +2151,7 @@ class Board:
         - - K - - B - r 
         """
 
-    def _repr_html_(self):
+    def _repr_html_(self) -> str:
         """
         Creates an HTML representation of this :class:`Board`.
         """
