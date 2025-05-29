@@ -465,7 +465,7 @@ def unoccupied_bitboard(board : Board) -> Bitboard:
     """
     ...
 
-def white_bitboard(board : Board) -> Color:
+def white_bitboard(board : Board) -> Bitboard:
     """
     An explict alias for indexing a :class:`Board` with :data:`WHITE`.
 
@@ -488,7 +488,7 @@ def white_bitboard(board : Board) -> Color:
     """
     ...
 
-def black_bitboard(board : Board) -> Color:
+def black_bitboard(board : Board) -> Bitboard:
     """
     An explict alias for indexing a :class:`Board` with :data:`BLACK`.
 
@@ -511,7 +511,7 @@ def black_bitboard(board : Board) -> Color:
     """
     ...
 
-def king_bitboard(board : Board) -> Color:
+def king_bitboard(board : Board) -> Bitboard:
     """
     An explict alias for indexing a :class:`Board` with :data:`KING`.
 
@@ -534,7 +534,7 @@ def king_bitboard(board : Board) -> Color:
     """
     ...
 
-def queen_bitboard(board : Board) -> Color:
+def queen_bitboard(board : Board) -> Bitboard:
     """
     An explict alias for indexing a :class:`Board` with :data:`QUEEN`.
 
@@ -559,7 +559,7 @@ def queen_bitboard(board : Board) -> Color:
     """
     ...
 
-def bishop_bitboard(board : Board) -> Color:
+def bishop_bitboard(board : Board) -> Bitboard:
     """
     An explict alias for indexing a :class:`Board` with :data:`BISHOP`.
 
@@ -582,7 +582,7 @@ def bishop_bitboard(board : Board) -> Color:
     """
     ...
 
-def rook_bitboard(board : Board) -> Color:
+def rook_bitboard(board : Board) -> Bitboard:
     """
     An explict alias for indexing a :class:`Board` with :data:`ROOK`.
 
@@ -605,7 +605,7 @@ def rook_bitboard(board : Board) -> Color:
     """
     ...
 
-def pawn_bitboard(board : Board) -> Color:
+def pawn_bitboard(board : Board) -> Bitboard:
     """
     An explict alias for indexing a :class:`Board` with :data:`PAWN`.
 
@@ -628,7 +628,7 @@ def pawn_bitboard(board : Board) -> Color:
     """
     ...
 
-def knight_bitboard(board : Board) -> Color:
+def knight_bitboard(board : Board) -> Bitboard:
     """
     An explict alias for indexing a :class:`Board` with :data:`KNIGHT`.
 
