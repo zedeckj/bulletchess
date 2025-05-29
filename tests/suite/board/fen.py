@@ -3,6 +3,7 @@ import sys
 import re
 from bulletchess import *
 from suite import data_file
+from time import time
 
 import json
 class TestBoardFEN(unittest.TestCase):
@@ -94,6 +95,26 @@ class TestBoardFEN(unittest.TestCase):
         for fen in fens:
             board = Board.from_fen(fen)
             self.assertEqual(board.fen(), fen)
+
+    def test_from_fen_fast(self):
+        with open (data_file("fens.json"), "r") as f:
+            fens = json.load(f)
+        for fen in fens:
+            board = Board.from_fen_fast(fen)
+            self.assertEqual(board.fen(), fen)
+
+    def test_times(self):
+        with open (data_file("fens.json"), "r") as f:
+            fens = json.load(f)
+        n_time = time()
+        for fen in fens:
+            board = Board.from_fen(fen)
+        print(time() - n_time)
+        f_time = time()
+        for fen in fens:
+            board = Board.from_fen_fast(fen)
+        print(time() - f_time)
+
 
     def test_misuse(self):
         with self.assertRaisesRegex(TypeError, re.escape("Expected a str, got 3 (int)")):
