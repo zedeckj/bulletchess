@@ -6,7 +6,6 @@ contain the root `toctree` directive. -->
 # bulletchess
 
 [![Builds and Tests](https://github.com/zedeckj/bulletchess/actions/workflows/wheels.yml/badge.svg)](https://github.com/zedeckj/bulletchess/actions/workflows/wheels.yml)
-
 [![PyPI version](https://badge.fury.io/py/bulletchess.svg)](https://badge.fury.io/py/bulletchess)
 
 `bulletchess` is a Python module for playing, analyzing, and building engines for chess. Unlike other chess libraries in Python,
