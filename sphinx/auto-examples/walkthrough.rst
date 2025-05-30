@@ -67,7 +67,7 @@ The :func:`Board()` constructor returns a :class:`Board` representing the starti
 .. GENERATED FROM PYTHON SOURCE LINES 18-21
 
 The :class:`Board` class defines :func:`Board._repr_html_()`, which allows positions to be rendered
-like the above in Jupyter note books, or Sphinx documenation like this page.
+like the above in Jupyter note books, or Sphinx documentation like this page.
 For displaying a :class:`Board` as plain text, we use :func:`Board.__str__()`.
 
 .. GENERATED FROM PYTHON SOURCE LINES 21-24
@@ -189,8 +189,8 @@ And then assign a :class:`Piece` to each :class:`Square`.
 
 .. GENERATED FROM PYTHON SOURCE LINES 54-56
 
-We can get the FEN of this position with :func:`Board.fen()`. We might want to set the halfmove clock
-and fullmove number for this endgame position. Let's also make it black's turn.
+We can get the FEN of this position with :func:`Board.fen()`. We might want to set the half-move clock
+and full-move number for this endgame position. Let's also make it black's turn.
 
 .. GENERATED FROM PYTHON SOURCE LINES 56-63
 
@@ -441,7 +441,7 @@ But the game is still ongoing...
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.222 seconds)
+   **Total running time of the script:** (0 minutes 0.008 seconds)
 
 
 .. _sphx_glr_download_auto-examples_walkthrough.py:

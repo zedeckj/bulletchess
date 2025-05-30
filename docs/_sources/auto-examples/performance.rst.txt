@@ -27,7 +27,7 @@ allowing it to be significantly faster. To demonstrate this, we can write equiva
 
 
 .. note::
-     ``bulletchess`` is neither an extension nor a port of ``python-chess``, and has a distinct and indpendent implemenetation. 
+     ``bulletchess`` is neither an extension nor a port of ``python-chess``, and has a distinct and independent implementation. 
 
 Let's start by implementing a `Perft <https://www.chessprogramming.org/Perft>`_ function. In ``bulletchess``:
 
@@ -122,9 +122,9 @@ Notice how the code we write is nearly identical. However, when we test their ru
 
  .. code-block:: none
 
-    `chess_perft` returned 119060324 in 110.6211s
-    `bullet_perft` returned 119060324 in 1.6668s
-    bulletchess is 66.3686x faster
+    `chess_perft` returned 119060324 in 109.9025s
+    `bullet_perft` returned 119060324 in 1.6925s
+    bulletchess is 64.9358x faster
 
 
 
@@ -194,12 +194,12 @@ Like before, we'll compare the runtimes of each version.
     start = time()
     chess_fens = chess_roundtrip(fens)
     chess_time = time() - start
-    print(f"`chess_roundtrip` took {chess_time:.4}")
+    print(f"`chess_roundtrip` took {chess_time:.4}s")
 
     start = time()
     bullet_fens = bullet_roundtrip(fens)
     bullet_time = time() - start
-    print(f"`bullet_roundtrip` took {bullet_time:.4}")
+    print(f"`bullet_roundtrip` took {bullet_time:.4}s")
 
     print(f"bulletchess is {chess_time/bullet_time:.4f}x faster")
 
@@ -213,9 +213,9 @@ Like before, we'll compare the runtimes of each version.
 
  .. code-block:: none
 
-    `chess_roundtrip` took 46.7
-    `bullet_roundtrip` took 0.9835
-    bulletchess is 47.4831x faster
+    `chess_roundtrip` took 46.58s
+    `bullet_roundtrip` took 0.9744s
+    bulletchess is 47.8052x faster
 
 
 
@@ -279,13 +279,13 @@ but the structure is still the same. Running the comparison:
     start = time()
     chess_res = chess_statuses(chess_boards)
     chess_time = time() - start
-    print(f"`chess_statuses` took {chess_time:.4}")
+    print(f"`chess_statuses` took {chess_time:.4}s")
     print(chess_res)
 
     start = time()
     bullet_res = bullet_statuses(bullet_boards)
     bullet_time = time() - start
-    print(f"`bullet_statuses` took {bullet_time:.4}")
+    print(f"`bullet_statuses` took {bullet_time:.4}s")
     print(bullet_res)
 
     print(f"bulletchess is {chess_time/bullet_time:.4f}x faster")
@@ -298,11 +298,11 @@ but the structure is still the same. Running the comparison:
 
  .. code-block:: none
 
-    `chess_statuses` took 113.9
+    `chess_statuses` took 117.8s
     {'ongoing': 933861, 'checkmate': 40147, 'draw': 25992}
-    `bullet_statuses` took 0.3004
+    `bullet_statuses` took 0.3026s
     {'ongoing': 933861, 'checkmate': 40147, 'draw': 25992}
-    bulletchess is 379.2929x faster
+    bulletchess is 389.3435x faster
 
 
 
@@ -370,13 +370,13 @@ reading through games.
     start = time()
     chess_res = chess_check_games()
     chess_time = time() - start
-    print(f"`chess_check_games` took {chess_time:.4}")
+    print(f"`chess_check_games` took {chess_time:.4}s")
     print(f"python-chess found {chess_res} positions with a pawn on E4")
 
     start = time()
     bullet_res = bullet_check_games()
     bullet_time = time() - start
-    print(f"`bullet_check_games` took {bullet_time:.4}")
+    print(f"`bullet_check_games` took {bullet_time:.4}s")
     print(f"bulletchess found {bullet_res} positions with a pawn on E4")
 
     print(f"bulletchess is {chess_time/bullet_time:.4f}x faster")
@@ -390,11 +390,11 @@ reading through games.
 
  .. code-block:: none
 
-    `chess_check_games` took 18.02
+    `chess_check_games` took 18.31s
     python-chess found 824592 positions with a pawn on E4
-    `bullet_check_games` took 1.382
+    `bullet_check_games` took 1.415s
     bulletchess found 824592 positions with a pawn on E4
-    bulletchess is 13.0411x faster
+    bulletchess is 12.9408x faster
 
 
 
@@ -402,7 +402,7 @@ reading through games.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (5 minutes 21.577 seconds)
+   **Total running time of the script:** (5 minutes 24.630 seconds)
 
 
 .. _sphx_glr_download_auto-examples_performance.py:

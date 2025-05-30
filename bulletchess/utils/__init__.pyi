@@ -10,7 +10,7 @@ def count_moves(board : Board) -> int:
     """
     ...
 
-def evaluate(board : Board):
+def evaluate(board : Board) -> int:
     """
     A simple heuristic function for the utility of a :class:`Board`
     based on Claude Shannon's example evaluation function.
@@ -46,8 +46,37 @@ def evaluate(board : Board):
 
 def is_quiescent(board : Board) -> bool:
     """
-    Determines if the given :class:`Board`'s position is 'quiescent', meaning that the position is not Check,
-    and that there are  no possible captures that could be made on this turn.
+    Determines if the given :class:`Board`'s position is 'quiescent', meaning that the position is not check,
+    and that there are no possible captures that could be made on this turn.
+
+    >>> is_quiescent(Board())
+    True
+
+    >>> board = Board.from_fen("rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2")
+    >>> print(board)
+    r n b q k b n r 
+    p p p p - p p p 
+    - - - - - - - - 
+    - - - - p - - - 
+    - - - - P - - - 
+    - - - - - N - - 
+    P P P P - P P P 
+    R N B Q K B - R 
+    >>> is_quiescent(board)
+    True
+
+    >>> board = Board.from_fen("r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3")
+    >>> print(board)
+    r - b q k b n r 
+    p p p p - p p p 
+    - - n - - - - - 
+    - - - - p - - - 
+    - - - - P - - - 
+    - - - - - N - - 
+    P P P P - P P P 
+    R N B Q K B - R 
+    >>> is_quiescent(board)
+    False
     """
     ...
 
@@ -352,7 +381,7 @@ def random_legal_move(board : Board) -> Optional[Move]:
 
 def random_board() -> Board:
     """
-    Returns a :class:`Board` with a position determined by appling a random number of randomly selected legal moves.
+    Returns a :class:`Board` with a position determined by applying a random number of randomly selected legal moves.
     The generated :class:`Board` may be checkmate or a draw. 
 
     >>> board = random_board()
@@ -383,7 +412,7 @@ def random_board() -> Board:
 def legally_equal(board1 : Board, board2 : Board) -> bool:
     """
     Returns ``True`` if given two :class:`Board` instances with the same mapping of :class:`Square` to :class:`Piece` objects,
-    equivilant :class:`CastlingRights`, and en-passant :class:`Square` values.
+    equivalent :class:`CastlingRights`, and en-passant :class:`Square` values.
 
     Unlike :func:`Board.__eq__`, does not check the halfmove clock and fullmove number. 
 
@@ -401,7 +430,7 @@ def deeply_equal(board1 : Board, board2 : Board) -> bool:
     """
     Returns ``True`` if given two :class:`Board` instances have the same move history,
     along with equivalent mappings of :class:`Square` to :class:`Piece` objects,
-    equivilant :class:`CastlingRights`, and en-passant :class:`Square` values, halfmove clocks, and fullmove numbers.
+    equivalent :class:`CastlingRights`, and en-passant :class:`Square` values, halfmove clocks, and fullmove numbers.
 
     This function has the same behavior as ``board1 == board2 and board1.history == board2.history``, but is much faster.
     
@@ -467,7 +496,7 @@ def unoccupied_bitboard(board : Board) -> Bitboard:
 
 def white_bitboard(board : Board) -> Bitboard:
     """
-    An explict alias for indexing a :class:`Board` with :data:`WHITE`.
+    An explicit alias for indexing a :class:`Board` with :data:`WHITE`.
 
     Gets a :class:`Bitboard` of all squares with a white piece on the given :class:`Board`. 
 
@@ -490,7 +519,7 @@ def white_bitboard(board : Board) -> Bitboard:
 
 def black_bitboard(board : Board) -> Bitboard:
     """
-    An explict alias for indexing a :class:`Board` with :data:`BLACK`.
+    An explicit alias for indexing a :class:`Board` with :data:`BLACK`.
 
     Gets a :class:`Bitboard` of all squares with a black piece on the given :class:`Board`. 
 
@@ -513,7 +542,7 @@ def black_bitboard(board : Board) -> Bitboard:
 
 def king_bitboard(board : Board) -> Bitboard:
     """
-    An explict alias for indexing a :class:`Board` with :data:`KING`.
+    An explicit alias for indexing a :class:`Board` with :data:`KING`.
 
     Gets a :class:`Bitboard` of all squares with a king on the given :class:`Board`. 
 
@@ -536,7 +565,7 @@ def king_bitboard(board : Board) -> Bitboard:
 
 def queen_bitboard(board : Board) -> Bitboard:
     """
-    An explict alias for indexing a :class:`Board` with :data:`QUEEN`.
+    An explicit alias for indexing a :class:`Board` with :data:`QUEEN`.
 
     Gets a :class:`Bitboard` of all squares with a queen on the given :class:`Board`. 
 
@@ -561,7 +590,7 @@ def queen_bitboard(board : Board) -> Bitboard:
 
 def bishop_bitboard(board : Board) -> Bitboard:
     """
-    An explict alias for indexing a :class:`Board` with :data:`BISHOP`.
+    An explicit alias for indexing a :class:`Board` with :data:`BISHOP`.
 
     Gets a :class:`Bitboard` of all squares with a bishop on the given :class:`Board`. 
 
@@ -584,7 +613,7 @@ def bishop_bitboard(board : Board) -> Bitboard:
 
 def rook_bitboard(board : Board) -> Bitboard:
     """
-    An explict alias for indexing a :class:`Board` with :data:`ROOK`.
+    An explicit alias for indexing a :class:`Board` with :data:`ROOK`.
 
     Gets a :class:`Bitboard` of all squares with a rook on the given :class:`Board`. 
 
@@ -607,7 +636,7 @@ def rook_bitboard(board : Board) -> Bitboard:
 
 def pawn_bitboard(board : Board) -> Bitboard:
     """
-    An explict alias for indexing a :class:`Board` with :data:`PAWN`.
+    An explicit alias for indexing a :class:`Board` with :data:`PAWN`.
 
     Gets a :class:`Bitboard` of all squares with a pawn on the given :class:`Board`. 
 
@@ -630,7 +659,7 @@ def pawn_bitboard(board : Board) -> Bitboard:
 
 def knight_bitboard(board : Board) -> Bitboard:
     """
-    An explict alias for indexing a :class:`Board` with :data:`KNIGHT`.
+    An explicit alias for indexing a :class:`Board` with :data:`KNIGHT`.
 
     Gets a :class:`Bitboard` of all squares with a knight on the given :class:`Board`. 
 

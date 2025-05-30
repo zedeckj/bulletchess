@@ -8,7 +8,7 @@ allowing it to be significantly faster. To demonstrate this, we can write equiva
 
 
 .. note::
-     ``bulletchess`` is neither an extension nor a port of ``python-chess``, and has a distinct and indpendent implemenetation. 
+     ``bulletchess`` is neither an extension nor a port of ``python-chess``, and has a distinct and independent implementation. 
 
 Let's start by implementing a `Perft <https://www.chessprogramming.org/Perft>`_ function. In ``bulletchess``:
 
@@ -99,12 +99,12 @@ def chess_roundtrip(fens : list[str]):
 start = time()
 chess_fens = chess_roundtrip(fens)
 chess_time = time() - start
-print(f"`chess_roundtrip` took {chess_time:.4}")
+print(f"`chess_roundtrip` took {chess_time:.4}s")
 
 start = time()
 bullet_fens = bullet_roundtrip(fens)
 bullet_time = time() - start
-print(f"`bullet_roundtrip` took {bullet_time:.4}")
+print(f"`bullet_roundtrip` took {bullet_time:.4}s")
 
 print(f"bulletchess is {chess_time/bullet_time:.4f}x faster")
 
@@ -150,13 +150,13 @@ bullet_boards = [bulletchess.Board.from_fen(fen) for fen in fens]
 start = time()
 chess_res = chess_statuses(chess_boards)
 chess_time = time() - start
-print(f"`chess_statuses` took {chess_time:.4}")
+print(f"`chess_statuses` took {chess_time:.4}s")
 print(chess_res)
 
 start = time()
 bullet_res = bullet_statuses(bullet_boards)
 bullet_time = time() - start
-print(f"`bullet_statuses` took {bullet_time:.4}")
+print(f"`bullet_statuses` took {bullet_time:.4}s")
 print(bullet_res)
 
 print(f"bulletchess is {chess_time/bullet_time:.4f}x faster")
@@ -205,13 +205,13 @@ def bullet_check_games():
 start = time()
 chess_res = chess_check_games()
 chess_time = time() - start
-print(f"`chess_check_games` took {chess_time:.4}")
+print(f"`chess_check_games` took {chess_time:.4}s")
 print(f"python-chess found {chess_res} positions with a pawn on E4")
 
 start = time()
 bullet_res = bullet_check_games()
 bullet_time = time() - start
-print(f"`bullet_check_games` took {bullet_time:.4}")
+print(f"`bullet_check_games` took {bullet_time:.4}s")
 print(f"bulletchess found {bullet_res} positions with a pawn on E4")
 
 print(f"bulletchess is {chess_time/bullet_time:.4f}x faster")

@@ -1796,7 +1796,7 @@ excluded squares as <code class="docutils literal notranslate"><span class="pre"
 <dl class="py data">
 <dt class="sig sig-object py" id="bulletchess.F_FILE">
 <span class="sig-name descname"><span class="pre">F_FILE</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#bulletchess.Bitboard" title="bulletchess.Bitboard"><span class="pre">Bitboard</span></a></em><a class="headerlink" href="#bulletchess.F_FILE" title="Link to this definition">#</a></dt>
-<dd><p><a class="reference internal" href="#bulletchess.Bitboard" title="bulletchess.Bitboard"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code></a> containg every square on the F-file</p>
+<dd><p><a class="reference internal" href="#bulletchess.Bitboard" title="bulletchess.Bitboard"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code></a> containing every square on the F-file</p>
 </dd></dl>
 
 <dl class="py data">
@@ -2632,8 +2632,8 @@ permissions.</p>
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Board</span></span><a class="headerlink" href="#bulletchess.Board" title="Link to this definition">#</a></dt>
 <dd><p>A mutable chess position.</p>
 <p>A <a class="reference internal" href="#bulletchess.Board" title="bulletchess.Board"><code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code></a> represents a configuration of chess pieces as a mapping of each <a class="reference internal" href="#bulletchess.Square" title="bulletchess.Square"><code class="xref py py-class docutils literal notranslate"><span class="pre">Square</span></code></a> to optional an <a class="reference internal" href="#bulletchess.Piece" title="bulletchess.Piece"><code class="xref py py-class docutils literal notranslate"><span class="pre">Piece</span></code></a>. 
-The <a class="reference internal" href="#bulletchess.Board" title="bulletchess.Board"><code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code></a> class includes attributes for <a class="reference internal" href="#bulletchess.CastlingRights" title="bulletchess.CastlingRights"><code class="xref py py-class docutils literal notranslate"><span class="pre">CastlingRights</span></code></a>, the existance of an en-passant <a class="reference internal" href="#bulletchess.Square" title="bulletchess.Square"><code class="xref py py-class docutils literal notranslate"><span class="pre">Square</span></code></a>, and the <a class="reference internal" href="#bulletchess.Color" title="bulletchess.Color"><code class="xref py py-class docutils literal notranslate"><span class="pre">Color</span></code></a> for the turn of the current player.
-Also holds the halfmove clock and fullmove number each as an <code class="docutils literal notranslate"><span class="pre">int</span></code>.</p>
+The <a class="reference internal" href="#bulletchess.Board" title="bulletchess.Board"><code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code></a> class includes attributes for <a class="reference internal" href="#bulletchess.CastlingRights" title="bulletchess.CastlingRights"><code class="xref py py-class docutils literal notranslate"><span class="pre">CastlingRights</span></code></a>, the existence of an en-passant <a class="reference internal" href="#bulletchess.Square" title="bulletchess.Square"><code class="xref py py-class docutils literal notranslate"><span class="pre">Square</span></code></a>, and the <a class="reference internal" href="#bulletchess.Color" title="bulletchess.Color"><code class="xref py py-class docutils literal notranslate"><span class="pre">Color</span></code></a> for the turn of the current player.
+Also holds the half-move clock and full-move number each as an <code class="docutils literal notranslate"><span class="pre">int</span></code>.</p>
 <p>The <a class="reference internal" href="#bulletchess.Board" title="bulletchess.Board"><code class="xref py py-class docutils literal notranslate"><span class="pre">Board</span></code></a> class provides an interface for generating <a class="reference internal" href="#bulletchess.Move" title="bulletchess.Move"><code class="xref py py-class docutils literal notranslate"><span class="pre">Move</span></code></a> objects representing legal actions for a turn, 
 as well as applying and undoing these moves.</p>
 <dl class="py method">
@@ -3266,7 +3266,7 @@ This includes stalemate, insufficient material, a fifty move timeout, or threefo
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.Color"><code class="docutils literal notranslate"><span class="pre">Color</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.Color"><code class="docutils literal notranslate"><span class="pre">Color</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.Color.from_str"><code class="docutils literal notranslate"><span class="pre">from_str()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.Color.opposite"><code class="docutils literal notranslate"><span class="pre">opposite</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.Color.__str__"><code class="docutils literal notranslate"><span class="pre">__str__()</span></code></a></li>
@@ -3278,7 +3278,7 @@ This includes stalemate, insufficient material, a fifty move timeout, or threefo
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.WHITE"><code class="docutils literal notranslate"><span class="pre">WHITE</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.BLACK"><code class="docutils literal notranslate"><span class="pre">BLACK</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.PieceType"><code class="docutils literal notranslate"><span class="pre">PieceType</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.PieceType"><code class="docutils literal notranslate"><span class="pre">PieceType</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.PieceType.from_str"><code class="docutils literal notranslate"><span class="pre">from_str()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.PieceType.__str__"><code class="docutils literal notranslate"><span class="pre">__str__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.PieceType.__repr__"><code class="docutils literal notranslate"><span class="pre">__repr__()</span></code></a></li>
@@ -3293,7 +3293,7 @@ This includes stalemate, insufficient material, a fifty move timeout, or threefo
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.QUEEN"><code class="docutils literal notranslate"><span class="pre">QUEEN</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.KING"><code class="docutils literal notranslate"><span class="pre">KING</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.PIECE_TYPES"><code class="docutils literal notranslate"><span class="pre">PIECE_TYPES</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.Piece"><code class="docutils literal notranslate"><span class="pre">Piece</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.Piece"><code class="docutils literal notranslate"><span class="pre">Piece</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.Piece.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.Piece.from_chr"><code class="docutils literal notranslate"><span class="pre">from_chr()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.Piece.piece_type"><code class="docutils literal notranslate"><span class="pre">piece_type</span></code></a></li>
@@ -3304,7 +3304,7 @@ This includes stalemate, insufficient material, a fifty move timeout, or threefo
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.Piece.__hash__"><code class="docutils literal notranslate"><span class="pre">__hash__()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.Square"><code class="docutils literal notranslate"><span class="pre">Square</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.Square"><code class="docutils literal notranslate"><span class="pre">Square</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.Square.from_str"><code class="docutils literal notranslate"><span class="pre">from_str()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.Square.bb"><code class="docutils literal notranslate"><span class="pre">bb()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.Square.adjacent"><code class="docutils literal notranslate"><span class="pre">adjacent()</span></code></a></li>
@@ -3387,7 +3387,7 @@ This includes stalemate, insufficient material, a fifty move timeout, or threefo
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.H8"><code class="docutils literal notranslate"><span class="pre">H8</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.SQUARES"><code class="docutils literal notranslate"><span class="pre">SQUARES</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.SQUARES_FLIPPED"><code class="docutils literal notranslate"><span class="pre">SQUARES_FLIPPED</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.Bitboard"><code class="docutils literal notranslate"><span class="pre">Bitboard</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.Bitboard"><code class="docutils literal notranslate"><span class="pre">Bitboard</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.Bitboard.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.Bitboard.__str__"><code class="docutils literal notranslate"><span class="pre">__str__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.Bitboard.from_int"><code class="docutils literal notranslate"><span class="pre">from_int()</span></code></a></li>
@@ -3430,7 +3430,7 @@ This includes stalemate, insufficient material, a fifty move timeout, or threefo
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.EMPTY_BB"><code class="docutils literal notranslate"><span class="pre">EMPTY_BB</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.LIGHT_SQUARE_BB"><code class="docutils literal notranslate"><span class="pre">LIGHT_SQUARE_BB</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.DARK_SQUARE_BB"><code class="docutils literal notranslate"><span class="pre">DARK_SQUARE_BB</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.CastlingType"><code class="docutils literal notranslate"><span class="pre">CastlingType</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.CastlingType"><code class="docutils literal notranslate"><span class="pre">CastlingType</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.CastlingType.from_chr"><code class="docutils literal notranslate"><span class="pre">from_chr()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.CastlingType.__str__"><code class="docutils literal notranslate"><span class="pre">__str__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.CastlingType.__eq__"><code class="docutils literal notranslate"><span class="pre">__eq__()</span></code></a></li>
@@ -3442,7 +3442,7 @@ This includes stalemate, insufficient material, a fifty move timeout, or threefo
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.WHITE_QUEENSIDE"><code class="docutils literal notranslate"><span class="pre">WHITE_QUEENSIDE</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.BLACK_KINGSIDE"><code class="docutils literal notranslate"><span class="pre">BLACK_KINGSIDE</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.BLACK_QUEENSIDE"><code class="docutils literal notranslate"><span class="pre">BLACK_QUEENSIDE</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.Move"><code class="docutils literal notranslate"><span class="pre">Move</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.Move"><code class="docutils literal notranslate"><span class="pre">Move</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.Move.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.Move.castle"><code class="docutils literal notranslate"><span class="pre">castle()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.Move.from_uci"><code class="docutils literal notranslate"><span class="pre">from_uci()</span></code></a></li>
@@ -3462,7 +3462,7 @@ This includes stalemate, insufficient material, a fifty move timeout, or threefo
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.Move.__repr__"><code class="docutils literal notranslate"><span class="pre">__repr__()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.CastlingRights"><code class="docutils literal notranslate"><span class="pre">CastlingRights</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.CastlingRights"><code class="docutils literal notranslate"><span class="pre">CastlingRights</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.CastlingRights.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.CastlingRights.from_fen"><code class="docutils literal notranslate"><span class="pre">from_fen()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.CastlingRights.fen"><code class="docutils literal notranslate"><span class="pre">fen()</span></code></a></li>
@@ -3487,7 +3487,7 @@ This includes stalemate, insufficient material, a fifty move timeout, or threefo
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.ALL_CASTLING"><code class="docutils literal notranslate"><span class="pre">ALL_CASTLING</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.NO_CASTLING"><code class="docutils literal notranslate"><span class="pre">NO_CASTLING</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.Board"><code class="docutils literal notranslate"><span class="pre">Board</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.Board"><code class="docutils literal notranslate"><span class="pre">Board</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.Board.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.Board.from_fen"><code class="docutils literal notranslate"><span class="pre">from_fen()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.Board.empty"><code class="docutils literal notranslate"><span class="pre">empty()</span></code></a></li>
@@ -3521,7 +3521,7 @@ This includes stalemate, insufficient material, a fifty move timeout, or threefo
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.Board.STEEL"><code class="docutils literal notranslate"><span class="pre">STEEL</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.BoardStatus"><code class="docutils literal notranslate"><span class="pre">BoardStatus</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.BoardStatus"><code class="docutils literal notranslate"><span class="pre">BoardStatus</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.BoardStatus.__contains__"><code class="docutils literal notranslate"><span class="pre">__contains__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.BoardStatus.__repr__"><code class="docutils literal notranslate"><span class="pre">__repr__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bulletchess.BoardStatus.__eq__"><code class="docutils literal notranslate"><span class="pre">__eq__()</span></code></a></li>

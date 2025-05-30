@@ -16,7 +16,7 @@ board
 
 # %%
 # The :class:`Board` class defines :func:`Board._repr_html_()`, which allows positions to be rendered
-# like the above in Jupyter note books, or Sphinx documenation like this page.
+# like the above in Jupyter note books, or Sphinx documentation like this page.
 # For displaying a :class:`Board` as plain text, we use :func:`Board.__str__()`.
 
 print(str(board))
@@ -51,8 +51,8 @@ board[G7] = Piece(BLACK, PAWN)
 board
 
 # %%
-# We can get the FEN of this position with :func:`Board.fen()`. We might want to set the halfmove clock
-# and fullmove number for this endgame position. Let's also make it black's turn.
+# We can get the FEN of this position with :func:`Board.fen()`. We might want to set the half-move clock
+# and full-move number for this endgame position. Let's also make it black's turn.
 
 board.halfmove_clock = 3
 board.fullmove_number = 43

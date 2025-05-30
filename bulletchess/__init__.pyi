@@ -1094,7 +1094,7 @@ E_FILE: Bitboard
 
 F_FILE: Bitboard
 """
-:class:`Bitboard` containg every square on the F-file
+:class:`Bitboard` containing every square on the F-file
 """
 
 G_FILE: Bitboard
@@ -1735,8 +1735,8 @@ class Board:
     A mutable chess position.
 
     A :class:`Board` represents a configuration of chess pieces as a mapping of each :class:`Square` to optional an :class:`Piece`. 
-    The :class:`Board` class includes attributes for :class:`CastlingRights`, the existance of an en-passant :class:`Square`, and the :class:`Color` for the turn of the current player.
-    Also holds the halfmove clock and fullmove number each as an ``int``. 
+    The :class:`Board` class includes attributes for :class:`CastlingRights`, the existence of an en-passant :class:`Square`, and the :class:`Color` for the turn of the current player.
+    Also holds the half-move clock and full-move number each as an ``int``. 
 
     The :class:`Board` class provides an interface for generating :class:`Move` objects representing legal actions for a turn, 
     as well as applying and undoing these moves. 

@@ -388,7 +388,7 @@ to download the full example code.</p>
 allowing it to be significantly faster. To demonstrate this, we can write equivalent functions in both libraries, and compare the runtimes.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><code class="docutils literal notranslate"><span class="pre">bulletchess</span></code> is neither an extension nor a port of <code class="docutils literal notranslate"><span class="pre">python-chess</span></code>, and has a distinct and indpendent implemenetation.</p>
+<p><code class="docutils literal notranslate"><span class="pre">bulletchess</span></code> is neither an extension nor a port of <code class="docutils literal notranslate"><span class="pre">python-chess</span></code>, and has a distinct and independent implementation.</p>
 </div>
 <p>Let’s start by implementing a <a class="reference external" href="https://www.chessprogramming.org/Perft">Perft</a> function. In <code class="docutils literal notranslate"><span class="pre">bulletchess</span></code>:</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">bulletchess</span>
@@ -441,9 +441,9 @@ allowing it to be significantly faster. To demonstrate this, we can write equiva
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;bulletchess is </span><span class="si">{</span><span class="n">chess_time</span><span class="o">/</span><span class="n">bullet_time</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">x faster&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>`chess_perft` returned 119060324 in 110.6211s
-`bullet_perft` returned 119060324 in 1.6668s
-bulletchess is 66.3686x faster
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>`chess_perft` returned 119060324 in 109.9025s
+`bullet_perft` returned 119060324 in 1.6925s
+bulletchess is 64.9358x faster
 </pre></div>
 </div>
 <p>We see a massive difference in <code class="docutils literal notranslate"><span class="pre">bulletchess</span></code>’s move generation and application speed.
@@ -474,21 +474,21 @@ so both <code class="docutils literal notranslate"><span class="pre">bulletchess
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
 <span class="n">chess_fens</span> <span class="o">=</span> <span class="n">chess_roundtrip</span><span class="p">(</span><span class="n">fens</span><span class="p">)</span>
 <span class="n">chess_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;`chess_roundtrip` took </span><span class="si">{</span><span class="n">chess_time</span><span class="si">:</span><span class="s2">.4</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;`chess_roundtrip` took </span><span class="si">{</span><span class="n">chess_time</span><span class="si">:</span><span class="s2">.4</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
 
 <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
 <span class="n">bullet_fens</span> <span class="o">=</span> <span class="n">bullet_roundtrip</span><span class="p">(</span><span class="n">fens</span><span class="p">)</span>
 <span class="n">bullet_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;`bullet_roundtrip` took </span><span class="si">{</span><span class="n">bullet_time</span><span class="si">:</span><span class="s2">.4</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;`bullet_roundtrip` took </span><span class="si">{</span><span class="n">bullet_time</span><span class="si">:</span><span class="s2">.4</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;bulletchess is </span><span class="si">{</span><span class="n">chess_time</span><span class="o">/</span><span class="n">bullet_time</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">x faster&quot;</span><span class="p">)</span>
 
 <span class="k">assert</span><span class="p">(</span><span class="n">chess_fens</span> <span class="o">==</span> <span class="n">bullet_fens</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>`chess_roundtrip` took 46.7
-`bullet_roundtrip` took 0.9835
-bulletchess is 47.4831x faster
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>`chess_roundtrip` took 46.58s
+`bullet_roundtrip` took 0.9744s
+bulletchess is 47.8052x faster
 </pre></div>
 </div>
 <p>Once again, <code class="docutils literal notranslate"><span class="pre">bulletchess</span></code> is much faster. Using the same dataset of FENs, lets compare checking if positions
@@ -527,23 +527,23 @@ but the structure is still the same. Running the comparison:</p>
 <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
 <span class="n">chess_res</span> <span class="o">=</span> <span class="n">chess_statuses</span><span class="p">(</span><span class="n">chess_boards</span><span class="p">)</span>
 <span class="n">chess_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;`chess_statuses` took </span><span class="si">{</span><span class="n">chess_time</span><span class="si">:</span><span class="s2">.4</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;`chess_statuses` took </span><span class="si">{</span><span class="n">chess_time</span><span class="si">:</span><span class="s2">.4</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">chess_res</span><span class="p">)</span>
 
 <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
 <span class="n">bullet_res</span> <span class="o">=</span> <span class="n">bullet_statuses</span><span class="p">(</span><span class="n">bullet_boards</span><span class="p">)</span>
 <span class="n">bullet_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;`bullet_statuses` took </span><span class="si">{</span><span class="n">bullet_time</span><span class="si">:</span><span class="s2">.4</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;`bullet_statuses` took </span><span class="si">{</span><span class="n">bullet_time</span><span class="si">:</span><span class="s2">.4</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">bullet_res</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;bulletchess is </span><span class="si">{</span><span class="n">chess_time</span><span class="o">/</span><span class="n">bullet_time</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">x faster&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>`chess_statuses` took 113.9
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>`chess_statuses` took 117.8s
 {&#39;ongoing&#39;: 933861, &#39;checkmate&#39;: 40147, &#39;draw&#39;: 25992}
-`bullet_statuses` took 0.3004
+`bullet_statuses` took 0.3026s
 {&#39;ongoing&#39;: 933861, &#39;checkmate&#39;: 40147, &#39;draw&#39;: 25992}
-bulletchess is 379.2929x faster
+bulletchess is 389.3435x faster
 </pre></div>
 </div>
 <p>The speed up is even larger. Like <code class="docutils literal notranslate"><span class="pre">python-chess</span></code>, <code class="docutils literal notranslate"><span class="pre">bulletchess</span></code> provides a PGN reader. Let’s do a simple task reading a PGN file,
@@ -586,26 +586,26 @@ reading through games.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
 <span class="n">chess_res</span> <span class="o">=</span> <span class="n">chess_check_games</span><span class="p">()</span>
 <span class="n">chess_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;`chess_check_games` took </span><span class="si">{</span><span class="n">chess_time</span><span class="si">:</span><span class="s2">.4</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;`chess_check_games` took </span><span class="si">{</span><span class="n">chess_time</span><span class="si">:</span><span class="s2">.4</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;python-chess found </span><span class="si">{</span><span class="n">chess_res</span><span class="si">}</span><span class="s2"> positions with a pawn on E4&quot;</span><span class="p">)</span>
 
 <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
 <span class="n">bullet_res</span> <span class="o">=</span> <span class="n">bullet_check_games</span><span class="p">()</span>
 <span class="n">bullet_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;`bullet_check_games` took </span><span class="si">{</span><span class="n">bullet_time</span><span class="si">:</span><span class="s2">.4</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;`bullet_check_games` took </span><span class="si">{</span><span class="n">bullet_time</span><span class="si">:</span><span class="s2">.4</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;bulletchess found </span><span class="si">{</span><span class="n">bullet_res</span><span class="si">}</span><span class="s2"> positions with a pawn on E4&quot;</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;bulletchess is </span><span class="si">{</span><span class="n">chess_time</span><span class="o">/</span><span class="n">bullet_time</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">x faster&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>`chess_check_games` took 18.02
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>`chess_check_games` took 18.31s
 python-chess found 824592 positions with a pawn on E4
-`bullet_check_games` took 1.382
+`bullet_check_games` took 1.415s
 bulletchess found 824592 positions with a pawn on E4
-bulletchess is 13.0411x faster
+bulletchess is 12.9408x faster
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (5 minutes 21.577 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (5 minutes 24.630 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-performance-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/bc30af8a536e5e105790efc040e8617d/performance.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">performance.ipynb</span></code></a></p>
