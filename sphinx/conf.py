@@ -46,6 +46,7 @@ html_static_path = ['_static']
 
 html_theme_options = {
     "navbar_align": "left",
+    "show_toc_level": 3,
     "icon_links": [
         {
             "name": "GitHub",

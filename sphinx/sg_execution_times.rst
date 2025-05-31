@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**05:24.630** total execution time for 2 files **from all galleries**:
+**00:00.005** total execution time for 2 files **from all galleries**:
 
 .. container::
 
@@ -32,9 +32,9 @@ Computation times
    * - Example
      - Time
      - Mem (MB)
-   * - :ref:`sphx_glr_auto-examples_performance.py` (``../walkthrough/performance.py``)
-     - 05:24.630
-     - 0.0
    * - :ref:`sphx_glr_auto-examples_walkthrough.py` (``../walkthrough/walkthrough.py``)
+     - 00:00.005
+     - 0.0
+   * - :ref:`sphx_glr_auto-examples_performance.py` (``../walkthrough/performance.py``)
      - 00:00.000
      - 0.0

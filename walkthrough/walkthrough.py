@@ -86,7 +86,7 @@ board
 
 # %% 
 # Oh, but that was a blunder. Moves can be undone with :func:`Board.undo()`, which returns
-# the last :class:`Move` applied. Getting the ``str``` of a :class:`Move` renders the move
+# the last :class:`Move` applied. Getting the ``str`` of a :class:`Move` renders the move
 # in UCI long algebraic notation.
 
 print("Undoing " + str(board.undo()))

@@ -327,7 +327,7 @@ Moves can be created manually with the :func:`Move()` constructor.
 .. GENERATED FROM PYTHON SOURCE LINES 88-91
 
 Oh, but that was a blunder. Moves can be undone with :func:`Board.undo()`, which returns
-the last :class:`Move` applied. Getting the ``str``` of a :class:`Move` renders the move
+the last :class:`Move` applied. Getting the ``str`` of a :class:`Move` renders the move
 in UCI long algebraic notation.
 
 .. GENERATED FROM PYTHON SOURCE LINES 91-96
@@ -441,7 +441,7 @@ But the game is still ongoing...
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.008 seconds)
+   **Total running time of the script:** (0 minutes 0.005 seconds)
 
 
 .. _sphx_glr_download_auto-examples_walkthrough.py:
