@@ -1203,6 +1203,38 @@
                     </dl>
 
                     <dl class="py method">
+                      <dt class="sig sig-object py" id="bulletchess.Square.index">
+                        <span class="sig-name descname"><span class="pre">index</span></span><span
+                          class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span
+                            class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span
+                              class="pre">int</span></span></span><a class="headerlink" href="#bulletchess.Square.index"
+                          title="Link to this definition">#</a>
+                      </dt>
+                      <dd>
+                        <p>Returns the index of this <a class="reference internal" href="#bulletchess.Square"
+                            title="bulletchess.Square"><code
+                              class="xref py py-class docutils literal notranslate"><span class="pre">Square</span></code></a>
+                          in the provided <a class="reference internal" href="#bulletchess.SQUARES"
+                            title="bulletchess.SQUARES"><code
+                              class="xref py py-data docutils literal notranslate"><span class="pre">SQUARES</span></code></a>
+                          list.</p>
+                        <div class="doctest highlight-default notranslate">
+                          <div class="highlight">
+                            <pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A1</span><span class="o">.</span><span class="n">index</span><span class="p">()</span>
+<span class="go">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">B1</span><span class="o">.</span><span class="n">index</span><span class="p">()</span>
+<span class="go">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A2</span><span class="o">.</span><span class="n">index</span><span class="p">()</span>
+<span class="go">8</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">H8</span><span class="o">.</span><span class="n">index</span><span class="p">()</span>
+<span class="go">63</span>
+</pre>
+                          </div>
+                        </div>
+                      </dd>
+                    </dl>
+
+                    <dl class="py method">
                       <dt class="sig sig-object py" id="bulletchess.Square.adjacent">
                         <span class="sig-name descname"><span class="pre">adjacent</span></span><span
                           class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span
@@ -1622,6 +1654,201 @@
 <span class="go">True</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">H1</span><span class="o">.</span><span class="n">se</span><span class="p">()</span>
 <span class="go">None</span>
+</pre>
+                          </div>
+                        </div>
+                      </dd>
+                    </dl>
+
+                    <dl class="py method">
+                      <dt class="sig sig-object py" id="bulletchess.Square.__and__">
+                        <span class="sig-name descname"><span class="pre">__and__</span></span><span
+                          class="sig-paren">(</span><em class="sig-param"><span class="n"><span
+                              class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span
+                            class="w"> </span><span class="n"><a class="reference internal" href="#bulletchess.Bitboard"
+                              title="bulletchess.Bitboard"><span class="pre">Bitboard</span></a></span></em><span
+                          class="sig-paren">)</span> <span class="sig-return"><span
+                            class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a
+                              class="reference internal" href="#bulletchess.Bitboard" title="bulletchess.Bitboard"><span
+                                class="pre">Bitboard</span></a></span></span><a class="headerlink"
+                          href="#bulletchess.Square.__and__" title="Link to this definition">#</a>
+                      </dt>
+                      <dd>
+                        <p>Return the intersection, in the form of a <a class="reference internal"
+                            href="#bulletchess.Bitboard" title="bulletchess.Bitboard"><code
+                              class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code></a>,
+                          of
+                          this <a class="reference internal" href="#bulletchess.Square" title="bulletchess.Square"><code
+                              class="xref py py-class docutils literal notranslate"><span class="pre">Square</span></code></a>
+                          and a <a class="reference internal" href="#bulletchess.Bitboard"
+                            title="bulletchess.Bitboard"><code
+                              class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code></a>,
+                          or another <a class="reference internal" href="#bulletchess.Square"
+                            title="bulletchess.Square"><code
+                              class="xref py py-class docutils literal notranslate"><span class="pre">Square</span></code></a>.
+                        </p>
+                        <dl class="field-list simple">
+                          <dt class="field-odd">Parameters<span class="colon">:</span></dt>
+                          <dd class="field-odd">
+                            <p><strong>other</strong> (<a class="reference internal" href="#bulletchess.Bitboard"
+                                title="bulletchess.Bitboard"><em>Bitboard</em></a>) – <a class="reference internal"
+                                href="#bulletchess.Bitboard" title="bulletchess.Bitboard"><code
+                                  class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code></a>
+                              or <a class="reference internal" href="#bulletchess.Square"
+                                title="bulletchess.Square"><code
+                                  class="xref py py-class docutils literal notranslate"><span class="pre">Square</span></code></a>
+                              to intersect with</p>
+                          </dd>
+                          <dt class="field-even">Returns<span class="colon">:</span></dt>
+                          <dd class="field-even">
+                            <p>squares common to both operands.</p>
+                          </dd>
+                          <dt class="field-odd">Return type<span class="colon">:</span></dt>
+                          <dd class="field-odd">
+                            <p><a class="reference internal" href="#bulletchess.Bitboard"
+                                title="bulletchess.Bitboard">Bitboard</a></p>
+                          </dd>
+                        </dl>
+                        <div class="doctest highlight-default notranslate">
+                          <div class="highlight">
+                            <pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A1</span> <span class="o">&amp;</span> <span class="n">Bitboard</span><span class="p">([</span><span class="n">A1</span><span class="p">,</span> <span class="n">A2</span><span class="p">])</span> <span class="o">==</span> <span class="n">Bitboard</span><span class="p">([</span><span class="n">A1</span><span class="p">])</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">C_FILE</span> <span class="o">&amp;</span> <span class="n">C1</span> <span class="o">==</span> <span class="n">Bitboard</span><span class="p">([</span><span class="n">C1</span><span class="p">])</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">B2</span> <span class="o">&amp;</span> <span class="n">B3</span> <span class="o">==</span> <span class="n">Bitboard</span><span class="p">([])</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G2</span> <span class="o">&amp;</span> <span class="n">G2</span> <span class="o">==</span> <span class="n">Bitboard</span><span class="p">([</span><span class="n">G2</span><span class="p">])</span>
+<span class="go">True</span>
+</pre>
+                          </div>
+                        </div>
+                      </dd>
+                    </dl>
+
+                    <dl class="py method">
+                      <dt class="sig sig-object py" id="bulletchess.Square.__or__">
+                        <span class="sig-name descname"><span class="pre">__or__</span></span><span
+                          class="sig-paren">(</span><em class="sig-param"><span class="n"><span
+                              class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span
+                            class="w"> </span><span class="n"><a class="reference internal" href="#bulletchess.Bitboard"
+                              title="bulletchess.Bitboard"><span class="pre">Bitboard</span></a></span></em><span
+                          class="sig-paren">)</span> <span class="sig-return"><span
+                            class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a
+                              class="reference internal" href="#bulletchess.Bitboard" title="bulletchess.Bitboard"><span
+                                class="pre">Bitboard</span></a></span></span><a class="headerlink"
+                          href="#bulletchess.Square.__or__" title="Link to this definition">#</a>
+                      </dt>
+                      <dd>
+                        <p>Return the union, in the form of a <a class="reference internal" href="#bulletchess.Bitboard"
+                            title="bulletchess.Bitboard"><code
+                              class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code></a>,
+                          of
+                          this <a class="reference internal" href="#bulletchess.Square" title="bulletchess.Square"><code
+                              class="xref py py-class docutils literal notranslate"><span class="pre">Square</span></code></a>
+                          and a <a class="reference internal" href="#bulletchess.Bitboard"
+                            title="bulletchess.Bitboard"><code
+                              class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code></a>,
+                          or another <a class="reference internal" href="#bulletchess.Square"
+                            title="bulletchess.Square"><code
+                              class="xref py py-class docutils literal notranslate"><span class="pre">Square</span></code></a>.
+                        </p>
+                        <dl class="field-list simple">
+                          <dt class="field-odd">Parameters<span class="colon">:</span></dt>
+                          <dd class="field-odd">
+                            <p><strong>other</strong> (<a class="reference internal" href="#bulletchess.Bitboard"
+                                title="bulletchess.Bitboard"><em>Bitboard</em></a>) – <a class="reference internal"
+                                href="#bulletchess.Bitboard" title="bulletchess.Bitboard"><code
+                                  class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code></a>
+                              or <a class="reference internal" href="#bulletchess.Square"
+                                title="bulletchess.Square"><code
+                                  class="xref py py-class docutils literal notranslate"><span class="pre">Square</span></code></a>
+                              to union with</p>
+                          </dd>
+                          <dt class="field-even">Returns<span class="colon">:</span></dt>
+                          <dd class="field-even">
+                            <p>squares common to both operands.</p>
+                          </dd>
+                          <dt class="field-odd">Return type<span class="colon">:</span></dt>
+                          <dd class="field-odd">
+                            <p><a class="reference internal" href="#bulletchess.Bitboard"
+                                title="bulletchess.Bitboard">Bitboard</a></p>
+                          </dd>
+                        </dl>
+                        <div class="doctest highlight-default notranslate">
+                          <div class="highlight">
+                            <pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A1</span> <span class="o">|</span> <span class="n">Bitboard</span><span class="p">([</span><span class="n">A1</span><span class="p">,</span> <span class="n">A2</span><span class="p">])</span> <span class="o">==</span> <span class="n">Bitboard</span><span class="p">([</span><span class="n">A1</span><span class="p">,</span> <span class="n">A2</span><span class="p">])</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Bitboard</span><span class="p">([</span><span class="n">B2</span><span class="p">])</span> <span class="o">|</span> <span class="n">D1</span> <span class="o">==</span> <span class="n">Bitboard</span><span class="p">([</span><span class="n">B2</span><span class="p">,</span> <span class="n">D1</span><span class="p">])</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">B2</span> <span class="o">|</span> <span class="n">B3</span> <span class="o">==</span> <span class="n">Bitboard</span><span class="p">([</span><span class="n">B2</span><span class="p">,</span> <span class="n">B3</span><span class="p">])</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G2</span> <span class="o">|</span> <span class="n">G2</span> <span class="o">==</span> <span class="n">Bitboard</span><span class="p">([</span><span class="n">G2</span><span class="p">])</span>
+<span class="go">True</span>
+</pre>
+                          </div>
+                        </div>
+                      </dd>
+                    </dl>
+
+                    <dl class="py method">
+                      <dt class="sig sig-object py" id="bulletchess.Square.__xor__">
+                        <span class="sig-name descname"><span class="pre">__xor__</span></span><span
+                          class="sig-paren">(</span><em class="sig-param"><span class="n"><span
+                              class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span
+                            class="w"> </span><span class="n"><a class="reference internal" href="#bulletchess.Bitboard"
+                              title="bulletchess.Bitboard"><span class="pre">Bitboard</span></a></span></em><span
+                          class="sig-paren">)</span> <span class="sig-return"><span
+                            class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a
+                              class="reference internal" href="#bulletchess.Bitboard" title="bulletchess.Bitboard"><span
+                                class="pre">Bitboard</span></a></span></span><a class="headerlink"
+                          href="#bulletchess.Square.__xor__" title="Link to this definition">#</a>
+                      </dt>
+                      <dd>
+                        <p>Return the symmetric difference, in the form of a <a class="reference internal"
+                            href="#bulletchess.Bitboard" title="bulletchess.Bitboard"><code
+                              class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code></a>,
+                          of
+                          this <a class="reference internal" href="#bulletchess.Square" title="bulletchess.Square"><code
+                              class="xref py py-class docutils literal notranslate"><span class="pre">Square</span></code></a>
+                          and a <a class="reference internal" href="#bulletchess.Bitboard"
+                            title="bulletchess.Bitboard"><code
+                              class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code></a>,
+                          or another <a class="reference internal" href="#bulletchess.Square"
+                            title="bulletchess.Square"><code
+                              class="xref py py-class docutils literal notranslate"><span class="pre">Square</span></code></a>.
+                        </p>
+                        <dl class="field-list simple">
+                          <dt class="field-odd">Parameters<span class="colon">:</span></dt>
+                          <dd class="field-odd">
+                            <p><strong>other</strong> (<a class="reference internal" href="#bulletchess.Bitboard"
+                                title="bulletchess.Bitboard"><em>Bitboard</em></a>) – <a class="reference internal"
+                                href="#bulletchess.Bitboard" title="bulletchess.Bitboard"><code
+                                  class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code></a>
+                              or <a class="reference internal" href="#bulletchess.Square"
+                                title="bulletchess.Square"><code
+                                  class="xref py py-class docutils literal notranslate"><span class="pre">Square</span></code></a>
+                              to XOR with</p>
+                          </dd>
+                          <dt class="field-even">Returns<span class="colon">:</span></dt>
+                          <dd class="field-even">
+                            <p>squares common to both operands.</p>
+                          </dd>
+                          <dt class="field-odd">Return type<span class="colon">:</span></dt>
+                          <dd class="field-odd">
+                            <p><a class="reference internal" href="#bulletchess.Bitboard"
+                                title="bulletchess.Bitboard">Bitboard</a></p>
+                          </dd>
+                        </dl>
+                        <div class="doctest highlight-default notranslate">
+                          <div class="highlight">
+                            <pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A1</span> <span class="o">^</span> <span class="n">Bitboard</span><span class="p">([</span><span class="n">A1</span><span class="p">,</span> <span class="n">A2</span><span class="p">])</span> <span class="o">==</span> <span class="n">Bitboard</span><span class="p">([</span><span class="n">A2</span><span class="p">])</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Bitboard</span><span class="p">([</span><span class="n">B2</span><span class="p">])</span> <span class="o">^</span> <span class="n">D1</span> <span class="o">==</span> <span class="n">Bitboard</span><span class="p">([</span><span class="n">B2</span><span class="p">,</span> <span class="n">D1</span><span class="p">])</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">B2</span> <span class="o">^</span> <span class="n">B3</span> <span class="o">==</span> <span class="n">Bitboard</span><span class="p">([</span><span class="n">B2</span><span class="p">,</span> <span class="n">B3</span><span class="p">])</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">G2</span> <span class="o">^</span> <span class="n">G2</span> <span class="o">==</span> <span class="n">Bitboard</span><span class="p">([])</span>
+<span class="go">True</span>
 </pre>
                           </div>
                         </div>
@@ -2640,7 +2867,7 @@
                           <dd class="field-odd">
                             <p><strong>squares</strong> (<em>Collection</em><em>[</em><a class="reference internal"
                                 href="#bulletchess.Square" title="bulletchess.Square"><em>Square</em></a><em>]</em>) –
-                              squares to include in the new bitboard.</p>
+                              squares to include in the new Bitboard.</p>
                           </dd>
                         </dl>
                       </dd>
@@ -2715,7 +2942,7 @@
                           </dd>
                           <dt class="field-even">Returns<span class="colon">:</span></dt>
                           <dd class="field-even">
-                            <p>new bitboard corresponding to <em>value</em>.</p>
+                            <p>new Bitboard corresponding to <em>value</em>.</p>
                           </dd>
                           <dt class="field-odd">Return type<span class="colon">:</span></dt>
                           <dd class="field-odd">
@@ -2787,135 +3014,6 @@
                     </dl>
 
                     <dl class="py method">
-                      <dt class="sig sig-object py" id="bulletchess.Bitboard.__getitem__">
-                        <span class="sig-name descname"><span class="pre">__getitem__</span></span><span
-                          class="sig-paren">(</span><em class="sig-param"><span class="n"><span
-                              class="pre">square</span></span><span class="p"><span class="pre">:</span></span><span
-                            class="w"> </span><span class="n"><a class="reference internal" href="#bulletchess.Square"
-                              title="bulletchess.Square"><span class="pre">Square</span></a></span></em><span
-                          class="sig-paren">)</span> <span class="sig-return"><span
-                            class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span
-                              class="pre">bool</span></span></span><a class="headerlink"
-                          href="#bulletchess.Bitboard.__getitem__" title="Link to this definition">#</a>
-                      </dt>
-                      <dd>
-                        <p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if
-                          <em>square</em> is in this <a class="reference internal" href="#bulletchess.Bitboard"
-                            title="bulletchess.Bitboard"><code
-                              class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code></a>.
-                        </p>
-                        <dl class="field-list simple">
-                          <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-                          <dd class="field-odd">
-                            <p><strong>square</strong> (<a class="reference internal" href="#bulletchess.Square"
-                                title="bulletchess.Square"><em>Square</em></a>) – square to query.</p>
-                          </dd>
-                          <dt class="field-even">Returns<span class="colon">:</span></dt>
-                          <dd class="field-even">
-                            <p>membership flag.</p>
-                          </dd>
-                          <dt class="field-odd">Return type<span class="colon">:</span></dt>
-                          <dd class="field-odd">
-                            <p>bool</p>
-                          </dd>
-                        </dl>
-                        <div class="doctest highlight-default notranslate">
-                          <div class="highlight">
-                            <pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bb</span> <span class="o">=</span> <span class="n">Bitboard</span><span class="p">([</span><span class="n">A1</span><span class="p">,</span> <span class="n">B2</span><span class="p">,</span> <span class="n">C3</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">bb</span><span class="p">[</span><span class="n">A1</span><span class="p">]</span>
-<span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">bb</span><span class="p">[</span><span class="n">A2</span><span class="p">]</span>
-<span class="go">False</span>
-</pre>
-                          </div>
-                        </div>
-                      </dd>
-                    </dl>
-
-                    <dl class="py method">
-                      <dt class="sig sig-object py" id="bulletchess.Bitboard.__setitem__">
-                        <span class="sig-name descname"><span class="pre">__setitem__</span></span><span
-                          class="sig-paren">(</span><em class="sig-param"><span class="n"><span
-                              class="pre">square</span></span><span class="p"><span class="pre">:</span></span><span
-                            class="w"> </span><span class="n"><a class="reference internal" href="#bulletchess.Square"
-                              title="bulletchess.Square"><span class="pre">Square</span></a></span></em>, <em
-                          class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span
-                              class="pre">:</span></span><span class="w"> </span><span class="n"><span
-                              class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="headerlink"
-                          href="#bulletchess.Bitboard.__setitem__" title="Link to this definition">#</a>
-                      </dt>
-                      <dd>
-                        <p>Add or remove <em>square</em> depending on <em>value</em>.</p>
-                        <dl class="field-list simple">
-                          <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-                          <dd class="field-odd">
-                            <ul class="simple">
-                              <li>
-                                <p><strong>square</strong> (<a class="reference internal" href="#bulletchess.Square"
-                                    title="bulletchess.Square"><em>Square</em></a>) – square to modify.</p>
-                              </li>
-                              <li>
-                                <p><strong>value</strong> (<em>bool</em>) – <code
-                                    class="docutils literal notranslate"><span class="pre">True</span></code> → add,
-                                  <code class="docutils literal notranslate"><span class="pre">False</span></code> →
-                                  remove.</p>
-                              </li>
-                            </ul>
-                          </dd>
-                        </dl>
-                        <div class="doctest highlight-default notranslate">
-                          <div class="highlight">
-                            <pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bb</span> <span class="o">=</span> <span class="n">Bitboard</span><span class="p">([</span><span class="n">A1</span><span class="p">,</span> <span class="n">B2</span><span class="p">,</span> <span class="n">C3</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">bb2</span> <span class="o">=</span> <span class="n">Bitboard</span><span class="p">([</span><span class="n">B2</span><span class="p">,</span> <span class="n">C3</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">bb3</span> <span class="o">=</span> <span class="n">Bitboard</span><span class="p">([</span><span class="n">B2</span><span class="p">,</span> <span class="n">C3</span><span class="p">,</span> <span class="n">C4</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">bb</span><span class="p">[</span><span class="n">A1</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">bb</span> <span class="o">==</span> <span class="n">bb2</span>
-<span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">bb</span><span class="p">[</span><span class="n">C4</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">bb</span> <span class="o">==</span> <span class="n">bb3</span>
-<span class="go">True</span>
-</pre>
-                          </div>
-                        </div>
-                      </dd>
-                    </dl>
-
-                    <dl class="py method">
-                      <dt class="sig sig-object py" id="bulletchess.Bitboard.__delitem__">
-                        <span class="sig-name descname"><span class="pre">__delitem__</span></span><span
-                          class="sig-paren">(</span><em class="sig-param"><span class="n"><span
-                              class="pre">square</span></span><span class="p"><span class="pre">:</span></span><span
-                            class="w"> </span><span class="n"><a class="reference internal" href="#bulletchess.Square"
-                              title="bulletchess.Square"><span class="pre">Square</span></a></span></em><span
-                          class="sig-paren">)</span><a class="headerlink" href="#bulletchess.Bitboard.__delitem__"
-                          title="Link to this definition">#</a>
-                      </dt>
-                      <dd>
-                        <p>Remove <em>square</em> from the <a class="reference internal" href="#bulletchess.Bitboard"
-                            title="bulletchess.Bitboard"><code
-                              class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code></a>.
-                        </p>
-                        <dl class="field-list simple">
-                          <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-                          <dd class="field-odd">
-                            <p><strong>square</strong> (<a class="reference internal" href="#bulletchess.Square"
-                                title="bulletchess.Square"><em>Square</em></a>) – square to delete.</p>
-                          </dd>
-                        </dl>
-                        <div class="doctest highlight-default notranslate">
-                          <div class="highlight">
-                            <pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bb</span> <span class="o">=</span> <span class="n">Bitboard</span><span class="p">([</span><span class="n">A1</span><span class="p">,</span> <span class="n">B2</span><span class="p">,</span> <span class="n">C3</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">bb2</span> <span class="o">=</span> <span class="n">Bitboard</span><span class="p">([</span><span class="n">B2</span><span class="p">,</span> <span class="n">C3</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">del</span> <span class="n">bb</span><span class="p">[</span><span class="n">A1</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">bb</span> <span class="o">==</span> <span class="n">bb2</span>
-<span class="go">True</span>
-</pre>
-                          </div>
-                        </div>
-                      </dd>
-                    </dl>
-
-                    <dl class="py method">
                       <dt class="sig sig-object py" id="bulletchess.Bitboard.__len__">
                         <span class="sig-name descname"><span class="pre">__len__</span></span><span
                           class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span
@@ -2924,7 +3022,10 @@
                           href="#bulletchess.Bitboard.__len__" title="Link to this definition">#</a>
                       </dt>
                       <dd>
-                        <p>Return the number of squares contained in this bitboard.</p>
+                        <p>Return the number of squares contained in this <a class="reference internal"
+                            href="#bulletchess.Bitboard" title="bulletchess.Bitboard"><code
+                              class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code></a>.
+                        </p>
                         <dl class="field-list simple">
                           <dt class="field-odd">Returns<span class="colon">:</span></dt>
                           <dd class="field-odd">
@@ -3017,7 +3118,7 @@
                         <dl class="field-list simple">
                           <dt class="field-odd">Parameters<span class="colon">:</span></dt>
                           <dd class="field-odd">
-                            <p><strong>other</strong> (<em>Any</em>) – bitboard to compare.</p>
+                            <p><strong>other</strong> (<em>Any</em>) – Bitboard to compare.</p>
                           </dd>
                           <dt class="field-even">Returns<span class="colon">:</span></dt>
                           <dd class="field-even">
@@ -3057,7 +3158,7 @@
                         <dl class="field-list simple">
                           <dt class="field-odd">Returns<span class="colon">:</span></dt>
                           <dd class="field-odd">
-                            <p>new bitboard with opposite membership.</p>
+                            <p>new Bitboard with opposite membership.</p>
                           </dd>
                           <dt class="field-even">Return type<span class="colon">:</span></dt>
                           <dd class="field-even">
@@ -3083,20 +3184,28 @@
                           class="sig-paren">(</span><em class="sig-param"><span class="n"><span
                               class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span
                             class="w"> </span><span class="n"><a class="reference internal" href="#bulletchess.Bitboard"
-                              title="bulletchess.Bitboard"><span class="pre">Bitboard</span></a></span></em><span
-                          class="sig-paren">)</span> <span class="sig-return"><span
-                            class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a
-                              class="reference internal" href="#bulletchess.Bitboard" title="bulletchess.Bitboard"><span
-                                class="pre">Bitboard</span></a></span></span><a class="headerlink"
-                          href="#bulletchess.Bitboard.__and__" title="Link to this definition">#</a>
+                              title="bulletchess.Bitboard"><span class="pre">Bitboard</span></a><span class="w">
+                            </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a
+                              class="reference internal" href="#bulletchess.Square" title="bulletchess.Square"><span
+                                class="pre">Square</span></a></span></em><span class="sig-paren">)</span> <span
+                          class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span
+                            class="sig-return-typehint"><a class="reference internal" href="#bulletchess.Bitboard"
+                              title="bulletchess.Bitboard"><span class="pre">Bitboard</span></a></span></span><a
+                          class="headerlink" href="#bulletchess.Bitboard.__and__" title="Link to this definition">#</a>
                       </dt>
                       <dd>
-                        <p>Return the intersection of two bitboards.</p>
+                        <p>Return the intersection of two Bitboards, or a Bitboard with a <a class="reference internal"
+                            href="#bulletchess.Square" title="bulletchess.Square"><code
+                              class="xref py py-class docutils literal notranslate"><span class="pre">Square</span></code></a>.
+                        </p>
                         <dl class="field-list simple">
                           <dt class="field-odd">Parameters<span class="colon">:</span></dt>
                           <dd class="field-odd">
                             <p><strong>other</strong> (<a class="reference internal" href="#bulletchess.Bitboard"
-                                title="bulletchess.Bitboard"><em>Bitboard</em></a>) – bitboard to intersect with.</p>
+                                title="bulletchess.Bitboard"><em>Bitboard</em></a>) – Bitboard or <a
+                                class="reference internal" href="#bulletchess.Square" title="bulletchess.Square"><code
+                                  class="xref py py-class docutils literal notranslate"><span class="pre">Square</span></code></a>
+                              to intersect with</p>
                           </dd>
                           <dt class="field-even">Returns<span class="colon">:</span></dt>
                           <dd class="field-even">
@@ -3112,6 +3221,8 @@
                           <div class="highlight">
                             <pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Bitboard</span><span class="p">([</span><span class="n">A1</span><span class="p">])</span> <span class="o">&amp;</span> <span class="n">Bitboard</span><span class="p">([</span><span class="n">A1</span><span class="p">,</span> <span class="n">A2</span><span class="p">])</span> <span class="o">==</span> <span class="n">Bitboard</span><span class="p">([</span><span class="n">A1</span><span class="p">])</span>
 <span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A_FILE</span> <span class="o">&amp;</span> <span class="n">A1</span> <span class="o">==</span> <span class="n">Bitboard</span><span class="p">([</span><span class="n">A1</span><span class="p">])</span>
+<span class="go">True</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">LIGHT_SQUARE_BB</span> <span class="o">&amp;</span> <span class="n">DARK_SQUARE_BB</span> <span class="o">==</span> <span class="n">EMPTY_BB</span>
 <span class="go">True</span>
 </pre>
@@ -3126,20 +3237,28 @@
                           class="sig-paren">(</span><em class="sig-param"><span class="n"><span
                               class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span
                             class="w"> </span><span class="n"><a class="reference internal" href="#bulletchess.Bitboard"
-                              title="bulletchess.Bitboard"><span class="pre">Bitboard</span></a></span></em><span
-                          class="sig-paren">)</span> <span class="sig-return"><span
-                            class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a
-                              class="reference internal" href="#bulletchess.Bitboard" title="bulletchess.Bitboard"><span
-                                class="pre">Bitboard</span></a></span></span><a class="headerlink"
-                          href="#bulletchess.Bitboard.__or__" title="Link to this definition">#</a>
+                              title="bulletchess.Bitboard"><span class="pre">Bitboard</span></a><span class="w">
+                            </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a
+                              class="reference internal" href="#bulletchess.Square" title="bulletchess.Square"><span
+                                class="pre">Square</span></a></span></em><span class="sig-paren">)</span> <span
+                          class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span
+                            class="sig-return-typehint"><a class="reference internal" href="#bulletchess.Bitboard"
+                              title="bulletchess.Bitboard"><span class="pre">Bitboard</span></a></span></span><a
+                          class="headerlink" href="#bulletchess.Bitboard.__or__" title="Link to this definition">#</a>
                       </dt>
                       <dd>
-                        <p>Return the union of two bitboards.</p>
+                        <p>Return the union of two Bitboards, or a Bitboard with a <a class="reference internal"
+                            href="#bulletchess.Square" title="bulletchess.Square"><code
+                              class="xref py py-class docutils literal notranslate"><span class="pre">Square</span></code></a>.
+                        </p>
                         <dl class="field-list simple">
                           <dt class="field-odd">Parameters<span class="colon">:</span></dt>
                           <dd class="field-odd">
                             <p><strong>other</strong> (<a class="reference internal" href="#bulletchess.Bitboard"
-                                title="bulletchess.Bitboard"><em>Bitboard</em></a>) – bitboard to union with.</p>
+                                title="bulletchess.Bitboard"><em>Bitboard</em></a>) – Bitboard or <a
+                                class="reference internal" href="#bulletchess.Square" title="bulletchess.Square"><code
+                                  class="xref py py-class docutils literal notranslate"><span class="pre">Square</span></code></a>
+                              to union with.</p>
                           </dd>
                           <dt class="field-even">Returns<span class="colon">:</span></dt>
                           <dd class="field-even">
@@ -3153,7 +3272,7 @@
                         </dl>
                         <div class="doctest highlight-default notranslate">
                           <div class="highlight">
-                            <pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Bitboard</span><span class="p">([</span><span class="n">A1</span><span class="p">])</span> <span class="o">|</span> <span class="n">Bitboard</span><span class="p">([</span><span class="n">A1</span><span class="p">,</span> <span class="n">A2</span><span class="p">])</span> <span class="o">==</span> <span class="n">Bitboard</span><span class="p">([</span><span class="n">A1</span><span class="p">,</span> <span class="n">A2</span><span class="p">])</span>
+                            <pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Bitboard</span><span class="p">([</span><span class="n">A1</span><span class="p">,</span> <span class="n">A2</span><span class="p">])</span> <span class="o">|</span> <span class="n">A3</span>  <span class="o">==</span> <span class="n">Bitboard</span><span class="p">([</span><span class="n">A1</span><span class="p">,</span> <span class="n">A2</span><span class="p">,</span> <span class="n">A3</span><span class="p">])</span>
 <span class="go">True</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">LIGHT_SQUARE_BB</span> <span class="o">|</span> <span class="n">DARK_SQUARE_BB</span> <span class="o">==</span> <span class="n">FULL_BB</span>
 <span class="go">True</span>
@@ -3169,20 +3288,28 @@
                           class="sig-paren">(</span><em class="sig-param"><span class="n"><span
                               class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span
                             class="w"> </span><span class="n"><a class="reference internal" href="#bulletchess.Bitboard"
-                              title="bulletchess.Bitboard"><span class="pre">Bitboard</span></a></span></em><span
-                          class="sig-paren">)</span> <span class="sig-return"><span
-                            class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a
-                              class="reference internal" href="#bulletchess.Bitboard" title="bulletchess.Bitboard"><span
-                                class="pre">Bitboard</span></a></span></span><a class="headerlink"
-                          href="#bulletchess.Bitboard.__xor__" title="Link to this definition">#</a>
+                              title="bulletchess.Bitboard"><span class="pre">Bitboard</span></a><span class="w">
+                            </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a
+                              class="reference internal" href="#bulletchess.Square" title="bulletchess.Square"><span
+                                class="pre">Square</span></a></span></em><span class="sig-paren">)</span> <span
+                          class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span
+                            class="sig-return-typehint"><a class="reference internal" href="#bulletchess.Bitboard"
+                              title="bulletchess.Bitboard"><span class="pre">Bitboard</span></a></span></span><a
+                          class="headerlink" href="#bulletchess.Bitboard.__xor__" title="Link to this definition">#</a>
                       </dt>
                       <dd>
-                        <p>Return the symmetric difference of two bitboards.</p>
+                        <p>Return the symmetric difference of two Bitboards, or of a Bitboard with a <a
+                            class="reference internal" href="#bulletchess.Square" title="bulletchess.Square"><code
+                              class="xref py py-class docutils literal notranslate"><span class="pre">Square</span></code></a>.
+                        </p>
                         <dl class="field-list simple">
                           <dt class="field-odd">Parameters<span class="colon">:</span></dt>
                           <dd class="field-odd">
                             <p><strong>other</strong> (<a class="reference internal" href="#bulletchess.Bitboard"
-                                title="bulletchess.Bitboard"><em>Bitboard</em></a>) – bitboard to XOR with.</p>
+                                title="bulletchess.Bitboard"><em>Bitboard</em></a>) – Bitboard or <a
+                                class="reference internal" href="#bulletchess.Square" title="bulletchess.Square"><code
+                                  class="xref py py-class docutils literal notranslate"><span class="pre">Square</span></code></a>
+                              to XOR with.</p>
                           </dd>
                           <dt class="field-even">Returns<span class="colon">:</span></dt>
                           <dd class="field-even">
@@ -3196,7 +3323,7 @@
                         </dl>
                         <div class="doctest highlight-default notranslate">
                           <div class="highlight">
-                            <pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Bitboard</span><span class="p">([</span><span class="n">A1</span><span class="p">])</span> <span class="o">^</span> <span class="n">Bitboard</span><span class="p">([</span><span class="n">A1</span><span class="p">,</span> <span class="n">A2</span><span class="p">])</span> <span class="o">==</span> <span class="n">Bitboard</span><span class="p">([</span><span class="n">A2</span><span class="p">])</span>
+                            <pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Bitboard</span><span class="p">([</span><span class="n">A1</span><span class="p">,</span> <span class="n">A2</span><span class="p">])</span> <span class="o">^</span> <span class="n">A1</span> <span class="o">==</span> <span class="n">Bitboard</span><span class="p">([</span><span class="n">A2</span><span class="p">])</span>
 <span class="go">True</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">LIGHT_SQUARE_BB</span> <span class="o">^</span> <span class="n">DARK_SQUARE_BB</span> <span class="o">==</span> <span class="n">FULL_BB</span>
 <span class="go">True</span>
@@ -5867,9 +5994,11 @@
 </pre>
                           </div>
                         </div>
-                        <p>If given a :class:<code
-                            class="docutils literal notranslate"><span class="pre">Color</span></code>, returns a <a
-                            class="reference internal" href="#bulletchess.Bitboard" title="bulletchess.Bitboard"><code
+                        <p>If given a <a class="reference internal" href="#bulletchess.Color"
+                            title="bulletchess.Color"><code
+                              class="xref py py-class docutils literal notranslate"><span class="pre">Color</span></code></a>,
+                          returns a <a class="reference internal" href="#bulletchess.Bitboard"
+                            title="bulletchess.Bitboard"><code
                               class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code></a>
                           of all squares with a piece of that color</p>
                         <div class="doctest highlight-default notranslate">
@@ -5887,9 +6016,11 @@
 </pre>
                           </div>
                         </div>
-                        <p>If given a :class:<code
-                            class="docutils literal notranslate"><span class="pre">PieceType</span></code>, returns a <a
-                            class="reference internal" href="#bulletchess.Bitboard" title="bulletchess.Bitboard"><code
+                        <p>If given a <a class="reference internal" href="#bulletchess.PieceType"
+                            title="bulletchess.PieceType"><code
+                              class="xref py py-class docutils literal notranslate"><span class="pre">PieceType</span></code></a>,
+                          returns a <a class="reference internal" href="#bulletchess.Bitboard"
+                            title="bulletchess.Bitboard"><code
                               class="xref py py-class docutils literal notranslate"><span class="pre">Bitboard</span></code></a>
                           of all squares with a piece of that type.</p>
                         <div class="doctest highlight-default notranslate">
@@ -6788,6 +6919,9 @@
                             href="#bulletchess.Square.bb"><code
                               class="docutils literal notranslate"><span class="pre">bb()</span></code></a></li>
                         <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link"
+                            href="#bulletchess.Square.index"><code
+                              class="docutils literal notranslate"><span class="pre">index()</span></code></a></li>
+                        <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link"
                             href="#bulletchess.Square.adjacent"><code
                               class="docutils literal notranslate"><span class="pre">adjacent()</span></code></a></li>
                         <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link"
@@ -6814,6 +6948,15 @@
                         <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link"
                             href="#bulletchess.Square.se"><code
                               class="docutils literal notranslate"><span class="pre">se()</span></code></a></li>
+                        <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link"
+                            href="#bulletchess.Square.__and__"><code
+                              class="docutils literal notranslate"><span class="pre">__and__()</span></code></a></li>
+                        <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link"
+                            href="#bulletchess.Square.__or__"><code
+                              class="docutils literal notranslate"><span class="pre">__or__()</span></code></a></li>
+                        <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link"
+                            href="#bulletchess.Square.__xor__"><code
+                              class="docutils literal notranslate"><span class="pre">__xor__()</span></code></a></li>
                         <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link"
                             href="#bulletchess.Square.__eq__"><code
                               class="docutils literal notranslate"><span class="pre">__eq__()</span></code></a></li>
@@ -7039,18 +7182,6 @@
                         <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link"
                             href="#bulletchess.Bitboard.__int__"><code
                               class="docutils literal notranslate"><span class="pre">__int__()</span></code></a></li>
-                        <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link"
-                            href="#bulletchess.Bitboard.__getitem__"><code
-                              class="docutils literal notranslate"><span class="pre">__getitem__()</span></code></a>
-                        </li>
-                        <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link"
-                            href="#bulletchess.Bitboard.__setitem__"><code
-                              class="docutils literal notranslate"><span class="pre">__setitem__()</span></code></a>
-                        </li>
-                        <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link"
-                            href="#bulletchess.Bitboard.__delitem__"><code
-                              class="docutils literal notranslate"><span class="pre">__delitem__()</span></code></a>
-                        </li>
                         <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link"
                             href="#bulletchess.Bitboard.__len__"><code
                               class="docutils literal notranslate"><span class="pre">__len__()</span></code></a></li>

@@ -166,7 +166,9 @@ static inline square_t PySquare_get(PyObject *self) {
 }
 */
 
-
+static PyObject *PySquare_index(PyObject *self, PyObject *Py_UNUSED(arg)) {
+	return PyLong_FromLong(PySquare_get(self));	
+}
 
 static PyObject *PySquare_around(PyObject *self, PyObject *Py_UNUSED(arg)){ 
 	bitboard_t this_bb = SQUARE_TO_BB(PySquare_get(self));
@@ -226,6 +228,32 @@ static PyObject *PySquare_compare(PyObject *self, PyObject *other, int op){
 	}
 }
 
+#define PYSQUARE_DEF_LOGIC(NAME, OP)\
+static PyObject *PySquare_##NAME(PyObject *self, PyObject *other) {\
+	bitboard_t bb1 = SQUARE_TO_BB(PySquare_get(self));\
+	bitboard_t bb2;\
+	if (Py_IS_TYPE(other, &PySquareType)) {\
+		bb2 = SQUARE_TO_BB(PySquare_get(other));\
+	}\
+	else if (Py_IS_TYPE(other, &PyBitboardType)) {\
+		bb2 = PyBitboard_get(other);\
+	}\
+	else {\
+		PyTypeErr("Bitboard or Square", other);\
+		return NULL;\
+	}\
+	return (PyObject *)PyBitboard_make(bb1 OP bb2);\
+}
+
+PYSQUARE_DEF_LOGIC(and, &)
+PYSQUARE_DEF_LOGIC(xor, ^)
+PYSQUARE_DEF_LOGIC(or, |)
+
+
+static PyObject *PySquare_invert(PyObject *self) {
+	return (PyObject *)PyBitboard_make(SQUARE_TO_BB(PySquare_get(self)));
+}
+
 static Py_hash_t PySquare_hash(PyObject *self){
 	return PySquare_get(self);
 }
@@ -264,6 +292,7 @@ static PyMethodDef PySquare_methods[] = {
 	{"bb", PySquare_to_bitboard, METH_NOARGS, NULL},
 	{"from_str", PySquare_from_str, METH_STATIC | METH_O, NULL},
 	{"adjacent", PySquare_around, METH_NOARGS, NULL},
+	{"index", PySquare_index, METH_NOARGS, NULL},
 	SQ_DIRECT_OBJ(nw),	
 	SQ_DIRECT_OBJ(nw),	
 	SQ_DIRECT_OBJ(sw),	
@@ -278,11 +307,19 @@ static PyMethodDef PySquare_methods[] = {
 	{NULL, NULL, 0, NULL},
 };
 
+static PyNumberMethods PySquareAsNum = {
+	.nb_xor = PySquare_xor,
+	.nb_or = PySquare_or,
+	.nb_and = PySquare_and,
+	.nb_invert = PySquare_invert,
+};
+
 static PyTypeObject PySquareType = {
 	.ob_base = PyVarObject_HEAD_INIT(NULL, 0)
 	.tp_name = "bulletchess.Square",
 	.tp_basicsize = sizeof(PySquareObject),
   .tp_itemsize = 0,
+	.tp_as_number = &PySquareAsNum,
   .tp_flags = Py_TPFLAGS_DEFAULT, 
 	.tp_str = PySquare_str,
 	.tp_richcompare = PySquare_compare,
@@ -1361,8 +1398,7 @@ static PyObject *PyMove_from_san(PyObject *self, PyObject *args) {
 	const char *san = PyUnicode_AsUTF8(san_obj);
 	bool err = false;
 	char err_msg[300];
-	move_t move = san_str_to_move(PyBoard_board(board), 
-			san, &err, err_msg);
+	move_t move = san_str_to_move(PyBoard_board(board), san, &err, err_msg);
 	if (err) {
 		PyErr_Format(PyExc_ValueError, "%s for %R, got \"%s\"", err_msg, board, san);
 		return NULL;
@@ -1594,36 +1630,31 @@ static inline bitboard_t PyBitboard_get(PyObject *self) {
 	return ((PyBitboardObject *)self)->bitboard;
 }
 
-static PyObject *PyBitboard_and(PyObject *self, PyObject *other) {
-	if (!PyTypeCheck("Bitboard", other, &PyBitboardType)) return NULL;
-	bitboard_t b1 = PyBitboard_get(self);
-	bitboard_t b2 = PyBitboard_get(other);
-	return (PyObject *)PyBitboard_make(b1 & b2);
-}
+#define PYBITBOARD_DEF_LOGIC(NAME, OP)\
+static PyObject *PyBitboard_##NAME(PyObject *self, PyObject *other) {\
+	bitboard_t bb1 = PyBitboard_get(self);\
+	bitboard_t bb2;\
+	if (Py_IS_TYPE(other, &PySquareType)) {\
+		bb2 = SQUARE_TO_BB(PySquare_get(other));\
+	}\
+	else if (Py_IS_TYPE(other, &PyBitboardType)) {\
+		bb2 = PyBitboard_get(other);\
+	}\
+	else {\
+		PyTypeErr("Bitboard or Square", other);\
+		return NULL;\
+	}\
+	return (PyObject *)PyBitboard_make(bb1 OP bb2);\
+}\
 
-
-static PyObject *PyBitboard_xor(PyObject *self, PyObject *other) {
-	if (!PyTypeCheck("Bitboard", other, &PyBitboardType)) return NULL;
-	bitboard_t b1 = PyBitboard_get(self);
-	bitboard_t b2 = PyBitboard_get(other);
-	return (PyObject *)PyBitboard_make(b1 ^ b2);
-}
-
-
-static PyObject *PyBitboard_or(PyObject *self, PyObject *other) {
-	if (!PyTypeCheck("Bitboard", other, &PyBitboardType)) return NULL;
-	bitboard_t b1 = PyBitboard_get(self);
-	bitboard_t b2 = PyBitboard_get(other);
-	return (PyObject *)PyBitboard_make(b1 | b2);
-}
-
+PYBITBOARD_DEF_LOGIC(and,&)
+PYBITBOARD_DEF_LOGIC(xor,^)
+PYBITBOARD_DEF_LOGIC(or,|)
 
 static PyObject *PyBitboard_not(PyObject *self) {
 	bitboard_t b1 = PyBitboard_get(self);
 	return (PyObject *)PyBitboard_make(~b1);
 }
-
-
 
 static PyObject *PyBitboard_compare(PyObject *self, PyObject *other, int op){
 	bool eq = Py_IS_TYPE(other, &PyBitboardType) 
@@ -1756,14 +1787,15 @@ static PyObject *PyBitboard_all(PyObject *cls, PyObject *Py_UNUSED(args)){
 }
 
 static PyMappingMethods PyBitboardAsMap = {
-	.mp_subscript = PyBitboard_getitem,
-	.mp_ass_subscript = PyBitboard_setitem,
+	//.mp_subscript = PyBitboard_getitem,
+	//.mp_ass_subscript = PyBitboard_setitem,
 	.mp_length = PyBitboard_len,
 };
 
 
 static PySequenceMethods PyBitboardAsSeq= {
 	.sq_contains = PyBitboard_contains,
+	.sq_length = PyBitboard_len
 };
 
 
@@ -1792,7 +1824,7 @@ static PyTypeObject PyBitboardType = {
 	.tp_new = PyType_GenericNew,
 	.tp_init = PyBitboard_init,
 	.tp_richcompare = PyBitboard_compare,
-	.tp_as_mapping = &PyBitboardAsMap,
+	//.tp_as_mapping = &PyBitboardAsMap,
 	.tp_as_number = &PyBitboardAsNum,
 	.tp_as_sequence = &PyBitboardAsSeq,
 	.tp_iter = PyBitboard_squares_iter,

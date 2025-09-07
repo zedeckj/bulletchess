@@ -259,6 +259,20 @@ class Square:
         """
         ...
 
+    def index(self) -> int:
+        """
+        Returns the index of this :class:`Square` in the provided :data:`SQUARES` list.
+
+        >>> A1.index()
+        0
+        >>> B1.index()
+        1
+        >>> A2.index()
+        8
+        >>> H8.index()
+        63
+        """
+
     def adjacent(self) -> Bitboard: 
         """
         Creates a :class:`Bitboard` of all neighbors orthogonal or diagonal to this :class:`Square`.
@@ -412,6 +426,67 @@ class Square:
         None
         """
         ...
+
+    def __and__(self, other : "Bitboard") -> "Bitboard": 
+        """
+        Return the intersection, in the form of a :class:`Bitboard`, of
+        this :class:`Square` and a :class:`Bitboard`, or another :class:`Square`.
+
+        :param other: :class:`Bitboard` or :class:`Square` to intersect with
+        :type  other: Bitboard
+        :returns: squares common to both operands.
+        :rtype:   Bitboard
+
+        >>> A1 & Bitboard([A1, A2]) == Bitboard([A1])
+        True
+        >>> C_FILE & C1 == Bitboard([C1])
+        True
+        >>> B2 & B3 == Bitboard([])
+        True
+        >>> G2 & G2 == Bitboard([G2])
+        True
+        """
+        ...
+
+    def __or__(self, other : "Bitboard") -> "Bitboard": 
+        """
+        Return the union, in the form of a :class:`Bitboard`, of
+        this :class:`Square` and a :class:`Bitboard`, or another :class:`Square`.
+
+        :param other: :class:`Bitboard` or :class:`Square` to union with
+        :type  other: Bitboard
+        :returns: squares common to both operands.
+        :rtype:   Bitboard
+
+        >>> A1 | Bitboard([A1, A2]) == Bitboard([A1, A2])
+        True
+        >>> Bitboard([B2]) | D1 == Bitboard([B2, D1])
+        True
+        >>> B2 | B3 == Bitboard([B2, B3])
+        True
+        >>> G2 | G2 == Bitboard([G2])
+        True
+        """
+        ...
+    def __xor__(self, other : "Bitboard") -> "Bitboard": 
+        """
+        Return the symmetric difference, in the form of a :class:`Bitboard`, of
+        this :class:`Square` and a :class:`Bitboard`, or another :class:`Square`.
+
+        :param other: :class:`Bitboard` or :class:`Square` to XOR with
+        :type  other: Bitboard
+        :returns: squares common to both operands.
+        :rtype:   Bitboard
+
+        >>> A1 ^ Bitboard([A1, A2]) == Bitboard([A2])
+        True
+        >>> Bitboard([B2]) ^ D1 == Bitboard([B2, D1])
+        True
+        >>> B2 ^ B3 == Bitboard([B2, B3])
+        True
+        >>> G2 ^ G2 == Bitboard([])
+        True
+        """
 
     def __eq__(self, other : Any) -> bool: ...
     def __hash__(self) -> int: ...
@@ -763,7 +838,7 @@ class Bitboard:
         """
         Initialize a :class:`Bitboard` that contains *squares*.
 
-        :param squares: squares to include in the new bitboard.
+        :param squares: squares to include in the new Bitboard.
         :type  squares: Collection[Square]
         """
         ...
@@ -795,7 +870,7 @@ class Bitboard:
 
         :param value: 64-bit integer to convert.
         :type  value: int
-        :returns: new bitboard corresponding to *value*.
+        :returns: new Bitboard corresponding to *value*.
         :rtype:   Bitboard
         :raises OverflowError: if ``value < 0`` or ``value >= 2 ** 64``
 
@@ -828,63 +903,10 @@ class Bitboard:
         """
         ...
 
-    def __getitem__(self, square: Square) -> bool:
-        """
-        Return ``True`` if *square* is in this :class:`Bitboard`.
-
-        :param square: square to query.
-        :type  square: Square
-        :returns: membership flag.
-        :rtype:   bool
-
-        >>> bb = Bitboard([A1, B2, C3])
-        >>> bb[A1]
-        True
-        >>> bb[A2]
-        False
-        """
-        ...
-
-    def __setitem__(self, square: Square, value: bool):
-        """
-        Add or remove *square* depending on *value*.
-
-        :param square: square to modify.
-        :type  square: Square
-        :param value: ``True`` → add, ``False`` → remove.
-        :type  value: bool
-
-        >>> bb = Bitboard([A1, B2, C3])
-        >>> bb2 = Bitboard([B2, C3])
-        >>> bb3 = Bitboard([B2, C3, C4])
-        >>> bb[A1] = False
-        >>> bb == bb2
-        True
-        >>> bb[C4] = True
-        >>> bb == bb3
-        True
-        """
-        ...
-
-    def __delitem__(self, square: Square):
-        """
-        Remove *square* from the :class:`Bitboard`.
-
-        :param square: square to delete.
-        :type  square: Square
-
-        >>> bb = Bitboard([A1, B2, C3])
-        >>> bb2 = Bitboard([B2, C3])
-        >>> del bb[A1]
-        >>> bb == bb2
-        True
-        """
-        ...
-
 
     def __len__(self) -> int:
         """
-        Return the number of squares contained in this bitboard.
+        Return the number of squares contained in this :class:`Bitboard`.
 
         :returns: population count.
         :rtype:   int
@@ -922,7 +944,7 @@ class Bitboard:
         """
         Return ``True`` if *other* is a :class:`Bitboard` with the same squares.
 
-        :param other: bitboard to compare.
+        :param other: Bitboard to compare.
         :type  other: Any
         :returns: equality flag.
         :rtype:   bool
@@ -938,7 +960,7 @@ class Bitboard:
         """
         Return the complement of this :class:`Bitboard`.
 
-        :returns: new bitboard with opposite membership.
+        :returns: new Bitboard with opposite membership.
         :rtype:   Bitboard
 
         >>> FULL_BB == ~EMPTY_BB
@@ -948,48 +970,50 @@ class Bitboard:
         """
         ...
 
-    def __and__(self, other: "Bitboard") -> "Bitboard":
+    def __and__(self, other: "Bitboard" | Square) -> "Bitboard":
         """
-        Return the intersection of two bitboards.
+        Return the intersection of two Bitboards, or a Bitboard with a :class:`Square`.
 
-        :param other: bitboard to intersect with.
+        :param other: Bitboard or :class:`Square` to intersect with
         :type  other: Bitboard
         :returns: squares common to both operands.
         :rtype:   Bitboard
 
         >>> Bitboard([A1]) & Bitboard([A1, A2]) == Bitboard([A1])
         True
+        >>> A_FILE & A1 == Bitboard([A1])
+        True
         >>> LIGHT_SQUARE_BB & DARK_SQUARE_BB == EMPTY_BB
         True
         """
         ...
 
-    def __or__(self, other: "Bitboard") -> "Bitboard":
+    def __or__(self, other: "Bitboard" | Square) -> "Bitboard":
         """
-        Return the union of two bitboards.
+        Return the union of two Bitboards, or a Bitboard with a :class:`Square`.
 
-        :param other: bitboard to union with.
+        :param other: Bitboard or :class:`Square` to union with.
         :type  other: Bitboard
         :returns: squares contained in either operand.
         :rtype:   Bitboard
 
-        >>> Bitboard([A1]) | Bitboard([A1, A2]) == Bitboard([A1, A2])
+        >>> Bitboard([A1, A2]) | A3  == Bitboard([A1, A2, A3])
         True
         >>> LIGHT_SQUARE_BB | DARK_SQUARE_BB == FULL_BB
         True
         """
         ...
 
-    def __xor__(self, other: "Bitboard") -> "Bitboard":
+    def __xor__(self, other: "Bitboard" | Square) -> "Bitboard":
         """
-        Return the symmetric difference of two bitboards.
+        Return the symmetric difference of two Bitboards, or of a Bitboard with a :class:`Square`.
 
-        :param other: bitboard to XOR with.
+        :param other: Bitboard or :class:`Square` to XOR with.
         :type  other: Bitboard
         :returns: squares in exactly one operand.
         :rtype:   Bitboard
 
-        >>> Bitboard([A1]) ^ Bitboard([A1, A2]) == Bitboard([A2])
+        >>> Bitboard([A1, A2]) ^ A1 == Bitboard([A2])
         True
         >>> LIGHT_SQUARE_BB ^ DARK_SQUARE_BB == FULL_BB
         True
@@ -1955,14 +1979,9 @@ class Board:
         ...
 
 
-    #@overload
-    #def __getitem__(self, item): ...
 
     @overload
     def __getitem__(self, none : None) -> Bitboard: ...
-
-    @overload
-    def __getitem__(self, square : Square) -> Optional[Piece]: ...
 
     @overload
     def __getitem__(self, piece_type : PieceType) -> Bitboard: ...
@@ -1975,7 +1994,9 @@ class Board:
 
     @overload
     def __getitem__(self, piece_tuple : tuple[Color, PieceType]) -> Bitboard: ...
-            
+    
+    @overload
+    def __getitem__(self, square : Square) -> Optional[Piece]: ...
 
     def __getitem__(self, index):
         """
@@ -2003,7 +2024,7 @@ class Board:
         0 0 0 0 0 0 0 0 
         0 0 0 0 0 0 0 0 
 
-        If given a :class:``Color``, returns a :class:`Bitboard` of all squares with a piece of that color
+        If given a :class:`Color`, returns a :class:`Bitboard` of all squares with a piece of that color
         
         >>> board = Board()
         >>> print(board[WHITE])
@@ -2016,7 +2037,7 @@ class Board:
         1 1 1 1 1 1 1 1 
         1 1 1 1 1 1 1 1 
 
-        If given a :class:``PieceType``, returns a :class:`Bitboard` of all squares with a piece of that type.
+        If given a :class:`PieceType`, returns a :class:`Bitboard` of all squares with a piece of that type.
         
         >>> board = Board()
         >>> print(board[PAWN])
@@ -2045,6 +2066,8 @@ class Board:
         0 0 0 0 0 0 0 0 
         """
         ...
+
+
 
     def __setitem__(self, square : Square, piece : Optional[Piece]):
         """
@@ -2170,8 +2193,6 @@ class Board:
 
         :returns: A rendering of this position as a UTF-8 string with ``ANSI`` color codes
         :rtype: ``str``
-
-
         """
         ...
 

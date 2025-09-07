@@ -920,14 +920,14 @@ void print_board(full_board_t *board) {
 }
 
 
-#define PIECE_MOVED(COLOR, PIECE, ORIGIN)(\
-	~(pos->COLOR ## _oc & pos->PIECE ## s	& SQUARE_TO_BB(ORIGIN))\
+#define PIECE_NOT_MOVED(COLOR, PIECE, ORIGIN)(\
+	(pos->COLOR ## _oc & pos->PIECE ## s & SQUARE_TO_BB(ORIGIN))\
 )
 
 #define CASTLING_VALID(COLOR, RANK)(\
-((!(COLOR##_kingside || COLOR##_queenside) || !PIECE_MOVED(COLOR, king, E##RANK)))\
-&& (!COLOR##_kingside || !PIECE_MOVED(COLOR, rook, H##RANK))\
-&& (!COLOR##_queenside || !PIECE_MOVED(COLOR, rook, A##RANK))\
+((!(COLOR##_kingside || COLOR##_queenside) || PIECE_NOT_MOVED(COLOR, king, E##RANK)))\
+&& (!COLOR##_kingside || PIECE_NOT_MOVED(COLOR, rook, H##RANK))\
+&& (!COLOR##_queenside || PIECE_NOT_MOVED(COLOR, rook, A##RANK))\
 )\
 
 bool valid_castling(full_board_t *board, castling_rights_t castling){

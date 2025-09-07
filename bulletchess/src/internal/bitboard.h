@@ -24,7 +24,7 @@ typedef struct {
 #define LEFT(s) ((s) - 1)
 #define RIGHT(s) ((s) + 1)
 #define RANKNUM(s) (((s) % 8) + 1)
-#define FILE(s) (((s) / 8) + 1) // 1 indexed
+#define FILENUM(s) (((s) / 8) + 1) // 1 indexed
 #define SQUARE_TO_BB(s) (1llu << (s))
 
 #define A1 0
