@@ -10,6 +10,7 @@ class TestBoardIndexing(unittest.TestCase):
         board = Board()
         self.assertEqual(board[PAWN], Bitboard([A2, B2, C2, D2, E2, F2, G2, H2, A7, B7, C7, D7, E7, F7, G7, H7]))
         self.assertEqual(board[WHITE, PAWN], RANK_2)
+        self.assertEqual(board[Piece(WHITE, PAWN)], RANK_2)
         self.assertEqual(board[BLACK, PAWN], RANK_7)
         self.assertEqual(board[KNIGHT], Bitboard([B1, G1, B8, G8]))
         self.assertEqual(board[WHITE, KNIGHT], Bitboard([B1, G1]))

@@ -59,6 +59,13 @@ class TestSquare(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, re.escape("Expected a valid file indicator [a-hA-H], got k")):
             Square.from_str("k2")
 
+    def test_index(self):
+        self.assertEqual(A1.index(), 0)
+        self.assertEqual(A2.index(), 8)
+        self.assertEqual(H8.index(), 63)
+        self.assertEqual(B1.index(), 1)
+        for i in range(63):
+            self.assertEqual(i, SQUARES[i].index())
 
     def test_misuse(self):
         with self.assertRaisesRegex(TypeError, re.escape("cannot create 'bulletchess.Square' instances")):
