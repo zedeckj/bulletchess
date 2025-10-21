@@ -244,7 +244,7 @@ class Square:
         >>> Square.from_string("E1") == E1
         True
         >>> Square.from_string("a2") == A2
-        Tru
+        True
         """
         ...
 
