@@ -8,23 +8,19 @@ from suite.pgn.pgn_test import PGNTestCase
 from suite import data_file
 
 FILEPATH = data_file("pgn/modern.pgn")
-#FILEPATH2 = data_file("pgn/failed.pgn")
+FILEPATH2 = data_file("pgn/failed.pgn")
 
 class TestPGN(PGNTestCase):
 
     def test_failed(self):
-        # THIS TEST FAILS IN CI/CD
-        """
         with PGNFile.open(FILEPATH2) as f:
             games = [f.next_game() for _ in range(5)]
             for game in games:
                 self.assertTrue(game != None)
             self.assertEqual(games[0].white_player, "Player1")
             self.assertEqual(games[1].black_player, "Player1")
-        """
 
     def test_failed2(self):
-        """
         with PGNFile.open(FILEPATH2) as g:
             games: list[PGNGame] = []
             while True:
@@ -42,7 +38,6 @@ class TestPGN(PGNTestCase):
         self.assertMovesAre(games[2], ["Nf3", "f6", "d4"])
         self.assertEqual(games[3].event, "Let's Play!")
         self.assertEqual(games[4].date, PGNDate(2024, 9, 19))
-        """
 
     def test_read_all(self):
         with self.assertNoLogs():
