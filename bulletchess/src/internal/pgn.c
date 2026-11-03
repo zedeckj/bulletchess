@@ -558,23 +558,20 @@ char *read_pgn_inner(FILE *stream, tok_context_t *ctx, pgn_game_t *dst) {
 	return out;	
 }
 
+// Discards tokens until the next game's tag section begins, so that a
+// malformed game does not poison the following games in the file.
+// A '[' token that starts a line is only seen at the start of a tag pair,
+// since movetext never contains a bare '[' outside of comments.
 void skip_to_next(pgn_file_t *pf) {
-	// tokenizer implementation is annoying for this
-	size_t cur_line = pf->ctx->loc.line;
 	for (;;) {
 		token_t *tok = pgntoken(pf->file, pf->ctx);
-		if (!tok) { 
-			untoken(tok, pf->ctx);	
-			return;
-		}
-		size_t line = tok->location->line;
-		if (tok->string[0] == '[' && line > cur_line + 1) {
+		if (!tok) return;
+		if (tok->string[0] == '[' && tok->location->col == 1) {
 			untoken(tok, pf->ctx);
 			return;
 		}
-		cur_line = line;
 		free_token(tok);
-	} 
+	}
 }
 
 int next_pgn(pgn_file_t *pf, pgn_game_t *dst, char *err) {
@@ -585,8 +582,7 @@ int next_pgn(pgn_file_t *pf, pgn_game_t *dst, char *err) {
 	if (tmp) {
 		strncpy(err, tmp, 500);
 		free(tmp);
-		// errors are non recoverable from
-		//skip_to_next(pf);
+		skip_to_next(pf);
 		return 1;	
 	}
 	return 0;
